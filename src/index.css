@@ -13,7 +13,6 @@
 
 a {
   font-weight: 500;
-  color: inherit; 
   text-decoration: inherit;
 }
 
@@ -27,8 +26,6 @@ body {
   margin: 0;
   display: flex;
   min-height: 100vh;
-  color: var(--text);
-  background-color: var(--bg); 
 }
 
 h1 {
