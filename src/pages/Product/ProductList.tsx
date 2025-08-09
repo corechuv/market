@@ -11,7 +11,6 @@ import PriceRangeDual from "../../components/Product/PriceRangeDual"
 import Stars from "../../components/Product/Stars"
 import Accordion from "../../components/Product/Accordion"
 import SortSelectContainer from "../../components/Product/SortSelectContainer"
-import IconFilters from "../../components/Icons/IconFilters"
 
 const offerings = [
   { value: "discounted", label: "Discounted" },
