@@ -74,6 +74,22 @@
     color-scheme: dark;
   }
 
+    @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]), html:not([data-theme]), body:not([data-theme]) {
+      --bg: #131313;
+      --bg-card: #000000;
+      --bg-input: #0e0e0e;
+      --text: #c6c6c6;
+      --text-secondary: #6b7280;
+      --color-text-primary: #374151;
+      --color-text-secondary: #4a545d;
+      --border: #2f2f2f;
+      --border-input: #2f2f2f;
+      --bg-hover-item: #1f1f1f;
+      color-scheme: dark;
+    }
+  }
+
   /* Опционально: если атрибут не задан — подхватывать системную тему */
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme]) { color-scheme: dark; }
