@@ -16,6 +16,8 @@ import ChevronLeftIcon from "../Icons/ChevronLeftIcon";
 import Logo from "../logo/Logo";
 
 import { createPortal } from "react-dom";
+import SunIcon from "../Icons/SunIcon";
+import MoonIcon from "../Icons/MoonIcon";
 
 function Overlay({ visible, onClick }: { visible: boolean; onClick?: () => void }) {
     return createPortal(
@@ -287,6 +289,18 @@ export default function Catalog({
 
     const overlayVisible = (trigger === "hover" && (isHover || !!active)) || (trigger === "click" && !!active);
 
+    /* Инициализация темы и сохранение в localStorage */
+    const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+        if (typeof window === 'undefined') return 'light';
+        const saved = (localStorage.getItem('theme') as 'light' | 'dark' | null);
+        if (saved) return saved;
+        return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    });
+
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    }, [theme]);
     /* ---------- render ---------- */
     return (
         <>
@@ -407,6 +421,18 @@ export default function Catalog({
                                 <div className={cls.mobileFooter}>
                                     <a>Help</a>
                                     <a>Contact Us</a>
+                                </div>
+                                <div className={cls.themeSwitch}>
+                                    <button className={cls.switchBtn} onClick={() => { setTheme('light'); }}>
+                                        <SunIcon />
+                                    </button>
+                                    <button className={cls.switchBtn} onClick={() => { setTheme('dark'); }}>
+                                        <MoonIcon />
+                                    </button>
+                                </div>
+                                <div className={cls.languageSwitch}>
+                                    <span>Language:</span>
+                                    <a href="/en" className={cls.languageLink}>English</a>
                                 </div>
                             </div>
 

@@ -92,9 +92,11 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                             <HamburgerIcon className={cls.header__hamburgerIcon} />
                         </button>
                     ) : (<></>)}
-                    <div className={cls.header__navigation}>
-                        <SettingsMenuButton />
-                    </div>
+                    {!isMobile && (
+                        <div className={cls.header__navigation}>
+                            <SettingsMenuButton />
+                        </div>
+                    )}
                     {!isMobile && (
                         <div style={{ flexGrow: 1 }}>
                             <Search data={products} onSelect={(v) => console.log("Выбрано:", v)} />
