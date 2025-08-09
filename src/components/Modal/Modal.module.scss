@@ -11,6 +11,7 @@ $anim-time: 0.3s;
   align-items: center;      // для center
   justify-content: center;
   background: var(--bg-overlay);
+  backdrop-filter: blur(5px);
   min-height: 100vh;
   z-index: 1000;
 
