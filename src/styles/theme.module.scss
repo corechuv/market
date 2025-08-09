@@ -72,11 +72,3 @@ body[data-theme='dark'] {
 
   color-scheme: dark;
 }
-
-
-/* Опционально: если атрибут не задан — подхватывать системную тему */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    color-scheme: dark;
-  }
-}

@@ -72,11 +72,11 @@ const products = [
 ];
 
 const sortOptions = [
-  { value: 'price',  label: 'Price: Low to high' },
+  { value: 'price', label: 'Price: Low to high' },
   { value: '-price', label: 'Price: High to low' },
-  { value: 'new',   label: 'Newest arrivals' },
-  { value: '-best',  label: 'Best sellers' },
-  { value: '-popular',  label: 'Most popular' },
+  { value: 'new', label: 'Newest arrivals' },
+  { value: '-best', label: 'Best sellers' },
+  { value: '-popular', label: 'Most popular' },
 ];
 
 export default function ProductList() {
@@ -146,15 +146,16 @@ export default function ProductList() {
       <section className={cls.productListContent}>
         <div className={cls.productsHeader}>
           <h4 className={cls.title}>CPU</h4>
-          <SortSelectContainer
-            sort={sort}
-            sortOptions={sortOptions}
-            onChangeSort={setSort}
-          />
         </div>
         <div className={cls.productListActions}>
-          <div></div>
-          <Button onClick={() => openModal()} className={cls.sortButton} size="small">Sort & Filter</Button>
+          <div className={cls.sortWrap}>
+            <SortSelectContainer
+              sort={sort}
+              sortOptions={sortOptions}
+              onChangeSort={setSort}
+            />
+          </div>
+          <Button onClick={openModal} className={cls.sortButton} size="small">Filter</Button>
           <ToggleViewSwitch view={view} onChangeView={setView} />
         </div>
         <div className={cls.productList}>
@@ -177,15 +178,6 @@ export default function ProductList() {
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} variant="left" header="Sort & Filter">
           <div className={cls.filterContainer}>
             <div className={cls.sidebar}>
-              <Accordion title="Sort" defaultOpen>
-                <ul className={cls.filterSection__sort}>
-                  <li onClick={() => console.log("Sort by: Price: Low to High")}>Price: Low to High</li>
-                  <li onClick={() => console.log("Sort by: Price: High to Low")}>Price: High to Low</li>
-                  <li onClick={() => console.log("Sort by: Newest Arrivals")}>Newest Arrivals</li>
-                  <li onClick={() => console.log("Sort by: Best Sellers")}>Best Sellers</li>
-                  <li onClick={() => console.log("Sort by: Most Popular")}>Most Popular</li>
-                </ul>
-              </Accordion>
               <Accordion title="PC Components" defaultOpen>
                 <ul className={cls.sidebar__list}>
                   <li className={cls.sidebar__item} onClick={() => nav('/product/cpu')}>CPU

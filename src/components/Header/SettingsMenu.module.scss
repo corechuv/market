@@ -3,18 +3,6 @@
 // ----------------------
 // Переменные — при желании объявите в :root или в тёмной теме переопределите.
 
-:root {
-    --popover-border: rgba(0, 0, 0, 0.2);
-    --btn-hover-bg: rgba(0, 0, 0, 0.06);
-    --item-hover-bg: rgba(0, 0, 0, 0.06);
-}
-
-[data-theme='dark'] {
-    --popover-border: rgb(255, 255, 255);
-    --btn-hover-bg: rgba(255, 255, 255, 0.08);
-    --item-hover-bg: rgba(255, 255, 255, 0.12);
-}
-
 .wrapper {
     position: relative;
     display: inline-flex;

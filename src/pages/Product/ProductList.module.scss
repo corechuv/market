@@ -5,19 +5,34 @@
     --not-available-color: #cb1762;
 }
 
+$bp-sm: 480px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+
+/* ====== Лэйаут ====== */
 .productListPage {
-    display: flex;
-    flex-direction: row;
-    gap: 40px;
-    margin-top: 80px;
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
+  margin-top: 80px;
+
+  @media (max-width: $bp-md) {
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 56px;
+  }
 }
 
 .sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    min-width: 250px;
-    background-color: var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  min-width: 250px;
+  background-color: var(--bg);
+
+  @media (max-width: $bp-md) {
+    display: none; /* на мобилке — только через модалку */
+  }
 
     &__list {
         list-style: none;
@@ -86,63 +101,69 @@
     width: 100%;
 }
 
+/* ====== Сетка карточек ====== */
 .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px 30px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 16px;
+
+  @media (max-width: $bp-lg) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (max-width: $bp-sm) {
+    grid-template-columns: 1fr;
+  }
 }
 
+/* список */
 .list {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
+/* карточка */
 .productItem {
-    display: flex;
-    cursor: pointer;
+  display: flex;
+  cursor: pointer;
 }
 
 .itemGrid {
-    flex-direction: column;
-    justify-content: center;
-    padding: 12px 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: 12px 0;
 }
 
 .itemList {
-    flex-direction: row;
-    /* картинка слева, детали справа */
-    align-items: flex-start;
-    border-right: none;
-    /* в списке граница не нужна */
-    padding: 20px 0;
-    gap: 3rem;
-    border-bottom: 1px dashed var(--border);
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 16px 0;
+  gap: 1.25rem;
+  border-bottom: 1px dashed var(--border);
 
-    &:nth-last-child(1) {
-        border-bottom: none;
-    }
+  &:nth-last-child(1) { border-bottom: none; }
 
-    /* картинка поменьше, фикс. ширина */
-    .productImage {
-        max-width: 160px;
-    }
+  .productImage { max-width: 160px; }
 
-    .productDetails {
-        flex: 1;
-    }
+  @media (max-width: $bp-md) {
+    gap: 12px;
+    padding: 12px 0;
 
-    /* название пусть переносится на 1 строку */
-    .productName {
-        margin: 0;
-        -webkit-line-clamp: 1;
-    }
+    .productImage { max-width: 96px; }
+    .productName  { -webkit-line-clamp: 2; font-size: 14px; }
+    .productPrice { font-size: 16px; }
+  }
 }
 
 .productImage {
-    width: 100%;
-    margin: 0 auto;
-    height: auto;
-    object-fit: cover;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  /* чтобы карточки в гриде были ровнее */
+  aspect-ratio: 4/3;
+
+  @media (max-width: $bp-sm) {
+    aspect-ratio: 1/1;
+  }
 }
 
 .productDetails {
@@ -150,29 +171,55 @@
 }
 
 .productName {
-    color: var(--text);
-    font-size: 16px;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    white-space: normal;
-    line-height: 1.2;
-    margin-top: 0.8rem;
-    margin-bottom: 0.25rem;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* на мобилке 2 строки */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.25;
+  margin: 8px 0 4px;
 }
 
+.productPrice {
+  font-weight: 300;
+  font-size: 20px;
+  margin-top: 4px;
+  margin-bottom: 10px;
+  color: var(--text);
+
+  @media (max-width: $bp-md) {
+    font-size: 18px;
+  }
+}
+
+/* доступность — шрифт поменьше на мобилке */
 .available {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 300;
+  font-size: 14px;
+  color: var(--text);
+
+  @media (max-width: $bp-md) {
+    font-size: 13px;
+  }
+}
+
+/* ====== модалка фильтров (моб) ====== */
+.filterContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+
+  /* внутри модалки сайдбар отображаем снова как столбец */
+  .sidebar {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
-    font-weight: 300;
-    font-size: 14px;
-    color: var(--text);
+    min-width: 0;
+  }
 }
 
 .inStock {
@@ -198,50 +245,54 @@
     color: var(--not-available-color);
 }
 
-.productPrice {
-    font-weight: 300;
-    font-size: 20px;
-    margin-top: 4px;
-    margin-bottom: 10px;
-    color: var(--text);
-}
 
 /* Actions */
 .productListActions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    gap: 1rem;
-    padding: 10px 0;
-    margin: 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 10px 0;
+  margin: 12px 0;
+  justify-content: space-between;
+
+  @media (max-width: $bp-md) {
+    position: sticky;
+    top: 0; /* если есть фиксированная шапка — поставь её высоту */
+    background: var(--bg);
+    z-index: 10;
+    padding: 8px 0;
+    gap: 8px;
+  }
+}
+/* обёртка селекта сортировки */
+.sortWrap {
+  min-width: 220px;
+
+  @media (max-width: $bp-md) {
+    flex: 1;
+  }
+
+  /* заставим внутренний контрол тянуться на 100% */
+  > * { width: 100%; }
 }
 
+/* кнопка "Sort & Filter" показывается только на мобилке */
 .sortButton {
-    display: none;
-    max-width: 160px;
-    border: 1px dashed var(--border);
-    background-color: transparent;
-    color: var(--text);
-}
+  display: none;
+  max-width: 160px;
+  border: 1px dashed var(--border);
+  background-color: transparent;
+  color: var(--text);
 
+  @media (max-width: $bp-md) {
+    display: inline-flex;
+  }
+}
 .filterContainer {
     display: flex;
     flex-direction: column;
     gap: 1rem;
     padding: 1rem;
-}
-
-.filterSection {
-    &__sort {
-       color: var(--text-secondary);
-
-        li {
-            font-size: 0.95rem;
-            margin-bottom: 0.2rem;
-            cursor: pointer;
-        }
-    }
 }
 
 .resetButton {
