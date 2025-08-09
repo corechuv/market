@@ -1,0 +1,28 @@
+.button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 4px;
+    font-size: 18px;
+    font-weight: 300;
+    font-family: inherit;
+    color: var(--text-button);
+    background-color: var(--bg-button);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.small {
+    padding: 6px 24px;
+}
+
+.medium {
+    padding: 10px 24px;
+}
+
+.large {
+    padding: 12px 24px;
+}

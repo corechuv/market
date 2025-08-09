@@ -1,0 +1,300 @@
+/* ====================================================================
+   Catalog.module.scss (поместите в отдельный файл с тем же именем)
+   ==================================================================== */
+.catalogContainer {
+  width: 100%;
+  transition: border-bottom-color 0.2s ease;
+  border-bottom: 1px dashed transparent;
+
+  &.isOpen {
+    border-bottom: 1px dashed var(--border); // при клике/открытии
+  }
+
+  &.isHover {
+    border-bottom: 1px dashed var(--border); // при наведении
+  }
+}
+
+.overlay {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--header-height, 80px); /* начнётся сразу под шапкой */
+  bottom: 0;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(5px);
+  z-index: 900;              /* шапка выше (1000) → оверлей не перекрывает header */
+  opacity: 0;
+  pointer-events: none;      /* когда прозрачный — "сквозной" */
+  transition: opacity 0.25s ease;
+  will-change: opacity;      /* меньше артефактов с blur */
+}
+
+.overlayVisible {
+  opacity: 1;
+  pointer-events: auto;      /* клики по затемнению доступны */
+}
+
+.catalog {
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  align-items: flex-end;
+  margin: 0 auto;
+  max-width: 1024px;
+  box-sizing: border-box;
+}
+
+/* ---------- DESKTOP NAV ---------- */
+.categories {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 20px;
+}
+
+.categoryItem {
+  padding: 10px 0;
+}
+
+.categoryLink {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 500;
+  transition: color 0.2s;
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: underline;
+  }
+}
+
+.categoryLinkActive {
+  text-decoration: underline;
+  color: var(--text);
+}
+
+/* ---------- DESKTOP DROPDOWN PANEL ---------- */
+.panel {
+  width: 100%;
+
+  &__content {
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-sizing: border-box;
+
+    &--close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+
+      svg {
+        width: 24px;
+        height: 24px;
+        transition: transform 0.15s;
+      }
+
+      &:hover svg,
+      &:focus-visible svg {
+        transform: scale(1.15);
+      }
+    }
+  }
+}
+
+.panelTitle {
+  color: var(--text);
+  margin: 0 0 24px;
+  font-size: 1.75rem;
+  font-weight: 500;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.columnList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.columnItem a {
+  text-decoration: none;
+  color: var(--text);
+  transition: color 0.2s;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: underline;
+  }
+}
+
+/* ---------- MOBILE ---------- */
+.hamburger {
+  display: none;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+
+  svg {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* mobile category list */
+.mobileCategories {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mobileCatBtn {
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 4px 0;
+  font-family: "Roboto", sans-serif;
+  font-size: 1.08rem;
+  font-weight: 500;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+/* Выделение активной категории при повторном клике не нужно,
+   но оставляем класс на случай доработок */
+.mobileCatBtnActive {
+  @extend .mobileCatBtn;
+  text-decoration: underline;
+}
+
+.mobileColumns {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 12px 16px;
+}
+
+.mobileChevron {
+  margin-left: auto;
+  width: 22px;
+  height: 22px;
+  color: var(--text);
+  transition: transform 0.2s;
+}
+
+/* ---------- MOBILE SLIDE SCREENS ---------- */
+.mobileDrawer {
+  position: relative;
+  /* нужно, чтобы .screen* располагались внутри */
+  overflow: hidden;
+  /* скрываем соседний экран */
+}
+
+.screenBase {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  padding: 20px;
+  padding-left: 40px;
+  padding-right: 14px;
+  transition: transform 0.25s ease;
+}
+
+.screenActive {
+  @extend .screenBase;
+  transform: translateX(0);
+}
+
+.screenHiddenLeft {
+  @extend .screenBase;
+  transform: translateX(-100%);
+}
+
+.screenHiddenRight {
+  @extend .screenBase;
+  transform: translateX(100%);
+}
+
+/* кнопка «Назад» */
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding: 0;
+  margin-bottom: 20px;
+  color: var(--text);
+  cursor: pointer;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* ---------- BREAKPOINTS ---------- */
+@media (max-width: 767px) {
+  .hamburger {
+    display: flex;
+    padding: 0;
+  }
+
+  .categories {
+    display: none;
+  }
+
+  /* чуть плотнее сетку, если экран сужается <1024 & >767 */
+  .columns {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.mobileFooter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 60px;
+  padding-right: 8px;
+
+  a {
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: color 0.2s;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      text-decoration: underline;
+    }
+  }
+}

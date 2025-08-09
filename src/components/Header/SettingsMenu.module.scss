@@ -1,0 +1,102 @@
+// ----------------------
+// SettingsMenuButton.module.scss
+// ----------------------
+// Переменные — при желании объявите в :root или в тёмной теме переопределите.
+
+:root {
+    --popover-border: rgba(0, 0, 0, 0.2);
+    --btn-hover-bg: rgba(0, 0, 0, 0.06);
+    --item-hover-bg: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme='dark'] {
+    --popover-border: rgb(255, 255, 255);
+    --btn-hover-bg: rgba(255, 255, 255, 0.08);
+    --item-hover-bg: rgba(255, 255, 255, 0.12);
+}
+
+.wrapper {
+    position: relative;
+    display: inline-flex;
+}
+
+.navButton {
+    background: none;
+    border: none;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    line-height: 0;
+    cursor: pointer;
+
+    svg {
+        color: var(--text);
+    }
+}
+
+.popover {
+    position: absolute;
+    top: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    padding: 10px 20px;
+    z-index: 20;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.popTitle {
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 10px;
+}
+
+.popItem {
+    font-size: 0.875rem;
+    background: transparent;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text);
+    font-family: "Roboto", sans-serif;
+    cursor: pointer;
+    border-radius: 0.4rem;
+    transition: background 0.2s ease;
+
+    svg {
+        color: var(--text);
+    }
+
+    &:hover,
+    &:focus-visible {
+        background: var(--item-hover-bg);
+    }
+}
+
+.languageList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &__item {
+    color: var(--text);
+    font-size: 18px;
+    text-decoration: none;
+    font-weight: 300;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

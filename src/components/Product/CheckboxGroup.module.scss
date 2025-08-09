@@ -1,0 +1,79 @@
+.group {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.vertical {
+  flex-direction: column;
+}
+
+.horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  user-select: none;
+  cursor: pointer;
+  margin-left: 10px;
+
+  &:has(.checkbox:disabled) {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+/* ---------- Checkbox reset ---------- */
+.checkbox {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  position: relative;
+  margin: 0;
+  cursor: inherit;
+  transition: border-color .15s ease, background .15s ease;
+
+  /* ---------- SVG-маска ---------- */
+  --check-svg: url("data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3e%3cpolyline%20points='3%209%206.5%2012.5%2013%205'%20fill='none'%20stroke='%23fff'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3c/svg%3e");
+
+  &:checked {
+    background: var(--cb-fill);
+    border-color: var(--cb-border-checked);
+
+    /* делаем SVG видимым как «прорезь» */
+    mask: var(--check-svg) center/80% no-repeat;
+    -webkit-mask: var(--check-svg) center/80% no-repeat; // Safari
+  }
+
+  &:disabled {
+    background: var(--cb-disabled-bg);
+    border-color: var(--cb-border);
+  }
+}
+
+.label {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

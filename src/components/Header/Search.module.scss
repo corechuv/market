@@ -1,0 +1,122 @@
+.wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-left: 2rem;
+
+    // show the input just by hovering over the wrapper
+    &:hover .input {
+        width: 100%;
+        opacity: 1;
+        padding: 0 0.6rem;
+        height: 38px;
+        outline: none;
+    }
+}
+
+.iconButton {
+    background: transparent;
+    border: none;
+    padding: 0.4rem;
+    cursor: pointer;
+    display: flex;
+    color: var(--text);
+    align-items: center;
+
+    .icon {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+}
+
+.input {
+    width: 100%;
+    opacity: 0;
+    padding: 0 0.6rem;
+    height: 38px;
+    border: 1px dashed var(--border-input);
+    border-radius: 4px;
+    background: var(--bg-input);
+    font-weight: 300;
+    font-size: 16px;
+    font-family: "Roboto", sans-serif;
+    color: var(--text);
+    transition: width 180ms ease, opacity 120ms ease;
+    margin-left: 0.25rem;
+    font-size: 0.9rem;
+    outline: none;
+
+    &::-webkit-search-cancel-button {
+        appearance: none;
+    }
+
+    &Open {
+        /* added dynamically */
+    }
+}
+
+// Class added via JS when search is open (click)
+.inputOpen {
+    background-color: var(--bg-input);
+    width: 100%;
+    opacity: 1;
+    padding: 0 0.6rem;
+    height: 38px;
+    outline: none;
+}
+
+.panel {
+    position: absolute;
+    left: 40px;
+    top: calc(100% + 0.3rem);
+    width: calc(100% - 40px);
+    max-height: 260px;
+    overflow-y: auto;
+    background: var(--bg);
+    border-radius: 6px;
+    border: 1px dashed var(--border);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    padding: 0.25rem 0;
+    z-index: 100;
+}
+
+.dropdown {
+    list-style: none;
+}
+
+.item {
+    color: var(--text);
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    transition: background 80ms;
+
+    &:hover,
+    &:focus-visible {
+        background: var(--bg-hover-item);
+    }
+}
+
+.footer {
+    padding: 0.5rem 0;
+    margin: 0 0.75rem;
+    margin-top: 0.3rem;
+    border-top: 1px dashed var(--border);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+
+    &__link {
+        font-weight: 400;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s;
+
+        &:hover,
+        &:focus-visible {
+            color: var(--text);
+            text-decoration: underline;
+        }
+    }
+}

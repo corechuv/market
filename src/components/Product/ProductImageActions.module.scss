@@ -1,0 +1,44 @@
+/* ProductImageActions.module.scss */
+
+.actions {
+    display: flex;
+    gap: 0.75rem;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.button {
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px dashed var(--border);
+    border-radius: 50%;
+    background-color: var(--bg);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+
+    &:hover,
+    &:focus-visible {
+        background-color: var(--bg);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+
+    svg {
+        width: 18px;
+        height: 20px;
+        color: var(--text);
+    }
+}
+
+.active {
+    background-color: #ffebef;
+
+    svg {
+        color: #e63946;
+    }
+}

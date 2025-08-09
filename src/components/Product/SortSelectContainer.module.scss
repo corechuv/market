@@ -1,0 +1,81 @@
+$transition-fast: 140ms;
+
+.iconBtnWithText {
+    padding: 0 10px;
+    height: 2rem;
+    display: flex;
+    border: 1px dashed var(--border);
+    background: transparent;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem;
+    border-radius: 4px;
+    color: var(--text);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: border-color $transition-fast ease;
+    min-width: 160px;
+    max-width: 200px;
+    font-size: 16px;
+    font-weight: 300;
+    font-family: "Roboto", sans-serif;
+
+    svg {
+        width: 10%;
+        stroke-width: 1.5;
+    }
+
+    &:hover {
+        border-color: var(--border);
+    }
+}
+
+.active {
+    border-color: var(--border);
+}
+
+/* --- DROPDOWN ---- */
+.sortWrapper {
+    position: relative;
+}
+
+.sortList {
+    position: absolute;
+    top: 114%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    z-index: 10;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    min-width: 160px;
+}
+
+.sortItem {
+    font-size: 0.875rem;
+    background: transparent;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text);
+    font-family: "Roboto", sans-serif;
+    cursor: pointer;
+    border-radius: 0.4rem;
+    transition: background 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+        background: var(--item-hover-bg);
+    }
+}
+
+.selected {
+    background: var(--item-hover-bg);
+}

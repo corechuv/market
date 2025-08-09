@@ -1,0 +1,81 @@
+/* ---------- Palette is token-driven — override these CSS variables in your app theme if needed ---------- */
+.priceRangeDual {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    font-family: inherit;
+    padding-top: 10px;
+}
+
+.rangeWrapper {
+    position: relative;
+    height: 2px;
+    border-radius: 2px;
+    margin-left: 10px;
+    /* динамический градиент для активного сегмента приходит из инлайна */
+}
+
+.range {
+    /* невидимый трек — используем общий контейнер */
+    position: absolute;
+    inset: -2px;
+    width: 100%;
+    appearance: none;
+    background: transparent;
+    pointer-events: none;
+    /* чтобы клики проходили к верхнему input */
+
+    &::-webkit-slider-thumb {
+        pointer-events: auto;
+        /* вернуть события бегунку */
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        background: var(--bg-range-thumb);
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        transition: box-shadow 0.15s ease;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.338);
+
+        &:hover {
+            box-shadow: 0 0 0 4px rgba(104, 104, 104, 0.35);
+        }
+    }
+
+    &::-moz-range-thumb {
+        pointer-events: auto;
+        width: 16px;
+        height: 16px;
+        background: var(--bg-range-thumb);
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: box-shadow 0.15s ease;
+    }
+
+    &::-moz-range-track {
+        background: transparent;
+        /* используем контейнер */
+    }
+}
+
+/* Верхний input располагаем над нижним, чтобы перехватывать клики */
+.rangeUpper {
+    z-index: 2;
+}
+
+.values {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+    font-weight: 300;
+    color: var(--text);
+    margin-left: 10px;
+    margin-top: 15px;
+}
+
+.value {
+    min-width: 7ch;
+    font-variant-numeric: tabular-nums;
+}

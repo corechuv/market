@@ -1,0 +1,153 @@
+:root {
+  --border-col: #efefef;
+}
+
+.footer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+
+
+  &__container {
+    margin-top: 100px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    &--col {
+      &:first-child {
+        border-top: 1px dashed var(--border);
+      }
+
+      section {
+        display: flex;
+        margin: 0 auto;
+        align-items: center;
+        gap: 20px;
+        width: 100%;
+        max-width: 1024px;
+        padding: 50px 20px;
+        box-sizing: border-box;
+      }
+    }
+
+  }
+}
+
+.footerNav {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.navLink {
+  display: flex;
+  padding: 6px 0;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 300;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.footerBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+}
+
+.copyRight {
+  color: var(--text);
+  margin: 0;
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.methodContainer {
+  padding-top: 40px;
+  padding-bottom: 40px;
+
+  &__title {
+    font-weight: 500;
+  }
+}
+
+.paymentMethods {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 50%;
+
+  &__visa,
+  &__mastercard,
+  &__paypal {
+    width: 50px;
+    height: 30px;
+    object-fit: contain;
+    padding: 4px 10px;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    background-color: var(--bg-card);
+    cursor: pointer;
+  }
+}
+
+.deliveryMethods {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  &__dhl,
+  &__dpd,
+  &__hermes {
+    width: 50px;
+    height: 30px;
+    object-fit: contain;
+    padding: 4px 10px;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    background-color: var(--bg-card);
+    cursor: pointer;
+  }
+}
+
+.socialLinks {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 20px;
+  opacity: 0.6;
+
+  &__link {
+    color: var(--text);
+    font-size: 24px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+  }
+
+  &__meta,
+  &__tiktok {
+    width: 80px;
+    height: 30px;
+    object-fit: contain;
+  }
+
+  &__x,
+  &__instagram {
+    width: 26px;
+    height: 18px;
+    object-fit: contain;
+  }
+
+  &__youtube {
+    width: 40px;
+    height: 30px;
+    object-fit: contain;
+  }
+}

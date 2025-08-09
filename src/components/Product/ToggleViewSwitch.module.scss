@@ -1,0 +1,38 @@
+/* --------------------------------------------------------- */
+/* ToggleViewSwitch.module.scss */
+$transition-fast: 140ms;
+
+.toolbar {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+}
+
+.iconBtn {
+    width: 2.5rem;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    border: 1px dashed transparent;
+    background: transparent;
+    border-radius: 50%;
+    color: var(--text);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: border-color $transition-fast ease;
+
+    svg {
+        width: 60%;
+        stroke-width: 1.5;
+    }
+
+    &:hover {
+        border-color: var(--border);
+    }
+}
+
+.active {
+    border-color: var(--border);
+}

@@ -1,0 +1,79 @@
+.bannerGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  background: radial-gradient(circle at 50% 50%, rgba(35, 50, 77, 0.366) 0%, transparent 60%);
+}
+
+.bannerCard {
+  background-color: var(--bg);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  position: relative;
+  display: flex;
+
+  &:hover {
+    img {
+      transform: scale(1.05);
+    }
+  }
+}
+
+.bannerImage {
+  width: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.bannerInfo {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+    backdrop-filter: blur(5px);
+  }
+  z-index: 1;
+}
+
+.bannerTitle {
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+  margin: 0;
+}
+
+.bannerButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.25rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  border: 1px dashed wheat;
+  background-color: black;
+  cursor: pointer;
+}
+
+.icon {
+    width: 2rem;
+    height: 2rem;
+    color: wheat;
+    pointer-events: none;
+}

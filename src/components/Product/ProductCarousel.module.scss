@@ -1,0 +1,129 @@
+/* ------------------------------------------------------------------
+   ProductCarousel.module.scss
+   ------------------------------------------------------------------ */
+.listContainer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 2rem 0; // for better spacing on smaller screens
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 400;
+    margin: 0;
+    color: var(--text);
+}
+
+.carousel {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.25rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    border: 1px dashed var(--border);
+    background-color: var(--bg);
+    cursor: pointer;
+}
+
+.left {
+    position: absolute;
+    left: -1.5rem;
+}
+
+.right {
+    position: absolute;
+    right: -1.5rem;
+}
+
+.icon {
+    width: 2rem;
+    height: 2rem;
+    color: var(--text);
+    pointer-events: none;
+}
+
+/* Scrollable viewport */
+.trackWrapper {
+    overflow-x: auto; // 🔑 enable horizontal scroll
+    overflow-y: hidden;
+    flex: 1 1 auto;
+    scroll-behavior: smooth; // smooth for manual swipe too
+    -webkit-overflow-scrolling: touch;
+
+    /* Optional: hide native scrollbar */
+    scrollbar-width: none; // Firefox
+
+    &::-webkit-scrollbar {
+        display: none; // Chrome / Safari / Edge
+    }
+}
+
+.track {
+    display: flex;
+    gap: 1.8rem;
+    scroll-snap-type: x mandatory;
+}
+
+.item {
+    flex: 0 0 auto;
+    width: clamp(180px, 25%, 250px);
+    scroll-snap-align: start;
+    color: inherit;
+    text-decoration: none;
+}
+
+.image {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.name {
+    display: block;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.2;
+    margin-top: 0.8rem;
+    margin-bottom: 0.25rem;
+    color: var(--text);
+}
+
+.price {
+    font-weight: 300;
+    font-size: 20px;
+    margin-top: 4px;
+    margin-bottom: 10px;
+    color: var(--text);
+}
+
+.dotControls {
+    display: flex;
+    justify-content: left;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border: 1px dashed var(--border);
+    background-color: var(--bg-dot);
+    border-radius: 50%;
+    margin: 0 4px;
+    display: flex;
+}

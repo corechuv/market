@@ -1,0 +1,60 @@
+:root {
+  --gap: 0.25rem;          /* интервал между звёздами */
+}
+
+.group {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+
+.stars {
+  display: flex;
+  gap: var(--gap);
+  margin-left: 10px;
+}
+
+/* ориентации */
+.horizontal { }
+.vertical   .stars { flex-direction: column; }
+
+/* скрываем input, но сохраняем a11y */
+.input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.option {
+  display: inline-block;
+}
+
+/* базовый SVG */
+.star {
+  width: var(--star-size, 24px);
+  height: var(--star-size, 24px);
+  fill: var(--bg-star);
+  cursor: pointer;
+  transition: fill 0.15s ease;
+}
+
+/* наведение / фокус — только если не readOnly */
+.input:not(:disabled) + .star:hover,
+.input:not(:disabled):focus-visible + .star {
+  fill: color-mix(in srgb, var(--bg-star-active) 60%, var(--bg-star));
+}
+
+/* активная */
+.filled {
+  fill: var(--bg-star-active);
+}

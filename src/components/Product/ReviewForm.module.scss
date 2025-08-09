@@ -1,0 +1,82 @@
+/* --- Форма --- */
+:root {
+    --star-bg: #d1d5db;
+    --star-active: #434343;
+}
+
+.writeButton {
+    cursor: pointer;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 480px;
+    padding-bottom: 20px;
+}
+
+.stars {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    user-select: none;
+}
+
+.star {
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--bg-star);
+    transition: color 0.2s ease;
+}
+
+.active {
+    color: var(--bg-star-active);
+}
+
+.textareaContainer {
+    display: flex;
+    position: relative;
+    width: 100%;
+    margin-right: -0.5rem;
+}
+
+.textarea {
+    width: 100%;
+    resize: none;
+    padding: 0.5rem 0.65rem;
+    font-size: 0.875rem;
+    font-weight: 300;
+    font-family: "Roboto", sans-serif;
+    color: var(--text);
+    background-color: var(--bg);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+
+    &:focus {
+        outline: none;
+    }
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+// Кнопка «Отправить» переиспользует стиль writeButton
+.submit {
+    @extend .writeButton;
+    border: 1px dashed #1a1a1a;
+}
+
+.cancel {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border: 1px dashed #ced4da;
+
+    &:hover {
+        background-color: #e9ecef;
+    }
+}
