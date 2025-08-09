@@ -12,6 +12,7 @@ import Search from "./Search";
 import Catalog from "./Catalog";
 import { SettingsMenuButton } from "./SettingsMenu";
 import { useNavigate } from "react-router-dom";
+import LogoIcon from "../Icons/LogoIcon";
 
 export interface HeaderProps {
     className?: string;
@@ -70,7 +71,15 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                 style={{ ["--header-height" as any]: `${hh}px` }}
             >
                 <div className={cls.header__container}>
-                    <Logo size={isMobile ? "18px" : "28px"} />
+                    {isMobile ? (
+                        <button
+                            className={cls.header__navButton}
+                            aria-label="Menu"
+                            onClick={() => nav('/catalog')}
+                        >
+                            <LogoIcon className={cls.header__logoIcon} />
+                        </button>
+                    ) : <Logo size={isMobile ? "18px" : "28px"} /> }
                     <div className={cls.header__navigation}>
                         <SettingsMenuButton />
                     </div>
