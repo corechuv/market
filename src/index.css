@@ -3,7 +3,6 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color: var(--text);
   background-color: var(--bg);
 
   font-synthesis: none;
@@ -28,6 +27,7 @@ body {
   margin: 0;
   display: flex;
   min-height: 100vh;
+  color: var(--text);
   background-color: var(--bg); 
 }
 
