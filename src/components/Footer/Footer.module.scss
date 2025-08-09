@@ -1,4 +1,4 @@
-/* брейки */
+/* breakpoints */
 $bp-sm: 480px;
 $bp-md: 768px;
 $bp-lg: 1024px;
@@ -19,21 +19,15 @@ $bp-lg: 1024px;
     &--col {
       &:first-child { border-top: 1px dashed var(--border); }
 
+      /* общий контейнер секции — БЕЗ display, чтобы не перебивать приватные секции */
       section {
-        display: flex;
         margin: 0 auto;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
         width: 100%;
         max-width: 1024px;
         padding: 50px 20px;
         box-sizing: border-box;
 
         @media (max-width: $bp-md) {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 16px;
           padding: 24px 16px;
         }
       }
@@ -41,10 +35,10 @@ $bp-lg: 1024px;
   }
 }
 
-/* нав-колонки: 4 → 2 → 1 */
+/* ===== NAV (4 → 3 → 2 → 1) ===== */
 .footerNav {
   width: 100%;
-  display: grid;
+  display: grid; /* теперь grid не перебивается */
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
 
@@ -76,9 +70,9 @@ $bp-lg: 1024px;
   @media (max-width: $bp-md) { font-size: 13px; }
 }
 
-/* нижняя строка: в столбик на мобиле */
+/* ===== BOTTOM STRIP ===== */
 .footerBottom {
-  display: flex;
+  display: flex;                /* задаём display здесь, не в общем section */
   justify-content: space-between;
   align-items: center;
   padding: 20px 0;
@@ -98,14 +92,23 @@ $bp-lg: 1024px;
   font-size: 14px;
   font-weight: 300;
 
-  @media (max-width: $bp-md) { font-size: 13px; }
+  @media (max-width: $bp-md) { font-size: 13px; text-align: center; }
 }
 
-/* блок с методами: на мобилке — компактней и со скроллом */
+/* ===== SHIPPING / PAYMENT BLOCK ===== */
 .methodContainer {
+  display: flex;               /* и здесь задаём flex локально */
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
   padding: 40px 0;
 
-  @media (max-width: $bp-md) { padding: 8px 0 0; }
+  @media (max-width: $bp-md) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 8px 0 0;
+  }
 
   &__title {
     font-weight: 500;
@@ -151,7 +154,7 @@ $bp-lg: 1024px;
   }
 }
 
-/* соцсети: центр и обтекание на мобиле */
+/* ===== SOCIAL ===== */
 .socialLinks {
   display: flex;
   justify-content: start;
