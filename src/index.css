@@ -52,5 +52,25 @@ p {
   box-sizing: border-box;
 }
 
+html, body, #root {
+  color: var(--text) !important;
+  background-color: var(--bg) !important;
+}
+
+/* Ссылки наследуют цвет темы */
+a { color: inherit; }
+
+/* Контролы форм тоже подтягивают тему */
+button, input, textarea, select {
+  color: var(--text) !important;
+  background-color: var(--bg);
+  border-color: var(--border);
+}
+
+/* Иконки берут текущий цвет текста */
+svg { color: var(--text); }
+svg [stroke]:not([stroke="none"]) { stroke: currentColor !important; }
+svg [fill]:not([fill="none"])   { fill: currentColor !important; }
+
 html[data-theme='light'] { color-scheme: light; }
 html[data-theme='dark']  { color-scheme: dark; }
