@@ -170,7 +170,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 25px;
 }
 
 .mobileCatBtn {
@@ -180,7 +180,7 @@
   text-align: left;
   padding: 4px 0;
   font-family: "Roboto", sans-serif;
-  font-size: 1.08rem;
+  font-size: 1.3rem;
   font-weight: 500;
   color: var(--text);
   display: flex;
@@ -286,14 +286,14 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 8px;
+  gap: 25px;
   padding-top: 60px;
   padding-right: 8px;
 
   a {
     text-decoration: none;
     color: var(--text);
-    font-size: 0.95em;
+    font-size: 1.1em;
     font-weight: 500;
     transition: color 0.2s;
     cursor: pointer;
