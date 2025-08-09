@@ -45,3 +45,8 @@
     }
 
 }
+
+@media (max-width: 768px) {
+  .header__container { gap: 8px; }
+  .header__navigation { gap: 8px; }
+}
