@@ -10,6 +10,7 @@ body[data-theme='light']{
   --bg-input: #ffffff;
   --bg-blur: #ffffffcc;
   --bg-catalog-window: #ffffff;
+  --bg-footer: #f9f9f9;
 
   --text: #1f1f1f;
   --text-secondary: #6b7280;
@@ -59,6 +60,7 @@ body[data-theme='dark']{
   --bg-input: #0e0e0e;
   --bg-blur: #131313cc;
   --bg-catalog-window: #0e0e0e;
+  --bg-footer: #0c0c0c;
 
   --text: #c6c6c6;
   --text-secondary: #6b7280;
