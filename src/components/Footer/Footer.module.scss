@@ -1,12 +1,14 @@
-:root {
-  --border-col: #efefef;
-}
+/* брейки */
+$bp-sm: 480px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+
+:root { --border-col: #efefef; }
 
 .footer {
   width: 100%;
   display: flex;
   justify-content: center;
-
 
   &__container {
     margin-top: 100px;
@@ -15,30 +17,50 @@
     width: 100%;
 
     &--col {
-      &:first-child {
-        border-top: 1px dashed var(--border);
-      }
+      &:first-child { border-top: 1px dashed var(--border); }
 
       section {
         display: flex;
         margin: 0 auto;
         align-items: center;
+        justify-content: space-between;
         gap: 20px;
         width: 100%;
         max-width: 1024px;
         padding: 50px 20px;
         box-sizing: border-box;
+
+        @media (max-width: $bp-md) {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 16px;
+          padding: 24px 16px;
+        }
       }
     }
-
   }
 }
 
+/* нав-колонки: 4 → 2 → 1 */
 .footerNav {
   width: 100%;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
+
+  @media (max-width: $bp-lg) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  @media (max-width: $bp-md) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
+  }
+  @media (max-width: $bp-sm) {
+    grid-template-columns: 1fr;
+    gap: 8px 0;
+  }
+
+  ul { margin: 0; padding: 0; }
 }
 
 .navLink {
@@ -49,16 +71,25 @@
   font-weight: 300;
   text-decoration: none;
 
-  &:hover {
-    text-decoration: underline;
-  }
+  &:hover { text-decoration: underline; }
+
+  @media (max-width: $bp-md) { font-size: 13px; }
 }
 
+/* нижняя строка: в столбик на мобиле */
 .footerBottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px 0;
+  gap: 16px;
+
+  @media (max-width: $bp-md) {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8px 0 0;
+    gap: 12px;
+  }
 }
 
 .copyRight {
@@ -66,42 +97,40 @@
   margin: 0;
   font-size: 14px;
   font-weight: 300;
+
+  @media (max-width: $bp-md) { font-size: 13px; }
 }
 
+/* блок с методами: на мобилке — компактней и со скроллом */
 .methodContainer {
-  padding-top: 40px;
-  padding-bottom: 40px;
+  padding: 40px 0;
+
+  @media (max-width: $bp-md) { padding: 8px 0 0; }
 
   &__title {
     font-weight: 500;
+    margin: 0 0 8px;
   }
 }
 
-.paymentMethods {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 50%;
-
-  &__visa,
-  &__mastercard,
-  &__paypal {
-    width: 50px;
-    height: 30px;
-    object-fit: contain;
-    padding: 4px 10px;
-    border: 1px dashed var(--border);
-    border-radius: 6px;
-    background-color: var(--bg-card);
-    cursor: pointer;
-  }
-}
-
+.paymentMethods,
 .deliveryMethods {
   display: flex;
   align-items: center;
   gap: 10px;
 
+  /* горизонтальный скролл на узких экранах */
+  @media (max-width: $bp-md) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+
+    &::-webkit-scrollbar { height: 6px; }
+  }
+
+  &__visa,
+  &__mastercard,
+  &__paypal,
   &__dhl,
   &__dpd,
   &__hermes {
@@ -113,15 +142,28 @@
     border-radius: 6px;
     background-color: var(--bg-card);
     cursor: pointer;
+
+    @media (max-width: $bp-md) {
+      width: 44px;
+      height: 28px;
+      padding: 3px 8px;
+    }
   }
 }
 
+/* соцсети: центр и обтекание на мобиле */
 .socialLinks {
   display: flex;
   justify-content: start;
   align-items: center;
   gap: 20px;
   opacity: 0.6;
+  flex-wrap: wrap;
+
+  @media (max-width: $bp-md) {
+    justify-content: center;
+    gap: 16px;
+  }
 
   &__link {
     color: var(--text);
@@ -136,6 +178,11 @@
     width: 80px;
     height: 30px;
     object-fit: contain;
+
+    @media (max-width: $bp-md) {
+      width: 64px;
+      height: 24px;
+    }
   }
 
   &__x,
@@ -143,11 +190,21 @@
     width: 26px;
     height: 18px;
     object-fit: contain;
+
+    @media (max-width: $bp-md) {
+      width: 22px;
+      height: 16px;
+    }
   }
 
   &__youtube {
     width: 40px;
     height: 30px;
     object-fit: contain;
+
+    @media (max-width: $bp-md) {
+      width: 34px;
+      height: 26px;
+    }
   }
 }

@@ -14,14 +14,16 @@ import dhl from "/dhl.png"
 import mastercard from "/mastercard.png"
 import paypal from "/paypal.png"
 import visa from "/visa.png"
-import dpd from "/dhl.png"
+import dpd from "/dpd.png"
 import hermes from "@/assets/svg/hermes.svg"
 
 
 import cls from "./Footer.module.scss"
 
 export default function Footer() {
-    const [theme, setTheme] = useState("light");
+    const [theme, setTheme] = useState(() =>
+        document.documentElement.getAttribute("data-theme") || "light"
+    );
 
     useEffect(() => {
         const observer = new MutationObserver(() => {
@@ -37,15 +39,15 @@ export default function Footer() {
                     <section className={cls.methodContainer}>
                         <h3 className={cls.methodContainer__title}>Shipping</h3>
                         <div className={cls.paymentMethods}>
-                            <img src={visa} alt="Visa" className={cls.paymentMethods__visa} />
-                            <img src={mastercard} alt="MasterCard" className={cls.paymentMethods__mastercard} />
-                            <img src={paypal} alt="PayPal" className={cls.paymentMethods__paypal} />
+                            <img loading="lazy" src={visa} alt="Visa" className={cls.paymentMethods__visa} />
+                            <img loading="lazy" src={mastercard} alt="MasterCard" className={cls.paymentMethods__mastercard} />
+                            <img loading="lazy" src={paypal} alt="PayPal" className={cls.paymentMethods__paypal} />
                         </div>
                         <h3 className={cls.methodContainer__title}>Delivery</h3>
                         <div className={cls.deliveryMethods}>
-                            <img src={dhl} alt="Dhl" className={cls.deliveryMethods__dhl} />
-                            <img src={dpd} alt="Dpd" className={cls.deliveryMethods__dpd} />
-                            <img src={hermes} alt="Hermes" className={cls.deliveryMethods__hermes} />
+                            <img loading="lazy" src={dhl} alt="Dhl" className={cls.deliveryMethods__dhl} />
+                            <img loading="lazy" src={dpd} alt="Dpd" className={cls.deliveryMethods__dpd} />
+                            <img loading="lazy" src={hermes} alt="Hermes" className={cls.deliveryMethods__hermes} />
                         </div>
                     </section>
                 </div>
@@ -78,19 +80,19 @@ export default function Footer() {
                         <p className={cls.copyRight}>&copy; 2025 Dashedo. All rights reserved.</p>
                         <div className={cls.socialLinks}>
                             <a href="https://instagram.com" className={cls.socialLinks__link} aria-label="Instagram">
-                                <img src={theme === "dark" ? instagramWhite : instagramBlack} className={cls.socialLinks__instagram} alt="Instagram" />
+                                <img loading="lazy" src={theme === "dark" ? instagramWhite : instagramBlack} className={cls.socialLinks__instagram} alt="Instagram" />
                             </a>
                             <a href="https://meta.com" className={cls.socialLinks__link} aria-label="Meta">
-                                <img src={theme === "dark" ? metaWhite : metaBlack} className={cls.socialLinks__meta} alt="Meta" />
+                                <img loading="lazy" src={theme === "dark" ? metaWhite : metaBlack} className={cls.socialLinks__meta} alt="Meta" />
                             </a>
                             <a href="https://x.com" className={cls.socialLinks__link} aria-label="X">
-                                <img src={theme === "dark" ? xWhite : xBlack} className={cls.socialLinks__x} alt="X" />
+                                <img loading="lazy" src={theme === "dark" ? xWhite : xBlack} className={cls.socialLinks__x} alt="X" />
                             </a>
                             <a href="https://tiktok.com" className={cls.socialLinks__link} aria-label="TikTok">
-                                <img src={theme === "dark" ? tiktokWhite : tiktokBlack} className={cls.socialLinks__tiktok} alt="TikTok" />
+                                <img loading="lazy" src={theme === "dark" ? tiktokWhite : tiktokBlack} className={cls.socialLinks__tiktok} alt="TikTok" />
                             </a>
                             <a href="https://youtube.com" className={cls.socialLinks__link} aria-label="YouTube">
-                                <img src={theme === "dark" ? youtubeWhite : youtubeBlack} className={cls.socialLinks__youtube} alt="YouTube" />
+                                <img loading="lazy" src={theme === "dark" ? youtubeWhite : youtubeBlack} className={cls.socialLinks__youtube} alt="YouTube" />
                             </a>
                         </div>
                     </section>
