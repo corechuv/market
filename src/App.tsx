@@ -7,8 +7,6 @@ import ProductList from './pages/Product/ProductList'
 import Search from './pages/Search/Search'
 import Footer from './components/Footer/Footer'
 import Header from './components/Header/Header'
-
-import "./styles/theme.module.scss" // Import global styles
 import "./styles/scrollbar.module.scss" // Import global variables
 
 export default function App() {
