@@ -4,6 +4,7 @@ import cls from "./Header.module.scss"
 
 import Logo from "../logo/Logo";
 
+import HamburgerIcon from "../Icons/HamburgerIcon";
 import HeartIcon from "../Icons/HeartIcon";
 import CartIcon from "../Icons/CartIcon";
 import AccountIcon from "../Icons/AccountIcon";
@@ -50,6 +51,8 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
     const isMobile = useIsMobile(768);
     const nav = useNavigate();
 
+    const [mobileCatalogOpen, setMobileCatalogOpen] = useState(false);
+
     useLayoutEffect(() => {
         if (!ref.current) return;
         const el = ref.current;
@@ -79,7 +82,16 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                         >
                             <LogoIcon className={cls.header__logoIcon} />
                         </button>
-                    ) : <Logo size={isMobile ? "18px" : "28px"} /> }
+                    ) : <Logo size={isMobile ? "18px" : "28px"} />}
+                    {isMobile ? (
+                        <button
+                            className={cls.header__navButton}
+                            aria-label="Menu"
+                            onClick={() => setMobileCatalogOpen(true)}
+                        >
+                            <HamburgerIcon className={cls.header__hamburgerIcon} />
+                        </button>
+                    ) : (<></>)}
                     <div className={cls.header__navigation}>
                         <SettingsMenuButton />
                     </div>
@@ -109,7 +121,10 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                         </button>
                     </div>
                 </div>
-                <Catalog trigger="hover" />
+                <Catalog trigger="hover"
+                    renderMobileHamburger={false}
+                    mobileDrawerOpen={mobileCatalogOpen}
+                    onMobileDrawerOpenChange={setMobileCatalogOpen} />
             </header>
         </>
     );

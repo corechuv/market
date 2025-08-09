@@ -36,6 +36,11 @@
 }
 
 .catalog {
+  @media screen {
+    @media (max-width: 768px) {
+      padding: 0;
+    }
+  }
   padding: 10px 20px;
   display: flex;
   flex-direction: column;

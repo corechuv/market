@@ -187,6 +187,11 @@ interface CatalogProps {
     onSelect?: (id: string | null) => void;
     className?: string;
     children?: ReactNode;
+
+    // НОВОЕ:
+    mobileDrawerOpen?: boolean;                         // внешнее управление open/close
+    onMobileDrawerOpenChange?: (open: boolean) => void; // колбэк при изменении
+    renderMobileHamburger?: boolean;                    // по умолчанию true (для обратной совместимости)
 }
 
 export default function Catalog({
@@ -196,6 +201,9 @@ export default function Catalog({
     onSelect,
     className = "",
     children,
+    mobileDrawerOpen,
+    onMobileDrawerOpenChange,
+    renderMobileHamburger = true,
 }: CatalogProps) {
     const nav = useNavigate();
 
@@ -231,7 +239,12 @@ export default function Catalog({
     );
 
     /* ---------- mobile drawer ---------- */
-    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [internalOpen, setInternalOpen] = useState(false);
+    const drawerOpen = mobileDrawerOpen ?? internalOpen;
+    const setDrawerOpen = (open: boolean) => {
+        onMobileDrawerOpenChange ? onMobileDrawerOpenChange(open) : setInternalOpen(open);
+    };
+
     const [drawerCat, setDrawerCat] = useState<Category | null>(null);
     const [mobileStage, setMobileStage] = useState<"categories" | "items">(
         "categories"
@@ -295,13 +308,15 @@ export default function Catalog({
                     onMouseLeave={handleMouseLeave}
                 >
                     {/* ---------- MOBILE HAMBURGER ---------- */}
-                    <button
-                        className={cls.hamburger}
-                        aria-label="Open menu"
-                        onClick={() => setDrawerOpen(true)}
-                    >
-                        <HamburgerIcon />
-                    </button>
+                    {isMobile && renderMobileHamburger && (
+                        <button
+                            className={cls.hamburger}
+                            aria-label="Open menu"
+                            onClick={() => setDrawerOpen(true)}
+                        >
+                            <HamburgerIcon />
+                        </button>
+                    )}
 
                     {/* ---------- DESKTOP NAV ---------- */}
                     <ul className={cls.categories} aria-label="Catalog navigation">
