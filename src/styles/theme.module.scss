@@ -2,100 +2,80 @@
 @use "../styles/scrollbar.module.scss" as scrollbar;
 
 :global {
-    :root {
-        --bg: #ffffff;
-        --bg-card: #fcfcfc;
+  /* Светлая тема по умолчанию */
+  :root,
+  :root[data-theme='light'],
+  html[data-theme='light'],
+  body[data-theme='light'] {
+    --bg: #ffffff;
+    --bg-card: #fcfcfc;
+    --bg-blur: #ffffffcc;
+    --bg-catalog-window: #ffffff;
+    --text: #1f1f1f;
+    --text-secondary: #6b7280;
+    --color-text-primary: #374151;
+    --color-text-secondary: #1f1f1f;
+    --border: #c4c4c4;
+    --border-input: #cccccc;
+    --red: #df5a91;
+    --text-button: #fff;
+    --bg-button: #1f1f1f;
+    --bg-transparent: #ffffffc2;
+    --bg-hover-item: #f7f7f7;
+    --bg-overlay: rgba(218,218,218,.2);
+    --bg-range-track: #ddd;
+    --bg-range-thumb: #434343;
+    --bg-range-fill: #999;
+    --cb-fill: #434343;
+    --cb-disabled-bg: #f3f4f6;
+    --cb-border-checked: #434343;
+    --bg-arrow: #757575;
+    --bg-dot: #eee;
+    --bg-star: #d1d5db;
+    --bg-star-hover: #434343;
+    --bg-star-active: #434343;
 
-        --bg-blur: #ffffffcc;
+    /* чтобы системные элементы подстраивались */
+    color-scheme: light;
+  }
 
-        --bg-catalog-window: #ffffff;
+  /* Тёмная тема */
+  :root[data-theme='dark'],
+  html[data-theme='dark'],
+  body[data-theme='dark'] {
+    --bg: #131313;
+    --bg-card: #000;
+    --bg-blur: #131313cc;
+    --bg-catalog-window: #0e0e0e;
+    --text: #c6c6c6;
+    --text-secondary: #6b7280;
+    --color-text-primary: #374151;
+    --color-text-secondary: #4a545d;
+    --border: #2f2f2f;
+    --border-input: #2f2f2f;
+    --red: #df5a91;
+    --text-button: #fff;
+    --bg-button: #000;
+    --bg-transparent: #131313c2;
+    --bg-hover-item: #1f1f1f;
+    --bg-overlay: rgba(0,0,0,.5);
+    --bg-range-track: #272727;
+    --bg-range-thumb: #8a96ae;
+    --bg-range-fill: #5b6774;
+    --cb-fill: #8a96ae;
+    --cb-disabled-bg: #f3f4f6;
+    --cb-border-checked: #434343;
+    --bg-arrow: #4f4f4f;
+    --bg-dot: #8a96ae;
+    --bg-star: #313131;
+    --bg-star-hover: #fff;
+    --bg-star-active: #8a96ae;
 
-        --text: #1f1f1f;
-        --text-secondary: #6b7280;
-        --color-text-primary: #374151;
+    color-scheme: dark;
+  }
 
-        --color-text-secondary: #1f1f1f;
-
-        --border: #c4c4c4;
-        --border-input: #cccccc;
-
-        --red: #df5a91;
-
-        --text-button: white;
-        --bg-button: #1f1f1f;
-
-        --bg-transparent: #ffffffc2;
-
-        --bg-hover-item: #f7f7f7;
-
-        --bg-overlay: rgba(218, 218, 218, 0.2);
-
-        --bg-range-track: #dddddd;
-        --bg-range-thumb: #434343;
-        --bg-range-fill: rgb(153, 153, 153);
-
-        --cb-fill: #434343;
-        --cb-disabled-bg: #f3f4f6;
-        --cb-border-checked: #434343;
-
-        --bg-arrow: #757575;
-
-        --bg-dot: #eeeeee;
-
-        --bg-star: #d1d5db;
-        --bg-star-hover: #434343;
-        --bg-star-active: #434343;
-    }
-
-    [data-theme='dark'] {
-        --bg: #131313;
-        --bg-card: #000000;
-
-        --bg-blur: #131313cc;
-
-        --bg-catalog-window: #0e0e0e;
-
-        --text: #c6c6c6;
-        --text-secondary: #6b7280;
-        --color-text-primary: #374151;
-
-        --color-text-secondary: #4a545d;
-
-        --border: #2f2f2f;
-        --border-input: #2f2f2f;
-
-        --red: #df5a91;
-
-        --text-button: #ffffff;
-        --bg-button: #000000;
-
-        --bg-transparent: #131313c2;
-
-        --bg-hover-item: #1f1f1f;
-
-        --bg-overlay: rgba(0, 0, 0, 0.5);
-
-        --bg-range-track: #272727;
-        --bg-range-thumb: #8a96ae;
-        --bg-range-fill: #5b6774;
-
-        --cb-fill: #8a96ae;
-        --cb-disabled-bg: #f3f4f6;
-        --cb-border-checked: #434343;
-
-        --bg-arrow: #4f4f4f;
-
-        --bg-dot: #8a96ae;
-
-        --bg-star: #313131;
-        --bg-star-hover: #ffffff;
-        --bg-star-active: #8a96ae;
-    }
-    /*
-
-    html {
-         @include scrollbar.custom-scrollbar();
-    }
-
-     */
+  /* Опционально: если атрибут не задан — подхватывать системную тему */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) { color-scheme: dark; }
+  }
 }
