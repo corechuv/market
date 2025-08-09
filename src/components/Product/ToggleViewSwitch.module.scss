@@ -3,11 +3,18 @@
 $transition-fast: 140ms;
 
 .toolbar {
+    width: 100%;
     display: flex;
     gap: 0.5rem;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     position: relative;
+}
+
+.viewSwitch {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .iconBtn {
@@ -19,7 +26,6 @@ $transition-fast: 140ms;
     background: transparent;
     border-radius: 50%;
     color: var(--text);
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: border-color $transition-fast ease;
 

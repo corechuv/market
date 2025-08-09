@@ -266,18 +266,36 @@ $bp-lg: 1024px;
 
 }
 
-/* кнопка "Sort & Filter" показывается только на мобилке */
-.sortButton {
-  display: none;
-  max-width: 160px;
-  border: 1px dashed var(--border);
-  background-color: transparent;
-  color: var(--text);
+$transition-fast: 140ms;
 
-  @media (max-width: $bp-md) {
-    display: inline-flex;
-  }
+.iconBtn {
+    width: 2.5rem;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    border: 1px dashed transparent;
+    background: transparent;
+    border-radius: 50%;
+    color: var(--text);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: border-color $transition-fast ease;
+
+    svg {
+        width: 60%;
+        stroke-width: 1.5;
+    }
+
+    &:hover {
+        border-color: var(--border);
+    }
 }
+
+.active {
+    border-color: var(--border);
+}
+
+
 .filterContainer {
     display: flex;
     flex-direction: column;

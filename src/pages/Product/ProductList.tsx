@@ -11,6 +11,7 @@ import PriceRangeDual from "../../components/Product/PriceRangeDual"
 import Stars from "../../components/Product/Stars"
 import Accordion from "../../components/Product/Accordion"
 import SortSelectContainer from "../../components/Product/SortSelectContainer"
+import IconFilters from "../../components/Icons/IconFilters"
 
 const offerings = [
   { value: "discounted", label: "Discounted" },
@@ -155,8 +156,7 @@ export default function ProductList() {
           </div>
         </div>
         <div className={cls.productListActions}>
-          <Button onClick={openModal} className={cls.sortButton} size="small">Filter</Button>
-          <ToggleViewSwitch view={view} onChangeView={setView} />
+          <ToggleViewSwitch view={view} onChangeView={setView} openModal={openModal} />
         </div>
         <div className={cls.productList}>
           <div className={view === 'grid' ? cls.grid : cls.list}>
