@@ -70,7 +70,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                 style={{ ["--header-height" as any]: `${hh}px` }}
             >
                 <div className={cls.header__container}>
-                    <Logo />
+                    <Logo size={isMobile ? "18px" : "28px"} />
                     <div className={cls.header__navigation}>
                         <SettingsMenuButton />
                     </div>
