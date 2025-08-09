@@ -53,12 +53,11 @@ const ProductImages: FC<ProductImagesProps> = ({ images = DEFAULT_IMAGES }) => {
                     onMouseLeave={() => setOrigin("center center")}
                     tabIndex={0}
                 />
+                <ProductImageActions
+                    onCopyLink={() => alert("Ссылка на изображение отправлена!")}
+                    onToggleFavorite={() => alert("Добавлено в избранное!")}
+                />
             </figure>
-
-            <ProductImageActions
-                onCopyLink={() => alert("Ссылка на изображение отправлена!")}
-                onToggleFavorite={() => alert("Добавлено в избранное!")}
-            />
         </div>
     );
 };
