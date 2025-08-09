@@ -3,7 +3,6 @@ import "react"
 import cls from './Home.module.scss'
 import stylesBanner from './Banner.module.scss'
 import ProductCarousel from "../../components/Product/ProductCarousel"
-import Button from "../../components/Buttons/Button"
 import ChevronRightIcon from "../../components/Icons/ChevronLeftIcon"
 
 const products = [

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, type ChangeEvent, type FocusEvent } from "react";
+import React, { useEffect, useRef, useState, type ChangeEvent } from "react";
 import styles from "./Search.module.scss";
 import SearchIcon from "../Icons/SearchIcon";
 
@@ -65,7 +65,7 @@ const Search: React.FC<SearchProps> = ({ data, limit = 10, onSelect }) => {
     };
 
     // Keep dropdown open while input is focused; close after leaving both input & results
-    const handleBlur = (e: FocusEvent<HTMLDivElement>) => {
+    const handleBlur = () => {
         // Delay so click on result can register first
         requestAnimationFrame(() => {
             if (!wrapperRef.current?.contains(document.activeElement)) {
