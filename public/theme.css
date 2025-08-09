@@ -1,5 +1,7 @@
 /* public/theme.css */
 
+
+
 /* LIGHT (по умолчанию) */
 :root,
 :root[data-theme='light'],
@@ -47,6 +49,9 @@ body[data-theme='light']{
   --popover-border: rgba(0,0,0,.2);
   --btn-hover-bg: rgba(0,0,0,.06);
   --item-hover-bg: rgba(0,0,0,.06);
+
+  --border-size-0_5: 0.5px;
+  --border-size-1_0: 1px;
 
   color-scheme: light;
 }
@@ -96,6 +101,9 @@ body[data-theme='dark']{
   --popover-border: #ffffff;
   --btn-hover-bg: rgba(255,255,255,.08);
   --item-hover-bg: rgba(255,255,255,.12);
+
+  --border-size-0_5: 0.5px;
+  --border-size-1_0: 1px;
 
   color-scheme: dark;
 }
