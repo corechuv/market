@@ -15,6 +15,17 @@
     background: var(--bg-blur);
     backdrop-filter: blur(30px);
 
+    &__mobile {
+        display: none;
+
+        @media screen {
+            @media (max-width: 768px) {
+                display: flex;
+                gap: 20px;
+            }
+        }
+    }
+
     &__container {
         display: flex;
         align-items: center;

@@ -75,23 +75,23 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
             >
                 <div className={cls.header__container}>
                     {isMobile ? (
-                        <button
-                            className={cls.header__navButton}
-                            aria-label="Menu"
-                            onClick={() => nav('/catalog')}
-                        >
-                            <LogoIcon className={cls.header__logoIcon} />
-                        </button>
+                        <div className={cls.header__mobile}>
+                            <button
+                                className={cls.header__navButton}
+                                aria-label="Menu"
+                                onClick={() => nav('/catalog')}
+                            >
+                                <LogoIcon className={cls.header__logoIcon} />
+                            </button>
+                            <button
+                                className={cls.header__navButton}
+                                aria-label="Menu"
+                                onClick={() => setMobileCatalogOpen(true)}
+                            >
+                                <HamburgerIcon className={cls.header__hamburgerIcon} />
+                            </button>
+                        </div>
                     ) : <Logo size={isMobile ? "18px" : "28px"} />}
-                    {isMobile ? (
-                        <button
-                            className={cls.header__navButton}
-                            aria-label="Menu"
-                            onClick={() => setMobileCatalogOpen(true)}
-                        >
-                            <HamburgerIcon className={cls.header__hamburgerIcon} />
-                        </button>
-                    ) : (<></>)}
                     {!isMobile && (
                         <div className={cls.header__navigation}>
                             <SettingsMenuButton />
