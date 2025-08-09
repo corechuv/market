@@ -1,78 +1,40 @@
-import React, { forwardRef, useId } from "react";
+import * as React from "react";
 
+/** Props for IconFilters (sliders filled) */
 export type IconFiltersProps = React.SVGProps<SVGSVGElement> & {
   /** Ширина/высота иконки */
   size?: number | string;
-  /** Цвет обводки/заливки */
+  /** Цвет заливки */
   color?: string;
-  /** Толщина обводки для варианта outline */
-  strokeWidth?: number | string;
-  /** Заголовок для доступности. Если не указан — иконка будет скрыта от screen reader */
+  /** Заголовок для доступности. Если не указан — скрываем от скринридеров */
   title?: string;
-  /** Вариант отображения */
-  variant?: "outline" | "filled";
 };
 
-const IconFilters = forwardRef<SVGSVGElement, IconFiltersProps>(
-  (
-    {
-      size = 24,
-      color = "currentColor",
-      strokeWidth = 2,
-      title,
-      variant = "outline",
-      ...rest
-    },
-    ref
-  ) => {
-    const titleId = useId();
-
-    const common = {
-      ref,
-      width: size,
-      height: size,
-      viewBox: "0 0 24 24",
-      xmlns: "http://www.w3.org/2000/svg",
-      role: "img",
-      ...(title ? { "aria-labelledby": titleId } : { "aria-hidden": true }),
-      ...rest,
-    };
-
-    if (variant === "filled") {
-      // Вариант с заливкой (акцентный и компактный)
-      return (
-        <svg {...common}>
-          {title ? <title id={titleId}>{title}</title> : null}
-          <path
-            d="
-              M3.5 3h17a1.5 1.5 0 0 1 1.14 2.45l-7.25 8.86a1.5 1.5 0 0 0-.34.95v3.72
-              c0 .59-.36 1.13-.91 1.36l-3 1.3A1.5 1.5 0 0 1 8 20.93v-4.98
-              c0-.36-.13-.71-.36-.99L2.36 5.46A1.5 1.5 0 0 1 3.5 3Z
-            "
-            fill={color}
-          />
-        </svg>
-      );
-    }
-
-    // Вариант с обводкой (классический)
+/** IconFilters — иконка фильтров (вариант sliders, filled) */
+const IconFilters = React.forwardRef<SVGSVGElement, IconFiltersProps>(
+  ({ size = 24, color = "currentColor", title, ...rest }, ref) => {
+    const titleId = React.useId();
     return (
-      <svg {...common}>
+      <svg
+        ref={ref}
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        role="img"
+        xmlns="http://www.w3.org/2000/svg"
+        {...(title ? { "aria-labelledby": titleId } : { "aria-hidden": true })}
+        {...rest}
+      >
         {title ? <title id={titleId}>{title}</title> : null}
-        <g
-          fill="none"
-          stroke={color}
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          {/* Верхняя планка */}
-          <path d="M3 4h18" />
-          {/* Боковые ребра воронки */}
-          <path d="M6 4l6 7" />
-          <path d="M18 4l-6 7" />
-          {/* Хвостик с контейнером для «сбора» */}
-          <path d="M12 11v5l-4 2v-7" />
+        <g fill={color}>
+          {/* Планки */}
+          <rect x="3" y="5.1" width="18" height="1.8" rx="0.9" />
+          <rect x="3" y="11.1" width="18" height="1.8" rx="0.9" />
+          <rect x="3" y="17.1" width="18" height="1.8" rx="0.9" />
+          {/* Бегунки */}
+          <circle cx="8" cy="6" r="2.6" />
+          <circle cx="15" cy="12" r="2.6" />
+          <circle cx="11" cy="18" r="2.6" />
         </g>
       </svg>
     );
@@ -80,5 +42,4 @@ const IconFilters = forwardRef<SVGSVGElement, IconFiltersProps>(
 );
 
 IconFilters.displayName = "IconFilters";
-
 export default IconFilters;
