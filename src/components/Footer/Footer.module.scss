@@ -18,7 +18,7 @@ $bp-lg: 1024px;
     width: 100%;
 
     &--col {
-      &:first-child { border-top: 1px dashed var(--border); }
+      &:first-child { border-top: var(--border-size-0_5) dashed var(--border); }
 
       /* общий контейнер секции — БЕЗ display, чтобы не перебивать приватные секции */
       section {
