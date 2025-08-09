@@ -86,7 +86,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                                 aria-label="Search"
                                 onClick={() => nav('/search')}   // или открой модалку, если есть
                             >
-                                <SearchIcon />
+                                <SearchIcon strokeWidth={1.5} width={24} />
                             </button>
                         )}
                         <button className={cls.header__navButton} aria-label="Account">

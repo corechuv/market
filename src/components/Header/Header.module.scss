@@ -12,6 +12,7 @@
     &__container {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         width: 100%;
         max-width: 1024px;
         margin: 0 auto;
@@ -24,6 +25,11 @@
         display: flex;
         gap: 35px;
         align-items: center;
+
+        @media (max-width: 768px) {
+            margin-left: 10px;
+            gap: 20px;
+        }
     }
 
     &__navButton {
@@ -44,9 +50,4 @@
         }
     }
 
-}
-
-@media (max-width: 768px) {
-  .header__container { gap: 8px; }
-  .header__navigation { gap: 8px; }
 }
