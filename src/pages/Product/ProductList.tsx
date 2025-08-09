@@ -146,8 +146,6 @@ export default function ProductList() {
       <section className={cls.productListContent}>
         <div className={cls.productsHeader}>
           <h4 className={cls.title}>CPU</h4>
-        </div>
-        <div className={cls.productListActions}>
           <div className={cls.sortWrap}>
             <SortSelectContainer
               sort={sort}
@@ -155,6 +153,8 @@ export default function ProductList() {
               onChangeSort={setSort}
             />
           </div>
+        </div>
+        <div className={cls.productListActions}>
           <Button onClick={openModal} className={cls.sortButton} size="small">Filter</Button>
           <ToggleViewSwitch view={view} onChangeView={setView} />
         </div>

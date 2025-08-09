@@ -256,24 +256,14 @@ $bp-lg: 1024px;
   justify-content: space-between;
 
   @media (max-width: $bp-md) {
-    position: sticky;
-    top: 0; /* если есть фиксированная шапка — поставь её высоту */
     background: var(--bg);
-    z-index: 10;
     padding: 8px 0;
     gap: 8px;
   }
 }
 /* обёртка селекта сортировки */
 .sortWrap {
-  min-width: 220px;
 
-  @media (max-width: $bp-md) {
-    flex: 1;
-  }
-
-  /* заставим внутренний контрол тянуться на 100% */
-  > * { width: 100%; }
 }
 
 /* кнопка "Sort & Filter" показывается только на мобилке */
