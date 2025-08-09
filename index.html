@@ -11,12 +11,12 @@
     (function () {
       try {
         var t = localStorage.getItem('theme');
-        if (!t) t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (!t) t = matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', t);
-        document.body && document.body.setAttribute('data-theme', t);
       } catch (e) { }
     })();
   </script>
+  <link rel="stylesheet" href="/theme.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
     rel="stylesheet">
   <title> :)</title>
