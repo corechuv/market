@@ -50,7 +50,7 @@ $bp-lg: 1024px;
     gap: 12px 16px;
   }
   @media (max-width: $bp-sm) {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px 0;
   }
 
@@ -93,6 +93,7 @@ $bp-lg: 1024px;
   font-weight: 300;
 
   @media (max-width: $bp-md) { font-size: 13px; text-align: center; }
+  @media (max-width: $bp-sm) { font-size: 13px; text-align: center; }
 }
 
 /* ===== SHIPPING / PAYMENT BLOCK ===== */
@@ -164,6 +165,10 @@ $bp-lg: 1024px;
   flex-wrap: wrap;
 
   @media (max-width: $bp-md) {
+    justify-content: center;
+    gap: 16px;
+  }
+  @media (max-width: $bp-sm) {
     justify-content: center;
     gap: 16px;
   }
