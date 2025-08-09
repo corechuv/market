@@ -5,7 +5,7 @@ $transition-fast: 140ms;
 .toolbar {
     width: 100%;
     display: flex;
-    gap: 0.5rem;
+    gap: 1.5rem;
     align-items: center;
     justify-content: space-between;
     position: relative;
@@ -14,31 +14,24 @@ $transition-fast: 140ms;
 .viewSwitch {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1.5rem;
 }
 
 .iconBtn {
-    width: 2.5rem;
+    width: auto;
     aspect-ratio: 1;
     display: grid;
     place-items: center;
-    border: 1px dashed transparent;
+    border: none;
     background: transparent;
-    border-radius: 50%;
+    border-radius: none;
     color: var(--text);
+    padding: 0;
     cursor: pointer;
-    transition: border-color $transition-fast ease;
 
     svg {
-        width: 60%;
+        width: 100%;
         stroke-width: 1.5;
     }
-
-    &:hover {
-        border-color: var(--border);
-    }
 }
 
-.active {
-    border-color: var(--border);
-}
