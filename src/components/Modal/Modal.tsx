@@ -4,6 +4,7 @@
 import React, { useEffect, useRef } from 'react';
 import cls from './Modal.module.scss';
 import CloseIcon from '../Icons/CloseIcon';
+import { createPortal } from 'react-dom';
 
 export interface ModalProps {
   /** Контент модального окна */
@@ -101,36 +102,37 @@ export default function Modal({
     ? '1px dashed var(--border)'
     : '1px dashed transparent';
 
-  return (
-    <div
-      className={`${cls.modalOverlay} ${cls[variant]}`}
-      onClick={onClose}
-      role="presentation"
-    >
+  if (!isOpen) return null;
+
+
+  return createPortal(
+    (
       <div
-        className={`${cls.modalContent} ${cls[variant]} ${className}`}
-        style={modalContentStyle}
-        role="dialog"
-        aria-modal="true"
-        ref={contentRef}
-        tabIndex={-1}
-        onClick={(e) => e.stopPropagation()}
+        className={`${cls.modalOverlay} ${cls[variant]}`}
+        onClick={onClose}
+        role="presentation"
       >
-        {header && (
-          <div className={`${cls.modalHeader} ${headerClassName}`} style={modalHeaderStyle}>{header}</div>
-        )}
-
-        <button
-          className={cls.closeButton}
-          onClick={onClose}
-          aria-label="Close modal"
-          type="button"
+        <div
+          className={`${cls.modalContent} ${cls[variant]} ${className}`}
+          style={modalContentStyle}
+          role="dialog"
+          aria-modal="true"
+          ref={contentRef}
+          tabIndex={-1}
+          onClick={(e) => e.stopPropagation()}
         >
-          <CloseIcon />
-        </button>
-
-        <div className={`${cls.modalBody} ${bodyClassName}`}>{children}</div>
+          {header && (
+            <div className={`${cls.modalHeader} ${headerClassName}`} style={modalHeaderStyle}>
+              {header}
+            </div>
+          )}
+          <button className={cls.closeButton} onClick={onClose} aria-label="Close modal" type="button">
+            <CloseIcon />
+          </button>
+          <div className={`${cls.modalBody} ${bodyClassName}`}>{children}</div>
+        </div>
       </div>
-    </div>
+    ),
+    document.body
   );
 }
