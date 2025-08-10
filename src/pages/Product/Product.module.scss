@@ -44,16 +44,18 @@
     flex-direction: row;
     gap: 40px;
 
-    div {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
     @media screen and (max-width: 768px) {
         gap: 20px;
         flex-direction: column;
     }
+}
+
+
+
+.productTitle {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .productName {
@@ -80,6 +82,8 @@
     font-size: 28px;
     font-weight: 300;
     color: var(--text);
+
+    width: 100%;
 
     span {
         display: flex;
@@ -153,9 +157,10 @@
     @media screen and (max-width: 768px) {
         border-left: none;
         padding: 0;
-        flex-direction: row;
+        padding-bottom: 30px;
+        flex-direction: column;
         gap: 10px;
-        
+
     }
 }
 
