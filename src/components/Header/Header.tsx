@@ -78,8 +78,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                         <div className={cls.header__mobile}>
                             <button
                                 className={cls.header__navButton}
-                                aria-label="Menu"
-                                onClick={() => nav('/catalog')}
+                                onClick={() => nav('/')}
                             >
                                 <LogoIcon className={cls.header__logoIcon} />
                             </button>

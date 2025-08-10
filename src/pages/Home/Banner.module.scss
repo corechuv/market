@@ -3,6 +3,11 @@
   grid-template-columns: 1fr 1fr 1fr;
   gap: 20px;
   background: radial-gradient(circle at 50% 50%, rgba(35, 50, 77, 0.366) 0%, transparent 60%);
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
 }
 
 .bannerCard {
@@ -11,6 +16,7 @@
   transition: transform 0.3s ease;
   position: relative;
   display: flex;
+  border-radius: 16px;
 
   &:hover {
     img {
@@ -48,6 +54,10 @@
     backdrop-filter: blur(5px);
   }
   z-index: 1;
+
+  @media screen and (max-width: 768px) {
+    padding: 8px 12px;
+  }
 }
 
 .bannerTitle {
@@ -55,6 +65,10 @@
   font-weight: 500;
   color: white;
   margin: 0;
+
+  @media screen and (max-width: 768px) {
+    font-size: 0.9rem;
+  }
 }
 
 .bannerButton {
@@ -69,6 +83,11 @@
   border: 1px dashed wheat;
   background-color: black;
   cursor: pointer;
+
+  @media screen and (max-width: 768px) {
+    width: 2rem;
+    height: 2rem;
+  }
 }
 
 .icon {
