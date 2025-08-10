@@ -174,7 +174,7 @@ export default function ProductList() {
             ))}
           </div>
         </div>
-        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} variant="left" header="Sort & Filter">
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} variant="left" header="Filter" headerBorder={false}>
           <div className={cls.filterContainer}>
             <div className={cls.sidebar}>
               <Accordion title="PC Components" defaultOpen>

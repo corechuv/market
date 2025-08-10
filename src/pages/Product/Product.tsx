@@ -196,7 +196,7 @@ export default function Product() {
                     <ProductCarousel products={products} label="More Products" />
                 </div>
             </div>
-            <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} variant="right" header="Reviews">
+            <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} variant="right" header="Reviews" headerBorder={false}>
                 <div className={cls.reviewsContent}>
                     <ReviewForm />
                     <ReviewList reviews={reviews} className={cls.reviewList} />

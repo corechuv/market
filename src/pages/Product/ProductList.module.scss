@@ -213,7 +213,6 @@ $bp-lg: 1024px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding: 1rem;
 
   /* внутри модалки сайдбар отображаем снова как столбец */
   .sidebar {
@@ -293,14 +292,6 @@ $transition-fast: 140ms;
 
 .active {
     border-color: var(--border);
-}
-
-
-.filterContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
 }
 
 .resetButton {
