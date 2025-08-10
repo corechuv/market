@@ -177,6 +177,25 @@ export default function ProductList() {
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} variant="left" header="Filter" headerBorder={false}>
           <div className={cls.filterContainer}>
             <div className={cls.sidebar}>
+              <Accordion title="Sort by" defaultOpen>
+                <ul className={cls.sidebar__list}>
+                  <li className={cls.sidebar__item}>
+                    Price: Low to high
+                  </li>
+                  <li className={cls.sidebar__item}>
+                    Price: High to low
+                  </li>
+                  <li className={cls.sidebar__item}>
+                    Newest arrivals
+                  </li>
+                  <li className={cls.sidebar__item}>
+                    Best sellers
+                  </li>
+                  <li className={cls.sidebar__item}>
+                    Most popular
+                  </li>
+                </ul>
+              </Accordion>
               <Accordion title="PC Components" defaultOpen>
                 <ul className={cls.sidebar__list}>
                   <li className={cls.sidebar__item} onClick={() => nav('/product/cpu')}>CPU

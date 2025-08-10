@@ -262,7 +262,9 @@ $bp-lg: 1024px;
 }
 /* обёртка селекта сортировки */
 .sortWrap {
-
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
 }
 
 $transition-fast: 140ms;
