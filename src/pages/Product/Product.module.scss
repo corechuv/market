@@ -204,6 +204,11 @@
     align-items: center;
     gap: 30px;
 
+    @media screen and (max-width: 768px) {
+        flex-direction: column;
+        gap: 20px;
+    }
+
     .reviewCount {
         font-size: 50px;
         font-weight: 300;
@@ -227,11 +232,10 @@
 
         .openReviewButton {
             padding: 8px 16px;
-            cursor: pointer;
-            font-size: 16px;
-            color: var(--text);
-            border: 1px dashed var(--border);
-            background-color: transparent;
+
+            @media screen and (max-width: 768px) {
+                width: 100%;
+            }
         }
     }
 }
