@@ -57,13 +57,6 @@ html, body, #root {
 /* Ссылки наследуют цвет темы */
 a { color: inherit; }
 
-/* Контролы форм тоже подтягивают тему */
-button, input, textarea, select {
-  color: var(--text) !important;
-  background-color: var(--bg);
-  border-color: var(--border);
-}
-
 /* Иконки берут текущий цвет текста */
 svg { color: var(--text); }
 svg [stroke]:not([stroke="none"]) { stroke: currentColor !important; }

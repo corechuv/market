@@ -9,7 +9,6 @@ html[data-theme='light'],
 body[data-theme='light']{
   --bg: #ffffff;
   --bg-card: #fcfcfc;
-  --bg-input: #ffffff;
   --bg-blur: #ffffffcc;
   --bg-catalog-window: #ffffff;
   --bg-footer: #f9f9f9;
