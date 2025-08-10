@@ -84,6 +84,7 @@
   .wrapperMobile {
     display: grid;
     gap: 0.75rem;
+    position: relative;
   }
 }
 
@@ -91,7 +92,7 @@
 .carousel {
   position: relative;
   border-radius: 20px;
-  border: 1px solid var(--border, rgba(0,0,0,0.08));
+  border: 1px dashed var(--border, rgba(0,0,0,0.08));
 
   display: flex;
   overflow-x: auto;
