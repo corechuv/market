@@ -1,30 +1,9 @@
-/* контейнер */
-.wrapper {
-  display: flex;
-  gap: 1.5rem;
-  align-items: flex-start;
+/* Корневой контейнер */
+.root {
   position: relative;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-  }
 }
 
-/* панель миниатюр */
-.thumbs {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-height: 560px;
-  overflow-y: auto;
-
-  @media (max-width: 768px) {
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: unset;
-  }
-}
-
+/* ============= КНОПКИ-МИНИАТЮРЫ (общие) ============= */
 .thumbBtn {
   display: flex;
   border: none;
@@ -37,26 +16,44 @@
     width: 64px;
     height: 64px;
     object-fit: cover;
+    border-radius: 12px;
   }
 }
 
-/* главное изображение с зумом */
+.active img {
+  outline: 1px dashed var(--primary, var(--border));
+  outline-offset: 2px;
+}
+
+/* ============= ДЕСКТОП ============= */
+.wrapperDesktop {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.thumbs {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 560px;
+  overflow-y: auto;
+}
+
 .main {
   flex: 1 1 auto;
   position: relative;
-  overflow: hidden;
-  /* обрезаем выступающие края */
+  overflow: hidden; /* обрезаем выступающие края */
   max-height: 560px;
   border-radius: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0;
-  border: 1px dashed transparent;
-  /* рамка по умолчанию */
+  border: 1px dashed transparent; /* рамка по умолчанию */
 
   &:hover {
-    border: 1px dashed var(--border);
+    border: 1px dashed var(--border, rgba(0,0,0,0.15));
   }
 
   img {
@@ -65,13 +62,75 @@
     max-width: 560px;
     max-height: 560px;
     object-fit: contain;
-    transition: transform 0.3s ease;
+    transition: transform 0.25s ease;
+    user-select: none;
   }
 
-  /* Зум только когда курсор НАД изображением,
-     а не над всей figure‑обёрткой */
-  img:hover,
-  img:focus {
-    transform: scale(2); // коэффициент зума
+  /* Зум ТОЛЬКО на устройствах с мышью */
+  @media (hover: hover) and (pointer: fine) {
+    img:hover,
+    img:focus {
+      transform: scale(2); // коэффициент зума
+    }
   }
+}
+
+/* ============= МОБИЛЬНАЯ ВЕРСИЯ ============= */
+/* по умолчанию мобильный блок скрыт — включаем только на узких экранах */
+.wrapperMobile { display: none; }
+
+@media (max-width: 768px) {
+  .wrapperDesktop { display: none; }
+  .wrapperMobile {
+    display: grid;
+    gap: 0.75rem;
+  }
+}
+
+/* горизонтальная карусель со snap */
+.carousel {
+  position: relative;
+  border-radius: 20px;
+  border: 1px solid var(--border, rgba(0,0,0,0.08));
+
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+.carousel::-webkit-scrollbar { display: none; } /* WebKit */
+
+.slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1 / 1; /* квадрат для аккуратной вьюшки */
+  background: var(--surface, #fff);
+}
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none; /* предотвращает «залипание» при свайпе */
+}
+
+/* миниатюры под каруселью — горизонтальный скролл */
+.thumbsMobile {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0.125rem;
+  scrollbar-width: none;
+}
+.thumbsMobile::-webkit-scrollbar { display: none; }
+
+.thumbsMobile .thumbBtn img {
+  width: 56px;
+  height: 56px;
 }
