@@ -9,7 +9,6 @@ html[data-theme='light'],
 body[data-theme='light']{
   --bg: #ffffff;
   --bg-card: #fcfcfc;
-  --bg-input: #ffffff;
   --bg-blur: #ffffffcc;
   --bg-catalog-window: #ffffff;
   --bg-footer: #f9f9f9;
@@ -62,7 +61,6 @@ html[data-theme='dark'],
 body[data-theme='dark']{
   --bg: #131313;
   --bg-card: #000000;
-  --bg-input: #0e0e0e;
   --bg-blur: #131313cc;
   --bg-catalog-window: #0e0e0e;
   --bg-footer: #0c0c0c;
