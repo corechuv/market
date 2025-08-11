@@ -1,12 +1,13 @@
 import React, { useState } from "react"
 
-import cls from './ProductList.module.scss'
-
+import cls from '../Product/ProductList.module.scss'
 import { useNavigate } from "react-router-dom"
 import Modal from "../../components/Modal/Modal"
 import ToggleViewSwitch, { type ViewMode } from "../../components/Product/ToggleViewSwitch"
 import SortSelectContainer from "../../components/Product/SortSelectContainer"
 import ProductItemList from "../../components/Product/ProductItemList"
+
+import s from './SearchPage.module.scss';
 import SidebarItems from "../../components/Product/SidebarItems"
 
 const offerings = [
@@ -23,7 +24,7 @@ const stars = [
   { value: "1", label: "" },
 ];
 
-const products = [ 
+const products = [
   {
     id: 1,
     name: "Intel Core i9-14900KS",
@@ -76,7 +77,7 @@ const sortOptions = [
   { value: '-popular', label: 'Most popular' },
 ];
 
-export default function ProductList() {
+export default function SearchPage() {
   const nav = useNavigate()
 
   const [isModalOpen, setIsModalOpen] = React.useState(false);

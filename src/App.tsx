@@ -4,7 +4,7 @@ import { Route, Routes } from 'react-router-dom'
 import Product from './pages/Product/Product'
 import Home from './pages/Home/Home'
 import ProductList from './pages/Product/ProductList'
-import Search from './pages/Search/Search'
+import Search from './pages/Search/SearchPage'
 import Footer from './components/Footer/Footer'
 import Header from './components/Header/Header'
 import "./styles/scrollbar.module.scss" // Import global variables
