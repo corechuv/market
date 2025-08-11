@@ -50,12 +50,11 @@
     }
 }
 
-
-
 .productTitle {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    flex: 1;
 }
 
 .productName {
@@ -85,27 +84,32 @@
     color: var(--text);
 
     width: 100%;
-
-    span {
-        display: flex;
-        margin-right: 10px;
-        align-items: center;
-        font-size: 14px;
-        font-weight: 300;
-        color: #4caf50;
-    }
 }
 
+/* доступность */
 .available {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    background-color: #4caf50;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 300;
+  font-size: 14px;
+  color: var(--text);
 }
+
+.inStock,
+.outOfStock {
+  display: flex;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.inStock { background-color: var(--available-color); }
+.outOfStock { background-color: var(--not-available-color); }
+
+.inStockText  { color: var(--available-color); }
+.outOfStockText { color: var(--not-available-color); }
+
 
 .productVat {
     display: flex;

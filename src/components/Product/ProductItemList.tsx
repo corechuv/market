@@ -1,14 +1,7 @@
 import React from "react";
 import cls from "./ProductItemList.module.scss";
 import type { ViewMode } from "../../components/Product/ToggleViewSwitch";
-
-export type Product = {
-    id: number;
-    name: string;
-    price: string;
-    image: string;
-    available: boolean;
-};
+import type { Product } from "../../types/product";
 
 type Props = {
     products: Product[];
@@ -36,7 +29,7 @@ const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, classNa
                         }}
                     >
                         <img
-                            src={product.image}
+                            src={product.imageUrl}
                             alt={product.name}
                             loading="lazy"
                             className={cls.productImage}

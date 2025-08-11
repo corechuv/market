@@ -1,0 +1,52 @@
+import type { Product } from "../types/product";
+
+export const products: Product[] = [
+    {
+        id: "1",
+        name: "Intel Core i9-14900KS",
+        price: "691,89 €",
+        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
+        link: "#",
+        available: true,
+    },
+    {
+        id: "2",
+        name: "Intel Xeon Silver 4",
+        price: "1053,00 €",
+        imageUrl: "https://hydraulic-cdn.com/productimages/8/9/7/1/5/1/6/8/1/6/6/4/1/0/8/3/5/7/7/0196b754-6cdd-729b-85bb-0359118bb75d_2880.avif",
+        link: "#",
+        available: true,
+    },
+    {
+        id: "3",
+        name: "Intel Core i9-14900KS",
+        price: "691,89 €",
+        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
+        link: "#",
+        available: true,
+    },
+    {
+        id: "4",
+        name: "Intel Core i9-14900KS",
+        price: "691,89 €",
+        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
+        link: "#",
+        available: true,
+    },
+    {
+        id: "5",
+        name: "Intel Xeon Silver 4",
+        price: "1053,00 €",
+        imageUrl: "https://hydraulic-cdn.com/productimages/8/9/7/1/5/1/6/8/1/6/6/4/1/0/8/3/5/7/7/0196b754-6cdd-729b-85bb-0359118bb75d_2880.avif",
+        link: "#",
+        available: false,
+    },
+    {
+        id: "6",
+        name: "Intel Core i9-14900KS",
+        price: "691,89 €",
+        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
+        link: "#",
+        available: true,
+    },
+];

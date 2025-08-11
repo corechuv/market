@@ -7,13 +7,7 @@ export interface ProductImagesProps {
     images?: string[];
 }
 
-const DEFAULT_IMAGES = [
-    "https://cdnbigbuy.com/images/5032037282062_I00.jpg",
-    "https://cdnbigbuy.com/images/4711387829523_S9917329_P01.jpg",
-    "https://cdnbigbuy.com/images/4711387922279_S9917321_P01.jpg",
-];
-
-const ProductImages: FC<ProductImagesProps> = ({ images = DEFAULT_IMAGES }) => {
+const ProductImages: FC<ProductImagesProps> = ({ images = [] }) => {
     const [current, setCurrent] = useState(0);
     const [origin, setOrigin] = useState<string>("center center");
     const carouselRef = useRef<HTMLDivElement | null>(null);

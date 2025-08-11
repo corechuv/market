@@ -1,4 +1,5 @@
 import React from "react";
+import { getProductById, getMoreProducts } from "../../services/productService";
 import cls from './ProductPage.module.scss'
 
 import ProductImages from "../../components/Product/ProductImages";
@@ -8,7 +9,7 @@ import ReviewList from "../../components/Product/ReviewList";
 import ReviewForm from "../../components/Product/ReviewForm";
 import ProductCarousel from "../../components/Product/ProductCarousel";
 import ChevronRightIcon from "../../components/Icons/ChevronLeftIcon";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const DEFAULT_IMAGES = [
     "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
@@ -17,6 +18,7 @@ const DEFAULT_IMAGES = [
     "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
     "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
 ];
+
 const reviews = [
     {
         id: "1",
@@ -104,49 +106,33 @@ const reviews = [
     }
 ];
 
-const products = [
-    {
-        id: "1",
-        name: "Intel Core i9-14900KS",
-        price: "691,89 €",
-        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-        link: "#"
-    },
-    {
-        id: "2",
-        name: "Intel Core i9-14900KS",
-        price: "691,89 €",
-        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-        link: "#"
-    },
-    {
-        id: "3",
-        name: "Intel Core i9-14900KS",
-        price: "691,89 €",
-        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-        link: "#"
-    },
-    {
-        id: "4",
-        name: "Intel Core i9-14900KS",
-        price: "691,89 €",
-        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-        link: "#"
-    },
-    {
-        id: "5",
-        name: "Intel Core i9-14900KS",
-        price: "691,89 €",
-        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-        link: "#"
-    },
-]
+export default function ProductPage() {
 
-export default function Product() {
+    const { productId } = useParams<{ productId: string }>();
+
+    const product = getProductById(String(productId));
+    const moreProducts = getMoreProducts(product?.id);
 
     const nav = useNavigate();
 
     const [isOpen, setIsOpen] = React.useState(false);
+
+    if (!product) {
+        return (
+            <div className="container">
+                <div className={cls.product}>
+                    <div className={cls.productCategory}>
+                        <span className={cls.productCategory__link} onClick={() => nav('/')}>Home</span>
+                        <ChevronRightIcon className={cls.productCategory__icon} />
+                        <span className={cls.productCategory__link} onClick={() => nav(-1)}>PC Components</span>
+                        <ChevronRightIcon className={cls.productCategory__icon} />
+                        <span className={cls.productCategory__link} onClick={() => nav(-1)}>Processors</span>
+                    </div>
+                    <h2>Товар не найден</h2>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="container">
@@ -162,8 +148,15 @@ export default function Product() {
                     <ProductImages images={DEFAULT_IMAGES} />
                     <div className={cls.productInfo}>
                         <div className={cls.productTitle}>
-                            <h1 className={cls.productName}>Intel Core Ultra 7 Desktop 265K LGA 1851</h1>
-                            <div className={cls.productPrice}>342,49 € <span><span className={cls.available}></span>In stock</span></div>
+                            <h1 className={cls.productName}>{product.name}</h1>
+                            <div className={cls.productPrice}>{product.price}
+                                <div className={cls.available}>
+                                    <span className={product.available ? cls.inStock : cls.outOfStock} />
+                                    <span className={product.available ? cls.inStockText : cls.outOfStockText}>
+                                        {product.available ? "In Stock" : "Out of Stock"}
+                                    </span>
+                                </div>
+                            </div>
                             <div className={cls.productVat}>
                                 <span>VAT included</span>
                             </div>
@@ -193,7 +186,7 @@ export default function Product() {
                             </div>
                         </div>
                     </div>
-                    <ProductCarousel products={products} label="More Products" />
+                    <ProductCarousel products={moreProducts} label="More Products" />
                 </div>
             </div>
             <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} variant="right" header="Reviews" headerBorder={false}>
