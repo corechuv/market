@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 
-import cls from './ProductList.module.scss'
+import cls from './ProductsMain.module.scss'
 
 import { useNavigate } from "react-router-dom"
 import Modal from "../../components/Modal/Modal"
@@ -76,7 +76,7 @@ const sortOptions = [
   { value: '-popular', label: 'Most popular' },
 ];
 
-export default function ProductList() {
+export default function ProductMain() {
   const nav = useNavigate()
 
   const [isModalOpen, setIsModalOpen] = React.useState(false);
