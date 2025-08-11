@@ -1,4 +1,6 @@
-import { useLayoutEffect, useRef, useState } from "react"
+import { useLayoutEffect, useMemo, useRef, useState } from "react"
+
+import { getProducts } from "../../services/productService";
 
 import cls from "./Header.module.scss"
 
@@ -19,13 +21,6 @@ export interface HeaderProps {
     className?: string;
 }
 
-const products = [
-    "iPhone 15 Pro",
-    "iPad Air",
-    "Apple Watch Ultra",
-    "MacBook Air 13",
-];
-
 function useIsMobile(breakpoint = 768) {
     const [isMobile, setIsMobile] = useState(false);
 
@@ -45,6 +40,13 @@ function useIsMobile(breakpoint = 768) {
 }
 
 const Header: React.FC<HeaderProps> = ({ className }) => {
+
+    const allProducts = getProducts(); // без фильтра — весь список
+    const items = useMemo(
+        () => allProducts.map(p => ({ id: p.id, label: p.name })),
+        [allProducts]
+    );
+
     const ref = useRef<HTMLElement | null>(null);
     const [hh, setHh] = useState<number>(80);
 
@@ -98,7 +100,13 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                     )}
                     {!isMobile && (
                         <div style={{ flexGrow: 1 }}>
-                            <Search data={products} onSelect={(v) => console.log("Выбрано:", v)} />
+                            <Search
+                                data={items}
+                                onSelect={(item) => {
+                                    // ВСЕГДА по id, даже если название совпадает
+                                    nav(`/product/${item.id}`);
+                                }}
+                            />
                         </div>
                     )}
                     <div className={cls.header__navigation}>

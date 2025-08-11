@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 
 import cls from './ProductsMain.module.scss'
 
@@ -10,6 +10,10 @@ import ProductItemList from "../../components/Product/ProductItemList"
 import SidebarItems from "../../components/Product/SidebarItems"
 
 import { getProducts } from "../../services/productService";
+
+type ProductsMainProps = {
+  query?: string;
+};
 
 const offerings = [
     { value: "discounted", label: "Discounted" },
@@ -33,8 +37,8 @@ const sortOptions = [
     { value: '-popular', label: 'Most popular' },
 ];
 
-export default function ProductMain() {
-    const products = getProducts();
+export default function ProductMain({ query = "" }: ProductsMainProps) {
+    const products = useMemo(() => getProducts({ q: query }), [query]);
 
     const nav = useNavigate()
 
