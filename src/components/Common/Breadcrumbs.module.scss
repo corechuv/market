@@ -1,0 +1,24 @@
+.category {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text);
+
+    &__link {
+        font-weight: 400;
+        cursor: pointer;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    &__icon {
+        width: 16px;
+        height: 16px;
+        color: var(--bg-arrow);
+    }
+}

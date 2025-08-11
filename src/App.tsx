@@ -8,6 +8,7 @@ import SearchPage from './pages/Search/SearchPage'
 import Footer from './components/Footer/Footer'
 import Header from './components/Header/Header'
 import "./styles/scrollbar.module.scss" // Import global variables
+import CategoryPage from './pages/Category/CategoryPage'
 
 export default function App() {
 
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/search" element={<SearchPage />} />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/product/:productId" element={<ProductPage />} />
+          <Route path="/category/*" element={<CategoryPage />} />
         </Routes>
       </main>
       <Footer />

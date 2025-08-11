@@ -19,20 +19,25 @@
   position: fixed;
   left: 0;
   right: 0;
-  top: var(--header-height, 80px); /* начнётся сразу под шапкой */
+  top: var(--header-height, 80px);
+  /* начнётся сразу под шапкой */
   bottom: 0;
   background: var(--bg-overlay);
   backdrop-filter: blur(5px);
-  z-index: 900;              /* шапка выше (1000) → оверлей не перекрывает header */
+  z-index: 900;
+  /* шапка выше (1000) → оверлей не перекрывает header */
   opacity: 0;
-  pointer-events: none;      /* когда прозрачный — "сквозной" */
+  pointer-events: none;
+  /* когда прозрачный — "сквозной" */
   transition: opacity 0.25s ease;
-  will-change: opacity;      /* меньше артефактов с blur */
+  will-change: opacity;
+  /* меньше артефактов с blur */
 }
 
 .overlayVisible {
   opacity: 1;
-  pointer-events: auto;      /* клики по затемнению доступны */
+  pointer-events: auto;
+  /* клики по затемнению доступны */
 }
 
 .catalog {
@@ -41,6 +46,7 @@
       padding: 0;
     }
   }
+
   padding: 10px 20px;
   display: flex;
   flex-direction: column;
@@ -354,3 +360,57 @@
     }
   }
 }
+
+.groupsGrid {
+  column-count: 4;          /* сколько "колонок" */
+  column-gap: 24px;         /* зазор между колонками */
+}
+
+.group {
+  break-inside: avoid;      /* не разрывать блок между колонками */
+  -webkit-column-break-inside: avoid;
+  margin-bottom: 24px;      /* вертикальный отступ между карточками */
+}
+
+/* тайтл L2 и список L3 должны быть блочными, не flex! */
+.groupTitle {
+  display: block;
+  margin: 0 0 10px;
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  color: var(--text);
+  opacity: 0.9;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: underline;
+    opacity: 1;
+  }
+}
+
+.groupList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.groupItem { margin: 6px 0; }
+.groupItem a {
+  font-size: 0.9rem;
+  text-decoration: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  opacity: 0.9;
+  &:hover, &:focus-visible { text-decoration: underline; opacity: 1; }
+}
+
+/* адаптив под ширину */
+@media (max-width: 1200px) { .groupsGrid { column-count: 3; } }
+@media (max-width: 900px)  { .groupsGrid { column-count: 2; } }
+@media (max-width: 767px)  { .groupsGrid { column-count: 1; } }

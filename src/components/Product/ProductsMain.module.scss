@@ -4,38 +4,47 @@ $bp-sm: 480px;
 $bp-md: 768px;
 $bp-lg: 1024px;
 
+.productsMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 60px;
+}
+
 /* ====== Лэйаут ====== */
 .productListPage {
   display: flex;
   flex-direction: row;
   gap: 40px;
-  margin-top: 80px;
 
   @media (max-width: $bp-md) {
     flex-direction: column;
     gap: 16px;
-    margin-top: 56px;
   }
 }
 
-
 .productListContent {
-    width: 100%;
+  width: 100%;
 }
 
 .title {
-    font-size: 1.8rem;
-    font-weight: 500;
-    color: var(--text);
-    margin: 0;
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: var(--text);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .productsHeader {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 /* Actions */

@@ -1,6 +1,9 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 import { getProductById, getMoreProducts } from "../../services/productService";
 import { getReviewsById } from "../../services/reviewService";
+import { getBreadcrumbs } from "../../services/categoryService";
+
 import cls from './ProductPage.module.scss'
 
 import ProductImages from "../../components/Product/ProductImages";
@@ -9,31 +12,36 @@ import Modal from "../../components/Modal/Modal";
 import ReviewList from "../../components/Product/ReviewList";
 import ReviewForm from "../../components/Product/ReviewForm";
 import ProductCarousel from "../../components/Product/ProductCarousel";
-import ChevronRightIcon from "../../components/Icons/ChevronLeftIcon";
-import { useNavigate, useParams } from "react-router-dom";
+import Breadcrumbs from "../../components/Common/Breadcrumbs";
 
 export default function ProductPage() {
     const { productId } = useParams<{ productId: string }>();
 
     const product = getProductById(String(productId));
-    const moreProducts = getMoreProducts(product?.id);
-    const reviews = getReviewsById(String(productId));
-
-    const nav = useNavigate();
 
     const [isOpen, setIsOpen] = React.useState(false);
+
+    // первичная категория товара (если несколько — берём первую)
+    const primaryCategoryId = product?.categoryId ?? product?.categoryIds?.[0];
+    const categoryCrumbs = primaryCategoryId ? getBreadcrumbs(primaryCategoryId) : [];
+
+
+    const moreProducts = getMoreProducts({
+        currentId: product?.id,
+        // необязательно, но можно уточнить:
+        // categoryId: product.categoryId, // или categoryFullSlug: "/electronics/computers/cpu"
+        limit: 8,
+        availableOnly: true,
+        shuffle: true,
+        fillFromAllIfShort: true,
+    });
+    const reviews = getReviewsById(String(productId));
 
     if (!product) {
         return (
             <div className="container">
                 <div className={cls.product}>
-                    <div className={cls.productCategory}>
-                        <span className={cls.productCategory__link} onClick={() => nav('/')}>Home</span>
-                        <ChevronRightIcon className={cls.productCategory__icon} />
-                        <span className={cls.productCategory__link} onClick={() => nav(-1)}>PC Components</span>
-                        <ChevronRightIcon className={cls.productCategory__icon} />
-                        <span className={cls.productCategory__link} onClick={() => nav(-1)}>Processors</span>
-                    </div>
+                    <Breadcrumbs crumbs={categoryCrumbs as any} />
                     <h2>Product not found</h2>
                 </div>
             </div>
@@ -43,13 +51,8 @@ export default function ProductPage() {
     return (
         <div className="container">
             <div className={cls.product}>
-                <div className={cls.productCategory}>
-                    <span className={cls.productCategory__link} onClick={() => nav('/')}>Home</span>
-                    <ChevronRightIcon className={cls.productCategory__icon} />
-                    <span className={cls.productCategory__link} onClick={() => nav(-1)}>PC Components</span>
-                    <ChevronRightIcon className={cls.productCategory__icon} />
-                    <span className={cls.productCategory__link} onClick={() => nav(-1)}>Processors</span>
-                </div>
+                {/* Крошки */}
+                <Breadcrumbs crumbs={categoryCrumbs as any} />
                 <div className={cls.productDetails}>
                     <ProductImages images={product.images} />
                     <div className={cls.productInfo}>
