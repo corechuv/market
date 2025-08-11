@@ -15,11 +15,13 @@ export interface Review {
     /** Display name of the reviewer */
     reviewerName: string;
     /** ISO‑8601 date string (yyyy‑mm‑dd) */
-    reviewDate: string;
+    date: string;
     /** Star rating (1‑5) */
     rating: number;
     /** Free‑form review body */
-    text: string;
+    comment: string;
+    /** Product ID this review belongs to */
+    productId: string;
 }
 
 export interface ReviewListProps {
@@ -39,7 +41,7 @@ export interface ReviewListProps {
 const ReviewList: React.FC<ReviewListProps> = ({ reviews, className }) => {
     return (
         <ul className={cx(cls.reviewList, className)}>
-            {reviews.map(({ id, reviewerName, reviewDate, rating, text }) => (
+            {reviews.map(({ id, reviewerName, date, rating, comment }) => (
                 <li key={id} className={cls.reviewList__item}>
                     <div
                         className={cls.reviewRating}
@@ -65,18 +67,18 @@ const ReviewList: React.FC<ReviewListProps> = ({ reviews, className }) => {
                         <span className={cls.reviewerName}>{reviewerName}</span>
                         <time
                             className={cls.reviewDate}
-                            dateTime={reviewDate}
-                            title={new Date(reviewDate).toLocaleDateString()}
+                            dateTime={date}
+                            title={new Date(date).toLocaleDateString()}
                         >
                             {new Intl.DateTimeFormat(undefined, {
                                 year: "numeric",
                                 month: "short",
                                 day: "2-digit",
-                            }).format(new Date(reviewDate))}
+                            }).format(new Date(date))}
                         </time>
                     </header>
 
-                    <p className={cls.reviewText}>{text}</p>
+                    <p className={cls.reviewText}>{comment}</p>
                 </li>
             ))}
         </ul>

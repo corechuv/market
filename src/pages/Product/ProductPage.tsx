@@ -1,5 +1,6 @@
 import React from "react";
 import { getProductById, getMoreProducts } from "../../services/productService";
+import { getReviewsById } from "../../services/reviewService";
 import cls from './ProductPage.module.scss'
 
 import ProductImages from "../../components/Product/ProductImages";
@@ -11,107 +12,12 @@ import ProductCarousel from "../../components/Product/ProductCarousel";
 import ChevronRightIcon from "../../components/Icons/ChevronLeftIcon";
 import { useNavigate, useParams } from "react-router-dom";
 
-const DEFAULT_IMAGES = [
-    "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-    "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-    "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-    "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-    "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-];
-
-const reviews = [
-    {
-        id: "1",
-        reviewerName: "John Doe",
-        reviewDate: "2023-10-01",
-        rating: 5,
-        text: "Amazing product! Highly recommend. 🚀🔥",
-    },
-    {
-        id: "2",
-        reviewerName: "Jane Smith",
-        reviewDate: "2023-10-02",
-        rating: 4,
-        text: "Very good quality, but a bit expensive. 💸👍",
-    },
-    {
-        id: "3",
-        reviewerName: "Alice Johnson",
-        reviewDate: "2023-10-03",
-        rating: 3,
-        text: "Average performance, expected more. 🤔",
-    },
-    {
-        id: "4",
-        reviewerName: "Bob Lee",
-        reviewDate: "2023-10-04",
-        rating: 5,
-        text: "Super fast and reliable! Perfect for gaming. 🎮💯",
-    },
-    {
-        id: "5",
-        reviewerName: "Maria Garcia",
-        reviewDate: "2023-10-05",
-        rating: 4,
-        text: "Works well for my needs, installation was easy. 🛠️😊",
-    },
-    {
-        id: "6",
-        reviewerName: "Chen Wei",
-        reviewDate: "2023-10-06",
-        rating: 2,
-        text: "Had some issues with overheating. 😕🌡️",
-    },
-    {
-        id: "7",
-        reviewerName: "Elena Petrova",
-        reviewDate: "2023-10-07",
-        rating: 5,
-        text: "Exceeded my expectations! Would buy again. ⭐⭐⭐⭐⭐",
-    },
-    {
-        id: "8",
-        reviewerName: "Liam O'Brien",
-        reviewDate: "2023-10-08",
-        rating: 4,
-        text: "Solid processor, but fan gets noisy. 🌀🔊",
-    },
-    {
-        id: "9",
-        reviewerName: "Sofia Rossi",
-        reviewDate: "2023-10-09",
-        rating: 3,
-        text: "Not bad, but not the best for the price. 💵🤷‍♀️",
-    },
-    {
-        id: "10",
-        reviewerName: "Akira Tanaka",
-        reviewDate: "2023-10-10",
-        rating: 5,
-        text: "Handles multitasking like a champ! 🏆💻",
-    },
-    {
-        id: "11",
-        reviewerName: "Lucas Müller",
-        reviewDate: "2023-10-11",
-        rating: 4,
-        text: "Good value, fast shipping. 🚚👍",
-    },
-    {
-        id: "12",
-        reviewerName: "Fatima Al-Farsi",
-        reviewDate: "2023-10-12",
-        rating: 5,
-        text: "Perfect for my workstation. Highly satisfied! 😍🖥️",
-    }
-];
-
 export default function ProductPage() {
-
     const { productId } = useParams<{ productId: string }>();
 
     const product = getProductById(String(productId));
     const moreProducts = getMoreProducts(product?.id);
+    const reviews = getReviewsById(String(productId));
 
     const nav = useNavigate();
 
@@ -128,7 +34,7 @@ export default function ProductPage() {
                         <ChevronRightIcon className={cls.productCategory__icon} />
                         <span className={cls.productCategory__link} onClick={() => nav(-1)}>Processors</span>
                     </div>
-                    <h2>Товар не найден</h2>
+                    <h2>Product not found</h2>
                 </div>
             </div>
         );
@@ -145,7 +51,7 @@ export default function ProductPage() {
                     <span className={cls.productCategory__link} onClick={() => nav(-1)}>Processors</span>
                 </div>
                 <div className={cls.productDetails}>
-                    <ProductImages images={DEFAULT_IMAGES} />
+                    <ProductImages images={product.images} />
                     <div className={cls.productInfo}>
                         <div className={cls.productTitle}>
                             <h1 className={cls.productName}>{product.name}</h1>
@@ -172,7 +78,7 @@ export default function ProductPage() {
                     <div className={cls.productDescription}>
                         <h3 className={cls.descriptionTitle}>Description</h3>
                         <p>
-                            The Intel Core Ultra 7 Desktop 265K LGA 1851 is a cutting-edge processor designed for enthusiasts and professionals. Featuring multiple high-efficiency cores, advanced AI acceleration, and support for the latest DDR5 memory, it delivers outstanding performance for gaming, content creation, and multitasking. With improved thermal management and integrated graphics, this processor ensures smooth operation even under heavy workloads.
+                            {product.description || "No description available for this product."}
                         </p>
                     </div>
                     <div className={cls.productReviews}>
