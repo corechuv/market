@@ -130,7 +130,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                         </button>
                     </div>
                 </div>
-                <Catalog trigger="click"
+                <Catalog trigger="hover"
                     renderMobileHamburger={false}
                     mobileDrawerOpen={mobileCatalogOpen}
                     onMobileDrawerOpenChange={setMobileCatalogOpen} />
