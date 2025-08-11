@@ -1,5 +1,5 @@
 import React from "react";
-import cls from './Product.module.scss'
+import cls from './ProductPage.module.scss'
 
 import ProductImages from "../../components/Product/ProductImages";
 import Button from "../../components/Buttons/Button";

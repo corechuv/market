@@ -1,7 +1,7 @@
 import 'react'
 import './App.css'
 import { Route, Routes } from 'react-router-dom'
-import Product from './pages/Product/Product'
+import ProductPage from './pages/Product/ProductPage'
 import Home from './pages/Home/Home'
 import ProductsPage from './pages/Product/ProductsPage'
 import SearchPage from './pages/Search/SearchPage'
@@ -19,7 +19,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/products" element={<ProductsPage />} />
-          <Route path="/product/1" element={<Product />} />
+          <Route path="/product/1" element={<ProductPage />} />
         </Routes>
       </main>
       <Footer />
