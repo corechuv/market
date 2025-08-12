@@ -39,7 +39,7 @@ const Accordion: React.FC<AccordionProps> = ({ title, children, defaultOpen = fa
                     />
                 </svg>
             </button>
-            {open && <div className={styles.content}>{children}</div>}
+            {open && <div className={styles.accordion__content}>{children}</div>}
         </div>
     );
 };

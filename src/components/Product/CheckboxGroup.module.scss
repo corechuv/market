@@ -29,7 +29,6 @@
   gap: 0.6rem;
   user-select: none;
   cursor: pointer;
-  margin-left: 10px;
 
   &:has(.checkbox:disabled) {
     cursor: not-allowed;
