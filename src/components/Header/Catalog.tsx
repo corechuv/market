@@ -224,9 +224,8 @@ export default function Catalog({
       />
 
       <div
-        className={`${cls.catalogContainer} ${active ? cls.isOpen : ""} ${
-          isHover ? cls.isHover : ""
-        }`}
+        className={`${cls.catalogContainer} ${active ? cls.isOpen : ""} ${isHover ? cls.isHover : ""
+          }`}
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
       >
@@ -386,17 +385,16 @@ export default function Catalog({
                   <>
                     <h2 className={cls.panelTitle}>{rootCat.name}</h2>
 
-                    <ul className={cls.mobileCategories}>
+                    <ul className={cls.groupList}>
                       {l2List.map((l2) => (
-                        <li key={l2.id}>
-                          <button
-                            className={cls.mobileCatBtn}
+                        <li key={l2.id} className={cls.groupItem}>
+                          <a
                             onClick={() => openL3(l2)}
                             aria-label={`Open ${l2.name}`}
                           >
                             {l2.name}
                             <ChevronRightIcon className={cls.mobileChevron} />
-                          </button>
+                          </a>
                         </li>
                       ))}
                     </ul>

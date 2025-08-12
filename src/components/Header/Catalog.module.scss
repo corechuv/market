@@ -186,7 +186,7 @@
   text-align: left;
   padding: 4px 0;
   font-family: "Roboto", sans-serif;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 500;
   color: var(--text);
   display: flex;
@@ -362,14 +362,18 @@
 }
 
 .groupsGrid {
-  column-count: 4;          /* сколько "колонок" */
-  column-gap: 24px;         /* зазор между колонками */
+  column-count: 4;
+  /* сколько "колонок" */
+  column-gap: 24px;
+  /* зазор между колонками */
 }
 
 .group {
-  break-inside: avoid;      /* не разрывать блок между колонками */
+  break-inside: avoid;
+  /* не разрывать блок между колонками */
   -webkit-column-break-inside: avoid;
-  margin-bottom: 24px;      /* вертикальный отступ между карточками */
+  margin-bottom: 24px;
+  /* вертикальный отступ между карточками */
 }
 
 /* тайтл L2 и список L3 должны быть блочными, не flex! */
@@ -400,17 +404,64 @@
   padding: 0;
 }
 
-.groupItem { margin: 6px 0; }
+.groupItem {
+  color: var(--text);
+}
+
 .groupItem a {
   font-size: 0.9rem;
   text-decoration: none;
   color: var(--color-text-secondary);
   cursor: pointer;
   opacity: 0.9;
-  &:hover, &:focus-visible { text-decoration: underline; opacity: 1; }
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: underline;
+    opacity: 1;
+  }
 }
 
 /* адаптив под ширину */
-@media (max-width: 1200px) { .groupsGrid { column-count: 3; } }
-@media (max-width: 900px)  { .groupsGrid { column-count: 2; } }
-@media (max-width: 767px)  { .groupsGrid { column-count: 1; } }
+@media (max-width: 1200px) {
+  .groupsGrid {
+    column-count: 3;
+  }
+}
+
+@media (max-width: 900px) {
+  .groupsGrid {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 767px) {
+  .groupsGrid {
+    column-count: 1;
+  }
+
+  .groupList {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  .groupItem {
+    color: var(--text);
+  }
+
+  .groupItem a {
+    font-size: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+
+    &:hover,
+    &:focus-visible {
+      text-decoration: underline;
+      opacity: 1;
+    }
+  }
+
+}
