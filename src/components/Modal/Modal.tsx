@@ -81,58 +81,48 @@ export default function Modal({
 
   if (!isOpen) return null;
 
-  // Compute style object for modalContent
-  let modalContentStyle: React.CSSProperties = {};
-  if (variant === 'left') {
-    modalContentStyle.borderRight = '1px dashed var(--border)';
-  } else if (variant === 'right') {
-    modalContentStyle.borderLeft = '1px dashed var(--border)';
-  } else {
-    modalContentStyle.border = '1px dashed var(--border)';
-  }
+  const modalContentStyle: React.CSSProperties = {
+    ...(variant === 'left' ? { borderRight: '1px dashed var(--border)' } :
+      variant === 'right' ? { borderLeft: '1px dashed var(--border)' } :
+        { border: '1px dashed var(--border)' }),
+    ...(variant === 'left' || variant === 'right'
+      ? { width: typeof sideWidth === 'number' ? `${sideWidth}px` : sideWidth || '360px' }
+      : null),
+  };
 
-  if (variant === 'left' || variant === 'right') {
-    modalContentStyle.width =
-      typeof sideWidth === 'number' ? `${sideWidth}px` : sideWidth || '360px';
-  }
-
-  let modalHeaderStyle: React.CSSProperties = {};
-  // Optionally add header border
-  modalHeaderStyle.borderBottom = headerBorder
-    ? '1px dashed var(--border)'
-    : '1px dashed transparent';
-
-  if (!isOpen) return null;
+  const modalHeaderStyle: React.CSSProperties = {
+    borderBottom: headerBorder ? '1px dashed var(--border)' : '1px dashed transparent',
+  };
 
 
   return createPortal(
-    (
+    <div className={`${cls.modalOverlay} ${cls[variant]}`} onClick={onClose} role="presentation">
       <div
-        className={`${cls.modalOverlay} ${cls[variant]}`}
-        onClick={onClose}
-        role="presentation"
+        className={`${cls.modalContent} ${cls[variant]} ${className}`}
+        style={modalContentStyle}
+        role="dialog"
+        aria-modal="true"
+        ref={contentRef}
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div
-          className={`${cls.modalContent} ${cls[variant]} ${className}`}
-          style={modalContentStyle}
-          role="dialog"
-          aria-modal="true"
-          ref={contentRef}
-          tabIndex={-1}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {header && (
-            <div className={`${cls.modalHeader} ${headerClassName}`} style={modalHeaderStyle}>
-              {header}
-            </div>
-          )}
-          <button className={cls.closeButton} onClick={onClose} aria-label="Close modal" type="button">
-            <CloseIcon />
-          </button>
-          <div className={`${cls.modalBody} ${bodyClassName}`}>{children}</div>
+        {header && (
+          <div className={`${cls.modalHeader} ${headerClassName}`} style={modalHeaderStyle}>
+            {header}
+          </div>
+        )}
+
+        <button className={cls.closeButton} onClick={onClose} aria-label="Close modal" type="button">
+          <CloseIcon />
+        </button>
+
+        <div className={`${cls.modalBody} ${bodyClassName}`}>
+          <div className={cls.modalScroll}>
+            {children}
+          </div>
         </div>
       </div>
-    ),
+    </div>,
     document.body
   );
 }

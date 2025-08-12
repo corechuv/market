@@ -8,11 +8,10 @@ $anim-time: 0.3s;
   position: fixed;
   inset: 0;
   display: flex;
-  align-items: center;      // для center
+  align-items: center;
   justify-content: center;
   background: var(--bg-overlay);
   backdrop-filter: blur(5px);
-  min-height: 100vh;
   z-index: 1000;
 
   &.left  { justify-content: flex-start; }
@@ -21,29 +20,29 @@ $anim-time: 0.3s;
 
 .modalContent {
   position: relative;
-  max-height: 100%;
-  overflow-y: auto;
+  display: flex;                 /* NEW: колонка */
+  flex-direction: column;        /* NEW */
+  overflow: visible;             /* NEW: не обрезаем абсолюты */
   background: var(--bg);
   color: var(--text);
   outline: none;
   transition: transform $anim-time ease, opacity $anim-time ease;
-  @include scrollbar.custom-scrollbar();
-  /*box-shadow: 0 4px 16px rgba(0, 0, 0, .15);*/
 
   /* ===== Центр ===== */
   &.center {
-    width: 90vw;
-    max-width: 560px;
+    width: min(90vw, 560px);
+    max-height: min(92vh, 92svh); /* NEW: ограничиваем по вьюпорту */
     border-radius: 12px;
     opacity: 0;
     transform: scale(0.9);
     animation: zoomIn $anim-time forwards;
+    @include scrollbar.custom-scrollbar(); /* если надо прокручивать вложенный скролл */
   }
 
   /* ===== Слева/справа (fullscreen height drawers) ===== */
   &.left,
   &.right {
-    height: 100%;
+    height: 100dvh;             /* NEW: стабильная высота, мобильный safe */
     border-radius: 0;
   }
 
@@ -51,7 +50,7 @@ $anim-time: 0.3s;
   &.right { transform: translateX(100%);  animation: slideInRight $anim-time forwards; }
 }
 
-// Header & Body
+/* Header & Body */
 .modalHeader {
   display: flex;
   align-items: center;
@@ -62,12 +61,24 @@ $anim-time: 0.3s;
   font-weight: 600;
   color: var(--text);
   height: 68px;
+  flex: 0 0 68px;               /* NEW: фиксируем место под шапку */
+  border-bottom: 1px dashed var(--border); /* или через инлайн-стиль из пропсов */
 }
 
 .modalBody {
-  padding: 1.25rem;
-  height: 100%;
   position: relative;
+  padding: 1.25rem;
+  flex: 1 1 auto;               /* NEW: занимает оставшееся место */
+  min-height: 0;                /* NEW: обязателен для корректного шринка в flex */
+  overflow: visible;            /* NEW: чтобы абсолюты не обрезались */
+}
+
+/* Внутренний скролл только тут */
+.modalScroll {
+  height: 100%;
+  max-height: 100%;             /* у центр-версии ограничено max-height родителя */
+  overflow-y: auto;
+  @include scrollbar.custom-scrollbar();
 }
 
 @keyframes zoomIn       { to { opacity: 1; transform: scale(1); } }
@@ -78,12 +89,10 @@ $anim-time: 0.3s;
   position: absolute;
   top: 1.25rem;
   right: 0.75rem;
-
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text);
-
   width: 1.7rem;
   height: 1.7rem;
   padding: 0;
@@ -91,14 +100,6 @@ $anim-time: 0.3s;
   background: transparent;
   cursor: pointer;
 
-  svg {
-    width: 100%;
-    height: 100%;
-    transition: transform 0.15s ease;
-  }
-
-  &:hover svg,
-  &:focus-visible svg {
-    transform: scale(1.15);
-  }
+  svg { width: 100%; height: 100%; transition: transform 0.15s ease; }
+  &:hover svg, &:focus-visible svg { transform: scale(1.15); }
 }
