@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import ChevronRightIcon from "../Icons/ChevronLeftIcon";
 import cls from "./Breadcrumbs.module.scss";
+import HomeIcon from "../Icons/HomeIcon";
 
 type CategoryCrumb = {
     id: string;
@@ -14,8 +15,6 @@ type BreadcrumbsProps = {
     crumbs?: CategoryCrumb[];
     /** Произвольный класс-обёртка (если нужно стилизовать снаружи) */
     className?: string;
-    /** Текст для Home (по умолчанию "Home") */
-    homeLabel?: string;
     /** Показывать ли Home слева */
     showHome?: boolean;
 };
@@ -23,7 +22,6 @@ type BreadcrumbsProps = {
 const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
     crumbs = [],
     className,
-    homeLabel = "Home",
     showHome = true,
 }) => {
     const nav = useNavigate();
@@ -31,9 +29,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
     return (
         <nav className={`${cls.category} ${className ?? ""}`} aria-label="Breadcrumb">
             {showHome && (
-                <span className={cls.category__link} onClick={() => nav("/")}>
-                    {homeLabel}
-                </span>
+                <HomeIcon className={cls["category__icon--home"]} onClick={() => nav("/")} />
             )}
 
             {crumbs.map((c) => (

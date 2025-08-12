@@ -9,6 +9,11 @@ $bp-lg: 1024px;
   flex-direction: column;
   gap: 2rem;
   margin-top: 60px;
+
+  @media screen and (max-width: $bp-md) {
+    margin-top: 40px;
+    gap: 1rem;
+  }
 }
 
 /* ====== Лэйаут ====== */
