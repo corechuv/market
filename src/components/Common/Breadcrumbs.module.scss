@@ -1,30 +1,64 @@
 .category {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: var(--text);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text);
+  flex-wrap: wrap;           /* ✅ разрешаем перенос на мобильных и узких экранах */
+}
 
-    &__link {
-        font-weight: 400;
-        cursor: pointer;
-        text-decoration: none;
+/* один «кусочек» крошки: стрелка + текст вместе */
+.category__crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;              /* важно для ellipsis внутри flex */
+  flex: 0 1 auto;
+}
 
-        &:hover {
-            text-decoration: underline;
-        }
-    }
+.category__link {
+  font-weight: 400;
+  cursor: pointer;
+  text-decoration: none;
+  min-width: 0;              /* позволяет сжиматься */
+  white-space: nowrap;       /* десктоп: в одну строку */
+  overflow: hidden;
+  text-overflow: ellipsis;
 
-    &__icon {
-        width: 16px;
-        height: 16px;
-        color: var(--bg-arrow);
+  &:hover { text-decoration: underline; }
+}
 
-        &--home {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-    }
+.category__icon {
+  width: 16px;
+  height: 16px;
+  color: var(--bg-arrow);
+  flex: 0 0 auto;            /* иконка не растягивается */
+}
+
+.category__icon--home {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+/* 📱 мобильные: разрешаем перенос текста и ломаем длинные слова */
+@media (max-width: 600px) {
+  .category { gap: 6px; }
+
+  .category__crumb { max-width: 100%; }
+
+  .category__link {
+    white-space: normal;       /* можно в несколько строк */
+    overflow: visible;
+    text-overflow: clip;
+    word-break: break-word;    /* ломаем очень длинные слова/slug'и */
+    overflow-wrap: anywhere;
+    line-height: 1.25;
+  }
+}
+
+@media (max-width: 360px) {
+   .category { font-size: 13px; }
 }
