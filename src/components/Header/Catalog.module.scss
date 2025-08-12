@@ -311,11 +311,19 @@
   }
 }
 
+.mobileSettings {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-top: 60px;
+  padding-right: 8px;
+}
+
 .themeSwitch {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 60px;
 
   .switchBtn {
     background: none;
@@ -325,6 +333,7 @@
     display: flex;
     align-items: center;
     gap: 5px;
+    padding: 0 8px;
 
     svg {
       width: 24px;
@@ -337,6 +346,14 @@
     &:focus-visible {
       text-decoration: underline;
     }
+
+    &:nth-child(1) {
+      padding-left: 0;
+    }
+
+    &:nth-child(2) {
+      border-left: 1px dashed var(--border);
+    }
   }
 }
 
@@ -344,7 +361,6 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 60px;
 
   .languageLink {
     text-decoration: none;

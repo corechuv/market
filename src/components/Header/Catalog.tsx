@@ -346,28 +346,29 @@ export default function Catalog({
                   <a>Contact Us</a>
                 </div>
 
-                <div className={cls.themeSwitch}>
-                  <button
-                    className={cls.switchBtn}
-                    onClick={() => setTheme("light")}
-                    aria-label="Light theme"
-                  >
-                    <SunIcon />
-                  </button>
-                  <button
-                    className={cls.switchBtn}
-                    onClick={() => setTheme("dark")}
-                    aria-label="Dark theme"
-                  >
-                    <MoonIcon />
-                  </button>
-                </div>
+                <div className={cls.mobileSettings}>
+                  <div className={cls.themeSwitch}>
+                    <button
+                      className={cls.switchBtn}
+                      onClick={() => setTheme("light")}
+                      aria-label="Light theme"
+                    >
+                      <SunIcon />
+                    </button>
+                    <button
+                      className={cls.switchBtn}
+                      onClick={() => setTheme("dark")}
+                      aria-label="Dark theme"
+                    >
+                      <MoonIcon />
+                    </button>
+                  </div>
 
-                <div className={cls.languageSwitch}>
-                  <span>Language:</span>
-                  <a href="/en" className={cls.languageLink}>
-                    English
-                  </a>
+                  <div className={cls.languageSwitch}>
+                    <a href="/en" className={cls.languageLink}>
+                      English
+                    </a>
+                  </div>
                 </div>
               </div>
 
