@@ -40,8 +40,6 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, visibleItem
         <div className={cls.listContainer}>
             <h2 className={cls.title}>{label}</h2>
             <div className={`${cls.carousel} ${className}`.trim()}>
-                <button type="button" aria-label="Scroll products left" className={`${cls.arrow} ${cls.left}`} onClick={() => scrollByItemWidth("left")}> <ChevronLeftIcon className={cls.icon} /> </button>
-
                 <div className={cls.trackWrapper} ref={viewportRef}>
                     <div className={cls.track}>
                         {products.map((p) => (
@@ -53,14 +51,18 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, visibleItem
                         ))}
                     </div>
                 </div>
-
-                <button type="button" aria-label="Scroll products right" className={`${cls.arrow} ${cls.right}`} onClick={() => scrollByItemWidth("right")}> <ChevronRightIcon className={cls.icon} /> </button>
             </div>
 
             <div className={cls.dotControls}>
+                <button type="button" className={cls.controls__btnIcon} onClick={() => scrollByItemWidth("left")}>
+                    <ChevronLeftIcon className={cls.icon} />
+                </button>
                 {products.map((_, idx) => (
                     <span key={idx} className={cls.dot}></span>
                 ))}
+                <button type="button" className={cls.controls__btnIcon} onClick={() => scrollByItemWidth("right")}>
+                    <ChevronRightIcon className={cls.icon} />
+                </button>
             </div>
         </div>
     );

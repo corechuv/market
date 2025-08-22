@@ -24,30 +24,6 @@
     align-items: center;
 }
 
-.arrow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 0.25rem;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    border: 1px dashed var(--border);
-    background-color: var(--bg);
-    cursor: pointer;
-}
-
-.left {
-    position: absolute;
-    left: 0.5rem;
-}
-
-.right {
-    position: absolute;
-    right: 0.5rem;
-}
-
 .icon {
     width: 2rem;
     height: 2rem;
@@ -112,7 +88,8 @@
 
 .dotControls {
     display: flex;
-    justify-content: left;
+    flex-direction: row;
+    align-items: center;
     gap: 0.5rem;
     margin-top: 1rem;
 }
@@ -125,4 +102,25 @@
     border-radius: 50%;
     margin: 0 4px;
     display: flex;
+}
+
+.controls {
+
+    &__btnIcon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        border: none;
+        background-color: transparent;
+        cursor: pointer;
+
+        svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: var(--text);
+        }
+    }
 }
