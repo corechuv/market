@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import cls from './ReviewForm.module.scss';
-import Button from '../Buttons/Button';
+import Button from '../UI/Button';
 
 const ReviewForm: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);

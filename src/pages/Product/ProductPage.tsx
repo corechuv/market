@@ -7,7 +7,7 @@ import { getBreadcrumbs } from "../../services/categoryService";
 import cls from './ProductPage.module.scss'
 
 import ProductImages from "../../components/Product/ProductImages";
-import Button from "../../components/Buttons/Button";
+import Button from "../../components/UI/Button";
 import Modal from "../../components/Modal/Modal";
 import ReviewList from "../../components/Product/ReviewList";
 import ReviewForm from "../../components/Product/ReviewForm";

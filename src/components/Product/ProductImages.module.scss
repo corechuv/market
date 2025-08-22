@@ -7,16 +7,17 @@
 .thumbBtn {
   display: flex;
   border: none;
-  padding: 0;
+  padding: 1px;
+  margin: 2px;
   background: none;
   outline: none;
   cursor: pointer;
 
   img {
-    width: 64px;
-    height: 64px;
+    width: 164px;
+    height: 164px;
     object-fit: cover;
-    border-radius: 12px;
+    border-radius: 20px;
   }
 }
 
@@ -134,4 +135,5 @@
 .thumbsMobile .thumbBtn img {
   width: 56px;
   height: 56px;
+  border-radius: 12px;
 }

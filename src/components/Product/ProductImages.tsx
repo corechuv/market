@@ -81,20 +81,6 @@ const ProductImages: FC<ProductImagesProps> = ({ images = [] }) => {
 
             {/* ======== ДЕСКТОПНАЯ ВЕРСИЯ: превью слева, зум по ховеру ======== */}
             <div className={cls.wrapperDesktop}>
-                <aside className={cls.thumbs} aria-label="Миниатюры изображений">
-                    {images.map((src, idx) => (
-                        <button
-                            key={`${src}-${idx}`}
-                            type="button"
-                            onClick={() => setCurrent(idx)}
-                            className={`${cls.thumbBtn} ${idx === current ? cls.active : ""}`}
-                            aria-label={`Показать изображение ${idx + 1}`}
-                        >
-                            <img src={src} alt={`Миниатюра ${idx + 1}`} />
-                        </button>
-                    ))}
-                </aside>
-
                 <figure className={cls.main}>
                     <img
                         src={images[current]}
@@ -110,6 +96,19 @@ const ProductImages: FC<ProductImagesProps> = ({ images = [] }) => {
                         onToggleFavorite={() => alert("Добавлено в избранное!")}
                     />
                 </figure>
+                <aside className={cls.thumbs} aria-label="Миниатюры изображений">
+                    {images.map((src, idx) => (
+                        <button
+                            key={`${src}-${idx}`}
+                            type="button"
+                            onClick={() => setCurrent(idx)}
+                            className={`${cls.thumbBtn} ${idx === current ? cls.active : ""}`}
+                            aria-label={`Показать изображение ${idx + 1}`}
+                        >
+                            <img src={src} alt={`Миниатюра ${idx + 1}`} />
+                        </button>
+                    ))}
+                </aside>
             </div>
         </div>
     );

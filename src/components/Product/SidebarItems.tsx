@@ -4,7 +4,7 @@ import Accordion from "../../components/Product/Accordion";
 import CheckboxGroup from "../../components/Product/CheckboxGroup";
 import PriceRangeDual from "../../components/Product/PriceRangeDual";
 import Stars from "../../components/Product/Stars";
-import Button from "../../components/Buttons/Button";
+import Button from "../UI/Button";
 import cls from "./SidebarItems.module.scss";
 
 import {
