@@ -8,14 +8,15 @@ export interface ButtonProps {
     onClick?: () => void;
     /** Дополнительные классы */
     className?: string;
+    type?: 'button' | 'submit' | 'reset';
     size?: 'small' | 'medium' | 'large';
     disabled?: boolean;
 }
 
-export default function Button({ children, onClick, className = '', size = 'medium', disabled = false }: ButtonProps) {
+export default function Button({ children, onClick, className = '', type = 'button', size = 'medium', disabled = false }: ButtonProps) {
     return (
         <button
-            type="button"
+            type={type}
             className={`${cls.button} ${className} ${cls[size]}`}
             onClick={onClick}
             aria-label={typeof children === 'string' ? children : undefined}
