@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { getProductById, getMoreProducts } from "../../services/productService";
 import { getReviewsById } from "../../services/reviewService";
 import { getBreadcrumbs } from "../../services/categoryService";
+import { buildSpecs } from "../../specs/builders";
 
 
 import cls from './ProductPage.module.scss'
@@ -15,6 +16,7 @@ import ReviewForm from "../../components/Product/ReviewForm";
 import ProductCarousel from "../../components/Product/ProductCarousel";
 import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import DeliveryBadge from "../../components/Product/DeliveryBadge";
+import SpecTable from "../../components/Product/SpecTable";
 
 
 export default function ProductPage() {
@@ -27,7 +29,6 @@ export default function ProductPage() {
     // первичная категория товара (если несколько — берём первую)
     const primaryCategoryId = product?.categoryId ?? product?.categoryIds?.[0];
     const categoryCrumbs = primaryCategoryId ? getBreadcrumbs(primaryCategoryId) : [];
-
 
     const moreProducts = getMoreProducts({
         currentId: product?.id,
@@ -50,6 +51,7 @@ export default function ProductPage() {
             </div>
         );
     }
+    const { entries, dictionary } = buildSpecs(product);
 
     return (
         <div className="container">
@@ -92,6 +94,17 @@ export default function ProductPage() {
                                     <li key={idx}>{line}</li>
                                 )) : <li>No short description available for this product.</li>}
                             </ul>
+                        </div>
+                    </div>
+                    <div className={cls.section}>
+                        <h3 className={cls.section__title}>Specifications</h3>
+                        <div className={cls.section__content}>
+                            <SpecTable
+                                specs={entries}
+                                dictionary={dictionary}
+                                showEmpty="dash"
+                                mergeStrategy="dict-first"
+                            />
                         </div>
                     </div>
                     <div className={cls.section}>
