@@ -69,14 +69,14 @@ export default function ProductPage() {
                             <div className={cls.productVat}>
                                 <span>VAT included</span>
                             </div>
-                            <div className={cls.productDelivery}>
-                                <span>Delivery: <span className={cls.deliveryTime}>3-5</span> business days</span>
-                            </div>
                         </div>
                         <div className={cls.productActions}>
                             <Button className={`${cls.addToCart}`} size="small">Add to Cart</Button>
                             <Button className={`${cls.buyNow}`} size="small">Buy Now</Button>
                         </div>
+                    </div>
+                    <div className={cls.productDelivery}>
+                        <span>Delivery: <span className={cls.deliveryTime}>3-5</span> business days</span>
                     </div>
                     <div className={cls.productDescription}>
                         <h3 className={cls.descriptionTitle}>Description</h3>

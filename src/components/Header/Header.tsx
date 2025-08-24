@@ -16,6 +16,7 @@ import Catalog from "./Catalog";
 import { SettingsMenuButton } from "./SettingsMenu";
 import { useNavigate } from "react-router-dom";
 import LogoIcon from "../Icons/LogoIcon";
+import BagIcon from "../Icons/BagIcon";
 
 export interface HeaderProps {
     className?: string;
@@ -123,7 +124,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                             <AccountIcon strokeWidth={1.5} />
                         </button>
                         <button className={cls.header__navButton} aria-label="Cart">
-                            <CartIcon />
+                            <BagIcon strokeWidth={1.5} />
                         </button>
                         <button className={cls.header__navButton} aria-label="Wishlist">
                             <HeartIcon fill="none" strokeWidth={1.5} />

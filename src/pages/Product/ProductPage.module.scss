@@ -154,6 +154,7 @@
     display: flex;
     align-items: center;
     flex-direction: column;
+    justify-content: center;
     gap: 8px;
     border-left: 1px dashed var(--border);
     padding: 20px 20px;
@@ -207,7 +208,7 @@
     }
 
     .reviewCount {
-        font-size: 50px;
+        font-size: 68px;
         font-weight: 300;
         color: var(--bg-star-active);
         display: flex;
