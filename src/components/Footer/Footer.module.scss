@@ -18,8 +18,6 @@ $bp-lg: 1024px;
     width: 100%;
 
     &--col {
-      &:first-child { border-top: var(--border-size-0_5) dashed var(--border); }
-
       /* общий контейнер секции — БЕЗ display, чтобы не перебивать приватные секции */
       section {
         margin: 0 auto;
@@ -139,20 +137,14 @@ $bp-lg: 1024px;
   &__dhl,
   &__dpd,
   &__hermes {
-    width: 50px;
-    height: 30px;
+    width: 70px;
+    height: 40px;
     object-fit: contain;
     padding: 4px 10px;
-    border: var(--border-size-0_5) dashed var(--border);
+    border: 1px dashed var(--border);
     border-radius: 6px;
     background-color: var(--bg-card);
     cursor: pointer;
-
-    @media (max-width: $bp-md) {
-      width: 44px;
-      height: 28px;
-      padding: 3px 8px;
-    }
   }
 }
 
