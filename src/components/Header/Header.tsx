@@ -125,7 +125,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                         <button className={cls.header__navButton} aria-label="Cart">
                             <BagIcon strokeWidth={1.5} />
                         </button>
-                        <button className={cls.header__navButton} aria-label="Wishlist">
+                        <button className={cls.header__navButton} aria-label="Wishlist" onClick={() => nav('/wishlist')}>
                             <HeartIcon fill="none" strokeWidth={1.5} />
                         </button>
                     </div>

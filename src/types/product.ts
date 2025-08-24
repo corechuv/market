@@ -6,7 +6,10 @@ export interface Product {
   link: string;
 
   available?: boolean;
+
   description?: string;
+  shortDescription?: string[];
+
   images?: string[];
 
   /** Привязка к категориям */

@@ -8,6 +8,13 @@ export const products: Product[] = [
         imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
         link: "#",
         available: true,
+        shortDescription: [
+            "High-performance processor",
+            "Exceptional speed and efficiency",
+            "Ideal for gaming and multitasking",
+            "Supports advanced cooling solutions",
+            "Compatible with latest motherboards",
+        ],
         description: "The Intel Core i9-14900KS is a high-performance processor designed for enthusiasts and gamers, offering exceptional speed and efficiency.",
         images: [
             "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
@@ -25,6 +32,13 @@ export const products: Product[] = [
         imageUrl: "https://hydraulic-cdn.com/productimages/8/9/7/1/5/1/6/8/1/6/6/4/1/0/8/3/5/7/7/0196b754-6cdd-729b-85bb-0359118bb75d_2880.avif",
         link: "#",
         available: true,
+        shortDescription: [
+            "High-performance processor",
+            "Exceptional speed and efficiency",
+            "Ideal for gaming and multitasking",
+            "Supports advanced cooling solutions",
+            "Compatible with latest motherboards",
+        ],
         description: "The Intel Xeon Silver 4 is a powerful server-grade processor, ideal for data centers and enterprise applications, providing robust performance and reliability.",
         images: [
             "https://hydraulic-cdn.com/productimages/8/9/7/1/5/1/6/8/1/6/6/4/1/0/8/3/5/7/7/0196b754-6cdd-729b-85bb-0359118bb75d_2880.avif",
@@ -41,6 +55,13 @@ export const products: Product[] = [
         imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
         link: "#",
         available: true,
+        shortDescription: [
+            "High-performance processor",
+            "Exceptional speed and efficiency",
+            "Ideal for gaming and multitasking",
+            "Supports advanced cooling solutions",
+            "Compatible with latest motherboards",
+        ],
         description: "The Intel Core i9-14900KS is a high-performance processor designed for enthusiasts and gamers, offering exceptional speed and efficiency.",
         images: [
             "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
@@ -55,6 +76,13 @@ export const products: Product[] = [
         imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
         link: "#",
         available: true,
+        shortDescription: [
+            "High-performance processor",
+            "Exceptional speed and efficiency",
+            "Ideal for gaming and multitasking",
+            "Supports advanced cooling solutions",
+            "Compatible with latest motherboards",
+        ],
         description: "The Intel Core i9-14900KS is a high-performance processor designed for enthusiasts and gamers, offering exceptional speed and efficiency.",
         images: [
             "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
@@ -69,6 +97,13 @@ export const products: Product[] = [
         imageUrl: "https://hydraulic-cdn.com/productimages/8/9/7/1/5/1/6/8/1/6/6/4/1/0/8/3/5/7/7/0196b754-6cdd-729b-85bb-0359118bb75d_2880.avif",
         link: "#",
         available: false,
+        shortDescription: [
+            "High-performance processor",
+            "Exceptional speed and efficiency",
+            "Ideal for gaming and multitasking",
+            "Supports advanced cooling solutions",
+            "Compatible with latest motherboards",
+        ],
         description: "The Intel Xeon Silver 4 is a powerful server-grade processor, ideal for data centers and enterprise applications, providing robust performance and reliability.",
         images: [
             "https://hydraulic-cdn.com/productimages/8/9/7/1/5/1/6/8/1/6/6/4/1/0/8/3/5/7/7/0196b754-6cdd-729b-85bb-0359118bb75d_2880.avif",
@@ -82,6 +117,13 @@ export const products: Product[] = [
         imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
         link: "#",
         available: true,
+        shortDescription: [
+            "High-performance processor",
+            "Exceptional speed and efficiency",
+            "Ideal for gaming and multitasking",
+            "Supports advanced cooling solutions",
+            "Compatible with latest motherboards",
+        ],
         description: "The Intel Core i9-14900KS is a high-performance processor designed for enthusiasts and gamers, offering exceptional speed and efficiency.",
         images: [
             "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",

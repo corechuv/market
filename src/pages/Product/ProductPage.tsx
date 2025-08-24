@@ -4,6 +4,7 @@ import { getProductById, getMoreProducts } from "../../services/productService";
 import { getReviewsById } from "../../services/reviewService";
 import { getBreadcrumbs } from "../../services/categoryService";
 
+
 import cls from './ProductPage.module.scss'
 
 import ProductImages from "../../components/Product/ProductImages";
@@ -13,6 +14,8 @@ import ReviewList from "../../components/Product/ReviewList";
 import ReviewForm from "../../components/Product/ReviewForm";
 import ProductCarousel from "../../components/Product/ProductCarousel";
 import Breadcrumbs from "../../components/Common/Breadcrumbs";
+import DeliveryBadge from "../../components/Product/DeliveryBadge";
+
 
 export default function ProductPage() {
     const { productId } = useParams<{ productId: string }>();
@@ -75,23 +78,40 @@ export default function ProductPage() {
                             <Button className={`${cls.buyNow}`} size="small">Buy Now</Button>
                         </div>
                     </div>
-                    <div className={cls.productDelivery}>
-                        <span>Delivery: <span className={cls.deliveryTime}>3-5</span> business days</span>
+                    <div className={cls.section}>
+                        <h3 className={cls.section__title}>Delivery</h3>
+                        <div className={cls.section__content}>
+                            <DeliveryBadge minDays={2} maxDays={4} />
+                        </div>
                     </div>
-                    <div className={cls.productDescription}>
-                        <h3 className={cls.descriptionTitle}>Description</h3>
-                        <p>
-                            {product.description || "No description available for this product."}
-                        </p>
+                    <div className={cls.section}>
+                        <h3 className={cls.section__title}>Short description</h3>
+                        <div className={cls.section__content}>
+                            <ul className={cls.list}>
+                                {product.shortDescription ? product.shortDescription.map((line, idx) => (
+                                    <li key={idx}>{line}</li>
+                                )) : <li>No short description available for this product.</li>}
+                            </ul>
+                        </div>
                     </div>
-                    <div className={cls.productReviews}>
-                        <h3 className={cls.reviewsTitle}>Reviews</h3>
-                        <div className={cls.reviewsHeader}>
-                            <div>
-                                <div className={cls.reviewCount}>4.5 <span className={cls.reviewCountText}>(120 reviews)</span></div>
-                            </div>
-                            <div className={cls.reviewActions}>
-                                <Button className={cls.openReviewButton} onClick={() => setIsOpen(true)} size="small">Open Reviews</Button>
+                    <div className={cls.section}>
+                        <h3 className={cls.section__title}>Description</h3>
+                        <div className={cls.section__content}>
+                            <p>
+                                {product.description || "No description available for this product."}
+                            </p>
+                        </div>
+                    </div>
+                    <div className={cls.section}>
+                        <h3 className={cls.section__title}>Reviews</h3>
+                        <div className={cls.section__content}>
+                            <div className={cls.reviewsHeader}>
+                                <div>
+                                    <div className={cls.reviewCount}>4.5 <span className={cls.reviewCountText}>(120 reviews)</span></div>
+                                </div>
+                                <div className={cls.reviewActions}>
+                                    <Button className={cls.openReviewButton} onClick={() => setIsOpen(true)} size="small">Open Reviews</Button>
+                                </div>
                             </div>
                         </div>
                     </div>

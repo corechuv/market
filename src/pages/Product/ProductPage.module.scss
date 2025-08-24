@@ -88,28 +88,37 @@
 
 /* доступность */
 .available {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 300;
-  font-size: 14px;
-  color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 300;
+    font-size: 14px;
+    color: var(--text);
 }
 
 .inStock,
 .outOfStock {
-  display: flex;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
+    display: flex;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
 }
 
-.inStock { background-color: var(--available-color); }
-.outOfStock { background-color: var(--not-available-color); }
+.inStock {
+    background-color: var(--available-color);
+}
 
-.inStockText  { color: var(--available-color); }
-.outOfStockText { color: var(--not-available-color); }
+.outOfStock {
+    background-color: var(--not-available-color);
+}
 
+.inStockText {
+    color: var(--available-color);
+}
+
+.outOfStockText {
+    color: var(--not-available-color);
+}
 
 .productVat {
     display: flex;
@@ -119,35 +128,6 @@
     font-weight: 300;
     color: var(--color-text-primary);
     margin-bottom: 10px;
-}
-
-.productDelivery {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    font-size: 14px;
-    font-weight: 300;
-    color: var(--text);
-    margin: 20px 0;
-
-    .deliveryTime {
-        font-weight: 400;
-        color: var(--bg-star-active);
-    }
-}
-
-.productDescription {
-    p {
-        font-size: 16px;
-        font-weight: 300;
-        line-height: 1.6;
-    }
-}
-
-.descriptionTitle {
-    font-size: 1.8rem;
-    margin: 0;
-    color: var(--text);
 }
 
 .productActions {
@@ -180,19 +160,6 @@
     cursor: pointer;
     font-size: 18px;
     font-weight: 300;
-}
-
-/* Product Reviews */
-.productReviews {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.reviewsTitle {
-    font-size: 1.8rem;
-    margin: 0;
-    color: var(--text);
 }
 
 .reviewsHeader {
@@ -235,5 +202,45 @@
                 width: 100%;
             }
         }
+    }
+}
+
+
+/* General */
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 2rem;
+
+    &__title {
+        font-size: 1.8rem;
+        margin: 0;
+        color: var(--text);
+    }
+
+    &__content {
+        color: var(--text);
+
+        p {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+    }
+}
+
+.list {
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    li {
+        font-size: 16px;
+        font-weight: 300;
+        line-height: 1.6;
+        list-style-type: disc;
     }
 }
