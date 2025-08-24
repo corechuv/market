@@ -8,7 +8,6 @@ import Logo from "../logo/Logo";
 
 import HamburgerIcon from "../Icons/HamburgerIcon";
 import HeartIcon from "../Icons/HeartIcon";
-import CartIcon from "../Icons/CartIcon";
 import AccountIcon from "../Icons/AccountIcon";
 import SearchIcon from "../Icons/SearchIcon";
 import Search from "./Search";

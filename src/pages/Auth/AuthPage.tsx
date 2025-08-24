@@ -3,7 +3,6 @@ import s from "./AuthPage.module.scss";
 import { TextField } from "../../components/UI/TextField";
 import { PasswordField } from "../../components/UI/PasswordField";
 import { CheckboxField } from "../../components/UI/CheckboxField";
-import LogoIcon from "../../components/Icons/LogoIcon";
 import Button from "../../components/UI/Button";
 import Logo from "../../components/logo/Logo";
 
