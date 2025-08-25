@@ -13,11 +13,14 @@ export interface ProductAttribute {
   highlight?: boolean;
 }
 
-export interface Product {
+export interface ProductBase {
   id: string;
   name: string;
   price: string;
+  
   imageUrl: string;
+  images?: string[];
+
   link: string;
 
   available?: boolean;
@@ -25,11 +28,27 @@ export interface Product {
   description?: string;
   shortDescription?: string[];
 
-  images?: string[];
-
   /** Привязка к категориям */
   categoryId?: string;     // если товар в одной категории
   categoryIds?: string[];  // если товар в нескольких категориях
 
   attributes?: ProductAttribute[];
 }
+
+// вариант (SKU)
+export type ProductVariant = {
+  id: string;
+  sku?: string;
+  options: Record<string, string>; // { Color: 'Black', Memory: '256 GB' }
+  price: string;                   // цена именно этого варианта
+  compareAtPrice?: string;         // старая цена/перечёркнутая
+  available: boolean;
+  images?: string[];               // фотки для цвета
+  attributes?: ProductAttribute[]; // атрибуты-override (например, цвет/память)
+};
+
+export type Product = ProductBase & {
+  options: Array<{ name: string; values: string[] }>; // определение осей выбора
+  variants: ProductVariant[];
+  defaultVariantId?: string;
+};

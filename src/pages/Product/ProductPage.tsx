@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { getProductById, getMoreProducts } from "../../services/productService";
 import { getReviewsById } from "../../services/reviewService";
 import { getBreadcrumbs } from "../../services/categoryService";
-import { buildSpecs } from "../../specs/builders";
+import { buildSpecs, getInitialVariant } from "../../specs/builders";
 
 
 import cls from './ProductPage.module.scss'
@@ -17,6 +17,8 @@ import ProductCarousel from "../../components/Product/ProductCarousel";
 import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import DeliveryBadge from "../../components/Product/DeliveryBadge";
 import SpecTable from "../../components/Product/SpecTable";
+import type { ProductVariant } from "../../types/product";
+import VariantPicker from "../../components/Product/Details/VariantPicker";
 
 
 export default function ProductPage() {
@@ -51,7 +53,18 @@ export default function ProductPage() {
             </div>
         );
     }
-    const { entries, dictionary } = buildSpecs(product);
+
+    const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
+    const initial = hasVariants ? getInitialVariant(product) : undefined;
+    const [variant, setVariant] = React.useState<ProductVariant | undefined>(initial);
+
+    // картинки/цена/наличие с учётом варианта (или без него)
+    const images = (variant?.images?.length ? variant.images : product.images) ?? [];
+    const price = variant?.price ?? product.price;
+    const compareAt = variant?.compareAtPrice;
+    const available = (variant?.available ?? product.available) ?? false;
+
+    const { entries, dictionary } = buildSpecs(product, { variant });
 
     return (
         <div className="container">
@@ -59,15 +72,19 @@ export default function ProductPage() {
                 {/* Крошки */}
                 <Breadcrumbs crumbs={categoryCrumbs as any} />
                 <div className={cls.productDetails}>
-                    <ProductImages images={product.images} />
+                    <ProductImages images={images} />
                     <div className={cls.productInfo}>
                         <div className={cls.productTitle}>
                             <h1 className={cls.productName}>{product.name}</h1>
-                            <div className={cls.productPrice}>{product.price}
+                            <div className={cls.productPrice}>
+                                <div className={cls.price}>
+                                    {compareAt && <span className={cls.price__compareAt}>{compareAt}</span>}
+                                    <span className={cls.price__current}>{price}</span>
+                                </div>
                                 <div className={cls.available}>
-                                    <span className={product.available ? cls.inStock : cls.outOfStock} />
-                                    <span className={product.available ? cls.inStockText : cls.outOfStockText}>
-                                        {product.available ? "In Stock" : "Out of Stock"}
+                                    <span className={available ? cls.inStock : cls.outOfStock} />
+                                    <span className={available ? cls.inStockText : cls.outOfStockText}>
+                                        {available ? "In Stock" : "Out of Stock"}
                                     </span>
                                 </div>
                             </div>
@@ -80,6 +97,20 @@ export default function ProductPage() {
                             <Button className={`${cls.buyNow}`} size="small">Buy Now</Button>
                         </div>
                     </div>
+                    {hasVariants && (
+                        <div className={cls.section}>
+                            <h3 className={cls.section__title}>Options</h3>
+                            <div className={cls.section__content}>
+                                {/* Варианты (цвет/память и т.п.) */}
+                                <VariantPicker
+                                    product={product}
+                                    value={variant}
+                                    onChange={setVariant}
+                                    optionLabelMap={{ Color: "Color", Memory: "Memory" }} // опционально
+                                />
+                            </div>
+                        </div>
+                    )}
                     <div className={cls.section}>
                         <h3 className={cls.section__title}>Delivery</h3>
                         <div className={cls.section__content}>
