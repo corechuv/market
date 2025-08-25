@@ -158,9 +158,8 @@ const VariantPicker: React.FC<VariantPickerProps> = ({
           <div key={opt.name} className={styles.option} role="radiogroup" aria-label={opt.name}>
             <div className={styles.optionHeader}>
               <span className={styles.optionLabel}>
-                {optionLabelMap?.[opt.name] ?? opt.name}
+                {optionLabelMap?.[opt.name] ?? opt.name}:
               </span>
-              <span>-</span>
               {showSelectedOnLabel && current && (
                 <span className={styles.optionCurrent}>{current}</span>
               )}
