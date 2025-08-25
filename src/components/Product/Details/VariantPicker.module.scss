@@ -1,6 +1,6 @@
 .root {
   display: grid;
-  gap: 1rem;
+  gap: 1.8rem;
 }
 
 .option {
@@ -36,21 +36,22 @@
 /* Чипы (для нецветовых опций) */
 .chip {
   appearance: none;
-  border: 1px solid var(--border, rgba(0,0,0,.12));
-  background: #fff;
+  border: 1px solid var(--border);
+  background: transparent;
   color: var(--text, #111);
   padding: .45rem .7rem;
-  border-radius: .5rem;
-  font: inherit;
+  border-radius: .6rem;
+  font-size: 16px;
+  font-weight: 300;
+  font-family: "Roboto", sans-serif;
   cursor: pointer;
   line-height: 1;
   transition: box-shadow .15s ease, background .15s ease;
 }
 
 .chipActive {
-  outline: 2px solid var(--brand, #3b82f6);
-  outline-offset: 1px;
-  background: rgba(59,130,246,.06);
+  outline: 1px solid var(--brand, #b2c0d6);
+  border-color: transparent;
 }
 
 .chip:disabled {
