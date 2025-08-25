@@ -88,29 +88,31 @@ export default function ProductPage() {
                                     </span>
                                 </div>
                             </div>
-                            <div className={cls.productVat}>
-                                <span>VAT included</span>
+                            <div className={cls.section}>
+                                <div className={cls.section__content}>
+                                    <div className={cls.productVat}>
+                                        <span>VAT included</span>
+                                    </div>
+                                </div>
                             </div>
+                            {hasVariants && (
+                                <div className={cls.section}>
+                                    <div className={cls.section__content}>
+                                        {/* Варианты (цвет/память и т.п.) */}
+                                        <VariantPicker
+                                            product={product}
+                                            value={variant}
+                                            onChange={setVariant}
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
                         <div className={cls.productActions}>
                             <Button className={`${cls.addToCart}`} size="small">Add to Cart</Button>
                             <Button className={`${cls.buyNow}`} size="small">Buy Now</Button>
                         </div>
                     </div>
-                    {hasVariants && (
-                        <div className={cls.section}>
-                            <h3 className={cls.section__title}>Options</h3>
-                            <div className={cls.section__content}>
-                                {/* Варианты (цвет/память и т.п.) */}
-                                <VariantPicker
-                                    product={product}
-                                    value={variant}
-                                    onChange={setVariant}
-                                    optionLabelMap={{ Color: "Color", Memory: "Memory" }} // опционально
-                                />
-                            </div>
-                        </div>
-                    )}
                     <div className={cls.section}>
                         <h3 className={cls.section__title}>Delivery</h3>
                         <div className={cls.section__content}>
