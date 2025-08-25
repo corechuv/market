@@ -160,6 +160,7 @@ const VariantPicker: React.FC<VariantPickerProps> = ({
               <span className={styles.optionLabel}>
                 {optionLabelMap?.[opt.name] ?? opt.name}
               </span>
+              <span>-</span>
               {showSelectedOnLabel && current && (
                 <span className={styles.optionCurrent}>{current}</span>
               )}

@@ -23,7 +23,7 @@
 
 .optionCurrent {
   font-size: .9rem;
-  font-weight: 300;
+  font-weight: 400;
   color: var(--color-text-primary);
 }
 
@@ -73,7 +73,7 @@
   font-family: "Roboto", sans-serif;
   font-weight: 400;
   background: transparent;
-  border: 1px solid transparent;
+  border: 1px solid var(--border);
   border-radius: .6rem;
   cursor: pointer;
   transition: box-shadow .15s ease, transform .05s ease, border-color .15s ease;
