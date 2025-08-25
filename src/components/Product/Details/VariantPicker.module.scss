@@ -16,13 +16,13 @@
 }
 
 .optionLabel {
-  font-size: .95rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: var(--text, #111);
 }
 
 .optionCurrent {
-  font-size: .9rem;
+  font-size: 1.12rem;
   font-weight: 400;
   color: var(--color-text-primary);
 }
@@ -41,7 +41,7 @@
   color: var(--color-text-primary);
   padding: .6rem .7rem;
   border-radius: .6rem;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 400;
   font-family: "Roboto", sans-serif;
   cursor: pointer;
@@ -118,7 +118,7 @@
 }
 
 .valueText {
-  font-size: .85rem;
+  font-size: 1rem;
   color: var(--color-text-primary);
   max-width: 84px;
   text-overflow: ellipsis;
