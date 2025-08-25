@@ -80,11 +80,31 @@
     align-items: flex-start;
     gap: 2px;
 
+    &__old {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__discount {
+        font-size: 14px;
+        font-weight: 400;
+        color: #220e0e;
+        background-color: #ff75a0a2;
+        height: 24px;
+        padding: 0 8px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     &__compareAt {
         text-decoration: line-through;
         font-size: 20px;
         font-weight: 300;
-        color: var(--color-text-primary, #6b7280);
+        color: var(--text, #6b7280);
     }
 
     &__current {

@@ -20,6 +20,30 @@ import SpecTable from "../../components/Product/SpecTable";
 import type { ProductVariant } from "../../types/product";
 import VariantPicker from "../../components/Product/Details/VariantPicker";
 
+// помощник: приводим денежную строку к числу
+function parseMoney(input: unknown): number {
+    if (typeof input === "number") return input;
+
+    if (input == null) return NaN;
+    // убираем пробелы (в т.ч. неразрывные) и валюты
+    let s = String(input)
+        .replace(/\u00A0/g, " ")     // nbsp -> пробел
+        .replace(/\s/g, "")          // все пробелы
+        .replace(/[^\d.,-]/g, "");   // только цифры и разделители
+
+    // определяем, что является десятичным разделителем: последняя запятая/точка в строке
+    const lastComma = s.lastIndexOf(",");
+    const lastDot = s.lastIndexOf(".");
+    if (lastComma > lastDot) {
+        // десятичная запятая: убираем все тысячи-точки и меняем запятую на точку
+        s = s.replace(/\./g, "").replace(",", ".");
+    } else {
+        // десятичная точка или вовсе нет десятичной части: убираем все запятые (тысячи)
+        s = s.replace(/,/g, "");
+    }
+    const n = Number(s);
+    return Number.isFinite(n) ? n : NaN;
+}
 
 export default function ProductPage() {
     const { productId } = useParams<{ productId: string }>();
@@ -66,6 +90,19 @@ export default function ProductPage() {
 
     const { entries, dictionary } = buildSpecs(product, { variant });
 
+    // вычисляем скидку (если есть compareAtPrice)
+    const rawPrice = variant?.price ?? product.price;
+    const rawCompareAt = variant?.compareAtPrice;
+
+    const priceNum = parseMoney(rawPrice);
+    const compareAtNum = parseMoney(rawCompareAt);
+
+    const discountPercent = React.useMemo(() => {
+        if (!Number.isFinite(priceNum) || !Number.isFinite(compareAtNum)) return null;
+        if (compareAtNum <= 0 || priceNum >= compareAtNum) return null;
+        return Math.round(((compareAtNum - priceNum) / compareAtNum) * 100);
+    }, [priceNum, compareAtNum]);
+
     return (
         <div className="container">
             <div className={cls.product}>
@@ -78,7 +115,12 @@ export default function ProductPage() {
                             <h1 className={cls.productName}>{product.name}</h1>
                             <div className={cls.productPrice}>
                                 <div className={cls.price}>
-                                    {compareAt && <span className={cls.price__compareAt}>{compareAt}</span>}
+                                    {Number.isFinite(compareAtNum) && compareAtNum > priceNum && <div className={cls.price__old}>
+                                        {discountPercent !== null && (
+                                            <span className={cls.price__discount}>-{discountPercent}%</span>
+                                        )}
+                                        <span className={cls.price__compareAt}>{compareAt}</span>
+                                    </div>}
                                     <span className={cls.price__current}>{price}</span>
                                 </div>
                                 <div className={cls.available}>
