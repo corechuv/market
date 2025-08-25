@@ -29,7 +29,7 @@
 /* ============= ДЕСКТОП ============= */
 .wrapperDesktop {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
   align-items: flex-start;
 }
 
@@ -51,11 +51,6 @@
   align-items: center;
   justify-content: center;
   margin: 0;
-  border: 1px dashed transparent; /* рамка по умолчанию */
-
-  &:hover {
-    border: 1px dashed var(--border, rgba(0,0,0,0.15));
-  }
 
   img {
     width: 100%;
