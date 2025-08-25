@@ -237,7 +237,7 @@ export const products: Product[] = [
     // ───────────────────────── iPhones (варианты по цвету и цене) ─────────────────────────
     {
         id: "7",
-        name: "Apple iPhone 15 Pro 256GB",
+        name: "Apple iPhone 15 Pro",
         price: "1 299,00 €", // базовая цена (можно мин. из вариантов)
         imageUrl:
             "https://img-resizer.cyberport.de/cp/images/1368x1368/230914165059100301900268D",
@@ -259,6 +259,7 @@ export const products: Product[] = [
             { code: "battery.capacity", label: "Батарея", value: 3274, unit: "мА·ч", group: "Аккумулятор" },
             { code: "os", label: "ОС", value: "iOS", group: "Общее" },
         ],
+        // опционально (UI всё равно строит схему из variants)
         options: [
             { name: "Color", values: ["Black Titanium", "Blue Titanium"] },
             { name: "Memory", values: ["256 GB", "512 GB"] },
@@ -318,10 +319,9 @@ export const products: Product[] = [
     },
     {
         id: "8",
-        name: "Apple iPhone 15 128GB",
-        price: "949,00 €",
-        imageUrl:
-            "https://img-resizer.cyberport.de/cp/images/1368x1368/230913130342000801900004M",
+        name: "Apple iPhone 15",
+        price: "949,00 €", // базовая (можно min по вариантам)
+        imageUrl: "https://img-resizer.cyberport.de/cp/images/1368x1368/230913130342000801900004M",
         link: "#",
         available: true,
         shortDescription: [
@@ -329,8 +329,7 @@ export const products: Product[] = [
             "Advanced dual-camera system",
             "Dynamic Island",
         ],
-        description:
-            "iPhone 15 with A16 Bionic and advanced dual-camera system.",
+        description: "iPhone 15 with A16 Bionic and advanced dual-camera system.",
         images: [
             "https://img-resizer.cyberport.de/cp/images/1368x1368/230913130342000801900004M",
         ],
@@ -340,29 +339,72 @@ export const products: Product[] = [
             { code: "battery.capacity", label: "Батарея", value: 3349, unit: "мА·ч", group: "Аккумулятор" },
             { code: "os", label: "ОС", value: "iOS", group: "Общее" },
         ],
+
+        // (не критично для UI, но оставим для наглядности)
         options: [
             { name: "Color", values: ["Black", "Blue"] },
+            { name: "Memory", values: ["128 GB", "256 GB"] },
         ],
+
         variants: [
             {
-                id: "8-black",
+                id: "8-black-128",
                 sku: "IP15-128-BLACK",
-                options: { Color: "Black" },
+                options: { Color: "Black", Memory: "128 GB" },
                 price: "949,00 €",
                 available: true,
-                images: ["https://img-resizer.cyberport.de/cp/images/1368x1368/230913130342000801900004M"],
-                attributes: [{ code: "color", label: "Цвет", value: "Black", group: "Общее", priority: 10 }],
+                images: [
+                    "https://img-resizer.cyberport.de/cp/images/1368x1368/230913130342000801900004M"
+                ],
+                attributes: [
+                    { code: "color", label: "Цвет", value: "Black", group: "Общее", priority: 10 },
+                    { code: "storage", label: "Память", value: "128 GB", group: "Общее", priority: 11 },
+                ],
             },
             {
-                id: "8-blue",
+                id: "8-black-256",
+                sku: "IP15-256-BLACK",
+                options: { Color: "Black", Memory: "256 GB" },
+                price: "1 029,00 €",
+                available: true,
+                images: [
+                    "https://img-resizer.cyberport.de/cp/images/1368x1368/230913130342000801900004M"
+                ],
+                attributes: [
+                    { code: "color", label: "Цвет", value: "Black", group: "Общее", priority: 10 },
+                    { code: "storage", label: "Память", value: "256 GB", group: "Общее", priority: 11 },
+                ],
+            },
+            {
+                id: "8-blue-128",
                 sku: "IP15-128-BLUE",
-                options: { Color: "Blue" },
+                options: { Color: "Blue", Memory: "128 GB" },
                 price: "979,00 €",
                 available: true,
-                images: ["https://img-resizer.cyberport.de/cp/images/1368x1368/230913133549100801900264H"],
-                attributes: [{ code: "color", label: "Цвет", value: "Blue", group: "Общее", priority: 10 }],
+                images: [
+                    "https://img-resizer.cyberport.de/cp/images/1368x1368/230913133549100801900264H"
+                ],
+                attributes: [
+                    { code: "color", label: "Цвет", value: "Blue", group: "Общее", priority: 10 },
+                    { code: "storage", label: "Память", value: "128 GB", group: "Общее", priority: 11 },
+                ],
+            },
+            {
+                id: "8-blue-256",
+                sku: "IP15-256-BLUE",
+                options: { Color: "Blue", Memory: "256 GB" },
+                price: "1 059,00 €",
+                available: true, // поставь false, если нет в наличии
+                images: [
+                    "https://img-resizer.cyberport.de/cp/images/1368x1368/230913133549100801900264H"
+                ],
+                attributes: [
+                    { code: "color", label: "Цвет", value: "Blue", group: "Общее", priority: 10 },
+                    { code: "storage", label: "Память", value: "256 GB", group: "Общее", priority: 11 },
+                ],
             },
         ],
-        defaultVariantId: "8-black",
-    },
+
+        defaultVariantId: "8-black-128",
+    }
 ];
