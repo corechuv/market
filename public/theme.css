@@ -63,6 +63,11 @@ body[data-theme='light']{
   --color-tab-muted: 110 110 120;
   --color-tab-text: 31 31 31;
 
+  /* Options */
+  --option-border-color: #eaeaea;
+  --option-border-color-active: #b3c8d3;
+  /* End Options */
+
   color-scheme: light;
 }
 
@@ -125,6 +130,11 @@ body[data-theme='dark']{
   --background-color-tab: linear-gradient(180deg, rgba(255 255 255 / .05), rgba(255 255 255 / .03));
   --color-tab-muted: 157 159 170;
   --color-tab-text: 255 255 255;
+
+  /* Options */
+  --option-border-color: #1f1f1f;
+  --option-border-color-active: #546974;
+  /* End Options */
 
   color-scheme: dark;
 }
