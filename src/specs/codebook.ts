@@ -11,7 +11,9 @@ export const codebook: SpecDictionary = {
 
     // Energy class
     "energy.class.arrow": { label: "Стрелка класса энергоэффективности", group: "Энергоэффективность", priority: 0 },
-    "energy.class": { label: "Класс энергоэффективности", group: "Энергоэффективность", priority: 0 },
+    "energy.class": { label: "Класс энергоэффективности", group: "Энергоэффективность", priority: 0,
+        format: () => "SVG"
+    },
     "docs.datasheet": {
         label: "Produktdatenblatt", group: "Документы", priority: 5,
         format: () => "PDF"
