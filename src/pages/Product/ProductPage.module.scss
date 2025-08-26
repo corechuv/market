@@ -89,25 +89,32 @@
         align-items: center;
         gap: 8px;
         font-size: 16px;
+        font-weight: 300;
         color: var(--text);
+
+
+        @media screen and (max-width: 768px) {
+            font-size: 14px;
+        }
     }
 
     &__ratingValue {
-        font-size: 16px;
         font-weight: 300;
         color: var(--text);
     }
 
     &__ratingCount {
-        font-size: 16px;
         font-weight: 300;
         color: var(--text);
     }
 
     &__articleNumber {
-        font-size: 16px;
         font-weight: 300;
         color: var(--text);
+
+        @media screen and (max-width: 768px) {
+            font-size: 14px;
+        }
     }
 
     @media screen and (max-width: 768px) {
