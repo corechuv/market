@@ -89,13 +89,7 @@
         align-items: center;
         gap: 8px;
         font-size: 16px;
-        font-weight: 300;
         color: var(--text);
-
-
-        @media screen and (max-width: 768px) {
-            font-size: 14px;
-        }
     }
 
     &__ratingValue {
@@ -111,15 +105,13 @@
     &__articleNumber {
         font-weight: 300;
         color: var(--text);
-
-        @media screen and (max-width: 768px) {
-            font-size: 14px;
-        }
     }
 
     @media screen and (max-width: 768px) {
         margin-top: 10px;
+        gap: 15px;
     }
+
 }
 
 .price {
