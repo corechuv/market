@@ -349,7 +349,7 @@
     position: fixed;
     left: 50%;
     transform: translateX(-50%);
-    bottom: calc(env(safe-area-inset-bottom, 0) + 5 px);
+    bottom: calc(env(safe-area-inset-bottom, 0) + 10px);
     z-index: 1000;
 
     display: grid;
