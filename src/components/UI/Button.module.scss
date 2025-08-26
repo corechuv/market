@@ -5,9 +5,10 @@
     justify-content: center;
     padding: 10px 24px;
     border: none;
-    border-radius: 10px;
-    font-size: 18px;
-    font-weight: 300;
+    border-radius: 14px;
+    letter-spacing: 0.1px;
+    font-size: 19px;
+    font-weight: 400;
     font-family: "Roboto", sans-serif;
     color: var(--text-button);
     background-color: var(--bg-button);
@@ -15,13 +16,13 @@
 }
 
 .small {
-    padding: 6px 24px;
+    padding: 10px 24px;
 }
 
 .medium {
-    padding: 12px 24px;
+    padding: 14px 24px;
 }
 
 .large {
-    padding: 12px 24px;
+    padding: 14px 24px;
 }
