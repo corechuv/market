@@ -271,7 +271,6 @@ export default function ProductPage() {
                     </div>
 
                     <Button
-                        className={cls.stickyCta__button}
                         disabled={!available}
                         onClick={handleAddToCart}
                     >

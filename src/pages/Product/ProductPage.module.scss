@@ -387,10 +387,6 @@
     }
 }
 
-.stickyCta__button {
-    border-radius: 10px;
-}
-
 /* На очень узких — складываем в колонку: цена сверху, кнопка снизу */
 @media (max-width: 480px) {
     .stickyCta {
