@@ -349,7 +349,7 @@
     position: fixed;
     left: 50%;
     transform: translateX(-50%);
-    bottom: calc(env(safe-area-inset-bottom, 0) + 10px);
+    bottom: calc(env(safe-area-inset-bottom, 0) + 5px);
     z-index: 1000;
 
     display: grid;
@@ -360,7 +360,6 @@
     width: min(1024px, 100% - 10px);
     padding: 12px;
     background: var(--bg);
-    border: 1px dashed var(--border);
     border-radius: 14px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 
