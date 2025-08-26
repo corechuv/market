@@ -15,6 +15,10 @@ export interface ProductAttribute {
 
 export interface ProductBase {
   id: string;
+
+  // Внутренний номер товара
+  articleNumber?: string;
+
   name: string;
   price: string;
   

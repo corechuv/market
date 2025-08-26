@@ -52,6 +52,7 @@ export function buildSpecs(
         { code: "name", value: product.name },
         { code: "price", value: v?.price ?? product.price }, // цена варианта перекрывает базовую
         { code: "available", value: (v?.available ?? product.available) ?? null },
+        { code: "sku", value: v?.sku ?? null }, // артикул варианта
     ];
 
 

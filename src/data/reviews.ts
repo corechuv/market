@@ -95,6 +95,6 @@ export const reviews: Review[] = [
         date: "2023-10-12",
         rating: 5,
         comment: "Perfect for my workstation. Highly satisfied! 😍🖥️",
-        productId: "3",
+        productId: "8",
     }
 ];

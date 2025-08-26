@@ -4,6 +4,7 @@ export const products: Product[] = [
     // ───────────────────────── CPUs (по одному варианту без опций) ─────────────────────────
     {
         id: "1",
+        articleNumber: "I9-14900",
         name: "Intel Core i9-14900KS",
         price: "691,89 €",
         imageUrl:
@@ -60,6 +61,7 @@ export const products: Product[] = [
     {
         id: "2",
         name: "Intel Xeon Silver 4",
+        articleNumber: "XEON-SILVER", //  Внутренний номер товара
         price: "1053,00 €",
         imageUrl:
             "https://hydraulic-cdn.com/productimages/8/9/7/1/5/1/6/8/1/6/6/4/1/0/8/3/5/7/7/0196b754-6cdd-729b-85bb-0359118bb75d_2880.avif",
@@ -99,6 +101,7 @@ export const products: Product[] = [
     {
         id: "3",
         name: "Intel Core i9-14900KS",
+        articleNumber: "I9-14900", //  Внутренний номер товара
         price: "691,89 €",
         imageUrl:
             "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
@@ -135,6 +138,7 @@ export const products: Product[] = [
     },
     {
         id: "4",
+        articleNumber: "I9-14900", //  Внутренний номер товара
         name: "Intel Core i9-14900KS",
         price: "691,89 €",
         imageUrl:
@@ -169,6 +173,7 @@ export const products: Product[] = [
     },
     {
         id: "5",
+        articleNumber: "XEON-SILVER", //  Внутренний номер товара
         name: "Intel Xeon Silver 4",
         price: "1053,00 €",
         imageUrl:
@@ -202,6 +207,7 @@ export const products: Product[] = [
     },
     {
         id: "6",
+        articleNumber: "I9-14900", //  Внутренний номер товара
         name: "Intel Core i9-14900KS",
         price: "691,89 €",
         imageUrl:
@@ -237,6 +243,7 @@ export const products: Product[] = [
     // ───────────────────────── iPhones (варианты по цвету и цене) ─────────────────────────
     {
         id: "7",
+        articleNumber: "IP15P", //  Внутренний номер товара
         name: "Apple iPhone 15 Pro",
         price: "1 299,00 €", // базовая цена (можно мин. из вариантов)
         imageUrl:
@@ -319,6 +326,7 @@ export const products: Product[] = [
     },
     {
         id: "8",
+        articleNumber: "IP15", //  Внутренний номер товара
         name: "Apple iPhone 15",
         price: "949,00 €", // базовая (можно min по вариантам)
         imageUrl: "https://img-resizer.cyberport.de/cp/images/1368x1368/230913130342000801900004M",

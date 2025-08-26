@@ -7,6 +7,7 @@ export const codebook: SpecDictionary = {
     name: { label: "Модель", group: "Общее", priority: 1 },
     price: { label: "Цена", group: "Общее", priority: 2 },
     available: { label: "Наличие", group: "Общее", priority: 3 },
+    sku: { label: "Артикул", group: "Общее", priority: 4 },
 
     // CPU — примеры кодов
     "cpu.cores": { label: "Ядер", group: "Процессор", priority: 1 },

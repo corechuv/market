@@ -19,6 +19,7 @@ import DeliveryBadge from "../../components/Product/DeliveryBadge";
 import SpecTable from "../../components/Product/SpecTable";
 import type { ProductVariant } from "../../types/product";
 import VariantPicker from "../../components/Product/Details/VariantPicker";
+import Stars from "../../components/Product/Stars";
 
 // помощник: приводим денежную строку к числу
 function parseMoney(input: unknown): number {
@@ -103,6 +104,8 @@ export default function ProductPage() {
         return Math.round(((compareAtNum - priceNum) / compareAtNum) * 100);
     }, [priceNum, compareAtNum]);
 
+    const articleNumber = product.articleNumber ?? undefined;
+
     return (
         <div className="container">
             <div className={cls.product}>
@@ -113,6 +116,16 @@ export default function ProductPage() {
                     <div className={cls.productInfo}>
                         <div className={cls.productTitle}>
                             <h1 className={cls.productName}>{product.name}</h1>
+                            <div className={cls.productMeta}>
+                                <div className={cls.productMeta__rating}>
+                                    <Stars size={18} value={4.5} />
+                                    <span className={cls.productMeta__ratingValue}>4.5</span>
+                                    <span className={cls.productMeta__ratingCount}>(120)</span>
+                                </div>
+                                <div className={cls.productMeta__articleNumber}>
+                                    Art.-Nr. {articleNumber}
+                                </div>
+                            </div>
                             <div className={cls.productPrice}>
                                 <div className={cls.price}>
                                     {Number.isFinite(compareAtNum) && compareAtNum > priceNum && <div className={cls.price__old}>
@@ -151,8 +164,7 @@ export default function ProductPage() {
                             )}
                         </div>
                         <div className={cls.productActions}>
-                            <Button className={`${cls.addToCart}`} size="small">Add to Cart</Button>
-                            <Button className={`${cls.buyNow}`} size="small">Buy Now</Button>
+                            <Button className={`${cls.addToCart}`}>Add to Cart</Button>
                         </div>
                     </div>
                     <div className={cls.section}>
