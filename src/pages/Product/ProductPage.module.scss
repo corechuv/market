@@ -341,3 +341,68 @@
         list-style-type: disc;
     }
 }
+
+
+/* ==== Sticky CTA (мини-панель снизу) ==== */
+
+.stickyCta {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(env(safe-area-inset-bottom, 0) + 12px);
+    z-index: 1000;
+
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+
+    width: min(1024px, 100%);
+    padding: 12px;
+    background: var(--bg);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+
+    /* лёгкая анимация появления */
+    opacity: 1;
+    transform-origin: bottom center;
+    animation: stickyIn 160ms ease-out;
+
+    &__price {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+}
+
+@keyframes stickyIn {
+    from {
+        transform: translateX(-50%) translateY(8px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+.stickyCta__button {
+    border-radius: 10px;
+}
+
+/* На очень узких — складываем в колонку: цена сверху, кнопка снизу */
+@media (max-width: 480px) {
+    .stickyCta {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        width: min(560px, calc(100% - 16px));
+        padding: 10px;
+    }
+}
+
+/* (опционально) если хотите показывать мини-панель только на мобильных */
+@media (min-width: 1024px) {
+    /* закомментируйте, если хотите и на десктопе */
+    /* .stickyCta { display: none; } */
+}

@@ -106,6 +106,38 @@ export default function ProductPage() {
 
     const articleNumber = product.articleNumber ?? undefined;
 
+    // NEW: единый обработчик добавления в корзину (используется и сверху, и в мини-панели)
+    const handleAddToCart = React.useCallback(() => {
+        // TODO: интегрируйте вашу бизнес-логику корзины здесь
+        // например: cart.add({ product, variant, qty: 1 })
+        console.log("Add to cart:", { productId: product.id, variantId: variant?.id });
+    }, [product.id, variant?.id]);
+
+    // NEW: следим, виден ли основной блок с кнопкой Add to Cart
+    const actionsRef = React.useRef<HTMLDivElement | null>(null);
+    const [showStickyCta, setShowStickyCta] = React.useState(false);
+
+    React.useEffect(() => {
+        const node = actionsRef.current;
+        if (!node || typeof IntersectionObserver === "undefined") {
+            // если нет IntersectionObserver — просто не показываем панель
+            return;
+        }
+        const io = new IntersectionObserver(
+            ([entry]) => {
+                // если основной блок НЕ виден, показываем мини-панель
+                setShowStickyCta(!entry.isIntersecting);
+            },
+            {
+                root: null,
+                threshold: 0.2,               // считаем «видимым», если хотя бы 20% блока в вьюпорте
+                rootMargin: "0px 0px -24px 0px", // небольшой запас снизу
+            }
+        );
+        io.observe(node);
+        return () => io.disconnect();
+    }, []);
+
     return (
         <div className="container">
             <div className={cls.product}>
@@ -163,8 +195,14 @@ export default function ProductPage() {
                                 </div>
                             )}
                         </div>
-                        <div className={cls.productActions}>
-                            <Button className={`${cls.addToCart}`}>Add to Cart</Button>
+                        <div ref={actionsRef} className={cls.productActions}>
+                            <Button
+                                className={`${cls.addToCart}`}
+                                disabled={!available}
+                                onClick={handleAddToCart}
+                            >
+                                Add to Cart
+                            </Button>
                         </div>
                     </div>
                     <div className={cls.section}>
@@ -218,6 +256,29 @@ export default function ProductPage() {
                     <ProductCarousel products={moreProducts} label="More Products" />
                 </div>
             </div>
+
+            {/* NEW: мини-панель, прижатая снизу как «модалка» */}
+            {showStickyCta && (
+                <div className={cls.stickyCta} role="region" aria-label="Quick add to cart">
+                    <div className={cls.stickyCta__price}>
+                        {Number.isFinite(compareAtNum) && compareAtNum > priceNum && <div className={cls.price__old}>
+                            {discountPercent !== null && (
+                                <span className={cls.price__discount}>-{discountPercent}%</span>
+                            )}
+                            <span className={cls.price__compareAt}>{compareAt}</span>
+                        </div>}
+                        <span className={cls.price__current}>{price}</span>
+                    </div>
+
+                    <Button
+                        className={cls.stickyCta__button}
+                        disabled={!available}
+                        onClick={handleAddToCart}
+                    >
+                        Add to Cart
+                    </Button>
+                </div>
+            )}
             <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} variant="right" header="Reviews" headerBorder={false}>
                 <div className={cls.reviewsContent}>
                     <ReviewForm />
