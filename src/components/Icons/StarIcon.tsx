@@ -1,14 +1,27 @@
-import React from 'react';
+import "react";
 
+/**
+* Идеально симметричная звезда 5-конечная на основе правильного многоугольника
+* Вектор построен в системе 100x100 для большей точности и аккуратного масштабирования
+*/
 export default function StarIcon(props: React.SVGProps<SVGSVGElement>): React.ReactElement {
+    const { fill = "currentColor", ...rest } = props;
     return (
         <svg
-            viewBox="0 0 24 24"
+            viewBox="0 0 100 100"
             aria-hidden="true"
-            {...props}
+            preserveAspectRatio="xMidYMid meet"
+            shapeRendering="geometricPrecision"
+            {...rest}
         >
-            <path d="m12 2.5 3.09 6.26 6.91 1.01-5 4.88 1.18 6.88L12 17.77l-6.18 3.26 1.18-6.88-5-4.88 6.91-1.01L12 2.5Z" />
+            {/* Точки рассчитаны по золотому сечению для ровной пятиконечной звезды */}
+            <polygon
+                points="50,0 61.226,34.549 97.553,34.549 68.164,55.902 79.389,90.451 50,69.098 20.611,90.451 31.836,55.902 2.447,34.549 38.774,34.549"
+                fill={fill}
+                stroke="none"
+                strokeLinejoin="round"
+                vectorEffect="non-scaling-stroke"
+            />
         </svg>
-
     );
 }
