@@ -267,7 +267,7 @@ export default function ProductPage() {
                             )}
                             <span className={cls.price__compareAt}>{compareAt}</span>
                         </div>}
-                        <span className={cls.price__current}>{price}</span>
+                        <span className={cls.stickyCta__currentPrice}>{price}</span>
                     </div>
 
                     <Button

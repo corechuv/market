@@ -359,6 +359,12 @@
         align-items: center;
         gap: 12px;
     }
+
+    &__currentPrice {
+        font-size: 20px;
+        font-weight: 300;
+        color: var(--text);
+    }
 }
 
 @keyframes stickyIn {
