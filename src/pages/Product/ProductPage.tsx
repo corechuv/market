@@ -206,6 +206,12 @@ export default function ProductPage() {
                                     </div>
                                 </div>
                             )}
+                            <div className={cls.section}>
+                                <h3 className={cls.section__title}>Delivery</h3>
+                                <div className={cls.section__content}>
+                                    <DeliveryBadge minDays={2} maxDays={4} />
+                                </div>
+                            </div>
                         </div>
                         <div ref={actionsRef} className={cls.productActions}>
                             <Button
@@ -215,12 +221,6 @@ export default function ProductPage() {
                             >
                                 Add to Cart
                             </Button>
-                        </div>
-                    </div>
-                    <div className={cls.section}>
-                        <h3 className={cls.section__title}>Delivery</h3>
-                        <div className={cls.section__content}>
-                            <DeliveryBadge minDays={2} maxDays={4} />
                         </div>
                     </div>
                     <div className={cls.section}>
