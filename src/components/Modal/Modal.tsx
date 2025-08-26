@@ -82,16 +82,16 @@ export default function Modal({
   if (!isOpen) return null;
 
   const modalContentStyle: React.CSSProperties = {
-    ...(variant === 'left' ? { borderRight: '1px dashed var(--border)' } :
-      variant === 'right' ? { borderLeft: '1px dashed var(--border)' } :
-        { border: '1px dashed var(--border)' }),
+    ...(variant === 'left' ? { borderRight: '1px dashed transparent' } :
+      variant === 'right' ? { borderLeft: '1px dashed transparent' } :
+        { border: '1px dashed transparent' }),
     ...(variant === 'left' || variant === 'right'
       ? { width: typeof sideWidth === 'number' ? `${sideWidth}px` : sideWidth || '360px' }
       : null),
   };
 
   const modalHeaderStyle: React.CSSProperties = {
-    borderBottom: headerBorder ? '1px dashed var(--border)' : '1px dashed transparent',
+    borderBottom: headerBorder ? '1px dashed transparent' : '1px dashed transparent',
   };
 
 
