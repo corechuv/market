@@ -9,17 +9,17 @@
 }
 
 .input {
-    font-family: var(--font);
-    width: 100%;
     padding: 12px 14px;
-    border-radius: 12px;
-    border: 1px solid rgba(var(--border));
-    background: rgba(var(--background-color-input));
-    color: rgb(var(--fg));
-    outline: none;
-    transition: box-shadow .15s, border-color .15s;
+    width: 100%;
     font-size: 16px;
     font-weight: 300;
+    font-family: var(--font);
+    color: rgb(var(--fg));
+    border: 1px solid rgba(var(--border));
+    background: rgba(var(--background-color-input));
+    border-radius: 12px;
+    transition: box-shadow .15s, border-color .15s;
+    outline: none;
 
     &:focus {
         box-shadow: 0 0 0 4px rgba(var(--brand), .2);

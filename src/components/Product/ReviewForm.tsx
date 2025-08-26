@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import cls from './ReviewForm.module.scss';
 import Button from '../UI/Button';
+import StarIcon from '../Icons/StarIcon';
 
 const ReviewForm: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -40,7 +41,7 @@ const ReviewForm: React.FC = () => {
                             onMouseLeave={() => setHover(null)}
                             onClick={() => setRating(star)}
                         >
-                            ★
+                            <StarIcon width={24} height={24} />
                         </span>
                     );
                 })}
