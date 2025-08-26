@@ -10,9 +10,10 @@ export const codebook: SpecDictionary = {
     sku: { label: "Артикул", group: "Общее", priority: 4 },
 
     // Energy class
-    "energy.class": { label: "Класс энергоэффективности", group: "Энергопотребление", priority: 0 },
+    "energy.class.arrow": { label: "Стрелка класса энергоэффективности", group: "Энергоэффективность", priority: 0 },
+    "energy.class": { label: "Класс энергоэффективности", group: "Энергоэффективность", priority: 0 },
     "docs.datasheet": {
-        label: "Produktdatenblatt", group: "Документы", priority: 1,
+        label: "Produktdatenblatt", group: "Документы", priority: 5,
         format: () => "PDF"
     }, // в ячейке будет "PDF", клик по строке откроет href
 
