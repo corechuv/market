@@ -15,7 +15,7 @@ export const codebook: SpecDictionary = {
         format: () => "SVG"
     },
     "docs.datasheet": {
-        label: "Produktdatenblatt", group: "Документы", priority: 5,
+        label: "Produktdatenblatt", group: "Документы", priority: 0,
         format: () => "PDF"
     }, // в ячейке будет "PDF", клик по строке откроет href
 

@@ -57,8 +57,8 @@ export function buildSpecs(
         { code: "price", value: v?.price ?? product.price }, // цена варианта перекрывает базовую
         { code: "available", value: (v?.available ?? product.available) ?? null },
         { code: "sku", value: v?.sku ?? null }, // артикул варианта
-        ...(energyClassArrow ? [{ code: "energy.class.arrow", value: "SVG", href: energyClassArrow }] : []),
-        ...(energy ? [{ code: "energy.class", value: "SVG", href: energy }] : []),
+        ...(energyClassArrow ? [{ code: "energy.class.arrow", value: "SVG", href: energyClassArrow, hidden: true }] : []),
+        ...(energy ? [{ code: "energy.class", value: "SVG", href: energy, hidden: true }] : []),
         ...(datasheet ? [{ code: "docs.datasheet", value: "PDF", href: datasheet }] : []),
     ];
 
