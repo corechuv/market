@@ -9,6 +9,13 @@ export const codebook: SpecDictionary = {
     available: { label: "Наличие", group: "Общее", priority: 3 },
     sku: { label: "Артикул", group: "Общее", priority: 4 },
 
+    // Energy class
+    "energy.class": { label: "Класс энергоэффективности", group: "Энергопотребление", priority: 0 },
+    "docs.datasheet": {
+        label: "Produktdatenblatt", group: "Документы", priority: 1,
+        format: () => "PDF"
+    }, // в ячейке будет "PDF", клик по строке откроет href
+
     // CPU — примеры кодов
     "cpu.cores": { label: "Ядер", group: "Процессор", priority: 1 },
     "cpu.threads": { label: "Потоков", group: "Процессор", priority: 2 },

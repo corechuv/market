@@ -21,6 +21,9 @@ import type { ProductVariant } from "../../types/product";
 import VariantPicker from "../../components/Product/Details/VariantPicker";
 import Stars from "../../components/Product/Stars";
 
+import ProductDatasheet from "../../components/Product/Details/ProductDatasheet";
+import EnergyLabel from "../../components/Product/Details/EnergyLabel";
+
 // помощник: приводим денежную строку к числу
 function parseMoney(input: unknown): number {
     if (typeof input === "number") return input;
@@ -106,6 +109,11 @@ export default function ProductPage() {
 
     const articleNumber = product.articleNumber ?? undefined;
 
+    // Выводить с приоритетом варианта EnergyClass/Datasheet или товара
+    const energyClassArrow = variant?.energyClassArrowUrl ?? product.energyClassArrowUrl;
+    const energyClass = variant?.energyClassUrl ?? product.energyClassUrl;
+    const datasheetUrl = variant?.datasheetPdfUrl ?? product.datasheetPdfUrl;
+
     // NEW: единый обработчик добавления в корзину (используется и сверху, и в мини-панели)
     const handleAddToCart = React.useCallback(() => {
         // TODO: интегрируйте вашу бизнес-логику корзины здесь
@@ -167,18 +175,22 @@ export default function ProductPage() {
                                         <span className={cls.price__compareAt}>{compareAt}</span>
                                     </div>}
                                     <span className={cls.price__current}>{price}</span>
-                                </div>
-                                <div className={cls.available}>
-                                    <span className={available ? cls.inStock : cls.outOfStock} />
-                                    <span className={available ? cls.inStockText : cls.outOfStockText}>
-                                        {available ? "In Stock" : "Out of Stock"}
-                                    </span>
-                                </div>
-                            </div>
-                            <div className={cls.section}>
-                                <div className={cls.section__content}>
                                     <div className={cls.productVat}>
                                         <span>VAT included</span>
+                                    </div>
+                                </div>
+                                <div className={cls.product__info}>
+                                    {energyClass && datasheetUrl && energyClassArrow && (
+                                        <div className={cls.productEnergy}>
+                                            {energyClass && <EnergyLabel energyClassUrl={energyClass} energyClassArrowUrl={energyClassArrow} label="Energieklasse" />}
+                                            {datasheetUrl && <ProductDatasheet pdfUrl={datasheetUrl} label="Produktdatenblatt" />}
+                                        </div>
+                                    )}
+                                    <div className={cls.available}>
+                                        <span className={available ? cls.inStock : cls.outOfStock} />
+                                        <span className={available ? cls.inStockText : cls.outOfStockText}>
+                                            {available ? "In Stock" : "Out of Stock"}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

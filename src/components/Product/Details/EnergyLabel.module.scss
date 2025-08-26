@@ -1,0 +1,17 @@
+.badge {
+    display: flex;
+
+    &__arrow {
+        width: 50px;
+        height: auto;
+    }
+}
+
+.imgContainer {
+  display: flex; justify-content: center; align-items: center;
+
+  svg, img {
+    max-height: 500px;
+    width: auto;
+  }
+}

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 91.15 52.45">
+  <defs>
+    <style>
+      .cls-1 {
+        stroke-width: .82px;
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        stroke: #231f20;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .cls-1, .cls-3 {
+        fill: none;
+      }
+
+      .cls-4 {
+        font-size: 18.42px;
+      }
+
+      .cls-4, .cls-5 {
+        fill: #231f20;
+        font-family: Calibri-Bold, Calibri;
+        font-weight: 700;
+      }
+
+      .cls-6 {
+        fill: #ed1c24;
+      }
+
+      .cls-6, .cls-7 {
+        stroke-width: 0px;
+      }
+
+      .cls-5 {
+        font-size: 10px;
+      }
+
+      .cls-2 {
+        stroke-width: .5px;
+      }
+
+      .cls-2, .cls-7 {
+        fill: #fff;
+      }
+
+      .cls-3 {
+        stroke-width: 1.07px;
+      }
+    </style>
+  </defs>
+  <g id="F">
+    <rect class="cls-7" x="69.5" y=".73" width="21.33" height="49"/>
+    <polygon class="cls-6" points="22.62 .77 .29 25.06 22.62 49.35 71.62 49.35 71.62 .77 22.62 .77"/>
+    <path class="cls-1" d="M23.1.41h67.27c.2,0,.36.16.36.36v48.58c0,.2-.16.36-.36.36H23.1c-.1,0-.2-.04-.26-.12L.5,25.3c-.13-.14-.13-.35,0-.48L22.84.52c.07-.07.16-.12.26-.12Z"/>
+    <path class="cls-2" d="M49.9,15.95c0,.37-.01.68-.04.94-.03.25-.07.46-.14.6-.06.15-.13.26-.21.33-.08.07-.17.11-.27.11h-7.26v6.46h6.81c.1,0,.19.03.27.09s.15.17.21.32c.06.15.11.35.14.59.03.25.04.56.04.93s-.01.68-.04.93c-.03.25-.07.45-.14.61-.06.16-.13.28-.21.34-.08.07-.17.1-.27.1h-6.81v8.95c0,.14-.03.25-.1.35-.07.1-.19.18-.37.25-.18.07-.41.12-.7.16-.29.04-.65.06-1.1.06s-.8-.02-1.09-.06c-.29-.04-.52-.09-.7-.16-.17-.07-.29-.15-.37-.25-.07-.1-.11-.22-.11-.35V15.49c0-.54.13-.94.39-1.18s.57-.36.95-.36h10.45c.1,0,.19.03.27.1s.15.18.21.33c.06.15.11.36.14.62.03.26.04.58.04.95Z"/>
+  </g>
+  <g id="Layer_11" data-name="Layer 11">
+    <g>
+      <line class="cls-3" x1="81.33" y1="30.37" x2="81.33" y2="20.01"/>
+      <polyline class="cls-3" points="84.08 22.71 81.33 19.96 78.59 22.71"/>
+    </g>
+    <text class="cls-4" transform="translate(74.97 45.94) scale(1 1.01)"><tspan x="0" y="0">G</tspan></text>
+    <text class="cls-4" transform="translate(74.84 15.94) scale(1 1.01)"><tspan x="0" y="0">A</tspan></text>
+    <text class="cls-5" transform="translate(83.5 9.24) scale(1 1.01)"><tspan x="0" y="0">+</tspan></text>
+  </g>
+</svg>

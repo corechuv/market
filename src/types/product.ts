@@ -36,6 +36,10 @@ export interface ProductBase {
   categoryId?: string;     // если товар в одной категории
   categoryIds?: string[];  // если товар в нескольких категориях
 
+  datasheetPdfUrl?: string,
+  energyClassUrl?: string,
+  energyClassArrowUrl?: string; // URL картинки с энерго-классом
+
   attributes?: ProductAttribute[];
 }
 
@@ -49,6 +53,10 @@ export type ProductVariant = {
   available: boolean;
   images?: string[];               // фотки для цвета
   attributes?: ProductAttribute[]; // атрибуты-override (например, цвет/память)
+
+  datasheetPdfUrl?: string;      // PDF именно этого SKU
+  energyClassUrl?: string;     // класс именно этого SKU
+  energyClassArrowUrl?: string; // URL картинки с энерго-классом
 };
 
 export type Product = ProductBase & {

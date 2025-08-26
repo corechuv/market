@@ -46,6 +46,10 @@ export function buildSpecs(
     opts?: { variant?: ProductVariant; dictionary?: SpecDictionary }
 ) {
     const v = opts?.variant;
+    // NEW: энерго-класс и даташит (SKU → fallback SPU)
+    const energy = v?.energyClassUrl ?? product.energyClassUrl;
+    const datasheet = v?.datasheetPdfUrl ?? product.datasheetPdfUrl;
+    const energyClassArrow = v?.energyClassArrowUrl ?? product.energyClassArrowUrl;
 
 
     const base: ProductAttribute[] = [
@@ -53,6 +57,9 @@ export function buildSpecs(
         { code: "price", value: v?.price ?? product.price }, // цена варианта перекрывает базовую
         { code: "available", value: (v?.available ?? product.available) ?? null },
         { code: "sku", value: v?.sku ?? null }, // артикул варианта
+        ...(energy ? [{ code: "energy.class", value: energy }] : []),
+        ...(datasheet ? [{ code: "docs.datasheet", value: "PDF", href: datasheet }] : []),
+        ...(energyClassArrow ? [{ code: "energy.class.arrow", value: energyClassArrow }] : []),
     ];
 
 

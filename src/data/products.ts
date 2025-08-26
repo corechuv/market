@@ -53,6 +53,8 @@ export const products: Product[] = [
                 images: [
                     "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
                 ],
+                energyClassUrl: "/energy_labels/Label_2391178.svg",
+                datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
                 attributes: [],
             },
         ],
@@ -260,6 +262,8 @@ export const products: Product[] = [
         images: [
             "https://img-resizer.cyberport.de/cp/images/1368x1368/230914165059100301900268D",
         ],
+        energyClassUrl: "/energy_labels/Label_2391178.svg",
+        datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
         categoryId: "cat-electronics-phones-smartphones",
         attributes: [
             { code: "screen.diagonal", label: "Диагональ", value: 6.1, unit: "дюйм", group: "Дисплей" },
@@ -280,6 +284,9 @@ export const products: Product[] = [
                 compareAtPrice: "1 349,00 €",
                 available: true,
                 images: ["https://img-resizer.cyberport.de/cp/images/1368x1368/230914165059100301900268D"],
+                energyClassArrowUrl: "/energy_class_arrows/Class_Arrows_AG/Class_Arrows_AG_B.svg",
+                energyClassUrl: "/energy_labels/Label_2391178.svg",
+                datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
                 attributes: [
                     { code: "color", label: "Цвет", value: "Black Titanium", group: "Общее", priority: 10 },
                     { code: "storage", label: "Память", value: "256 GB", group: "Общее", priority: 11 },
@@ -292,6 +299,9 @@ export const products: Product[] = [
                 price: "1 499,00 €",
                 available: true,
                 images: ["https://img-resizer.cyberport.de/cp/images/1368x1368/230914165059100301900268D"],
+                energyClassArrowUrl: "/energy_class_arrows/Class_Arrows_AG/Class_Arrows_AG_B.svg",
+                energyClassUrl: "/energy_labels/Label_2391178.svg",
+                datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
                 attributes: [
                     { code: "color", label: "Цвет", value: "Black Titanium", group: "Общее", priority: 10 },
                     { code: "storage", label: "Память", value: "512 GB", group: "Общее", priority: 11 },
@@ -304,6 +314,9 @@ export const products: Product[] = [
                 price: "1 349,00 €",
                 available: true,
                 images: ["https://img-resizer.cyberport.de/cp/images/1368x1368/230914165059100301900268D"],
+                energyClassArrowUrl: "/energy_class_arrows/Class_Arrows_AG/Class_Arrows_AG_B.svg",
+                energyClassUrl: "/energy_labels/Label_2391178.svg",
+                datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
                 attributes: [
                     { code: "color", label: "Цвет", value: "Blue Titanium", group: "Общее", priority: 10 },
                     { code: "storage", label: "Память", value: "256 GB", group: "Общее", priority: 11 },
@@ -316,6 +329,9 @@ export const products: Product[] = [
                 price: "1 549,00 €",
                 available: false, // нет в наличии — пикер покажет недоступным/скроет (если hideUnavailable)
                 images: ["https://img-resizer.cyberport.de/cp/images/1368x1368/230914165059100301900268D"],
+                energyClassArrowUrl: "/energy_class_arrows/Class_Arrows_AG/Class_Arrows_AG_B.svg",
+                energyClassUrl: "/energy_labels/Label_2391178.svg",
+                datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
                 attributes: [
                     { code: "color", label: "Цвет", value: "Blue Titanium", group: "Общее", priority: 10 },
                     { code: "storage", label: "Память", value: "512 GB", group: "Общее", priority: 11 },
@@ -341,6 +357,8 @@ export const products: Product[] = [
         images: [
             "https://img-resizer.cyberport.de/cp/images/1368x1368/230913130342000801900004M",
         ],
+        energyClassUrl: "/energy_labels/Label_2391178.svg",
+        datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
         categoryId: "cat-electronics-phones-smartphones",
         attributes: [
             { code: "screen.diagonal", label: "Диагональ", value: 6.1, unit: "дюйм", group: "Дисплей" },
@@ -364,6 +382,9 @@ export const products: Product[] = [
                 images: [
                     "https://img-resizer.cyberport.de/cp/images/1368x1368/230913130342000801900004M"
                 ],
+                energyClassArrowUrl: "/energy_class_arrows/Class_Arrows_AG/Class_Arrows_AG_B.svg",
+                energyClassUrl: "/energy_labels/Label_2391178.svg",
+                datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
                 attributes: [
                     { code: "color", label: "Цвет", value: "Black", group: "Общее", priority: 10 },
                     { code: "storage", label: "Память", value: "128 GB", group: "Общее", priority: 11 },
@@ -378,6 +399,9 @@ export const products: Product[] = [
                 images: [
                     "https://img-resizer.cyberport.de/cp/images/1368x1368/230913130342000801900004M"
                 ],
+                energyClassArrowUrl: "/energy_class_arrows/Class_Arrows_AG/Class_Arrows_AG_B.svg",
+                energyClassUrl: "/energy_labels/Label_2391178.svg",
+                datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
                 attributes: [
                     { code: "color", label: "Цвет", value: "Black", group: "Общее", priority: 10 },
                     { code: "storage", label: "Память", value: "256 GB", group: "Общее", priority: 11 },
@@ -392,6 +416,9 @@ export const products: Product[] = [
                 images: [
                     "https://img-resizer.cyberport.de/cp/images/1368x1368/230913133549100801900264H"
                 ],
+                energyClassArrowUrl: "/energy_class_arrows/Class_Arrows_AG/Class_Arrows_AG_B.svg",
+                energyClassUrl: "/energy_labels/Label_2391178.svg",
+                datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
                 attributes: [
                     { code: "color", label: "Цвет", value: "Blue", group: "Общее", priority: 10 },
                     { code: "storage", label: "Память", value: "128 GB", group: "Общее", priority: 11 },
@@ -406,6 +433,9 @@ export const products: Product[] = [
                 images: [
                     "https://img-resizer.cyberport.de/cp/images/1368x1368/230913133549100801900264H"
                 ],
+                energyClassArrowUrl: "/energy_class_arrows/Class_Arrows_AG/Class_Arrows_AG_B.svg",
+                energyClassUrl: "/energy_labels/Label_2391178.svg",
+                datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
                 attributes: [
                     { code: "color", label: "Цвет", value: "Blue", group: "Общее", priority: 10 },
                     { code: "storage", label: "Память", value: "256 GB", group: "Общее", priority: 11 },
