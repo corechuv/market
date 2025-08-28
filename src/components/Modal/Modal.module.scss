@@ -15,18 +15,31 @@ $anim-time: 0.3s;
   z-index: 1000;
   pointer-events: auto;
 
-  &.left  { justify-content: flex-start; }
-  &.right { justify-content: flex-end;   }
+  &.left {
+    justify-content: flex-start;
+  }
+
+  &.right {
+    justify-content: flex-end;
+  }
 }
 
-.modalOverlay { overscroll-behavior: contain; }
-.modalScroll  { -webkit-overflow-scrolling: touch; }
+.modalOverlay {
+  overscroll-behavior: contain;
+}
+
+.modalScroll {
+  -webkit-overflow-scrolling: touch;
+}
 
 .modalContent {
   position: relative;
-  display: flex;                 /* NEW: колонка */
-  flex-direction: column;        /* NEW */
-  overflow: visible;             /* NEW: не обрезаем абсолюты */
+  display: flex;
+  /* NEW: колонка */
+  flex-direction: column;
+  /* NEW */
+  overflow: visible;
+  /* NEW: не обрезаем абсолюты */
   background: var(--bg);
   color: var(--text);
   outline: none;
@@ -34,24 +47,38 @@ $anim-time: 0.3s;
 
   /* ===== Центр ===== */
   &.center {
-    width: min(90vw, 560px);
-    max-height: min(92vh, 92svh); /* NEW: ограничиваем по вьюпорту */
+    box-sizing: border-box;
+    width: fit-content;
+    min-width: 260px;
+    max-width: 90vw;
+    /* высота как была (ограничение по вьюпорту) */
+    max-height: 92dvh;
+    /* NEW: ограничиваем по вьюпорту */
     border-radius: 12px;
     opacity: 0;
     transform: scale(0.9);
     animation: zoomIn $anim-time forwards;
-    @include scrollbar.custom-scrollbar(); /* если надо прокручивать вложенный скролл */
+    @include scrollbar.custom-scrollbar();
+    /* если надо прокручивать вложенный скролл */
   }
 
   /* ===== Слева/справа (fullscreen height drawers) ===== */
   &.left,
   &.right {
-    height: 100dvh;             /* NEW: стабильная высота, мобильный safe */
+    height: 100dvh;
+    /* NEW: стабильная высота, мобильный safe */
     border-radius: 0;
   }
 
-  &.left  { transform: translateX(-100%); animation: slideInLeft  $anim-time forwards; }
-  &.right { transform: translateX(100%);  animation: slideInRight $anim-time forwards; }
+  &.left {
+    transform: translateX(-100%);
+    animation: slideInLeft $anim-time forwards;
+  }
+
+  &.right {
+    transform: translateX(100%);
+    animation: slideInRight $anim-time forwards;
+  }
 }
 
 /* Header & Body */
@@ -65,45 +92,83 @@ $anim-time: 0.3s;
   font-weight: 600;
   color: var(--text);
   height: 68px;
-  flex: 0 0 68px;               /* NEW: фиксируем место под шапку */
-  border-bottom: 1px dashed var(--border); /* или через инлайн-стиль из пропсов */
+  flex: 0 0 68px;
+  /* NEW: фиксируем место под шапку */
+  border-bottom: 1px dashed var(--border);
+  /* или через инлайн-стиль из пропсов */
+
+  &__title {
+    flex: 1 1 auto;
+    /* NEW: занимает всё место, кроме кнопки */
+    overflow: hidden;
+    /* NEW: обрезаем текст, если не помещается */
+    text-overflow: ellipsis;
+    /* NEW: добавляем многоточие */
+    white-space: nowrap;
+    /* NEW: в одну строку */
+  }
+
+
+  &__closeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    width: 1.7rem;
+    height: 1.7rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+
+    svg {
+      width: 100%;
+      height: 100%;
+      transition: transform 0.15s ease;
+    }
+
+    &:hover svg,
+    &:focus-visible svg {
+      transform: scale(1.15);
+    }
+  }
 }
 
 .modalBody {
   position: relative;
   padding: 1.25rem;
-  flex: 1 1 auto;               /* NEW: занимает оставшееся место */
-  min-height: 0;                /* NEW: обязателен для корректного шринка в flex */
-  overflow: visible;            /* NEW: чтобы абсолюты не обрезались */
+  flex: 1 1 auto;
+  /* NEW: занимает оставшееся место */
+  min-height: 0;
+  /* NEW: обязателен для корректного шринка в flex */
+  overflow: visible;
+  /* NEW: чтобы абсолюты не обрезались */
 }
 
 /* Внутренний скролл только тут */
 .modalScroll {
   height: 100%;
-  max-height: 100%;             /* у центр-версии ограничено max-height родителя */
+  max-height: 100%;
+  /* у центр-версии ограничено max-height родителя */
   overflow-y: auto;
   @include scrollbar.custom-scrollbar();
 }
 
-@keyframes zoomIn       { to { opacity: 1; transform: scale(1); } }
-@keyframes slideInLeft  { to { transform: translateX(0); } }
-@keyframes slideInRight { to { transform: translateX(0); } }
+@keyframes zoomIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 
-.closeButton {
-  position: absolute;
-  top: 1.25rem;
-  right: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text);
-  width: 1.7rem;
-  height: 1.7rem;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
+@keyframes slideInLeft {
+  to {
+    transform: translateX(0);
+  }
+}
 
-  svg { width: 100%; height: 100%; transition: transform 0.15s ease; }
-  &:hover svg, &:focus-visible svg { transform: scale(1.15); }
+@keyframes slideInRight {
+  to {
+    transform: translateX(0);
+  }
 }

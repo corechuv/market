@@ -119,21 +119,20 @@ export default function Modal({
       >
         {header && (
           <div className={`${cls.modalHeader} ${headerClassName}`} style={modalHeaderStyle}>
-            {header}
+            <h3 className={cls.modalHeader__title}>{header}</h3>
+            <button
+              className={cls.modalHeader__closeButton}
+              aria-label="Close modal"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();   // чтобы клик по крестику не всплывал
+                onClose();
+              }}
+            >
+              <CloseIcon />
+            </button>
           </div>
         )}
-
-        <button
-          className={cls.closeButton}
-          aria-label="Close modal"
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();   // чтобы клик по крестику не всплывал
-            onClose();
-          }}
-        >
-          <CloseIcon />
-        </button>
 
         <div className={`${cls.modalBody} ${bodyClassName}`}>
           <div className={cls.modalScroll}>{children}</div>
