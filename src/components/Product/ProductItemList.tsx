@@ -7,6 +7,7 @@ import { parseMoney } from "../../types/helpers/parseMoney";
 // эти утилиты берём из вашего проекта
 import { getInitialVariant } from "../../specs/builders";
 import EnergyLabel from "./Details/EnergyLabel";
+import Stars from "./Stars";
 // buildSpecs не обязателен для списка, но при желании можно тоже подключить
 // import { buildSpecs } from "../../lib/buildSpecs";
 
@@ -115,6 +116,11 @@ const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, classNa
 
                             <div className={cls.productDetails}>
                                 <h2 className={cls.productName}>{product.name}</h2>
+                                <div className={cls.productMeta__rating}>
+                                    <Stars size={14} value={4.5} />
+                                    <span className={cls.productMeta__ratingValue}>4.5</span>
+                                    <span className={cls.productMeta__ratingCount}>(120)</span>
+                                </div>
                                 <div className={cls.price}>
                                     {!!discountPercent && compareAt && (
                                         <div className={cls.priceRow}>

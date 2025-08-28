@@ -104,6 +104,8 @@ $bp-lg: 1024px;
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.25;
+  margin: 0;
+  margin-bottom: 6px;
 }
 
 .productPrice {
@@ -183,6 +185,34 @@ $bp-lg: 1024px;
     }
 }
 
+.productMeta {
+
+    &__rating {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: var(--text);
+        margin-bottom: 10px;
+    }
+
+    &__ratingValue {
+        font-weight: 300;
+        color: var(--text);
+    }
+
+    &__ratingCount {
+        font-weight: 300;
+        color: var(--text);
+    }
+
+    @media screen and (max-width: 768px) {
+        margin-top: 10px;
+        gap: 15px;
+    }
+
+}
+
 .meta__energyClass {
   position: absolute;
   bottom: 0.5rem;
@@ -237,7 +267,7 @@ $bp-lg: 1024px;
 
 .badgeDiscount {
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 500;
   color: black;
   background-color: #f8ffaa;
   height: 26px;
