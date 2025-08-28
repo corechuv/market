@@ -167,25 +167,36 @@ export default function ProductPage() {
                                 </div>
                             </div>
                             <div className={cls.productPrice}>
-                                <div className={cls.price}>
-                                    {Number.isFinite(compareAtNum) && compareAtNum > priceNum && <div className={cls.price__old}>
-                                        {discountPercent !== null && (
-                                            <span className={cls.price__discount}>-{discountPercent}%</span>
-                                        )}
-                                        <span className={cls.price__compareAt}>{compareAt}</span>
-                                    </div>}
-                                    <span className={cls.price__current}>{price}</span>
-                                    <div className={cls.productVat}>
-                                        <span>VAT included</span>
+                                <div className={cls.meta__container}>
+                                    <div className={`${"cls.meta_container--item"}`}>
+                                        <div className={cls.price}>
+                                            {Number.isFinite(compareAtNum) && compareAtNum > priceNum && <div className={cls.price__old}>
+                                                {discountPercent !== null && (
+                                                    <span className={cls.price__discount}>-{discountPercent}%</span>
+                                                )}
+                                                <span className={cls.price__compareAt}>{compareAt}</span>
+                                            </div>}
+                                            <span className={cls.price__current}>{price}</span>
+                                        </div>
+                                        <div className={cls.product__infoBelow}>
+                                            <span className={cls.productVat}>inkl. MwSt.</span>&nbsp;
+                                            <span className={cls.productDelivery}>versandkostenfrei</span>
+                                        </div>
+                                    </div>
+                                    <div className={`${"cls.meta_container--item"}`}>
+                                        <div className={cls.product__info}>
+                                            {energyClass && datasheetUrl && energyClassArrow && (
+                                                <div className={cls.productEnergy}>
+                                                    {energyClass && <EnergyLabel energyClassUrl={energyClass} energyClassArrowUrl={energyClassArrow} label="Energieklasse" />}
+                                                    {datasheetUrl && <ProductDatasheet pdfUrl={datasheetUrl} label="Produktdatenblatt" />}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                                <div className={cls.product__info}>
-                                    {energyClass && datasheetUrl && energyClassArrow && (
-                                        <div className={cls.productEnergy}>
-                                            {energyClass && <EnergyLabel energyClassUrl={energyClass} energyClassArrowUrl={energyClassArrow} label="Energieklasse" />}
-                                            {datasheetUrl && <ProductDatasheet pdfUrl={datasheetUrl} label="Produktdatenblatt" />}
-                                        </div>
-                                    )}
+                            </div>
+                            <div className={cls.section}>
+                                <div className={cls.section__content}>
                                     <div className={cls.available}>
                                         <span className={available ? cls.inStock : cls.outOfStock} />
                                         <span className={available ? cls.inStockText : cls.outOfStockText}>

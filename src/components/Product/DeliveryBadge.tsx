@@ -77,10 +77,10 @@ export default function DeliveryBadge({
     fromDate = new Date(),
     businessDays = true,
     className = "",
-    freeLabel = "Free delivery",
-    paidLabel = "Delivery",
-    betweenLabel = "Delivery between",
-    andLabel = "and",
+    freeLabel = "Versandkostenfrei",
+    paidLabel = "Versand",
+    betweenLabel = "Lieferung zwischen",
+    andLabel = "und",
 }: DeliveryBadgeProps) {
     const start = addDays(fromDate, minDays, businessDays);
     const end = addDays(fromDate, maxDays, businessDays);
