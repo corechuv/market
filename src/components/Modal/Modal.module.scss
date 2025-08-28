@@ -13,6 +13,7 @@ $anim-time: 0.3s;
   background: var(--bg-overlay);
   backdrop-filter: blur(5px);
   z-index: 1000;
+  pointer-events: auto;
 
   &.left  { justify-content: flex-start; }
   &.right { justify-content: flex-end;   }

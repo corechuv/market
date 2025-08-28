@@ -96,7 +96,15 @@ export default function Modal({
 
 
   return createPortal(
-    <div className={`${cls.modalOverlay} ${cls[variant]}`} onClick={onClose} role="presentation">
+    <div className={`${cls.modalOverlay} ${cls[variant]}`}
+      // клик по фону: закрываем МОДАЛКУ и НЕ пускаем событие наружу
+      onClick={(e) => {
+        e.stopPropagation();
+        onClose();
+      }}
+      // подстраховка: режем всплытие максимально рано
+      onMouseDownCapture={(e) => e.stopPropagation()}
+      role="presentation">
       <div
         className={`${cls.modalContent} ${cls[variant]} ${className}`}
         style={modalContentStyle}
@@ -104,7 +112,10 @@ export default function Modal({
         aria-modal="true"
         ref={contentRef}
         tabIndex={-1}
+        // клики внутри — не наружу
         onClick={(e) => e.stopPropagation()}
+        // и на mousedown тоже режем
+        onMouseDownCapture={(e) => e.stopPropagation()}
       >
         {header && (
           <div className={`${cls.modalHeader} ${headerClassName}`} style={modalHeaderStyle}>
@@ -112,14 +123,20 @@ export default function Modal({
           </div>
         )}
 
-        <button className={cls.closeButton} onClick={onClose} aria-label="Close modal" type="button">
+        <button
+          className={cls.closeButton}
+          aria-label="Close modal"
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();   // чтобы клик по крестику не всплывал
+            onClose();
+          }}
+        >
           <CloseIcon />
         </button>
 
         <div className={`${cls.modalBody} ${bodyClassName}`}>
-          <div className={cls.modalScroll}>
-            {children}
-          </div>
+          <div className={cls.modalScroll}>{children}</div>
         </div>
       </div>
     </div>,
