@@ -104,7 +104,6 @@ $bp-lg: 1024px;
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.25;
-  margin: 8px 0 4px;
 }
 
 .productPrice {
@@ -165,7 +164,7 @@ $bp-lg: 1024px;
 }
 
 .price {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   gap: 4px;
 }

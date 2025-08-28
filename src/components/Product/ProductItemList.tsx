@@ -116,10 +116,12 @@ const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, classNa
                             <div className={cls.productDetails}>
                                 <h2 className={cls.productName}>{product.name}</h2>
                                 <div className={cls.price}>
-                                    <div className={cls.priceRow}>
-                                        {!!discountPercent && <div className={cls.badgeDiscount}>-{discountPercent}%</div>}
-                                        {compareAt ? <span className={cls.priceCompareAt}>{compareAt}</span> : null}
-                                    </div>
+                                    {!!discountPercent && compareAt && (
+                                        <div className={cls.priceRow}>
+                                            {!!discountPercent && <div className={cls.badgeDiscount}>-{discountPercent}%</div>}
+                                            {compareAt ? <span className={cls.priceCompareAt}>{compareAt}</span> : null}
+                                        </div>
+                                    )}
                                     <span className={cls.productPrice}>{price}</span>
                                 </div>
                                 <div className={cls.available}>
