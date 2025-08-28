@@ -1,17 +1,27 @@
 .badge {
-    display: flex;
-    cursor: pointer;
+  display: flex;
+  cursor: pointer;
 
-    &__arrow {
-        width: 50px;
-        height: auto;
+  &__arrow {
+    height: auto;
+
+    &--large {
+      width: 50px;
     }
+
+    &--small {
+      width: 38px;
+    }
+  }
 }
 
 .imgContainer {
-  display: flex; justify-content: center; align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-  svg, img {
+  svg,
+  img {
     max-height: 500px;
     width: auto;
   }

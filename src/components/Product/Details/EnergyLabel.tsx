@@ -7,9 +7,10 @@ export type EnergyLabelProps = {
     energyClassUrl: string;
     className?: string;
     label?: string;
+    size?: "small" | "large"; // default: large
 };
 
-const EnergyLabel: React.FC<EnergyLabelProps> = ({ energyClassUrl, energyClassArrowUrl, className, label = "Energy" }) => {
+const EnergyLabel: React.FC<EnergyLabelProps> = ({ energyClassUrl, energyClassArrowUrl, className, label = "Energy", size = "large" }) => {
 
     const [isOpen, setIsOpen] = React.useState(false);
 
@@ -21,7 +22,7 @@ const EnergyLabel: React.FC<EnergyLabelProps> = ({ energyClassUrl, energyClassAr
                 aria-haspopup="dialog"
                 title={`${label}`}
             >
-                <img src={energyClassArrowUrl} className={styles.badge__arrow} alt={`${label}`} />
+                <img src={energyClassArrowUrl} className={`${styles.badge__arrow} ${styles[`badge__arrow--${size}`]}`} alt={`${label}`} />
             </a>
 
             <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} header={`${label}`}>

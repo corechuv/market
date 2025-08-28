@@ -108,10 +108,8 @@ $bp-lg: 1024px;
 }
 
 .productPrice {
-  font-weight: 300;
+  font-weight: 400;
   font-size: 20px;
-  margin-top: 4px;
-  margin-bottom: 10px;
   color: var(--text);
 
   @media (max-width: $bp-md) {
@@ -127,6 +125,7 @@ $bp-lg: 1024px;
   font-weight: 300;
   font-size: 14px;
   color: var(--text);
+  margin-top: 5px;
 
   @media (max-width: $bp-md) {
     font-size: 13px;
@@ -168,10 +167,17 @@ $bp-lg: 1024px;
 .price {
   display: inline-flex;
   flex-direction: column;
+  gap: 4px;
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .priceCompareAt {
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 300;
   color: var(--text);
   position: relative;
@@ -196,26 +202,28 @@ $bp-lg: 1024px;
     transform-origin: 50% 50%;
     pointer-events: none;
   }
+
+  @media (max-width: $bp-md) {
+    font-size: 15px;
+  }
 }
 
 .badgeDiscount {
-  position: absolute;
-  top: .5rem;
-  left: .5rem;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 400;
   color: black;
   background-color: #f8ffaa;
-  height: 28px;
+  height: 26px;
   padding: 0 10px;
   border-radius: 14px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
 .imageWrap {
   position: relative;
+  display: flex;
 }
 
 .imagePlaceholder {

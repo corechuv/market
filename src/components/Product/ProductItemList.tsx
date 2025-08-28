@@ -96,8 +96,6 @@ const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, classNa
                             }}
                         >
                             <div className={cls.imageWrap}>
-                                {!!discountPercent && <div className={cls.badgeDiscount}>-{discountPercent}%</div>}
-                                {!available && <div className={cls.badgeOOS}>Нет в наличии</div>}
                                 {imageSrc ? (
                                     <img
                                         src={imageSrc}
@@ -110,19 +108,20 @@ const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, classNa
                                 )}
                                 {(energyClassArrow || energyClass) && (
                                     <div className={cls.meta__energyClass}>
-                                        {energyClassArrow && energyClass && <EnergyLabel energyClassUrl={energyClass} energyClassArrowUrl={energyClassArrow} label="Energieklasse" />}
+                                        {energyClassArrow && energyClass && <EnergyLabel size="small" energyClassUrl={energyClass} energyClassArrowUrl={energyClassArrow} label="Energieklasse" />}
                                     </div>
                                 )}
                             </div>
 
                             <div className={cls.productDetails}>
                                 <h2 className={cls.productName}>{product.name}</h2>
-
                                 <div className={cls.price}>
-                                    {compareAt ? <span className={cls.priceCompareAt}>{compareAt}</span> : null}
+                                    <div className={cls.priceRow}>
+                                        {!!discountPercent && <div className={cls.badgeDiscount}>-{discountPercent}%</div>}
+                                        {compareAt ? <span className={cls.priceCompareAt}>{compareAt}</span> : null}
+                                    </div>
                                     <span className={cls.productPrice}>{price}</span>
                                 </div>
-
                                 <div className={cls.available}>
                                     <span className={available ? cls.inStock : cls.outOfStock} />
                                     <span className={available ? cls.inStockText : cls.outOfStockText}>
