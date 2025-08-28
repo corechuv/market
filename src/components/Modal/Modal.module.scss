@@ -19,6 +19,9 @@ $anim-time: 0.3s;
   &.right { justify-content: flex-end;   }
 }
 
+.modalOverlay { overscroll-behavior: contain; }
+.modalScroll  { -webkit-overflow-scrolling: touch; }
+
 .modalContent {
   position: relative;
   display: flex;                 /* NEW: колонка */
