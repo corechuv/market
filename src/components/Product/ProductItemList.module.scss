@@ -160,7 +160,7 @@ $bp-lg: 1024px;
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-top: 5px;
+    margin-top: 2px;
   }
 }
 
@@ -177,7 +177,6 @@ $bp-lg: 1024px;
 .productDelivery {
   font-size: 14px;
   font-weight: 300;
-
 
     @media (max-width: $bp-md) {
       font-size: 12px;
