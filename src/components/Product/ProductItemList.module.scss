@@ -8,7 +8,9 @@ $bp-md: 768px;
 $bp-lg: 1024px;
 
 /* обёртка списка */
-.productList { width: 100%; }
+.productList {
+  width: 100%;
+}
 
 /* ====== Сетка карточек ====== */
 .grid {
@@ -16,8 +18,13 @@ $bp-lg: 1024px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px 16px;
 
-  @media (max-width: $bp-lg) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  @media (max-width: $bp-sm) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: $bp-lg) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: $bp-sm) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* список */
@@ -44,17 +51,31 @@ $bp-lg: 1024px;
   gap: 1.25rem;
   border-bottom: 1px dashed var(--border);
 
-  &:nth-last-child(1) { border-bottom: none; }
+  &:nth-last-child(1) {
+    border-bottom: none;
+  }
 
-  .productImage { max-width: 160px; }
+  .productImage {
+    max-width: 160px;
+  }
 
   @media (max-width: $bp-md) {
     gap: 12px;
     padding: 12px 0;
 
-    .productImage { max-width: 96px; }
-    .productName  { -webkit-line-clamp: 2; line-clamp: 2; font-size: 14px; }
-    .productPrice { font-size: 16px; }
+    .productImage {
+      max-width: 96px;
+    }
+
+    .productName {
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      font-size: 14px;
+    }
+
+    .productPrice {
+      font-size: 16px;
+    }
   }
 }
 
@@ -64,10 +85,14 @@ $bp-lg: 1024px;
   object-fit: cover;
   aspect-ratio: 4/4;
 
-  @media (max-width: $bp-sm) { aspect-ratio: 1/1; }
+  @media (max-width: $bp-sm) {
+    aspect-ratio: 1/1;
+  }
 }
 
-.productDetails { padding: 12px 4px; }
+.productDetails {
+  padding: 12px 4px;
+}
 
 .productName {
   color: var(--text);
@@ -89,7 +114,9 @@ $bp-lg: 1024px;
   margin-bottom: 10px;
   color: var(--text);
 
-  @media (max-width: $bp-md) { font-size: 18px; }
+  @media (max-width: $bp-md) {
+    font-size: 18px;
+  }
 }
 
 /* доступность */
@@ -101,7 +128,9 @@ $bp-lg: 1024px;
   font-size: 14px;
   color: var(--text);
 
-  @media (max-width: $bp-md) { font-size: 13px; }
+  @media (max-width: $bp-md) {
+    font-size: 13px;
+  }
 }
 
 .inStock,
@@ -112,8 +141,94 @@ $bp-lg: 1024px;
   border-radius: 50%;
 }
 
-.inStock { background-color: var(--available-color); }
-.outOfStock { background-color: var(--not-available-color); }
+.inStock {
+  background-color: var(--available-color);
+}
 
-.inStockText  { color: var(--available-color); }
-.outOfStockText { color: var(--not-available-color); }
+.outOfStock {
+  background-color: var(--not-available-color);
+}
+
+.inStockText {
+  color: var(--available-color);
+}
+
+.outOfStockText {
+  color: var(--not-available-color);
+}
+
+.meta__energyClass {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.price {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.priceCompareAt {
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--text);
+  position: relative;
+  display: inline-block;
+  /* важно, чтобы псевдо-элемент растягивался по ширине текста */
+  padding: 0 0.1em;
+  /* чуть шире, чтобы линия выходила за края текста на волосок */
+
+  /* тонкая диагональная линия */
+  &::after {
+    content: "";
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    top: 50%;
+    height: 1px;
+    border-radius: 20px;
+    /* толщина линии: масштабируется с шрифтом */
+    background: var(--text);
+    /* цвет линии = цвет текста */
+    transform: translateY(-50%) rotate(-4deg);
+    transform-origin: 50% 50%;
+    pointer-events: none;
+  }
+}
+
+.badgeDiscount {
+  position: absolute;
+  top: .5rem;
+  left: .5rem;
+  font-size: 14px;
+  font-weight: 500;
+  color: black;
+  background-color: #f8ffaa;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imageWrap {
+  position: relative;
+}
+
+.imagePlaceholder {
+  background: #f2f2f2;
+  width: 100%;
+  aspect-ratio: 1/1;
+}
+
+.metaLink {
+  font-size: .875rem;
+  text-decoration: underline;
+}
+
+.itemDisabled {
+  opacity: .75;
+}
