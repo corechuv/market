@@ -155,6 +155,35 @@ $bp-lg: 1024px;
   color: var(--not-available-color);
 }
 
+.product {
+  &__infoBelow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 5px;
+  }
+}
+
+.productVat {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--color-text-primary);
+
+    @media (max-width: $bp-md) {
+      font-size: 12px;
+    }
+}
+
+.productDelivery {
+  font-size: 14px;
+  font-weight: 300;
+
+
+    @media (max-width: $bp-md) {
+      font-size: 12px;
+    }
+}
+
 .meta__energyClass {
   position: absolute;
   bottom: 0.5rem;

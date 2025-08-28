@@ -124,6 +124,10 @@ const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, classNa
                                     )}
                                     <span className={cls.productPrice}>{price}</span>
                                 </div>
+                                <div className={cls.product__infoBelow}>
+                                    <span className={cls.productVat}>inkl. MwSt.</span>&nbsp;
+                                    <span className={cls.productDelivery}>versandkostenfrei</span>
+                                </div>
                                 <div className={cls.available}>
                                     <span className={available ? cls.inStock : cls.outOfStock} />
                                     <span className={available ? cls.inStockText : cls.outOfStockText}>
