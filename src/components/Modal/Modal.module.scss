@@ -98,8 +98,6 @@ $anim-time: 0.3s;
   /* или через инлайн-стиль из пропсов */
 
   &__title {
-    flex: 1 1 auto;
-    /* NEW: занимает всё место, кроме кнопки */
     overflow: hidden;
     /* NEW: обрезаем текст, если не помещается */
     text-overflow: ellipsis;
