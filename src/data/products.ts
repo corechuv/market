@@ -382,7 +382,7 @@ export const products: Product[] = [
                 images: [
                     "https://img-resizer.cyberport.de/cp/images/1368x1368/230913130342000801900004M"
                 ],
-                energyClassArrowUrl: "/energy_class_arrows/Class_Arrows_AG/Class_Arrows_AG_B.svg",
+                energyClassArrowUrl: "/energy_class_arrows/Class_Arrows_AG/Class_Arrows_AG_A.svg",
                 energyClassUrl: "/energy_labels/Label_2391178.svg",
                 datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
                 attributes: [
@@ -399,7 +399,7 @@ export const products: Product[] = [
                 images: [
                     "https://img-resizer.cyberport.de/cp/images/1368x1368/230913130342000801900004M"
                 ],
-                energyClassArrowUrl: "/energy_class_arrows/Class_Arrows_AG/Class_Arrows_AG_B.svg",
+                energyClassArrowUrl: "/energy_class_arrows/Class_Arrows_AG/Class_Arrows_AG_A.svg",
                 energyClassUrl: "/energy_labels/Label_2391178.svg",
                 datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
                 attributes: [
@@ -416,7 +416,7 @@ export const products: Product[] = [
                 images: [
                     "https://img-resizer.cyberport.de/cp/images/1368x1368/230913133549100801900264H"
                 ],
-                energyClassArrowUrl: "/energy_class_arrows/Class_Arrows_AG/Class_Arrows_AG_B.svg",
+                energyClassArrowUrl: "/energy_class_arrows/Class_Arrows_AG/Class_Arrows_AG_A.svg",
                 energyClassUrl: "/energy_labels/Label_2391178.svg",
                 datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
                 attributes: [
@@ -433,7 +433,7 @@ export const products: Product[] = [
                 images: [
                     "https://img-resizer.cyberport.de/cp/images/1368x1368/230913133549100801900264H"
                 ],
-                energyClassArrowUrl: "/energy_class_arrows/Class_Arrows_AG/Class_Arrows_AG_B.svg",
+                energyClassArrowUrl: "/energy_class_arrows/Class_Arrows_AG/Class_Arrows_AG_A.svg",
                 energyClassUrl: "/energy_labels/Label_2391178.svg",
                 datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
                 attributes: [

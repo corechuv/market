@@ -5,6 +5,7 @@ import { getReviewsById } from "../../services/reviewService";
 import { getBreadcrumbs } from "../../services/categoryService";
 import { buildSpecs, getInitialVariant } from "../../specs/builders";
 import { parseMoney } from "../../types/helpers/parseMoney";
+import { getReviewSummaryById } from "../../services/reviewService";
 
 
 import cls from './ProductPage.module.scss'
@@ -46,6 +47,10 @@ export default function ProductPage() {
         fillFromAllIfShort: true,
     });
     const reviews = getReviewsById(String(productId));
+    const reviewSummary = React.useMemo(
+        () => getReviewSummaryById(String(productId)),
+        [productId]
+    );
 
     if (!product) {
         return (
@@ -134,9 +139,19 @@ export default function ProductPage() {
                             <h1 className={cls.productName}>{product.name}</h1>
                             <div className={cls.productMeta}>
                                 <div className={cls.productMeta__rating}>
-                                    <Stars size={18} value={4.5} />
-                                    <span className={cls.productMeta__ratingValue}>4.5</span>
-                                    <span className={cls.productMeta__ratingCount}>(120)</span>
+                                    {reviewSummary.count > 0 ? (
+                                        <>
+                                            <Stars size={18} value={reviewSummary.avg} />
+                                            <span className={cls.productMeta__ratingValue}>{reviewSummary.avg.toFixed(1)}</span>
+                                            <span className={cls.productMeta__ratingCount}>({reviewSummary.count})</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Stars size={18} value={0} />
+                                            <span className={cls.productMeta__ratingValue}>0.0</span>
+                                            <span className={cls.productMeta__ratingCount}>(0)</span>
+                                        </>
+                                    )}
                                 </div>
                                 <div className={cls.productMeta__articleNumber}>
                                     Art.-Nr. {articleNumber}
@@ -244,7 +259,18 @@ export default function ProductPage() {
                         <div className={cls.section__content}>
                             <div className={cls.reviewsHeader}>
                                 <div>
-                                    <div className={cls.reviewCount}>4.5 <span className={cls.reviewCountText}>(120 reviews)</span></div>
+                                    <div className={cls.reviewCount}>
+                                        {reviewSummary.count > 0 ? (
+                                            <>
+                                                {reviewSummary.avg.toFixed(1)}{" "}
+                                                <span className={cls.reviewCountText}>({reviewSummary.count} reviews)</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                0.0 <span className={cls.reviewCountText}>(0 reviews)</span>
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className={cls.reviewActions}>
                                     <Button className={cls.openReviewButton} onClick={() => setIsOpen(true)} size="small">Open Reviews</Button>

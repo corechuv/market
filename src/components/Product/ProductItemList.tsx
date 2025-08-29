@@ -3,6 +3,7 @@ import cls from "./ProductItemList.module.scss";
 import type { ViewMode } from "../../components/Product/ToggleViewSwitch";
 import type { Product, ProductVariant } from "../../types/product";
 import { parseMoney } from "../../types/helpers/parseMoney";
+import { getReviewSummaryMap } from "../../services/reviewService";
 
 // эти утилиты берём из вашего проекта
 import { getInitialVariant } from "../../specs/builders";
@@ -67,10 +68,12 @@ function useProductComputed(product: Product) {
 }
 
 const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, className }) => {
+    const reviewSummaryMap = React.useMemo(() => getReviewSummaryMap(), []);
     return (
         <div className={[cls.productList, className].filter(Boolean).join(" ")}>
             <div className={view === "grid" ? cls.grid : cls.list}>
                 {products.map((product) => {
+                    const rs = reviewSummaryMap[product.id];
                     const {
                         imageSrc,
                         price,
@@ -117,9 +120,19 @@ const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, classNa
                             <div className={cls.productDetails}>
                                 <h2 className={cls.productName}>{product.name}</h2>
                                 <div className={cls.productMeta__rating}>
-                                    <Stars size={14} value={4.5} />
-                                    <span className={cls.productMeta__ratingValue}>4.5</span>
-                                    <span className={cls.productMeta__ratingCount}>(120)</span>
+                                    {rs?.count ? (
+                                        <>
+                                            <Stars size={14} value={rs.avg} />
+                                            <span className={cls.productMeta__ratingValue}>{rs.avg.toFixed(1)}</span>
+                                            <span className={cls.productMeta__ratingCount}>({rs.count})</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Stars size={14} value={0} />
+                                            <span className={cls.productMeta__ratingValue}>0.0</span>
+                                            <span className={cls.productMeta__ratingCount}>(0)</span>
+                                        </>
+                                    )}
                                 </div>
                                 <div className={cls.price}>
                                     {!!discountPercent && compareAt && (
