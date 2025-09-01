@@ -1,0 +1,45 @@
+.root {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  width: var(--width);
+  height: var(--height);
+  gap: var(--bar-gap);
+}
+
+.bar {
+  position: relative;
+  width: var(--bar-width);
+  height: 100%;
+  background: var(--bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0%;
+  background: var(--fill);
+  border-radius: var(--radius);
+  transition: height var(--anim-duration) ease;
+  will-change: height;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill {
+    transition: none;
+  }
+}
+
+/* High-contrast / forced colors support */
+@media (forced-colors: active) {
+  .bar {
+    border-color: CanvasText;
+  }
+  .fill {
+    background: CanvasText;
+  }
+}

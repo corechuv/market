@@ -25,6 +25,7 @@ import Stars from "../../components/Product/Stars";
 
 import ProductDatasheet from "../../components/Product/Details/ProductDatasheet";
 import EnergyLabel from "../../components/Product/Details/EnergyLabel";
+import VerticalHistogramRating from "../../components/Product/Details/VerticalHistogramRating";
 
 export default function ProductPage() {
     const { productId } = useParams<{ productId: string }>();
@@ -262,12 +263,16 @@ export default function ProductPage() {
                                     <div className={cls.reviewCount}>
                                         {reviewSummary.count > 0 ? (
                                             <>
-                                                {reviewSummary.avg.toFixed(1)}{" "}
-                                                <span className={cls.reviewCountText}>({reviewSummary.count} reviews)</span>
+                                                <div>
+                                                    {reviewSummary.avg.toFixed(1)}{" "}
+                                                    <span className={cls.reviewCountText}>({reviewSummary.count} reviews)</span>
+                                                </div>
+                                                <VerticalHistogramRating value={reviewSummary.avg} max={5} height={50} barWidth={4} gap={16} radius={2} />
                                             </>
                                         ) : (
                                             <>
                                                 0.0 <span className={cls.reviewCountText}>(0 reviews)</span>
+                                                <VerticalHistogramRating value={3.25} max={5} height={100} barWidth={22} gap={4} radius={4} />
                                             </>
                                         )}
                                     </div>
