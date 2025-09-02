@@ -28,11 +28,11 @@ import EnergyLabel from "../../components/Product/Details/EnergyLabel";
 import ReviewsHistogram from "../../components/Product/Details/ReviewsHistogram";
 
 const dist = [
-  { rating: 5, count: 412 },
-  { rating: 4, count: 120 },
-  { rating: 3, count: 58 },
-  { rating: 2, count: 21 },
-  { rating: 1, count: 39 },
+    { rating: 5, count: 412 },
+    { rating: 4, count: 120 },
+    { rating: 3, count: 58 },
+    { rating: 2, count: 21 },
+    { rating: 1, count: 39 },
 ];
 
 export default function ProductPage() {
@@ -280,21 +280,23 @@ export default function ProductPage() {
                                                     sort="desc"
                                                     ratingLabel={(r) => `${r}`}
                                                 />
+                                                <div className={cls.reviewActions}>
+                                                    <Button className={cls.openReviewButton} onClick={() => setIsOpen(true)} size="small">Open Reviews</Button>
+                                                </div>
                                             </>
                                         ) : (
                                             <>
-                                                0.0 <span className={cls.reviewCountText}>(0 reviews)</span>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'left' }}>
+                                                    0.0 <span className={cls.reviewCountText}>(0 reviews)</span>
+                                                </div>
                                                 <ReviewsHistogram
-                                                    data={dist}
+                                                    data={[0, 0, 0, 0, 0].map((_, i) => ({ rating: i + 1, count: 0 }))}
                                                     sort="desc"
                                                     ratingLabel={(r) => `${r}`}
                                                 />
                                             </>
                                         )}
                                     </div>
-                                </div>
-                                <div className={cls.reviewActions}>
-                                    <Button className={cls.openReviewButton} onClick={() => setIsOpen(true)} size="small">Open Reviews</Button>
                                 </div>
                             </div>
                         </div>
