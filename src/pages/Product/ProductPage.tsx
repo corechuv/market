@@ -27,14 +27,6 @@ import ProductDatasheet from "../../components/Product/Details/ProductDatasheet"
 import EnergyLabel from "../../components/Product/Details/EnergyLabel";
 import ReviewsHistogram from "../../components/Product/Details/ReviewsHistogram";
 
-const dist = [
-    { rating: 5, count: 412 },
-    { rating: 4, count: 120 },
-    { rating: 3, count: 58 },
-    { rating: 2, count: 21 },
-    { rating: 1, count: 39 },
-];
-
 export default function ProductPage() {
     const { productId } = useParams<{ productId: string }>();
 
@@ -59,6 +51,12 @@ export default function ProductPage() {
     const reviewSummary = React.useMemo(
         () => getReviewSummaryById(String(productId)),
         [productId]
+    );
+
+    // Преобразуем [c1..c5] → [{ rating: 1..5, count }]
+    const histogramData = React.useMemo(
+        () => reviewSummary.histogram.map((count, i) => ({ rating: i + 1, count })),
+        [reviewSummary.histogram]
     );
 
     if (!product) {
@@ -275,13 +273,18 @@ export default function ProductPage() {
                                                 <span className={cls.reviewCountText}>({reviewSummary.count} reviews)</span>
                                             </div>
                                         </div>
+
                                         <ReviewsHistogram
-                                            data={dist}
+                                            data={histogramData}
                                             sort="desc"
-                                            ratingLabel={(r) => `${r}`}
+                                            locale="de-DE"
+                                            ratingLabel={(r) => `${r} ★`}
                                         />
+
                                         <div className={cls.reviewActions}>
-                                            <Button className={cls.openReviewButton} onClick={() => setIsOpen(true)} size="small">Open Reviews</Button>
+                                            <Button className={cls.openReviewButton} onClick={() => setIsOpen(true)} size="small">
+                                                Open Reviews
+                                            </Button>
                                         </div>
                                     </>
                                 ) : (
@@ -289,10 +292,12 @@ export default function ProductPage() {
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'left' }}>
                                             0.0 <span className={cls.reviewCountText}>(0 reviews)</span>
                                         </div>
+
                                         <ReviewsHistogram
-                                            data={[0, 0, 0, 0, 0].map((_, i) => ({ rating: i + 1, count: 0 }))}
+                                            data={histogramData}
                                             sort="desc"
-                                            ratingLabel={(r) => `${r}`}
+                                            locale="de-DE"
+                                            ratingLabel={(r) => `${r} ★`}
                                         />
                                     </div>
                                 )}
