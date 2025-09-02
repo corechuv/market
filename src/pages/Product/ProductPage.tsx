@@ -273,14 +273,12 @@ export default function ProductPage() {
                                                 <span className={cls.reviewCountText}>({reviewSummary.count} reviews)</span>
                                             </div>
                                         </div>
-
                                         <ReviewsHistogram
                                             data={histogramData}
                                             sort="desc"
                                             locale="de-DE"
-                                            ratingLabel={(r) => `${r} ★`}
+                                            ratingLabel={(r) => `${r}`}
                                         />
-
                                         <div className={cls.reviewActions}>
                                             <Button className={cls.openReviewButton} onClick={() => setIsOpen(true)} size="small">
                                                 Open Reviews
@@ -292,12 +290,11 @@ export default function ProductPage() {
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'left' }}>
                                             0.0 <span className={cls.reviewCountText}>(0 reviews)</span>
                                         </div>
-
                                         <ReviewsHistogram
                                             data={histogramData}
                                             sort="desc"
                                             locale="de-DE"
-                                            ratingLabel={(r) => `${r} ★`}
+                                            ratingLabel={(r) => `${r}`}
                                         />
                                     </div>
                                 )}

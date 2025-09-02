@@ -1,5 +1,6 @@
 import "react";
 import styles from "./ReviewsHistogram.module.scss";
+import StarIcon from "../../Icons/StarIcon";
 
 type Bucket = {
   /** Целая «звёздная» оценка, например 1..5 */
@@ -67,12 +68,12 @@ export default function ReviewsHistogram({
         {rows.map(({ rating, count }) => {
           const pct = total > 0 ? (count / total) * 100 : 0;
           const pctRounded = clamp(pct);
-          const labelText = ratingLabel ? ratingLabel(rating) : `${rating} ★`;
+          const labelText = ratingLabel ? ratingLabel(rating) : `${rating}`;
 
           return (
             <li key={rating} className={styles.row}>
               <div className={styles.label} aria-hidden="true" title={labelText}>
-                {labelText}
+                {labelText} <StarIcon />
               </div>
 
               <div className={styles.bar} role="img">
