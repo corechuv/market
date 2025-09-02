@@ -215,8 +215,8 @@ $bp-lg: 1024px;
 
 .meta__energyClass {
   position: absolute;
-  bottom: 0.5rem;
-  right: 0.5rem;
+  bottom: 1rem;
+  right: 1rem;
   display: flex;
   align-items: center;
 }
@@ -281,6 +281,8 @@ $bp-lg: 1024px;
 .imageWrap {
   position: relative;
   display: flex;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .imagePlaceholder {
