@@ -6,7 +6,7 @@
 :root,
 :root[data-theme='light'],
 html[data-theme='light'],
-body[data-theme='light']{
+body[data-theme='light'] {
   --font: 'Roboto', sans-serif;
 
   --bg: #ffffff;
@@ -29,7 +29,7 @@ body[data-theme='light']{
 
   --bg-transparent: #ffffffc2;
   --bg-hover-item: #f7f7f7;
-  --bg-overlay: rgba(218,218,218,.2);
+  --bg-overlay: rgba(218, 218, 218, .2);
 
   --bg-range-track: #dddddd;
   --bg-range-thumb: #434343;
@@ -47,9 +47,9 @@ body[data-theme='light']{
   --bg-star-active: #434343;
 
   /* из SettingsMenu (перенесли сюда) */
-  --popover-border: rgba(0,0,0,.2);
-  --btn-hover-bg: rgba(0,0,0,.06);
-  --item-hover-bg: rgba(0,0,0,.06);
+  --popover-border: rgba(0, 0, 0, .2);
+  --btn-hover-bg: rgba(0, 0, 0, .06);
+  --item-hover-bg: rgba(0, 0, 0, .06);
 
   --border-size-0_5: 0.5px;
   --border-size-1_0: 1px;
@@ -68,13 +68,20 @@ body[data-theme='light']{
   --option-border-color-active: #b3c8d3;
   /* End Options */
 
+
+  /* ReviewHistogram */
+  --fill: #212121;
+    --muted: #475569;
+    --track: #e5e7eb;
+  /* End ReviewHistogram */
+
   color-scheme: light;
 }
 
 /* DARK */
 :root[data-theme='dark'],
 html[data-theme='dark'],
-body[data-theme='dark']{
+body[data-theme='dark'] {
   --font: 'Roboto', sans-serif;
 
   --bg: #131313;
@@ -97,7 +104,7 @@ body[data-theme='dark']{
 
   --bg-transparent: #131313c2;
   --bg-hover-item: #1f1f1f;
-  --bg-overlay: rgba(0,0,0,.5);
+  --bg-overlay: rgba(0, 0, 0, .5);
 
   --bg-range-track: #272727;
   --bg-range-thumb: #8a96ae;
@@ -115,8 +122,8 @@ body[data-theme='dark']{
   --bg-star-active: #8a96ae;
 
   --popover-border: #ffffff;
-  --btn-hover-bg: rgba(255,255,255,.08);
-  --item-hover-bg: rgba(255,255,255,.12);
+  --btn-hover-bg: rgba(255, 255, 255, .08);
+  --item-hover-bg: rgba(255, 255, 255, .12);
 
   --border-size-0_5: 0.5px;
   --border-size-1_0: 1px;
@@ -135,6 +142,12 @@ body[data-theme='dark']{
   --option-border-color: #1f1f1f;
   --option-border-color-active: #546974;
   /* End Options */
+
+  /* ReviewHistogram */
+  --fill: #47597b;
+    --muted: #94a3b8;
+    --track: #1f2937;
+  /* End ReviewHistogram */
 
   color-scheme: dark;
 }

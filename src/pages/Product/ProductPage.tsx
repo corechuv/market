@@ -25,7 +25,15 @@ import Stars from "../../components/Product/Stars";
 
 import ProductDatasheet from "../../components/Product/Details/ProductDatasheet";
 import EnergyLabel from "../../components/Product/Details/EnergyLabel";
-import VerticalHistogramRating from "../../components/Product/Details/VerticalHistogramRating";
+import ReviewsHistogram from "../../components/Product/Details/ReviewsHistogram";
+
+const dist = [
+  { rating: 5, count: 412 },
+  { rating: 4, count: 120 },
+  { rating: 3, count: 58 },
+  { rating: 2, count: 21 },
+  { rating: 1, count: 39 },
+];
 
 export default function ProductPage() {
     const { productId } = useParams<{ productId: string }>();
@@ -267,12 +275,20 @@ export default function ProductPage() {
                                                     {reviewSummary.avg.toFixed(1)}{" "}
                                                     <span className={cls.reviewCountText}>({reviewSummary.count} reviews)</span>
                                                 </div>
-                                                <VerticalHistogramRating value={reviewSummary.avg} max={5} height={50} barWidth={4} gap={16} radius={2} />
+                                                <ReviewsHistogram
+                                                    data={dist}
+                                                    sort="desc"
+                                                    ratingLabel={(r) => `${r}`}
+                                                />
                                             </>
                                         ) : (
                                             <>
                                                 0.0 <span className={cls.reviewCountText}>(0 reviews)</span>
-                                                <VerticalHistogramRating value={3.25} max={5} height={100} barWidth={22} gap={4} radius={4} />
+                                                <ReviewsHistogram
+                                                    data={dist}
+                                                    sort="desc"
+                                                    ratingLabel={(r) => `${r}`}
+                                                />
                                             </>
                                         )}
                                     </div>

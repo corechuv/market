@@ -1,0 +1,57 @@
+/* Контейнер. Здесь же задаём дизайн-токены (CSS-переменные) для обеих тем. */
+.root {
+    --bar-h: 3px;
+    --radius: 999px;
+    --gap: 10px;
+}
+
+/* Список строк гистограммы */
+.list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 6px;
+    border-radius: 12px;
+    background: transparent;
+    font-size: 16px;
+}
+
+/* Одна строка: грид 4 колонки (лейбл | бар | % | число) */
+.row {
+    display: flex;
+    align-items: center;
+    gap: var(--gap);
+}
+
+/* Подпись слева (например, "5") */
+.label {
+    min-width: 1ch;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+/* Трек и заливка полосы */
+.bar {
+    min-width: 240px;
+    height: var(--bar-h);
+    background: var(--track);
+    border-radius: var(--radius);
+    overflow: hidden;
+    position: relative;
+}
+
+.fill {
+    height: 100%;
+    background: var(--fill);
+    border-radius: var(--radius);
+    transition: width 300ms ease;
+}
+
+/* Проценты и счётчик справа */
+.percent,
+.count {
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    white-space: nowrap;
+}
