@@ -29,6 +29,8 @@
     min-width: 1ch;
     color: var(--muted);
     white-space: nowrap;
+    font-size: 18px;
+    font-weight: 400;
 }
 
 /* Трек и заливка полосы */
@@ -58,4 +60,8 @@
     font-variant-numeric: tabular-nums;
     color: var(--muted);
     white-space: nowrap;
+}
+
+.count {
+    display: none;
 }
