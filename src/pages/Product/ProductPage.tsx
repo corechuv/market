@@ -267,37 +267,35 @@ export default function ProductPage() {
                         <h3 className={cls.section__title}>Reviews</h3>
                         <div className={cls.section__content}>
                             <div className={cls.reviewsHeader}>
-                                <div>
+                                {reviewSummary.count > 0 ? (
+                                    <>
+                                        <div className={cls.reviewCount}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'left' }}>
+                                                {reviewSummary.avg.toFixed(1)}{" "}
+                                                <span className={cls.reviewCountText}>({reviewSummary.count} reviews)</span>
+                                            </div>
+                                        </div>
+                                        <ReviewsHistogram
+                                            data={dist}
+                                            sort="desc"
+                                            ratingLabel={(r) => `${r}`}
+                                        />
+                                        <div className={cls.reviewActions}>
+                                            <Button className={cls.openReviewButton} onClick={() => setIsOpen(true)} size="small">Open Reviews</Button>
+                                        </div>
+                                    </>
+                                ) : (
                                     <div className={cls.reviewCount}>
-                                        {reviewSummary.count > 0 ? (
-                                            <>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'left' }}>
-                                                    {reviewSummary.avg.toFixed(1)}{" "}
-                                                    <span className={cls.reviewCountText}>({reviewSummary.count} reviews)</span>
-                                                </div>
-                                                <ReviewsHistogram
-                                                    data={dist}
-                                                    sort="desc"
-                                                    ratingLabel={(r) => `${r}`}
-                                                />
-                                                <div className={cls.reviewActions}>
-                                                    <Button className={cls.openReviewButton} onClick={() => setIsOpen(true)} size="small">Open Reviews</Button>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'left' }}>
-                                                    0.0 <span className={cls.reviewCountText}>(0 reviews)</span>
-                                                </div>
-                                                <ReviewsHistogram
-                                                    data={[0, 0, 0, 0, 0].map((_, i) => ({ rating: i + 1, count: 0 }))}
-                                                    sort="desc"
-                                                    ratingLabel={(r) => `${r}`}
-                                                />
-                                            </>
-                                        )}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'left' }}>
+                                            0.0 <span className={cls.reviewCountText}>(0 reviews)</span>
+                                        </div>
+                                        <ReviewsHistogram
+                                            data={[0, 0, 0, 0, 0].map((_, i) => ({ rating: i + 1, count: 0 }))}
+                                            sort="desc"
+                                            ratingLabel={(r) => `${r}`}
+                                        />
                                     </div>
-                                </div>
+                                )}
                             </div>
                         </div>
                     </div>

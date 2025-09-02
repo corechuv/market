@@ -270,7 +270,6 @@
 
 .productDelivery {
     font-size: 14px;
-    font-weight: 300;
 }
 
 .productActions {
@@ -293,13 +292,10 @@
 
 .reviewsHeader {
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
     gap: 30px;
 
     @media screen and (max-width: 768px) {
-        flex-direction: column;
         gap: 20px;
     }
 

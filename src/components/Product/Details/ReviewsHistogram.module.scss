@@ -33,12 +33,16 @@
 
 /* Трек и заливка полосы */
 .bar {
-    min-width: 240px;
+    width: 260px;
     height: var(--bar-h);
     background: var(--track);
     border-radius: var(--radius);
     overflow: hidden;
     position: relative;
+
+    @media screen and (max-width: 768px) {
+        width: 100%;
+    }
 }
 
 .fill {
