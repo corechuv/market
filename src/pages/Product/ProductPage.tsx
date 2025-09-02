@@ -271,7 +271,7 @@ export default function ProductPage() {
                                     <div className={cls.reviewCount}>
                                         {reviewSummary.count > 0 ? (
                                             <>
-                                                <div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'left' }}>
                                                     {reviewSummary.avg.toFixed(1)}{" "}
                                                     <span className={cls.reviewCountText}>({reviewSummary.count} reviews)</span>
                                                 </div>

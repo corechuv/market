@@ -304,11 +304,12 @@
     }
 
     .reviewCount {
-        font-size: 78px;
+        font-size: 43px;
         font-weight: 300;
         color: var(--bg-star-active);
         display: flex;
-        gap: 40px;
+        flex-direction: column;
+        gap: 20px;
 
         .reviewCountText {
             display: block;
