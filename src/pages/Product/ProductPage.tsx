@@ -27,6 +27,9 @@ import ProductDatasheet from "../../components/Product/Details/ProductDatasheet"
 import EnergyLabel from "../../components/Product/Details/EnergyLabel";
 import ReviewsHistogram from "../../components/Product/Details/ReviewsHistogram";
 
+import { useCart } from "../../context/CartContext";
+import { toCartLine } from "../../services/cartAdapter";
+
 export default function ProductPage() {
     const { productId } = useParams<{ productId: string }>();
 
@@ -102,12 +105,12 @@ export default function ProductPage() {
     const energyClass = variant?.energyClassUrl ?? product.energyClassUrl;
     const datasheetUrl = variant?.datasheetPdfUrl ?? product.datasheetPdfUrl;
 
-    // NEW: единый обработчик добавления в корзину (используется и сверху, и в мини-панели)
+    const { add } = useCart();
     const handleAddToCart = React.useCallback(() => {
-        // TODO: интегрируйте вашу бизнес-логику корзины здесь
-        // например: cart.add({ product, variant, qty: 1 })
-        console.log("Add to cart:", { productId: product.id, variantId: variant?.id });
-    }, [product.id, variant?.id]);
+        if (!product) return;
+        const line = toCartLine(product, variant, 1);
+        add(line);
+    }, [product, variant, add]);
 
     // NEW: следим, виден ли основной блок с кнопкой Add to Cart
     const actionsRef = React.useRef<HTMLDivElement | null>(null);

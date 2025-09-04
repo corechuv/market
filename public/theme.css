@@ -75,6 +75,10 @@ body[data-theme='light'] {
     --track: #e5e7eb;
   /* End ReviewHistogram */
 
+  --text-muted: #6b7280;
+
+  --bg-summary-checkout: #f7f7f7;
+
   color-scheme: light;
 }
 
@@ -148,6 +152,10 @@ body[data-theme='dark'] {
     --muted: #94a3b8;
     --track: #1f2937;
   /* End ReviewHistogram */
+
+  --text-muted: #6b7280;
+
+  --bg-summary-checkout: #1f1f1f;
 
   color-scheme: dark;
 }

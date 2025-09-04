@@ -12,6 +12,9 @@ import "./styles/scrollbar.module.scss";
 
 import MainLayout from "./components/layouts/MainLayout";
 import AuthLayout from "./components/layouts/AuthLayout";
+import CheckoutLayout from "./components/layouts/CheckoutLayout";
+
+import CheckoutPage from "./pages/Checkout/CheckoutPage";
 
 export default function App() {
   return (
@@ -28,6 +31,10 @@ export default function App() {
       <Route element={<AuthLayout />}>
         {/* /auth и любые /auth/* без Header/Footer */}
         <Route path="/auth" element={<AuthPage />} />
+      </Route>
+
+      <Route element={<CheckoutLayout />}>
+        <Route path="/checkout" element={<CheckoutPage />} />
       </Route>
     </Routes>
   );
