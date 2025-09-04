@@ -270,7 +270,7 @@ export default function ProductPage() {
                                         <div className={cls.reviewCount}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'left' }}>
                                                 {reviewSummary.avg.toFixed(1)}{" "}
-                                                <span className={cls.reviewCountText}>({reviewSummary.count} reviews)</span>
+                                                <span className={cls.reviewCountText}>({reviewSummary.count})</span>
                                             </div>
                                         </div>
                                         <ReviewsHistogram
@@ -288,7 +288,7 @@ export default function ProductPage() {
                                 ) : (
                                     <div className={cls.reviewCount}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'left' }}>
-                                            0.0 <span className={cls.reviewCountText}>(0 reviews)</span>
+                                            0.0 <span className={cls.reviewCountText}>(0)</span>
                                         </div>
                                         <ReviewsHistogram
                                             data={histogramData}
