@@ -233,7 +233,7 @@ type CartSectionProps = {
     onNext: () => void;
 };
 
-const CartSection: React.FC<CartSectionProps> = ({ lines, inc, setQty, onNext }) => {
+const CartSection: React.FC<CartSectionProps> = ({ lines, inc, onNext }) => {
     const itemsCount = lines.reduce((s, l) => s + l.qty, 0);
     return (
         <div className="card">
@@ -454,7 +454,7 @@ const OrderSummary: React.FC<{
     applyPromo: () => void;
     freeThresholdCents: number;
     shippingCents: number;
-}> = ({ lines, subtotal, shipping, vat, discount, total, promo, setPromo, promoApplied, applyPromo, freeThresholdCents, shippingCents }) => {
+}> = ({ lines, subtotal, vat, discount, total, promo, setPromo, promoApplied, applyPromo, freeThresholdCents, shippingCents }) => {
     return (
         <div className="summary">
             <h3>Total</h3>
