@@ -3,7 +3,7 @@ $bg: var(--bg); // dark backdrop like dashedo vibe
 $panel-2: #c4c4c4;
 $text: #e9e9ee;
 $muted: var(--text-muted);
-$primary: #7c5cff; // accent
+$primary: #808080; // accent
 $primary-2: #5c43de;
 $success: #27c093;
 $danger: #ff6b6b;
@@ -11,7 +11,7 @@ $border: #cacaca; // for cards and inputs
 $shadow: 0 10px 30px rgba(0, 0, 0, .35);
 $radius: 16px;
 $radius-xl: 22px;
-$gap: 18px;
+$gap: 40px;
 $gap-lg: 24px;
 $gap-sm: 12px;
 
@@ -58,7 +58,7 @@ $gap-sm: 12px;
     background: transparent;
     border: 1px solid $border;
     box-shadow: none;
-    color: $text;
+    color: var(--text);
 }
 
 .btn--xl {
@@ -92,6 +92,8 @@ $gap-sm: 12px;
     align-items: center;
     gap: 8px;
     color: $muted;
+    font-size: 14px;
+    font-weight: 300;
 }
 
 .checkout__steps {
@@ -124,11 +126,11 @@ $gap-sm: 12px;
     width: 26px;
     height: 26px;
     border-radius: 999px;
-    color: white;
+    color: var(--color-text-index-step);
     display: grid;
     place-items: center;
-    background: $panel-2;
-    border: 1px solid $border;
+    background-color: var(--color-bg-index-step);
+    border: 1px solid var(--color-bg-index-step);
     font-weight: 300;
     font-size: .9rem;
 }
@@ -168,7 +170,6 @@ $gap-sm: 12px;
 
 .card {
     padding: 16px 0;
-    padding-right: 30px;
 }
 
 .card--ghost {
@@ -248,7 +249,20 @@ $gap-sm: 12px;
     border-radius: 999px;
     border: 0;
     color: var(--text);
+    background-color: var(--color-bg-qty-btn);
+    display: flex;
+    place-items: center;
+    justify-content: center;
     cursor: pointer;
+    padding: 0;
+    margin: 0;
+
+    svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+    }
 }
 
 .qty output {
@@ -281,31 +295,20 @@ $gap-sm: 12px;
     gap: $gap-sm;
 }
 
+.col-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
 @media (max-width: 640px) {
     .form__row {
         grid-template-columns: 1fr;
     }
-}
 
-label {
-    display: grid;
-    gap: 6px;
-    font-size: .92rem;
-}
-
-input {
-    background: $panel-2;
-    border: 1px solid $border;
-    color: $text;
-    padding: 12px 12px;
-    border-radius: 10px;
-    outline: none;
-    transition: border-color .15s ease, box-shadow .15s ease;
-}
-
-input:focus {
-    border-color: rgba($primary, .6);
-    box-shadow: 0 0 0 3px rgba($primary, .15);
+    .col-row {
+        grid-template-columns: 1fr;
+    }
 }
 
 .shipping {
@@ -335,7 +338,7 @@ input:focus {
 }
 
 .ship.is-selected {
-    border-color: rgba($primary, .6);
+    border-color: $primary;
 }
 
 .ship__label {
@@ -355,9 +358,6 @@ input:focus {
 .summary {
     position: sticky;
     top: 14px;
-    border: 1px dashed var(--border);
-    background-color: var(--bg-summary-checkout);
-    border-radius: $radius-xl;
     padding: 16px;
 }
 
@@ -370,15 +370,13 @@ input:focus {
     padding: 0;
     margin: 0 0 12px;
     display: grid;
-    gap: 10px;
+    gap: 8px;
 }
 
 .summary__list li {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px dashed rgba($border, .8);
 }
 
 .summary__list li:last-child {
@@ -386,14 +384,14 @@ input:focus {
 }
 
 .summary__list .sum {
+    margin-top: 8px;
+    margin-bottom: 8px;
     font-size: 1.4rem;
     font-weight: 600;
 }
 
 .summary__mini {
-    margin-top: 16px;
-    border-top: 1px solid $border;
-    padding-top: 12px;
+    margin-top: 30px;
     display: grid;
     gap: 10px;
 }
@@ -414,34 +412,28 @@ input:focus {
 }
 
 .mini-item__title {
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 500;
 }
 
-.check {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 8px 0 6px;
-}
-
-.cards-demo {
-    margin: 20px 0;
+.card__section {
+    margin-bottom: 40px;
 }
 
 .cc {
     width: 100%;
     border-radius: 16px;
     padding: 14px;
-    background: linear-gradient(160deg, #2b2b33, #1c1c22);
-    border: 1px dashed $border;
+    background: linear-gradient(160deg, #1b2d3c, #1c1c22);
     box-shadow: inset 0 0 30px rgba(0, 0, 0, .3);
 }
 
 .cc__chip {
+    display: none;
     width: 40px;
     height: 28px;
     border-radius: 6px;
-    background: linear-gradient(180deg, #bdbdc7, #8d8d97);
+    background: linear-gradient(180deg, #061624, #111114);
     margin-bottom: 12px;
 }
 
@@ -520,6 +512,12 @@ input:focus {
     display: flex;
     gap: 14px;
     padding: 0;
+    font-size: 14px;
+    font-weight: 300;
+}
+
+.bullets {
+    color: $muted;
     font-size: 14px;
     font-weight: 300;
 }

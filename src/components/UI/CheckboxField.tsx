@@ -3,10 +3,16 @@ import cs from "./CheckboxField.module.scss";
 
 export type CheckboxFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
   label: React.ReactNode;
+  onClick?: (e: React.MouseEvent<HTMLLabelElement, MouseEvent>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  checked?: boolean;
 };
 
 export const CheckboxField: React.FC<CheckboxFieldProps> = ({
   label,
+  onClick,
+  onChange,
+  checked,
   className,
   id,
   ...props
@@ -16,7 +22,7 @@ export const CheckboxField: React.FC<CheckboxFieldProps> = ({
 
   return (
     <label className={cs.option} htmlFor={inputId}>
-      <input id={inputId} type="checkbox" {...props} className={`${cs.checkbox} ${className}`} />
+      <input id={inputId} checked={checked} type="checkbox" onClick={onClick} onChange={onChange} {...props} className={`${cs.checkbox} ${className}`} />
       <span className={cs.label}>{label}</span>
     </label>
   );

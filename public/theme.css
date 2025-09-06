@@ -79,6 +79,13 @@ body[data-theme='light'] {
 
   --bg-summary-checkout: #f7f7f7;
 
+  /* Checkout Steps */
+  --color-bg-index-step: #c4c4c4;
+  --color-text-index-step: white;
+
+  /* Cart */
+  --color-bg-qty-btn: #e1e1e1;
+
   color-scheme: light;
 }
 
@@ -156,6 +163,13 @@ body[data-theme='dark'] {
   --text-muted: #6b7280;
 
   --bg-summary-checkout: #1f1f1f;
+
+  /* Checkout Steps */
+  --color-bg-index-step: #303030;
+  --color-text-index-step: #979797;
+
+  /* Cart */
+  --color-bg-qty-btn: #303030;
 
   color-scheme: dark;
 }

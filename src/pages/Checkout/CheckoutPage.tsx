@@ -6,6 +6,9 @@ import { formatMoney } from "../../utils/money";
 import Logo from "../../components/logo/Logo";
 import Button from "../../components/UI/Button";
 import { TextField } from "../../components/UI/TextField";
+import { CheckboxField } from "../../components/UI/CheckboxField";
+import MinusIcon from "../../components/Icons/MinusIcon";
+import PlusIcon from "../../components/Icons/PlusIcon";
 
 // --- Types used locally
 export type Address = {
@@ -251,9 +254,13 @@ const CartSection: React.FC<CartSectionProps> = ({ lines, inc, setQty, onNext })
                             <div className="cart-item__meta">
                                 <h3>{it.title}</h3>
                                 <div className="qty">
-                                    <button aria-label="Уменьшить" onClick={() => inc(it.id, -1)}>-</button>
+                                    <button aria-label="Уменьшить" onClick={() => inc(it.id, -1)}>
+                                        <MinusIcon />
+                                    </button>
                                     <output aria-live="polite">{it.qty}</output>
-                                    <button aria-label="Увеличить" onClick={() => inc(it.id, +1)}>+</button>
+                                    <button aria-label="Увеличить" onClick={() => inc(it.id, +1)}>
+                                        <PlusIcon />
+                                    </button>
                                 </div>
                             </div>
                             <div className="cart-item__price">{formatMoney(it.priceCents * it.qty)}</div>
@@ -363,9 +370,9 @@ const PaymentSection: React.FC<{
                     <TextField label="Cardholder" value={cardName} onChange={(e) => setCardName(e.target.value)} placeholder="IVAN IVANOV" required />
                     <TextField label="Card Number" value={cardNumber} onChange={(e) => {
                         let v = e.target.value.replace(/[^\d]/g, "").slice(0, 16);
-                            v = v.match(/.{1,4}/g)?.join(" ") || "";
-                            setCardNumber(v);
-                        }}
+                        v = v.match(/.{1,4}/g)?.join(" ") || "";
+                        setCardNumber(v);
+                    }}
                         placeholder="1234 5678 9012 3456"
                         inputMode="numeric"
                         pattern="[0-9\s]*"
@@ -376,37 +383,45 @@ const PaymentSection: React.FC<{
                         <TextField label="CVC" value={cvc} onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="123" inputMode="numeric" pattern="\d{3,4}" required />
                     </div>
 
-                    <label className="check">
-                        <input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)} />
-                        <span>I accept the terms and conditions</span>
-                    </label>
 
-                    <Button className="btn btn--xl" type="submit" disabled={!formOk}>
-                        Pay {formatMoney(total)}
-                    </Button>
-                </form>
-            </div>
+                    <div className="card__head"><h2>Secure Payment</h2></div>
 
-            <div className="card">
-                <div className="card__head"><h2>Secure Payment</h2></div>
-                <ul className="bullets">
-                    <li>TLS 1.2 encryption</li>
-                    <li>Two-step transaction verification</li>
-                    <li>We do not store card data</li>
-                </ul>
-                <div className="cards-demo" aria-hidden>
-                    <div className="cc">
-                        <div className="cc__chip" />
-                        <div className="cc__num">{cardNumber || "•••• •••• •••• ••••"}</div>
-                        <div className="cc__row">
-                            <span>{cardName || "CARDHOLDER"}</span>
-                            <span>{exp || "MM/YY"}</span>
+                    <div className="col-row card__section">
+                        <div aria-hidden>
+                            <div className="cc">
+                                <div className="cc__chip" />
+                                <div className="cc__num">{cardNumber || "•••• •••• •••• ••••"}</div>
+                                <div className="cc__row">
+                                    <span>{cardName || "CARDHOLDER"}</span>
+                                    <span>{exp || "MM/YY"}</span>
+                                </div>
+                            </div>
                         </div>
+                        <ul className="bullets">
+                            <li>TLS 1.2 encryption</li>
+                            <li>Two-step transaction verification</li>
+                            <li>We do not store card data</li>
+                        </ul>
                     </div>
-                </div>
-                <div className="actions">
-                    <Button className="btn btn--ghost" onClick={onPrev}>Back</Button>
-                </div>
+
+                    <CheckboxField checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)}
+                        label={
+                            <>
+                                I {" "}
+                                <a href="#terms">
+                                    accept the terms and conditions
+                                </a>
+                            </>
+                        }
+                    />
+
+                    <div className="actions">
+                        <Button className="btn btn--ghost" onClick={onPrev}>Back</Button>
+                        <Button className="btn btn--xl" type="submit" disabled={!formOk}>
+                            Pay {formatMoney(total)}
+                        </Button>
+                    </div>
+                </form>
             </div>
         </div>
     );
