@@ -211,8 +211,10 @@ const CheckoutPage: React.FC = () => {
             )}
 
             <footer className="checkout__footer">
+                <div className="corp">
+                    © {new Date().getFullYear()} dashedo.com
+                </div>
                 <ul>
-                    <li>© {new Date().getFullYear()} dashedo.com</li>
                     <li>Политика возврата</li>
                     <li>Условия обслуживания</li>
                     <li>Конфиденциальность</li>
