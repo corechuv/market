@@ -464,7 +464,7 @@ $gap-sm: 12px;
 .checkout__overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, .6);
+    background: rgba(255, 255, 255, 0.6);
     display: grid;
     place-items: center;
     backdrop-filter: blur(2px);
@@ -479,7 +479,7 @@ $gap-sm: 12px;
 .spinner {
     width: 52px;
     height: 52px;
-    border: 4px solid rgba(255, 255, 255, .12);
+    border: 4px solid rgba(0, 0, 0, 0.329);
     border-top-color: $primary;
     border-radius: 999px;
     animation: spin 1s linear infinite;
@@ -505,8 +505,6 @@ $gap-sm: 12px;
     margin: 0 auto 10px;
     background: rgba($success, .15);
     color: $success;
-    border: 1px solid rgba($success, .7);
-    box-shadow: $shadow;
 }
 
 .checkout__footer {
