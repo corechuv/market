@@ -97,8 +97,8 @@ $gap-sm: 12px;
 }
 
 .checkout__steps {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    display: flex;
+    justify-content: space-evenly;
     gap: 10px;
     margin: 40px 0 22px;
 }
@@ -114,7 +114,7 @@ $gap-sm: 12px;
         gap: 7px;
     }
 }
-    
+
 
 .steps__item.is-active {
     border-color: rgba($primary, .6);
