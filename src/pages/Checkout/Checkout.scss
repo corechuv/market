@@ -193,19 +193,17 @@ $gap-sm: 12px;
 
 /* Бейдж номера заказа */
 .success__order {
-    margin: 6px 0 14px;
+    margin: 10px 0 0px;
     display: inline-flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 10px;
 
     strong {
         display: inline-block;
-        padding: 6px 10px;
-        background: #e4f5ef;
-        border: 1px dashed #94c29f;
-        border-radius: 999px;
+        padding: 4px;
+        font-size: 1.2rem;
         font-weight: 600;
-        letter-spacing: .3px;
+        letter-spacing: 0.3px;
     }
 }
 
@@ -505,22 +503,25 @@ $gap-sm: 12px;
     position: fixed;
     inset: 0;
     background: rgba(255, 255, 255, 0.6);
-    display: grid;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     place-items: center;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(8px);
     z-index: 40;
 }
 
 .checkout__overlay p {
-    margin-top: 12px;
-    font-weight: 600;
+    margin: 12px;
+    font-weight: 500;
+    color: var(--text);
 }
 
 .spinner {
-    width: 52px;
-    height: 52px;
-    border: 4px solid rgba(0, 0, 0, 0.329);
-    border-top-color: $primary;
+    width: 45px;
+    height: 45px;
+    border: 2px solid #adadad54;
+    border-top-color: #686868;
     border-radius: 999px;
     animation: spin 1s linear infinite;
 }
@@ -539,12 +540,7 @@ $gap-sm: 12px;
 .success__icon {
     display: grid;
     place-items: center;
-    width: 72px;
-    height: 72px;
-    border-radius: 999px;
     margin: 0 auto 10px;
-    background: rgba($success, .15);
-    color: $success;
 }
 
 .checkout__footer {

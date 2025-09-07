@@ -507,13 +507,23 @@ const PaymentSection: React.FC<{
 const SuccessSection: React.FC<{ orderNo?: string }> = ({ orderNo }) => (
     <div className="success card">
         <div className="success__icon" aria-hidden>
-            <svg width="56" height="56" viewBox="0 0 24 24">
-                <path d="M9 16.2l-3.5-3.5-1.4 1.4L9 19 20.3 7.7l-1.4-1.4z" fill="currentColor" />
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                width="80" height="80" role="img" aria-label="Заказ успешно оформлен"
+                style={{ "--w": 1.5, color: "#16a34a" } as React.CSSProperties}>
+                <circle cx="12" cy="12" r="10"
+                    fill="none" stroke="currentColor"
+                    stroke-width="var(--w, 4)" opacity="0.25"
+                    vector-effect="non-scaling-stroke" />
+                <path d="M7 12.5l3 3L17 9"
+                    fill="none" stroke="currentColor"
+                    stroke-width="var(--w, 4)"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    vector-effect="non-scaling-stroke" />
             </svg>
         </div>
         <h2>Thanks! Your order has been placed</h2>
         {orderNo && (
-            <p className="success__order">Номер заказа: <strong>{orderNo}</strong></p>
+            <p className="success__order">Order number: <strong>{orderNo}</strong></p>
         )}
         <p className="muted">We have sent a confirmation to your email.</p>
         <a className="btn" href="/">Continue Shopping</a>
