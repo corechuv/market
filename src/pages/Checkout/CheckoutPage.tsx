@@ -71,6 +71,8 @@ const CheckoutPage: React.FC = () => {
     const [isPaying, setIsPaying] = useState(false);
     const [acceptTerms, setAcceptTerms] = useState(false);
 
+    const [orderNo, setOrderNo] = useState<string | null>(null);
+
     useEffect(() => {
         localStorage.setItem("checkout_address", JSON.stringify(address));
     }, [address]);
@@ -117,12 +119,18 @@ const CheckoutPage: React.FC = () => {
         // TODO: replace with your payment API (Stripe/Adyen/etc.)
         await new Promise((r) => setTimeout(r, 1200));
         setIsPaying(false);
+
+        // Генерируем номер заказа (пример)
+        const newOrderNo =
+            `DS-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(100000 + Math.random() * 900000)}`;
+        setOrderNo(newOrderNo);
+
         setStep(3);
         clear(); // empty cart
     };
 
     return (
-        <div className="checkout">
+        <div className={`checkout ${step === 3 ? "is-success" : ""}`}>
             <header className="checkout__header">
                 <div className="checkout__brand">
                     <Logo size="32px" />
@@ -135,20 +143,21 @@ const CheckoutPage: React.FC = () => {
                 </div>
             </header>
 
-            <nav className="checkout__steps" aria-label="Шаги оформления">
-                {[
-                    { k: 0, label: "Cart" },
-                    { k: 1, label: "Delivery" },
-                    { k: 2, label: "Pay" },
-                    { k: 3, label: "Complete" },
-                ].map((s, i) => (
-                    <div key={s.k} className={`steps__item ${step === i ? "is-active" : step > i ? "is-done" : ""}`}>
-                        <span className="steps__index">{i + 1}</span>
-                        <span className="steps__label">{s.label}</span>
-                    </div>
-                ))}
-            </nav>
-
+            {step !== 3 && (
+                <nav className="checkout__steps" aria-label="Шаги оформления">
+                    {[
+                        { k: 0, label: "Cart" },
+                        { k: 1, label: "Delivery" },
+                        { k: 2, label: "Pay" },
+                        { k: 3, label: "Complete" },
+                    ].map((s, i) => (
+                        <div key={s.k} className={`steps__item ${step === i ? "is-active" : step > i ? "is-done" : ""}`}>
+                            <span className="steps__index">{i + 1}</span>
+                            <span className="steps__label">{s.label}</span>
+                        </div>
+                    ))}
+                </nav>
+            )}
             <main className="checkout__main">
                 <section className="checkout__content">
                     {step === 0 && (
@@ -183,25 +192,27 @@ const CheckoutPage: React.FC = () => {
                         />
                     )}
 
-                    {step === 3 && <SuccessSection />}
+                    {step === 3 && <SuccessSection orderNo={orderNo ?? undefined} />}
                 </section>
 
-                <aside className="checkout__sidebar" aria-label="Итог заказа">
-                    <OrderSummary
-                        lines={lines}
-                        subtotal={subtotal}
-                        shipping={shipping}
-                        vat={vat}
-                        discount={discount}
-                        total={total}
-                        promo={promo}
-                        setPromo={setPromo}
-                        promoApplied={promoApplied}
-                        applyPromo={applyPromo}
-                        freeThresholdCents={FREE_SHIPPING_THRESHOLD_CENTS}
-                        shippingCents={shippingCents}
-                    />
-                </aside>
+                {step !== 3 && (
+                    <aside className="checkout__sidebar" aria-label="Итог заказа">
+                        <OrderSummary
+                            lines={lines}
+                            subtotal={subtotal}
+                            shipping={shipping}
+                            vat={vat}
+                            discount={discount}
+                            total={total}
+                            promo={promo}
+                            setPromo={setPromo}
+                            promoApplied={promoApplied}
+                            applyPromo={applyPromo}
+                            freeThresholdCents={FREE_SHIPPING_THRESHOLD_CENTS}
+                            shippingCents={shippingCents}
+                        />
+                    </aside>
+                )}
             </main>
 
             {isPaying && (
@@ -247,7 +258,7 @@ const CartSection: React.FC<CartSectionProps> = ({ lines, inc, onNext }) => {
             {lines.length === 0 ? (
                 <div className="">
                     <p>Your cart is empty.</p>
-                    <a className="btn--ghost" href="/">Return to shopping</a>
+                    <a className="btn" href="/">Return to shopping</a>
                 </div>
             ) : (
                 <ul className="cart-list">
@@ -493,7 +504,7 @@ const PaymentSection: React.FC<{
 };
 
 
-const SuccessSection: React.FC = () => (
+const SuccessSection: React.FC<{ orderNo?: string }> = ({ orderNo }) => (
     <div className="success card">
         <div className="success__icon" aria-hidden>
             <svg width="56" height="56" viewBox="0 0 24 24">
@@ -501,6 +512,9 @@ const SuccessSection: React.FC = () => (
             </svg>
         </div>
         <h2>Thanks! Your order has been placed</h2>
+        {orderNo && (
+            <p className="success__order">Номер заказа: <strong>{orderNo}</strong></p>
+        )}
         <p className="muted">We have sent a confirmation to your email.</p>
         <a className="btn" href="/">Continue Shopping</a>
     </div>

@@ -172,6 +172,43 @@ $gap-sm: 12px;
     height: fit-content;
 }
 
+/* Успешное оформление: без шагов/сайдбара, контент по центру */
+.checkout.is-success {
+    .checkout__main {
+        display: grid;
+        grid-template-columns: 1fr; // одна колонка
+    }
+
+    .checkout__content {
+        max-width: 560px;
+        margin: 60px auto 100px; // центрируем
+    }
+
+    /* если по каким-то причинам nav остался в DOM — спрячем */
+    .checkout__steps,
+    .checkout__sidebar {
+        display: none !important;
+    }
+}
+
+/* Бейдж номера заказа */
+.success__order {
+    margin: 6px 0 14px;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 6px;
+
+    strong {
+        display: inline-block;
+        padding: 6px 10px;
+        background: #e4f5ef;
+        border: 1px dashed #94c29f;
+        border-radius: 999px;
+        font-weight: 600;
+        letter-spacing: .3px;
+    }
+}
+
 .card {
     padding: 16px 0;
 }
