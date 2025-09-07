@@ -502,7 +502,7 @@ $gap-sm: 12px;
 .checkout__overlay {
     position: fixed;
     inset: 0;
-    background: rgba(255, 255, 255, 0.6);
+    background: var(--bg-overlay);
     display: flex;
     flex-direction: column;
     justify-content: center;
