@@ -206,7 +206,6 @@ $gap-sm: 12px;
     padding: 0;
     margin: 0;
     display: grid;
-    gap: $gap-sm;
 }
 
 .cart-item {
@@ -214,7 +213,7 @@ $gap-sm: 12px;
     grid-template-columns: 86px 1fr auto;
     gap: 12px;
     align-items: center;
-    padding: 10px 0;
+    padding: 20px 0;
     border-bottom: 1px dashed var(--border);
 }
 
