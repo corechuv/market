@@ -3,6 +3,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import "./Checkout.scss";
 import { useCart } from "../../context/CartContext";
 import { formatMoney } from "../../utils/money";
+import { detectBrand, luhnCheck, formatCardNumber, formatExpiryInput, expiryValid, lengthOkForBrand, BRAND_RULES, type CardBrand } from "../../utils/paymentCard";
 import Logo from "../../components/logo/Logo";
 import Button from "../../components/UI/Button";
 import { TextField } from "../../components/UI/TextField";
@@ -358,33 +359,100 @@ const PaymentSection: React.FC<{
     const [cardNumber, setCardNumber] = useState("");
     const [exp, setExp] = useState("");
     const [cvc, setCvc] = useState("");
+    const [brand, setBrand] = useState<CardBrand>("unknown");
 
-    const cardOk = cardNumber.replace(/\s+/g, "").length >= 15; // naive
-    const expOk = /^(0[1-9]|1[0-2])\/?\d{2}$/.test(exp);
-    const cvcOk = /^\d{3,4}$/.test(cvc);
-    const formOk = cardName.length > 2 && cardOk && expOk && cvcOk && acceptTerms;
+    const digits = cardNumber.replace(/\s+/g, "");
+    const rule = BRAND_RULES[brand];
+    const cardLenOk = lengthOkForBrand(brand, digits.length);
+    const luhnOk = digits.length >= 12 && luhnCheck(digits);
+    const cardOk = cardLenOk && luhnOk;
+
+    const expOk = expiryValid(exp);
+    const cvcMax = rule.cvc;
+    const cvcOk = new RegExp(`^\\d{${cvcMax}}$`).test(cvc);
+
+    // --- Тексты ошибок для TextField
+    const nameError =
+        cardName.trim().length === 0 ? "Укажите имя как на карте" :
+            cardName.trim().length < 3 ? "Слишком короткое имя" : undefined;
+
+    let numberError: string | undefined;
+    if (digits.length > 0 && !cardLenOk) {
+        numberError = `Неверная длина для ${rule.label}`;
+    } else if (digits.length > 0 && !luhnOk) {
+        numberError = "Проверьте номер карты (Луна)";
+    }
+
+    const expError =
+        exp.length > 0 && !expOk ? "Неверная дата или карта просрочена" : undefined;
+
+    const cvcError =
+        cvc.length > 0 && !cvcOk ? `CVC должен быть из ${cvcMax} цифр` : undefined;
+
+    const formOk = !nameError && cardOk && expOk && cvcOk && acceptTerms;
 
     return (
         <div className="grid-2">
             <div className="card">
                 <div className="card__head"><h2>Payment</h2></div>
-                <form className="form" onSubmit={onSubmit}>
-                    <TextField label="Cardholder" value={cardName} onChange={(e) => setCardName(e.target.value)} placeholder="IVAN IVANOV" required />
-                    <TextField label="Card Number" value={cardNumber} onChange={(e) => {
-                        let v = e.target.value.replace(/[^\d]/g, "").slice(0, 16);
-                        v = v.match(/.{1,4}/g)?.join(" ") || "";
-                        setCardNumber(v);
-                    }}
+
+                <form className="form" onSubmit={onSubmit} noValidate>
+                    <TextField
+                        label="Cardholder"
+                        value={cardName}
+                        onChange={(e) => setCardName(e.target.value)}
+                        placeholder="IVAN IVANOV"
+                        required
+                        autoComplete="cc-name"
+                        error={nameError}
+                    />
+
+                    <TextField
+                        label={`Card Number${brand !== "unknown" ? ` (${rule.label})` : ""}`}
+                        value={cardNumber}
+                        onChange={(e) => {
+                            const raw = e.target.value;
+                            const onlyDigits = raw.replace(/\D/g, "");
+                            const b = detectBrand(onlyDigits);
+                            setBrand(b);
+                            setCardNumber(formatCardNumber(raw, b));
+                            // подрежем CVC под бренд
+                            const cvcLen = BRAND_RULES[b].cvc;
+                            setCvc((prev) => prev.replace(/\D/g, "").slice(0, cvcLen));
+                        }}
                         placeholder="1234 5678 9012 3456"
                         inputMode="numeric"
                         pattern="[0-9\s]*"
-                        required
+                        autoComplete="cc-number"
+                        error={numberError}
+                        hint="Мы не сохраняем данные карты"
                     />
-                    <div className="form__row">
-                        <TextField label="Expiration Date (MM/YY)" value={exp} onChange={(e) => setExp(e.target.value.replace(/[^\d/]/g, ""))} placeholder="08/28" inputMode="numeric" pattern="(0[1-9]|1[0-2])\/?\d{2}" required />
-                        <TextField label="CVC" value={cvc} onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="123" inputMode="numeric" pattern="\d{3,4}" required />
-                    </div>
 
+                    <div className="form__row">
+                        <TextField
+                            label="Expiration Date (MM/YY)"
+                            value={exp}
+                            onChange={(e) => setExp(formatExpiryInput(e.target.value))}
+                            placeholder="08/28"
+                            inputMode="numeric"
+                            maxLength={5}
+                            autoComplete="cc-exp"
+                            error={expError}
+                        />
+
+                        <TextField
+                            label={`CVC${brand === "amex" ? " (4 digits)" : ""}`}
+                            value={cvc}
+                            onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, cvcMax))}
+                            placeholder={brand === "amex" ? "1234" : "123"}
+                            inputMode="numeric"
+                            pattern={brand === "amex" ? "\\d{4}" : "\\d{3}"}
+                            maxLength={cvcMax}
+                            autoComplete="cc-csc"
+                            error={cvcError}
+                            hint={brand === "amex" ? "Для AmEx — 4 цифры" : "Для остальных — 3 цифры"}
+                        />
+                    </div>
 
                     <div className="card__head"><h2>Secure Payment</h2></div>
 
@@ -406,15 +474,10 @@ const PaymentSection: React.FC<{
                         </ul>
                     </div>
 
-                    <CheckboxField checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)}
-                        label={
-                            <>
-                                I {" "}
-                                <a href="#terms">
-                                    accept the terms and conditions
-                                </a>
-                            </>
-                        }
+                    <CheckboxField
+                        checked={acceptTerms}
+                        onChange={(e) => setAcceptTerms(e.target.checked)}
+                        label={<>I <a href="#terms">accept the terms and conditions</a></>}
                     />
 
                     <div className="actions">
@@ -428,6 +491,7 @@ const PaymentSection: React.FC<{
         </div>
     );
 };
+
 
 const SuccessSection: React.FC = () => (
     <div className="success card">

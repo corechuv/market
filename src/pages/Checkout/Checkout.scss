@@ -185,6 +185,10 @@ $gap-sm: 12px;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 12px;
+
+    h2 {
+        margin: 0;
+    }
 }
 
 .card__foot {
