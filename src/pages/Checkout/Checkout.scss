@@ -1,18 +1,13 @@
 // Design tokens — tweak to your brand
-$bg: var(--bg); // dark backdrop like dashedo vibe
 $panel-2: #c4c4c4;
-$text: #e9e9ee;
 $muted: var(--text-muted);
 $primary: #808080; // accent
-$primary-2: #5c43de;
 $success: #27c093;
 $danger: #ff6b6b;
 $border: #cacaca; // for cards and inputs
 $shadow: 0 10px 30px rgba(0, 0, 0, .35);
 $radius: 16px;
-$radius-xl: 22px;
 $gap: 40px;
-$gap-lg: 24px;
 $gap-sm: 12px;
 
 .sr-only {
@@ -56,7 +51,7 @@ $gap-sm: 12px;
 
 .btn--ghost {
     background: transparent;
-    border: 1px solid $border;
+    border: 1px solid var(--border);
     box-shadow: none;
     color: var(--text);
 }
@@ -230,14 +225,6 @@ $gap-sm: 12px;
     margin-top: 12px;
     display: flex;
     justify-content: flex-end;
-}
-
-.empty {
-    text-align: center;
-    padding: 22px;
-    border: 1px dashed $border;
-    border-radius: $radius;
-    background: $panel-2;
 }
 
 .cart-list {

@@ -17,6 +17,9 @@ import { useNavigate } from "react-router-dom";
 import LogoIcon from "../Icons/LogoIcon";
 import BagIcon from "../Icons/BagIcon";
 
+import CounterBadge from "../Common/CounterBadge/CounterBadge";
+import { useCart } from "../../context/CartContext";
+
 export interface HeaderProps {
     className?: string;
 }
@@ -68,6 +71,14 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
             window.removeEventListener("resize", set);
         };
     }, []);
+
+    // ----- КОЛ-ВО В КОРЗИНЕ
+    const { lines } = useCart();
+    const cartCount = useMemo(
+        () => lines.reduce((sum, l) => sum + l.qty, 0),
+        [lines]
+    );
+
     return (
         <>
             <header
@@ -124,6 +135,10 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                         </button>
                         <button className={cls.header__navButton} aria-label="Cart" onClick={() => nav('/checkout')}>
                             <BagIcon strokeWidth={1.5} />
+                            <CounterBadge
+                                count={cartCount}
+                                title={`In cart: ${cartCount}`}
+                            />
                         </button>
                         <button className={cls.header__navButton} aria-label="Wishlist" onClick={() => nav('/wishlist')}>
                             <HeartIcon fill="none" strokeWidth={1.5} />

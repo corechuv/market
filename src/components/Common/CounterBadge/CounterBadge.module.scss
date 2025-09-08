@@ -1,0 +1,17 @@
+.badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 6px;
+    background: #1f2d34;
+    color: #fff;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 18px;
+    text-align: center;
+    user-select: none;
+    pointer-events: none;
+}
