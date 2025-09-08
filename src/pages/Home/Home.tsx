@@ -5,6 +5,9 @@ import stylesBanner from './Banner.module.scss'
 import ProductCarousel from "../../components/Product/ProductCarousel"
 import ChevronRightIcon from "../../components/Icons/ChevronLeftIcon"
 
+import previewBanner from "@/assets/banners/grid.svg"
+import Banner from "../../components/Banner"
+
 const products = [
     {
         id: "1",
@@ -46,39 +49,57 @@ const products = [
 const bannerList = [
     {
         id: "1",
-        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-        name: "Intel Core i9-14900KS",
+        imageUrl: previewBanner,
+        name: "",
         link: "#"
     },
     {
         id: "2",
-        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-        name: "Intel Core i9-14900KS",
+        imageUrl: previewBanner,
+        name: "",
         link: "#"
     },
     {
         id: "3",
-        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-        name: "Intel Core i9-14900KS",
+        imageUrl: previewBanner,
+        name: "",
         link: "#"
     },
     {
         id: "4",
-        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-        name: "Intel Core i9-14900KS",
+        imageUrl: previewBanner,
+        name: "",
         link: "#"
     },
     {
         id: "5",
-        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-        name: "Intel Core i9-14900KS",
+        imageUrl: previewBanner,
+        name: "",
         link: "#"
     },
     {
         id: "6",
-        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-        name: "Intel Core i9-14900KS",
+        imageUrl: previewBanner,
+        name: "",
         link: "#"
+    },
+];
+
+const demoImages = [
+    {
+        src: previewBanner,
+        alt: "1",
+        caption: "1",
+    },
+    {
+        src: previewBanner,
+        alt: "2",
+        caption: "2",
+    },
+    {
+        src: previewBanner,
+        alt: "3",
+        caption: "3",
     },
 ];
 
@@ -86,6 +107,18 @@ export default function Home() {
     return (
         <div className="container">
             <div className={cls.homeContent}>
+                <Banner
+                    images={demoImages}
+                    aspectRatio="3 / 1"
+                    interval={4500}
+                    autoPlay
+                    loop
+                    pauseOnHover
+                    showControls
+                    showDots
+                    rounded
+                    overlay="gradient"
+                />
                 <div className={stylesBanner.bannerGrid}>
                     {bannerList.map((banner) => (
                         <div key={banner.id} className={stylesBanner.bannerCard}>

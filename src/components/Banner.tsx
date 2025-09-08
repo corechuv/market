@@ -1,0 +1,189 @@
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import s from "./Banner.module.scss";
+import ChevronRightIcon from "./Icons/ChevronLeftIcon";
+import ChevronLeftIcon from "./Icons/ChevronRightIcon";
+
+export type BannerImage = {
+    src: string;
+    alt?: string;
+    caption?: string;
+};
+
+export type BannerProps = {
+    images: BannerImage[];
+    /** CSS aspect-ratio, например '21 / 9', '16 / 9', '3 / 1' */
+    aspectRatio?: string;
+    /** Интервал автопрокрутки (мс) */
+    interval?: number;
+    /** Автоплей */
+    autoPlay?: boolean;
+    /** Зациклить прокрутку */
+    loop?: boolean;
+    /** Пауза при наведении */
+    pauseOnHover?: boolean;
+    /** Показать стрелки */
+    showControls?: boolean;
+    /** Показать точки */
+    showDots?: boolean;
+    /** Закругление углов */
+    rounded?: boolean;
+    /** Градиентная маска поверх картинки */
+    overlay?: "none" | "gradient";
+    className?: string;
+};
+
+const clampIndex = (i: number, len: number) => {
+    if (len === 0) return 0;
+    const r = i % len;
+    return r < 0 ? r + len : r;
+};
+
+const Banner: React.FC<BannerProps> = ({
+    images,
+    aspectRatio = "21 / 9",
+    interval = 5000,
+    autoPlay = true,
+    loop = true,
+    pauseOnHover = true,
+    showControls = true,
+    showDots = true,
+    rounded = true,
+    overlay = "gradient",
+    className,
+}) => {
+    const [index, setIndex] = useState(0);
+    const [isPaused, setPaused] = useState(false);
+    const timerRef = useRef<number | null>(null);
+    const touchStartX = useRef<number | null>(null);
+
+    const count = images.length;
+
+    const goTo = (i: number) => setIndex((prev) => clampIndex(i, count));
+    const next = () => setIndex((prev) => (loop ? clampIndex(prev + 1, count) : Math.min(prev + 1, count - 1)));
+    const prev = () => setIndex((prev) => (loop ? clampIndex(prev - 1, count) : Math.max(prev - 1, 0)));
+
+    // Автопрокрутка
+    useEffect(() => {
+        if (!autoPlay || isPaused || count <= 1) return;
+        timerRef.current = window.setInterval(() => {
+            setIndex((i) => (loop ? clampIndex(i + 1, count) : Math.min(i + 1, count - 1)));
+        }, interval) as unknown as number;
+        return () => {
+            if (timerRef.current) window.clearInterval(timerRef.current);
+        };
+    }, [autoPlay, isPaused, count, interval, loop]);
+
+    // Клавиатура
+    const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (e.key === "ArrowRight") next();
+        if (e.key === "ArrowLeft") prev();
+    };
+
+    // Свайп
+    const onTouchStart = (e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX;
+        if (pauseOnHover) setPaused(true);
+    };
+    const onTouchEnd = (e: React.TouchEvent) => {
+        const start = touchStartX.current;
+        if (start != null) {
+            const dx = e.changedTouches[0].clientX - start;
+            const threshold = 40; // px
+            if (dx > threshold) prev();
+            else if (dx < -threshold) next();
+        }
+        if (pauseOnHover) setPaused(false);
+        touchStartX.current = null;
+    };
+
+    const ariaLabel = useMemo(() => `Баннер, слайд ${index + 1} из ${count}`, [index, count]);
+
+    return (
+        <div
+            className={[
+                s.banner,
+                rounded ? s.rounded : "",
+                className || "",
+                overlay === "gradient" ? s.withOverlay : "",
+            ].join(" ")}
+            role="region"
+            aria-roledescription="карусель"
+            aria-label={ariaLabel}
+            tabIndex={0}
+            onKeyDown={onKeyDown}
+            onMouseEnter={() => pauseOnHover && setPaused(true)}
+            onMouseLeave={() => pauseOnHover && setPaused(false)}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+        >
+            <div className={s.viewport} style={{ aspectRatio }}>
+                {images.map((img, i) => (
+                    <div
+                        className={[s.slide, i === index ? s.active : ""].join(" ")}
+                        key={i}
+                        aria-hidden={i !== index}
+                    >
+                        <img className={s.image} src={img.src} alt={img.alt ?? ""} />
+                        {img.caption && (
+                            <div className={s.caption} aria-hidden={i !== index}>
+                                {img.caption}
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            {showControls && count > 1 && (
+                <>
+                    <button className={[s.ctrl, s.prev].join(" ")} aria-label="Предыдущий" onClick={prev}>
+                        <ChevronLeftIcon />
+                    </button>
+                    <button className={[s.ctrl, s.next].join(" ")} aria-label="Следующий" onClick={next}>
+                        <ChevronRightIcon />
+                    </button>
+                </>
+            )}
+
+            {showDots && count > 1 && (
+                <div className={s.dots} role="tablist" aria-label="Индикаторы слайдов">
+                    {images.map((_, i) => (
+                        <button
+                            key={i}
+                            role="tab"
+                            aria-selected={i === index}
+                            aria-label={`Перейти к слайду ${i + 1}`}
+                            className={[s.dot, i === index ? s.dotActive : ""].join(" ")}
+                            onClick={() => goTo(i)}
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default Banner;
+
+/*
+<div style={{ padding: 24, maxWidth: 1400, margin: "0 auto" }}>
+    <h1 style={{ marginBottom: 12 }}>Демо баннера</h1>
+    <Banner
+    images={demoImages}
+    aspectRatio="21 / 9"
+    interval={4500}
+    autoPlay
+    loop
+    pauseOnHover
+    showControls
+    showDots
+    rounded
+    overlay="gradient"
+    />
+
+    <h2 style={{ margin: "24px 0 12px" }}>Компаκтнее (16:9)</h2>
+    <Banner images={demoImages} aspectRatio="16 / 9" showDots={false} />
+
+    <h2 style={{ margin: "24px 0 12px" }}>Узкий (3:1), без автоплея</h2>
+    <Banner images={demoImages} aspectRatio="3 / 1" autoPlay={false} />
+</div>
+*/

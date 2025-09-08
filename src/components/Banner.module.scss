@@ -1,0 +1,141 @@
+$bg-overlay: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 55%, rgba(0,0,0,0.45) 100%);
+
+.banner {
+  position: relative;
+  width: 100%;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rounded {
+  border-radius: 20px;
+  overflow: clip; // безопаснее для анимаций, чем hidden
+}
+
+.withOverlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: $bg-overlay;
+  z-index: 1;
+}
+
+.viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  // Фолбэк для старых браузеров без aspect-ratio
+  &::before {
+    content: "";
+    display: block;
+    padding-top: 42.857%; // ~21:9
+  }
+}
+
+// Когда есть aspect-ratio, псевдоэлемент не нужен
+@supports (aspect-ratio: 21 / 9) {
+  .viewport::before { display: none; padding-top: 0; }
+  .viewport { height: auto; }
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 600ms ease;
+  display: grid;
+  place-items: end start;
+}
+
+.active {
+  opacity: 1;
+}
+
+.image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.03);
+  animation: kenburns 6s ease-in-out both;
+}
+
+.caption {
+  position: relative;
+  z-index: 2;
+  margin: 0 16px 16px;
+  padding: 10px 14px;
+  color: #fff;
+  font-size: clamp(14px, 2.2vw, 22px);
+  line-height: 1.3;
+  background: rgba(0,0,0,0.35);
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+  transform: translateY(10px);
+  opacity: 0;
+  animation: captionIn 500ms ease 120ms forwards;
+}
+
+.ctrl {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(0,0,0,0.45);
+  font-size: 28px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease;
+  &:hover { background: rgba(0,0,0,0.6); transform: translateY(-50%) scale(1.04); }
+  &:active { transform: translateY(-50%) scale(0.98); }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    color: white;
+  }
+}
+
+.prev { left: 10px; }
+.next { right: 10px; }
+
+.dots {
+  position: absolute;
+  z-index: 3;
+  bottom: 10px;
+  left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+
+.dot {
+  width: 8px; height: 2px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.55);
+  border: none;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease;
+  &:hover { transform: scale(1.15); }
+}
+
+.dotActive { background: #fff; }
+
+@keyframes kenburns {
+  from { transform: scale(1.08) translate3d(0, 0, 0); }
+  to   { transform: scale(1.00) translate3d(0, 0, 0); }
+}
+
+@keyframes captionIn {
+  from { transform: translateY(10px); opacity: 0; }
+  to   { transform: translateY(0px);  opacity: 1; }
+}

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <style>
+    :root { --c1:#0E1A2B; --c2:#142B4E; --accent:#1E63FF; }
+    text { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", sans-serif; }
+  </style>
+  <defs>
+    <linearGradient id="bg-g2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="var(--c1)"/>
+      <stop offset="100%" stop-color="var(--c2)"/>
+    </linearGradient>
+    <pattern id="stripes" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#FFFFFF" stroke-opacity=".06" stroke-width="2" shape-rendering="crispEdges"/>
+    </pattern>
+  </defs>
+
+  <rect width="1080" height="1080" fill="url(#bg-g2)"/>
+  <rect width="1080" height="1080" fill="url(#stripes)"/>
+
+  <!-- Опционально: направляющая -->
+  <rect x="80" y="80" width="920" height="920" fill="none" stroke="#fff" stroke-opacity=".14" stroke-dasharray="6 8" display="none"/>
+</svg>
