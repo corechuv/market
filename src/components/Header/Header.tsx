@@ -141,7 +141,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                             />
                         </button>
                         <button className={cls.header__navButton} aria-label="Wishlist" onClick={() => nav('/wishlist')}>
-                            <HeartIcon fill="none" strokeWidth={1.5} />
+                            <HeartIcon strokeWidth={1.5} />
                         </button>
                     </div>
                 </div>
