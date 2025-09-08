@@ -58,7 +58,7 @@ const Banner: React.FC<BannerProps> = ({
 
     const count = images.length;
 
-    const goTo = (i: number) => setIndex((prev) => clampIndex(i, count));
+    const goTo = (i: number) => setIndex(() => clampIndex(i, count));
     const next = () => setIndex((prev) => (loop ? clampIndex(prev + 1, count) : Math.min(prev + 1, count - 1)));
     const prev = () => setIndex((prev) => (loop ? clampIndex(prev - 1, count) : Math.max(prev - 1, 0)));
 
