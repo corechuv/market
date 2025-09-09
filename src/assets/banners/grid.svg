@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
   <style>
-    :root { --c1:#0E1A2B; --c2:#142B4E; --accent:#1E63FF; }
+    :root { --c1:#f1f1f1; --c2:white; --accent:#1E63FF; }
     text { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", sans-serif; }
   </style>
   <defs>
@@ -9,7 +9,7 @@
       <stop offset="100%" stop-color="var(--c2)"/>
     </linearGradient>
     <pattern id="stripes" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-      <line x1="0" y1="0" x2="0" y2="8" stroke="#FFFFFF" stroke-opacity=".06" stroke-width="2" shape-rendering="crispEdges"/>
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#cccccc" stroke-opacity="1" stroke-width="2" shape-rendering="crispEdges"/>
     </pattern>
   </defs>
 

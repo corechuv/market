@@ -89,17 +89,17 @@ const demoImages = [
     {
         src: previewBanner,
         alt: "1",
-        caption: "1",
+        caption: "",
     },
     {
         src: previewBanner,
         alt: "2",
-        caption: "2",
+        caption: "",
     },
     {
         src: previewBanner,
         alt: "3",
-        caption: "3",
+        caption: "",
     },
 ];
 
