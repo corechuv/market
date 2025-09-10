@@ -130,7 +130,7 @@ export default function Home() {
                     overlay="gradient"
                 />
                 <CategoryGrid
-                    title="Популярные категории"
+                    title="Customer Favorites"
                     categories={demo}
                     onSelect={(cat) => console.log("Выбрано:", cat)}
                 />
