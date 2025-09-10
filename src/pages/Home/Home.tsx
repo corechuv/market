@@ -87,17 +87,17 @@ const bannerList = [
 
 const demoImages = [
     {
-        src: previewBanner,
+        src: "https://www.apple.com/v/iphone-17-pro/a/images/overview/highlights/highlights_apple_intelligence__bs20h6298f36_medium_2x.jpg",
         alt: "1",
         caption: "",
     },
     {
-        src: previewBanner,
+        src: "https://www.apple.com/v/iphone-17-pro/a/images/overview/highlights/highlights_design_endframe__flnga0hibmeu_large_2x.jpg",
         alt: "2",
         caption: "",
     },
     {
-        src: previewBanner,
+        src: "https://www.apple.com/v/iphone-17-pro/a/images/overview/highlights/highlights_ios__empnwsdz698i_large_2x.jpg",
         alt: "3",
         caption: "",
     },
