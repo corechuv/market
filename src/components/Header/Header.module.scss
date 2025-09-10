@@ -1,76 +1,87 @@
 .header {
-    position: sticky;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    background: var(--bg-blur);
-    backdrop-filter: blur(30px);
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--bg-blur);
+  backdrop-filter: blur(30px);
 
-    &__mobile {
-        display: none;
+  /* плавный выезд/заезд */
+  transform: translateY(0);
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+  will-change: transform;
 
-        @media screen {
-            @media (max-width: 768px) {
-                display: flex;
-                gap: 20px;
-            }
-        }
+  &__mobile {
+    display: none;
+    @media (max-width: 768px) {
+      display: flex;
+      gap: 20px;
     }
+  }
 
-    &__container {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        max-width: 1024px;
-        margin: 0 auto;
-        padding: 12px 20px;
-        box-sizing: border-box;
+  &__container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1024px;
+    margin: 0 auto;
+    padding: 12px 20px;
+    box-sizing: border-box;
+  }
+
+  &__navigation {
+    margin-left: 35px;
+    display: flex;
+    gap: 35px;
+    align-items: center;
+
+    @media (max-width: 768px) {
+      margin-left: 10px;
+      gap: 20px;
     }
+  }
 
-    &__navigation {
-        margin-left: 35px;
-        display: flex;
-        gap: 35px;
-        align-items: center;
+  &__navButton {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    color: var(--text);
+    cursor: pointer;
 
-        @media (max-width: 768px) {
-            margin-left: 10px;
-            gap: 20px;
-        }
+    .svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
     }
+  }
 
-    &__navButton {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        border: none;
-        border-radius: 0;
-        background-color: transparent;
-        color: var(--text);
-        cursor: pointer;
+  &__logoIcon {
+    width: 32px;
+    height: 32px;
+    color: var(--text);
+    fill: var(--text);
+  }
 
-        .svg {
-            width: 24px;
-            height: 24px;
-            fill: currentColor;
-        }
-    }
+  &__hamburgerIcon {
+    width: 24px;
+    height: 24px;
+    color: var(--text);
+    fill: var(--text);
+  }
+}
 
-    &__logoIcon {
-        width: 32px;
-        height: 32px;
-        color: var(--text);
-        fill: var(--text);
-    }
+/* модификаторы (как отдельные классы CSS-modules) */
+.isHidden {
+  transform: translateY(calc(-1 * var(--header-height, 80px)));
+}
 
-    &__hamburgerIcon {
-        width: 24px;
-        height: 24px;
-        color: var(--text);
-        fill: var(--text);
-    }
+.withShadow {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
