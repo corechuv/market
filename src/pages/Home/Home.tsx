@@ -61,7 +61,7 @@ const bannerList = [
     },
     {
         id: "3",
-        imageUrl: previewBanner,
+        imageUrl: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg",
         name: "",
         link: "#"
     },
