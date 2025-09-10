@@ -8,6 +8,7 @@ import ChevronRightIcon from "../../components/Icons/ChevronLeftIcon"
 // import previewBanner from "@/assets/banners/grid.svg"
 
 import Banner from "../../components/Banner"
+import CategoryGrid from "../../components/CategoryGrid/CategoryGrid"
 
 const products = [
     {
@@ -104,6 +105,14 @@ const demoImages = [
     },
 ];
 
+const demo = [
+  { id: "1", title: "IPhone",  color: "#EC4899", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
+  { id: "2", title: "CPU", color: "#22D3EE", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
+  { id: "3", title: "GPU", color: "#10B981", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
+  { id: "4", title: "MacBook", color: "#F59E0B", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
+  { id: "5", title: "Case", color: "#8B5CF6", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
+];
+
 export default function Home() {
     return (
         <div className="container">
@@ -119,6 +128,11 @@ export default function Home() {
                     showDots
                     rounded
                     overlay="gradient"
+                />
+                <CategoryGrid
+                    title="Популярные категории"
+                    categories={demo}
+                    onSelect={(cat) => console.log("Выбрано:", cat)}
                 />
                 <div className={stylesBanner.bannerGrid}>
                     {bannerList.map((banner) => (
