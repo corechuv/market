@@ -10,7 +10,6 @@ import Search from "./Search";
 import Catalog from "./Catalog";
 import { SettingsMenuButton } from "./SettingsMenu";
 import { useNavigate } from "react-router-dom";
-import LogoIcon from "../Icons/LogoIcon";
 import BagIcon from "../Icons/BagIcon";
 import CounterBadge from "../Common/CounterBadge/CounterBadge";
 import { useCart } from "../../context/CartContext";
