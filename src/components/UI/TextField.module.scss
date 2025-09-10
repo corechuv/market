@@ -15,17 +15,11 @@
     font-size: 16px;
     font-weight: 300;
     font-family: var(--font);
-    color: rgb(var(--fg));
-    border: 1px solid rgba(var(--border));
+    border: none;
     background: rgba(var(--background-color-input));
     border-radius: 12px;
     transition: box-shadow .15s, border-color .15s;
     outline: none;
-
-    &:focus {
-        box-shadow: 0 0 0 4px rgba(var(--brand), .2);
-        border-color: rgb(var(--brand));
-    }
 }
 
 .inputError {

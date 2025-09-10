@@ -41,8 +41,9 @@
   appearance: none;
   width: 18px;
   height: 18px;
-  border: 2px solid var(--border);
+  border: 2px solid var(--color-border-checkbox);
   border-radius: 4px;
+  background-color: var(--bg-checkbox);
   position: relative;
   margin: 0;
   cursor: inherit;

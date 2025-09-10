@@ -89,6 +89,10 @@ body[data-theme='light'] {
   /* CounterBadge */
   --color-bg-counter-badge: #c9c9c9;
 
+  /**/
+  --color-border-checkbox: #ededed;
+  --bg-checkbox: #d5d5d5;
+
   color-scheme: light;
 }
 
@@ -176,6 +180,10 @@ body[data-theme='dark'] {
 
   /* CounterBadge */
   --color-bg-counter-badge: #2f2f2f;
+
+  /**/
+  --color-border-checkbox: #2c2c2c;
+  --bg-checkbox: #1f1f1f;
 
   color-scheme: dark;
 }
