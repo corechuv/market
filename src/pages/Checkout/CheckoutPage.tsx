@@ -133,7 +133,7 @@ const CheckoutPage: React.FC = () => {
         <div className={`checkout ${step === 3 ? "is-success" : ""}`}>
             <header className="checkout__header">
                 <div className="checkout__brand">
-                    <Logo size="32px" />
+                    <Logo size="28px" />
                 </div>
                 <div className="checkout__secure">
                     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
