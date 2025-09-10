@@ -5,7 +5,8 @@ import stylesBanner from './Banner.module.scss'
 import ProductCarousel from "../../components/Product/ProductCarousel"
 import ChevronRightIcon from "../../components/Icons/ChevronLeftIcon"
 
-import previewBanner from "@/assets/banners/grid.svg"
+// import previewBanner from "@/assets/banners/grid.svg"
+
 import Banner from "../../components/Banner"
 
 const products = [
@@ -73,13 +74,13 @@ const bannerList = [
     },
     {
         id: "5",
-        imageUrl: previewBanner,
+        imageUrl: "https://www.apple.com/v/iphone/home/ce/images/overview/consider/ios__02vczxaa3siu_medium_2x.jpg",
         name: "",
         link: "#"
     },
     {
         id: "6",
-        imageUrl: previewBanner,
+        imageUrl: "https://www.apple.com/v/iphone/home/ce/images/overview/consider/chip__6hy1uruuluaa_medium_2x.jpg",
         name: "",
         link: "#"
     },
