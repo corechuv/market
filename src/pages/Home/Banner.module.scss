@@ -10,23 +10,28 @@
 }
 
 .bannerCard {
-  background-color: var(--bg);
-  overflow: hidden;
-  transition: transform 0.3s ease;
   position: relative;
-  display: flex;
+  overflow: hidden;
   border-radius: 16px;
+  background-color: var(--bg);
+  transition: transform 0.3s ease;
+
+  /* делаем квадрат */
+  aspect-ratio: 1 / 1;
 
   &:hover {
-    img {
-      transform: scale(1.05);
-    }
+    img { transform: scale(1.05); }
   }
 }
 
+/* картинка растягивается на весь квадрат и кадрируется по центру */
 .bannerImage {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  object-fit: cover;
+  height: 100%;
+  object-fit: cover;        /* обрезает по краям, сохраняя пропорции */
+  object-position: center;  /* центр кадра */
   transition: transform 0.3s ease;
 }
 

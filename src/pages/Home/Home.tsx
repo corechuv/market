@@ -67,7 +67,7 @@ const bannerList = [
     },
     {
         id: "4",
-        imageUrl: previewBanner,
+        imageUrl: "https://www.apple.com/v/iphone/home/ce/images/overview/consider/privacy__dd7zepyil6gm_medium_2x.jpg",
         name: "",
         link: "#"
     },
