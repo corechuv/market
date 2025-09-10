@@ -127,38 +127,34 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                 style={{ ["--header-height" as any]: `${hh}px` }}
             >
                 <div className={cls.header__container}>
-                    {isMobile ? (
+                    {isMobile && (
                         <div className={cls.header__mobile}>
-                            <button className={cls.header__navButton} onClick={() => nav("/")}>
-                                <LogoIcon className={cls.header__logoIcon} />
-                            </button>
-                            <button
-                                className={cls.header__navButton}
-                                aria-label="Menu"
-                                onClick={() => setMobileCatalogOpen(true)}
-                            >
+                            <a className={cls.header__navButton} onClick={() => nav("/")}>
+                                <Logo size={isMobile ? "22px" : "28px"} />
+                            </a>
+                            <button className={cls.header__navButton} aria-label="Menu" onClick={() => setMobileCatalogOpen(true)}>
                                 <HamburgerIcon className={cls.header__hamburgerIcon} />
                             </button>
                         </div>
-                    ) : (
-                        <Logo size={isMobile ? "18px" : "28px"} />
                     )}
 
                     {!isMobile && (
-                        <div className={cls.header__navigation}>
-                            <SettingsMenuButton />
-                        </div>
-                    )}
-
-                    {!isMobile && (
-                        <div style={{ flexGrow: 1 }}>
-                            <Search
-                                data={items}
-                                onSelect={(item) => {
-                                    nav(`/product/${item.id}`);
-                                }}
-                            />
-                        </div>
+                        <>
+                            <a className={cls.header__navButton} onClick={() => nav("/")}>
+                                <Logo size={isMobile ? "22px" : "28px"} />
+                            </a>
+                            <div className={cls.header__navigation}>
+                                <SettingsMenuButton />
+                            </div>
+                            <div style={{ flexGrow: 1 }}>
+                                <Search
+                                    data={items}
+                                    onSelect={(item) => {
+                                        nav(`/product/${item.id}`);
+                                    }}
+                                />
+                            </div>
+                        </>
                     )}
 
                     <div className={cls.header__navigation}>
