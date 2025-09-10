@@ -49,13 +49,13 @@ const products = [
 const bannerList = [
     {
         id: "1",
-        imageUrl: previewBanner,
+        imageUrl: "https://www.apple.com/v/iphone-17-pro/a/images/overview/cameras/photo/photographic_styles__boatmzba74ty_medium_2x.jpg",
         name: "",
         link: "#"
     },
     {
         id: "2",
-        imageUrl: previewBanner,
+        imageUrl: "https://www.apple.com/v/iphone-17-pro/a/images/overview/cameras/photo/night_mode__dksu23l8q2eu_medium_2x.jpg",
         name: "",
         link: "#"
     },
