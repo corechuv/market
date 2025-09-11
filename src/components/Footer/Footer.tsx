@@ -50,6 +50,8 @@ export default function Footer() {
                             <img loading="lazy" src={theme === "dark" ? klarna : klarna} alt="Klarna" className={cls.paymentMethods__klarna} />
                             <img loading="lazy" src={theme === "dark" ? amazonWhite : amazonBlack} alt="AmazonPay" className={cls.paymentMethods__amazonPay} />
                         </div>
+                    </section>
+                    <section className={cls.methodContainer}>
                         <h3 className={cls.methodContainer__title}>Delivery</h3>
                         <div className={cls.deliveryMethods}>
                             <img loading="lazy" src={dhl} alt="Dhl" className={cls.deliveryMethods__dhl} />

@@ -99,8 +99,7 @@ $bp-lg: 1024px;
 .methodContainer {
   display: flex;               /* и здесь задаём flex локально */
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
+  gap: 15px;
   padding: 40px 0;
 
   @media (max-width: $bp-md) {
@@ -112,14 +111,13 @@ $bp-lg: 1024px;
 
   &__title {
     font-weight: 500;
-    margin: 0 0 8px;
+    margin: 0;
   }
 }
 
 .paymentMethods,
 .deliveryMethods {
   display: flex;
-
   align-items: center;
   gap: 10px;
 
