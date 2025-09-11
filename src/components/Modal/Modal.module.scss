@@ -88,7 +88,7 @@ $anim-time: 0.3s;
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0 1.25rem;
-  font-size: 1.7rem;
+  font-size: 1.6rem;
   font-weight: 600;
   color: var(--text);
   height: 68px;
@@ -104,6 +104,10 @@ $anim-time: 0.3s;
     /* NEW: добавляем многоточие */
     white-space: nowrap;
     /* NEW: в одну строку */
+
+    @media (max-width: 768px) {
+      font-size: 1.4rem;
+    }
   }
 
 

@@ -343,8 +343,10 @@ export default function CookieConsent({
                 </p>
             </div>
             <div className={styles.manager__footer}>
-                <a className={styles.link} href={policyUrl} target="_blank" rel="noopener noreferrer">Политика конфиденциальности</a>
-                <div className={styles.spacer} />
+                <div>
+                    <a className={styles.link} href={policyUrl} target="_blank" rel="noopener noreferrer">Политика конфиденциальности</a>
+                    <div className={styles.spacer} />
+                </div>
                 <Button className={styles.btnSecondary} onClick={handleRejectAll}>Discard all</Button>
                 <Button onClick={handleSave}>Save</Button>
                 <Button onClick={handleAcceptAll}>Accept all</Button>
