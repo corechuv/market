@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getProductById, getMoreProducts } from "../../services/productService";
 import { getReviewsById } from "../../services/reviewService";
 import { getBreadcrumbs } from "../../services/categoryService";
@@ -15,7 +15,6 @@ import Button from "../../components/UI/Button";
 import Modal from "../../components/Modal/Modal";
 import ReviewList from "../../components/Product/ReviewList";
 import ReviewForm from "../../components/Product/ReviewForm";
-import ProductCarousel from "../../components/Product/ProductCarousel";
 import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import DeliveryBadge from "../../components/Product/DeliveryBadge";
 import SpecTable from "../../components/Product/SpecTable";
@@ -29,8 +28,10 @@ import ReviewsHistogram from "../../components/Product/Details/ReviewsHistogram"
 
 import { useCart } from "../../context/CartContext";
 import { toCartLine } from "../../services/cartAdapter";
+import ProductCarouselRich from "../../components/Product/ProductCarouselRich";
 
 export default function ProductPage() {
+    const nav = useNavigate();
     const { productId } = useParams<{ productId: string }>();
 
     const product = getProductById(String(productId));
@@ -304,7 +305,12 @@ export default function ProductPage() {
                             </div>
                         </div>
                     </div>
-                    <ProductCarousel products={moreProducts} label="More Products" />
+                    <ProductCarouselRich products={moreProducts} label="More Products"
+                        visibleItems={4}
+                        onItemClick={(p) => nav(`/product/${p.id}`)}
+                    // или, если хотите <a href> вместо onClick:
+                    // itemLinkBuilder={(p) => `/product/${p.id}`}
+                    />
                 </div>
             </div>
 
