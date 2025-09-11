@@ -162,9 +162,9 @@ export default function Footer() {
 
                         {/* Mobile accordions */}
                         <div className={cls.footerNavMobile}>
-                            {NAV_GROUPS.map((group, idx) => (
+                            {NAV_GROUPS.map((group) => (
                                 <div className={cls.footerNav__accordion} key={group.title}>
-                                    <Accordion title={group.title} defaultOpen={idx === 0} margin={false}>
+                                    <Accordion title={group.title} defaultOpen={false} margin={false}>
                                         <ul className={cls.footerNav__list}>
                                             {group.links.map((l) => (
                                                 <li key={l.href}>
