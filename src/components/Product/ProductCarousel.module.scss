@@ -1,6 +1,15 @@
 /* ------------------------------------------------------------------
    ProductCarousel.module.scss
    ------------------------------------------------------------------ */
+:root {
+  --available-color: #4caf50;
+  --not-available-color: #cb1762;
+}
+
+$bp-sm: 480px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+
 .listContainer {
     position: relative;
     display: flex;
@@ -123,4 +132,225 @@
             color: var(--text);
         }
     }
+}
+
+/* New */
+.productImage {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  aspect-ratio: 4/4;
+
+  @media (max-width: $bp-sm) {
+    aspect-ratio: 1/1;
+  }
+}
+
+.productDetails {
+  padding: 12px 4px;
+}
+
+.productName {
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.25;
+  margin: 0;
+  margin-bottom: 6px;
+}
+
+.productPrice {
+  font-weight: 400;
+  font-size: 20px;
+  color: var(--text);
+
+  @media (max-width: $bp-md) {
+    font-size: 18px;
+  }
+}
+
+/* доступность */
+.available {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 300;
+  font-size: 14px;
+  color: var(--text);
+  margin-top: 5px;
+
+  @media (max-width: $bp-md) {
+    font-size: 13px;
+  }
+}
+
+.inStock,
+.outOfStock {
+  display: flex;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.inStock {
+  background-color: var(--available-color);
+}
+
+.outOfStock {
+  background-color: var(--not-available-color);
+}
+
+.inStockText {
+  color: var(--available-color);
+}
+
+.outOfStockText {
+  color: var(--not-available-color);
+}
+
+.product {
+  &__infoBelow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 2px;
+  }
+}
+
+.productVat {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--color-text-primary);
+
+    @media (max-width: $bp-md) {
+      font-size: 12px;
+    }
+}
+
+.productDelivery {
+  font-size: 14px;
+  font-weight: 300;
+
+    @media (max-width: $bp-md) {
+      font-size: 12px;
+    }
+}
+
+
+.productMeta {
+
+    &__rating {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: var(--text);
+        margin-bottom: 10px;
+    }
+
+    &__ratingValue {
+        font-weight: 300;
+        color: var(--text);
+    }
+
+    &__ratingCount {
+        font-weight: 300;
+        color: var(--text);
+    }
+
+    @media screen and (max-width: 768px) {
+        margin-top: 10px;
+        gap: 15px;
+    }
+
+}
+
+.meta__energyClass {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.price {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.priceRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.priceCompareAt {
+    font-size: 17px;
+    font-weight: 300;
+    color: var(--text);
+    position: relative;
+    display: inline-block;
+    /* важно, чтобы псевдо-элемент растягивался по ширине текста */
+    padding: 0 0.1em;
+    /* чуть шире, чтобы линия выходила за края текста на волосок */
+
+    /* тонкая диагональная линия */
+    &::after {
+        content: "";
+        position: absolute;
+        left: 2px;
+        right: 2px;
+        top: 50%;
+        height: 1px;
+        border-radius: 20px;
+        /* толщина линии: масштабируется с шрифтом */
+        background: var(--text);
+        /* цвет линии = цвет текста */
+        transform: translateY(-50%) rotate(-4deg);
+        transform-origin: 50% 50%;
+        pointer-events: none;
+    }
+
+    @media (max-width: $bp-md) {
+        font-size: 15px;
+    }
+}
+
+.badgeDiscount {
+    font-size: 12px;
+    font-weight: 500;
+    color: black;
+    background-color: #f8ffaa;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.imageWrap {
+    position: relative;
+    display: flex;
+}
+
+.imagePlaceholder {
+    background: #f2f2f2;
+    width: 100%;
+    aspect-ratio: 1/1;
+}
+
+.metaLink {
+  font-size: .875rem;
+  text-decoration: underline;
+}
+
+.itemDisabled {
+  opacity: .75;
 }

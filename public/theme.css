@@ -93,6 +93,12 @@ body[data-theme='light'] {
   --color-border-checkbox: #ededed;
   --bg-checkbox: #d5d5d5;
 
+  /* Toggle */
+  --bg-toggle: transparent;
+  --border-toggle: #c4c4c4;
+
+  --color-toggle-accent: #22c55e;
+
   color-scheme: light;
 }
 
@@ -184,6 +190,12 @@ body[data-theme='dark'] {
   /**/
   --color-border-checkbox: #2c2c2c;
   --bg-checkbox: #1f1f1f;
+
+  /* Toggle */
+  --bg-toggle: transparent;
+  --border-toggle: #2f2f2f;
+
+  --color-toggle-accent: #22c55e;
 
   color-scheme: dark;
 }

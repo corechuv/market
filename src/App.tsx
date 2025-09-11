@@ -16,26 +16,33 @@ import CheckoutLayout from "./components/layouts/CheckoutLayout";
 
 import CheckoutPage from "./pages/Checkout/CheckoutPage";
 
+import CookieConsent from "./components/CookieConsent/CookieConsent";
+
 export default function App() {
+
   return (
-    <Routes>
-      <Route element={<MainLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/wishlist" element={<WishlistPage />} />
-        <Route path="/search" element={<SearchPage />} />
-        <Route path="/products" element={<ProductsPage />} />
-        <Route path="/product/:productId" element={<ProductPage />} />
-        <Route path="/category/*" element={<CategoryPage />} />
-      </Route>
+    <>
+      <Routes>
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/wishlist" element={<WishlistPage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/product/:productId" element={<ProductPage />} />
+          <Route path="/category/*" element={<CategoryPage />} />
+        </Route>
 
-      <Route element={<AuthLayout />}>
-        {/* /auth и любые /auth/* без Header/Footer */}
-        <Route path="/auth" element={<AuthPage />} />
-      </Route>
+        <Route element={<AuthLayout />}>
+          {/* /auth и любые /auth/* без Header/Footer */}
+          <Route path="/auth" element={<AuthPage />} />
+        </Route>
 
-      <Route element={<CheckoutLayout />}>
-        <Route path="/checkout" element={<CheckoutPage />} />
-      </Route>
-    </Routes>
+        <Route element={<CheckoutLayout />}>
+          <Route path="/checkout" element={<CheckoutPage />} />
+        </Route>
+      </Routes>
+
+      <CookieConsent policyUrl="/privacy" brandName="Dashedo" />
+    </>
   );
 }

@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import BagIcon from "../Icons/BagIcon";
 import CounterBadge from "../Common/CounterBadge/CounterBadge";
 import { useCart } from "../../context/CartContext";
+import { CookieSettingsButton } from "../CookieConsent/CookieConsent";
 
 export interface HeaderProps {
     className?: string;
@@ -155,6 +156,8 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                             </div>
                         </>
                     )}
+
+                    <CookieSettingsButton label="" />
 
                     <div className={cls.header__navigation}>
                         {isMobile && (

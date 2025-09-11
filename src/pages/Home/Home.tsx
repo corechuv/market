@@ -2,51 +2,17 @@ import "react"
 
 import cls from './Home.module.scss'
 import stylesBanner from './Banner.module.scss'
-import ProductCarousel from "../../components/Product/ProductCarousel"
 import ChevronRightIcon from "../../components/Icons/ChevronLeftIcon"
 
 // import previewBanner from "@/assets/banners/grid.svg"
 
 import Banner from "../../components/Banner"
 import CategoryGrid from "../../components/CategoryGrid/CategoryGrid"
+import ProductCarouselRich from "../../components/Product/ProductCarouselRich"
 
-const products = [
-    {
-        id: "1",
-        name: "Intel Core i9-14900KS",
-        price: "691,89 €",
-        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-        link: "#"
-    },
-    {
-        id: "2",
-        name: "Intel Core i9-14900KS",
-        price: "691,89 €",
-        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-        link: "#"
-    },
-    {
-        id: "3",
-        name: "Intel Core i9-14900KS",
-        price: "691,89 €",
-        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-        link: "#"
-    },
-    {
-        id: "4",
-        name: "Intel Core i9-14900KS",
-        price: "691,89 €",
-        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-        link: "#"
-    },
-    {
-        id: "5",
-        name: "Intel Core i9-14900KS",
-        price: "691,89 €",
-        imageUrl: "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
-        link: "#"
-    },
-]
+import { getProducts } from "../../services/productService";
+import { useNavigate } from "react-router-dom";
+import React from "react"
 
 const bannerList = [
     {
@@ -106,14 +72,19 @@ const demoImages = [
 ];
 
 const demo = [
-  { id: "1", title: "IPhone",  color: "#EC4899", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
-  { id: "2", title: "CPU", color: "#22D3EE", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
-  { id: "3", title: "GPU", color: "#10B981", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
-  { id: "4", title: "MacBook", color: "#F59E0B", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
-  { id: "5", title: "Case", color: "#8B5CF6", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
+    { id: "1", title: "IPhone", color: "#EC4899", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
+    { id: "2", title: "CPU", color: "#22D3EE", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
+    { id: "3", title: "GPU", color: "#10B981", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
+    { id: "4", title: "MacBook", color: "#F59E0B", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
+    { id: "5", title: "Case", color: "#8B5CF6", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
 ];
 
 export default function Home() {
+    const nav = useNavigate();
+    const products = React.useMemo(
+        () => getProducts({ q: "", sort: "popular" as any }),
+        []
+    );
     return (
         <div className="container">
             <div className={cls.homeContent}>
@@ -147,7 +118,12 @@ export default function Home() {
                         </div>
                     ))}
                 </div>
-                <ProductCarousel products={products} label="Featured Products" />
+                <ProductCarouselRich label="Featured Products" products={products}
+                    visibleItems={4}
+                    onItemClick={(p) => nav(`/product/${p.id}`)}
+                // или, если хотите <a href> вместо onClick:
+                // itemLinkBuilder={(p) => `/product/${p.id}`}
+                />
             </div>
         </div>
     )

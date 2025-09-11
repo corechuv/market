@@ -1,3 +1,4 @@
+// src/components/Product/ProductItemList.tsx
 import React from "react";
 import cls from "./ProductItemList.module.scss";
 import type { ViewMode } from "../../components/Product/ToggleViewSwitch";
