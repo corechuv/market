@@ -23,6 +23,88 @@ import amex from "@/assets/svg/amex.svg"
 
 
 import cls from "./Footer.module.scss"
+import Accordion from "../Product/Accordion"
+
+const NAV_GROUPS = [
+    {
+        title: "About",
+        links: [
+            { href: "/about", label: "About Us" },
+            { href: "/team", label: "Our Team" },
+            { href: "/careers", label: "Careers" },
+            { href: "/press", label: "Press" },
+            { href: "/blog", label: "Blog" },
+        ],
+    },
+    {
+        title: "Help & Support",
+        links: [
+            { href: "/contact", label: "Contact" },
+            { href: "/faq", label: "FAQ" },
+            { href: "/shipping", label: "Shipping & Delivery" },
+            { href: "/returns", label: "Returns & Refunds" },
+            { href: "/track", label: "Track Order" },
+            { href: "/size-guide", label: "Size Guide" },
+        ],
+    },
+    {
+        title: "Shop",
+        links: [
+            { href: "/new", label: "New Arrivals" },
+            { href: "/bestsellers", label: "Bestsellers" },
+            { href: "/sale", label: "Sale" },
+            { href: "/gifts", label: "Gifts" },
+            { href: "/last-chance", label: "Last Chance" },
+        ],
+    },
+    {
+        title: "Account",
+        links: [
+            { href: "/account", label: "My Account" },
+            { href: "/account/orders", label: "Orders" },
+            { href: "/account/wishlist", label: "Wishlist" },
+            { href: "/account/addresses", label: "Addresses" },
+            { href: "/account/security", label: "Security" },
+        ],
+    },
+    {
+        title: "Legal",
+        links: [
+            { href: "/terms", label: "Terms of Service" },
+            { href: "/privacy", label: "Privacy Policy" },
+            { href: "/cookie", label: "Cookie Policy" },
+            { href: "/imprint", label: "Imprint" },
+            { href: "/sitemap", label: "Sitemap" },
+        ],
+    },
+    {
+        title: "Partners",
+        links: [
+            { href: "/affiliate", label: "Affiliate Program" },
+            { href: "/wholesale", label: "Wholesale" },
+            { href: "/partners", label: "Partners" },
+            { href: "/csr", label: "Sustainability" },
+        ],
+    },
+    {
+        title: "Explore",
+        links: [
+            { href: "/stories", label: "Stories" },
+            { href: "/lookbook", label: "Lookbook" },
+            { href: "/community", label: "Community" },
+            { href: "/events", label: "Events" },
+        ],
+    },
+    {
+        title: "Resources",
+        links: [
+            { href: "/developers", label: "Developers" },
+            { href: "/api", label: "API" },
+            { href: "/docs", label: "Docs" },
+            { href: "/status", label: "Status" },
+        ],
+    },
+];
 
 export default function Footer() {
     const [theme, setTheme] = useState(() =>
@@ -60,28 +142,40 @@ export default function Footer() {
                         </div>
                     </section>
                 </div>
-                <div className={`${cls["footer__container--col"]}`}>
-                    <section className={cls.footerNav}>
-                        <ul>
-                            <li><a href="/about" className={cls.navLink}>About Us</a></li>
-                            <li><a href="/contact" className={cls.navLink}>Contact</a></li>
-                            <li><a href="/privacy" className={cls.navLink}>Privacy Policy</a></li>
-                        </ul>
-                        <ul>
-                            <li><a href="/terms" className={cls.navLink}>Terms of Service</a></li>
-                            <li><a href="/faq" className={cls.navLink}>FAQ</a></li>
-                            <li><a href="/support" className={cls.navLink}>Support</a></li>
-                        </ul>
-                        <ul>
-                            <li><a href="/careers" className={cls.navLink}>Careers</a></li>
-                            <li><a href="/blog" className={cls.navLink}>Blog</a></li>
-                            <li><a href="/partners" className={cls.navLink}>Partners</a></li>
-                        </ul>
-                        <ul>
-                            <li><a href="/sitemap" className={cls.navLink}>Sitemap</a></li>
-                            <li><a href="/press" className={cls.navLink}>Press</a></li>
-                            <li><a href="/affiliate" className={cls.navLink}>Affiliate Program</a></li>
-                        </ul>
+                <div className={cls["footer__container--col"]}>
+                    <section className={cls.footerNav} aria-label="Footer navigation">
+                        {/* Desktop / Tablet grid */}
+                        <div className={cls.footerNavDesktop} role="list">
+                            {NAV_GROUPS.map((group) => (
+                                <div className={cls.footerNav__col} role="listitem" key={group.title}>
+                                    <h3 className={cls.footerNav__heading}>{group.title}</h3>
+                                    <ul className={cls.footerNav__list}>
+                                        {group.links.map((l) => (
+                                            <li key={l.href}>
+                                                <a href={l.href} className={cls.navLink}>{l.label}</a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Mobile accordions */}
+                        <div className={cls.footerNavMobile}>
+                            {NAV_GROUPS.map((group, idx) => (
+                                <div className={cls.footerNav__accordion} key={group.title}>
+                                    <Accordion title={group.title} defaultOpen={idx === 0} margin={false}>
+                                        <ul className={cls.footerNav__list}>
+                                            {group.links.map((l) => (
+                                                <li key={l.href}>
+                                                    <a href={l.href} className={cls.navLink}>{l.label}</a>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </Accordion>
+                                </div>
+                            ))}
+                        </div>
                     </section>
                 </div>
                 <div className={`${cls["footer__container--col"]}`}>

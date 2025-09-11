@@ -3,6 +3,7 @@ import styles from "./Accordion.module.scss";
 
 interface AccordionProps {
     title: string;
+    margin?: boolean;
     children: React.ReactNode;
     /**
      * Открыто ли по умолчанию
@@ -10,8 +11,12 @@ interface AccordionProps {
     defaultOpen?: boolean;
 }
 
-const Accordion: React.FC<AccordionProps> = ({ title, children, defaultOpen = false }) => {
+const Accordion: React.FC<AccordionProps> = ({ title, children, margin = true, defaultOpen = false }) => {
     const [open, setOpen] = useState(defaultOpen);
+
+    const contentStyle: React.CSSProperties = {
+        marginLeft: margin ? "10px" : "",
+    };
 
     return (
         <div className={styles.accordion}>
@@ -39,7 +44,7 @@ const Accordion: React.FC<AccordionProps> = ({ title, children, defaultOpen = fa
                     />
                 </svg>
             </button>
-            {open && <div className={styles.accordion__content}>{children}</div>}
+            {open && <div className={styles.accordion__content} style={contentStyle}>{children}</div>}
         </div>
     );
 };
