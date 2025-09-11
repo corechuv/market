@@ -139,16 +139,22 @@ $anim-time: 0.3s;
   /* NEW: занимает оставшееся место */
   min-height: 0;
   /* NEW: обязателен для корректного шринка в flex */
-  overflow: visible;
-  /* NEW: чтобы абсолюты не обрезались */
+  display: flex;
+  /* ДОБАВИТЬ */
+  flex-direction: column;
+  /* ДОБАВИТЬ */
+  overflow: hidden;
+  /* лучше скрыть, чтобы не было bleed */
 }
 
 /* Внутренний скролл только тут */
 .modalScroll {
-  height: 100%;
-  max-height: 100%;
-  /* у центр-версии ограничено max-height родителя */
+  flex: 1 1 auto;
+  /* ДОБАВИТЬ: пусть растёт/сжимается */
+  min-height: 0;
+  /* КЛЮЧЕВОЕ — разрешает сжиматься */
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   @include scrollbar.custom-scrollbar();
 }
 
