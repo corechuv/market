@@ -16,6 +16,9 @@ import paypal from "/paypal.png"
 import visa from "/visa.png"
 import dpd from "/dpd.png"
 import hermes from "@/assets/svg/hermes.svg"
+import klarna from "@/assets/svg/klarna.svg"
+import amazonWhite from "@/assets/amazonpay_white.png"
+import amazonBlack from "@/assets/amazonpay_black.png"
 
 
 import cls from "./Footer.module.scss"
@@ -42,6 +45,8 @@ export default function Footer() {
                             <img loading="lazy" src={visa} alt="Visa" className={cls.paymentMethods__visa} />
                             <img loading="lazy" src={mastercard} alt="MasterCard" className={cls.paymentMethods__mastercard} />
                             <img loading="lazy" src={paypal} alt="PayPal" className={cls.paymentMethods__paypal} />
+                            <img loading="lazy" src={theme === "dark" ? klarna : klarna} alt="Klarna" className={cls.paymentMethods__klarna} />
+                            <img loading="lazy" src={theme === "dark" ? amazonWhite : amazonBlack} alt="AmazonPay" className={cls.paymentMethods__amazonPay} />
                         </div>
                         <h3 className={cls.methodContainer__title}>Delivery</h3>
                         <div className={cls.deliveryMethods}>

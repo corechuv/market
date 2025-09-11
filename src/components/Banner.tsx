@@ -135,17 +135,17 @@ const Banner: React.FC<BannerProps> = ({
 
             {showControls && count > 1 && (
                 <>
-                    <button className={[s.ctrl, s.prev].join(" ")} aria-label="Предыдущий" onClick={prev}>
+                    <button className={[s.ctrl, s.prev].join(" ")} aria-label="prev" onClick={prev}>
                         <ChevronLeftIcon />
                     </button>
-                    <button className={[s.ctrl, s.next].join(" ")} aria-label="Следующий" onClick={next}>
+                    <button className={[s.ctrl, s.next].join(" ")} aria-label="next" onClick={next}>
                         <ChevronRightIcon />
                     </button>
                 </>
             )}
 
             {showDots && count > 1 && (
-                <div className={s.dots} role="tablist" aria-label="Индикаторы слайдов">
+                <div className={s.dots} role="tablist" aria-label="Slide indicators">
                     {images.map((_, i) => (
                         <button
                             key={i}
