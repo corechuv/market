@@ -119,16 +119,16 @@ $bp-lg: 1024px;
 .paymentMethods,
 .deliveryMethods {
   display: flex;
+
   align-items: center;
   gap: 10px;
 
-  /* горизонтальный скролл на узких экранах */
-  @media (max-width: $bp-md) {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 4px;
-
-    &::-webkit-scrollbar { height: 6px; }
+  @media (max-width: 520px) {
+    display: inline-grid;
+    grid-template-columns: repeat(4, max-content);
+    column-gap: 8px;
+    row-gap: 8px;
+    justify-content: start;
   }
 
   &__visa,
