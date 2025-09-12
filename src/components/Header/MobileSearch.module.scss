@@ -122,11 +122,6 @@
     padding: 0.75rem 0rem;
     background: var(--bg);
     cursor: pointer;
-    transition: background 120ms ease;
-
-    &:active {
-        background: var(--bg-hover-item);
-    }
 }
 
 .itemLabel {
