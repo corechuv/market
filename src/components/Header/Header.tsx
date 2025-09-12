@@ -133,7 +133,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                     {isMobile && (
                         <div className={cls.header__mobile}>
                             <a className={cls.header__navButton} onClick={() => nav("/")}>
-                                <Logo size={isMobile ? "19px" : "28px"} />
+                                <Logo size={isMobile ? "19px" : "28px"} weight={600} />
                             </a>
                             <button className={cls.header__navButton} aria-label="Menu" onClick={() => setMobileCatalogOpen(true)}>
                                 <HamburgerIcon className={cls.header__hamburgerIcon} />
