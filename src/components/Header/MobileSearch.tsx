@@ -79,10 +79,15 @@ const MobileSearch: React.FC<MobileSearchProps> = ({
             .slice(0, 50);
     }, [query, items]);
 
+    /** === Выходная анимация === */
+    const EXIT_MS = 300; // должно быть ≥ суммарной длительности CSS-анимаций закрытия
+    const [isExiting, setIsExiting] = useState(false);
+
     const close = useCallback(() => {
         if (!canUseDOM) return;
         if (!open) return;
 
+        setIsExiting(true);
         onOpenChange(false);
 
         // Откатываем историю, если мы её пушили при открытии
@@ -115,20 +120,22 @@ const MobileSearch: React.FC<MobileSearchProps> = ({
         if (open && !isMobile) close();
     }, [isMobile, open, close]);
 
-    // Блокируем скролл и фокусируем инпут при открытии
+    // Блокируем скролл на всём периоде (и открыто, и пока идёт выходная анимация).
+    // Фокус — только при открытии.
     useEffect(() => {
         if (!canUseDOM) return;
-        if (!open || !isMobile) return;
+        if ((!open && !isExiting) || !isMobile) return;
 
         const prevOverflow = document.body.style.overflow;
         document.body.style.overflow = "hidden";
-        const t = window.setTimeout(() => inputRef.current?.focus(), 0);
+
+        const t = open ? window.setTimeout(() => inputRef.current?.focus(), 0) : null;
 
         return () => {
             document.body.style.overflow = prevOverflow;
-            window.clearTimeout(t);
+            if (t) window.clearTimeout(t);
         };
-    }, [open, isMobile, canUseDOM]);
+    }, [open, isExiting, isMobile, canUseDOM]);
 
     // Синхронизация с кнопкой «назад» в браузере
     useEffect(() => {
@@ -146,12 +153,36 @@ const MobileSearch: React.FC<MobileSearchProps> = ({
         return () => window.removeEventListener("popstate", onPop);
     }, [open, isMobile, onOpenChange, canUseDOM]);
 
-    // Не рендерим на сервере, на десктопе и когда закрыто
-    if (!canUseDOM || !open || !isMobile) return null;
+    // Если нас закрыли извне (open -> false), проигрываем выход и через EXIT_MS размонтируем.
+    useEffect(() => {
+        if (!canUseDOM || !isMobile) return;
+        if (open) {
+            setIsExiting(false);
+            return;
+        }
+
+        // запуск выхода
+        setIsExiting(true);
+
+        // если URL всё ещё содержит наш маркер — вернёмся назад (случай внешнего закрытия)
+        const url = new URL(window.location.href);
+        if (url.searchParams.get("search") === "1") {
+            window.history.back();
+        }
+
+        const t = window.setTimeout(() => setIsExiting(false), EXIT_MS);
+        return () => window.clearTimeout(t);
+    }, [open, isMobile, canUseDOM]);
+
+    // Не рендерим на сервере; на десктопе рендерим только пока проигрывается выход
+    if (!canUseDOM || (!isMobile && !isExiting) || (!open && !isExiting)) return null;
+
+    const stateAttr = open && !isExiting ? "open" : "closing";
 
     return createPortal(
         <div
             className={styles.overlay}
+            data-state={stateAttr}
             role="dialog"
             aria-modal="true"
             aria-label="Поиск по каталогу"
