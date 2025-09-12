@@ -106,18 +106,22 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                 />
             )}
 
-            {crumbs.map((c) => (
-                <span className={cls.category__crumb} key={c.id}>
-                    <ChevronRightIcon className={cls.category__icon} aria-hidden />
-                    <span
-                        className={cls.category__link}
-                        onClick={() => nav(`/category${c.fullSlug}`)}
-                        title={c.name}
-                    >
-                        {c.name}
+            {crumbs.map((c, i) => {
+                const isLast = i === crumbs.length - 1;
+                return (
+                    <span className={cls.category__crumb} key={c.id}>
+                        <ChevronRightIcon className={cls.category__icon} aria-hidden />
+                        <span
+                            className={cls.category__link}
+                            aria-current={isLast ? "page" : undefined}
+                            onClick={() => nav(`/category${c.fullSlug}`)}
+                            title={c.name}
+                        >
+                            {c.name}
+                        </span>
                     </span>
-                </span>
-            ))}
+                );
+            })}
         </nav>
     );
 };

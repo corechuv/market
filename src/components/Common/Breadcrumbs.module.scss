@@ -38,6 +38,12 @@
   }
 }
 
+.category__link[aria-current="page"] {
+  opacity: .8;
+  pointer-events: none;
+  cursor: default;
+}
+
 .category__icon {
   width: 16px;
   height: 16px;
