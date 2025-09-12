@@ -80,12 +80,16 @@
 }
 
 .clearBtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     appearance: none;
     border: none;
     background: transparent;
     color: var(--text-secondary);
     font-size: 0.9rem;
-    padding: 0 0.25rem;
+    padding: 0;
+    cursor: pointer;
 }
 
 .content {

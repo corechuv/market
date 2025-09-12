@@ -12,13 +12,14 @@ import SearchIcon from "../Icons/SearchIcon";
 import { createPortal } from "react-dom";
 import { getProducts } from "../../services/productService";
 import CloseIcon from "../Icons/CloseIcon";
+import SearchInput from "../UI/SearchInput";
 
 export interface SearchItem {
     id: string;
     label: string;
 }
 
-interface MobileSearchModalProps {
+interface MobileSearchProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
@@ -49,7 +50,7 @@ function useIsMobile(breakpoint = 768) {
     return isMobile;
 }
 
-const MobileSearchModal: React.FC<MobileSearchModalProps> = ({
+const MobileSearch: React.FC<MobileSearchProps> = ({
     open,
     onOpenChange,
 }) => {
@@ -168,34 +169,21 @@ const MobileSearchModal: React.FC<MobileSearchModalProps> = ({
                     <CloseIcon className={styles.backBtn__icon} />
                 </button>
 
-                <div className={styles.inputWrap}>
-                    <SearchIcon className={styles.searchIcon} />
-                    <input
-                        ref={inputRef}
-                        className={styles.input}
-                        type="search"
-                        inputMode="search"
-                        placeholder="Поиск товаров"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        onKeyDown={onKeyDown}
-                        autoCapitalize="off"
-                        autoComplete="off"
-                        autoCorrect="off"
-                        aria-label="Строка поиска"
-                        aria-controls={listboxId}
-                    />
-                    {query && (
-                        <button
-                            className={styles.clearBtn}
-                            onClick={() => setQuery("")}
-                            type="button"
-                            aria-label="Очистить запрос"
-                        >
-                            Очистить
-                        </button>
-                    )}
-                </div>
+                <SearchInput
+                    ref={inputRef}
+                    value={query}
+                    onChange={setQuery}
+                    placeholder="Поиск товаров"
+                    aria-label="Строка поиска"
+                    aria-controls={listboxId}
+                    wrapperClassName={styles.inputWrap}
+                    inputClassName={styles.input}
+                    clearButtonClassName={styles.clearBtn}
+                    leftIcon={<SearchIcon className={styles.searchIcon} />}
+                    onEnter={() => results[0] && onSelect(results[0])}
+                    onEscape={close}
+                    onKeyDown={onKeyDown}
+                />
             </div>
 
             <div className={styles.content}>
@@ -242,4 +230,4 @@ const MobileSearchModal: React.FC<MobileSearchModalProps> = ({
     );
 };
 
-export default MobileSearchModal;
+export default MobileSearch;
