@@ -551,6 +551,13 @@ $gap-sm: 12px;
     font-size: 14px;
     font-weight: 300;
 
+    li {
+        a {
+            font-weight: 300;
+            color: var(--color-link-primary);
+        }
+    }
+
     @media screen and (max-width: 640px) {
         flex-direction: column;
         gap: 6px;

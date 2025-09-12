@@ -227,9 +227,14 @@ const CheckoutPage: React.FC = () => {
                     © {new Date().getFullYear()} dashedo.com
                 </div>
                 <ul>
-                    <li>Политика возврата</li>
-                    <li>Условия обслуживания</li>
-                    <li>Конфиденциальность</li>
+                    <li>
+                        <a href="/">Политика возврата</a>
+                    </li>
+                    <li>
+                        <a href="/">Условия обслуживания</a></li>
+                    <li>
+                        <a href="/">Конфиденциальность</a>
+                    </li>
                 </ul>
             </footer>
         </div>

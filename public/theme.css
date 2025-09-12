@@ -20,6 +20,8 @@ body[data-theme='light'] {
   --color-text-primary: #374151;
   --color-text-secondary: #1f1f1f;
 
+  --color-link-primary: #414855;
+
   --border: #c4c4c4;
   --border-input: #cccccc;
 
@@ -121,6 +123,8 @@ body[data-theme='dark'] {
   --text-secondary: #6b7280;
   --color-text-primary: #374151;
   --color-text-secondary: #4a545d;
+
+  --color-link-primary: #414855;
 
   --border: #2f2f2f;
   --border-input: #2f2f2f;
