@@ -161,7 +161,9 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                     )}
 
                     <div className={cls.header__navigation}>
-                        <CookieSettingsButton label="" />
+                        {!isMobile && (
+                            <CookieSettingsButton label="" />
+                        )}
                         {isMobile && (
                             <button
                                 className={cls.header__navButton}
