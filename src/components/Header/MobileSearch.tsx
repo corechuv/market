@@ -73,6 +73,8 @@ const MobileSearch: React.FC<MobileSearchProps> = ({
     const inputRef = useRef<HTMLInputElement>(null);
     const listboxId = useId();
 
+    const wasOpenRef = useRef(false);
+
     const results = useMemo(() => {
         const q = query.trim().toLowerCase();
         if (!q) return [];
@@ -110,8 +112,6 @@ const MobileSearch: React.FC<MobileSearchProps> = ({
             window.history.back();
         }
     }, [canUseDOM, open, onOpenChange]);
-
-
 
     const onSelect = useCallback((item: SearchItem) => {
         // 1) снимаем маркер, чтобы дальнейшее закрытие не дергало history.back()
@@ -168,26 +168,39 @@ const MobileSearch: React.FC<MobileSearchProps> = ({
         return () => window.removeEventListener("popstate", onPop);
     }, [open, isMobile, onOpenChange, canUseDOM]);
 
-    // Если нас закрыли извне (open -> false), проигрываем выход и через EXIT_MS размонтируем.
     useEffect(() => {
         if (!canUseDOM || !isMobile) return;
+
+        const url = new URL(window.location.href);
+        const hasMarker = url.searchParams.get("search") === "1";
+
         if (open) {
+            // Модалка реально открыта в этой сессии
+            wasOpenRef.current = true;
             setIsExiting(false);
             return;
         }
 
-        // запуск выхода
-        setIsExiting(true);
-
-        // если URL всё ещё содержит наш маркер — вернёмся назад (случай внешнего закрытия)
-        const url = new URL(window.location.href);
-        if (url.searchParams.get("search") === "1") {
-            window.history.back();
+        // Здесь open === false
+        if (wasOpenRef.current) {
+            // Закрываем после реального открытия — играем выходную анимацию
+            setIsExiting(true);
+            if (hasMarker) window.history.back();
+            const t = window.setTimeout(() => setIsExiting(false), EXIT_MS);
+            return () => window.clearTimeout(t);
+        } else {
+            // Первый маунт/перезагрузка: модалка не открывалась => НИКАКОЙ анимации
+            if (hasMarker) {
+                url.searchParams.delete("search");
+                window.history.replaceState(
+                    { ...history.state, searchModal: undefined },
+                    "",
+                    url.toString()
+                );
+            }
+            setIsExiting(false);
         }
-
-        const t = window.setTimeout(() => setIsExiting(false), EXIT_MS);
-        return () => window.clearTimeout(t);
-    }, [open, isMobile, canUseDOM]);
+    }, [open, isMobile, canUseDOM, EXIT_MS]);
 
     // Не рендерим на сервере; на десктопе рендерим только пока проигрывается выход
     if (!canUseDOM || (!isMobile && !isExiting) || (!open && !isExiting)) return null;
