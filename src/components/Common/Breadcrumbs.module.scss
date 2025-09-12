@@ -50,6 +50,8 @@
     cursor: pointer;
     flex: 0 0 auto;
     margin-right: 2px;
+    fill: var(--color-svg);
+    color: var(--color-svg);
 }
 
 /* 📱 мобильные: разрешаем перенос текста и ломаем длинные слова */

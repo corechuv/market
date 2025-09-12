@@ -99,6 +99,9 @@ body[data-theme='light'] {
 
   --color-toggle-accent: #22c55e;
 
+  /* Breadcrumbs */
+  --color-svg: #2c2c2c;
+
   color-scheme: light;
 }
 
@@ -196,6 +199,9 @@ body[data-theme='dark'] {
   --border-toggle: #2f2f2f;
 
   --color-toggle-accent: #22c55e;
+
+  /* Breadcrumbs */
+  --color-svg: #4b4b4b;
 
   color-scheme: dark;
 }
