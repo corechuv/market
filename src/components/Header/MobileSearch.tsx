@@ -13,6 +13,7 @@ import { createPortal } from "react-dom";
 import { getProducts } from "../../services/productService";
 import CloseIcon from "../Icons/CloseIcon";
 import SearchInput from "../UI/SearchInput";
+import { useNavigate } from "react-router-dom";
 
 export interface SearchItem {
     id: string;
@@ -54,6 +55,7 @@ const MobileSearch: React.FC<MobileSearchProps> = ({
     open,
     onOpenChange,
 }) => {
+    const navigate = useNavigate();
     const isMobile = useIsMobile(768);
     const canUseDOM =
         typeof window !== "undefined" && typeof document !== "undefined";
@@ -83,32 +85,45 @@ const MobileSearch: React.FC<MobileSearchProps> = ({
     const EXIT_MS = 300; // должно быть ≥ суммарной длительности CSS-анимаций закрытия
     const [isExiting, setIsExiting] = useState(false);
 
+    // helper: убираем маркер модалки без движения по истории
+    function removeSearchMarker() {
+        const url = new URL(window.location.href);
+        if (url.searchParams.get("search") === "1") {
+            url.searchParams.delete("search");
+            window.history.replaceState(
+                { ...history.state, searchModal: undefined },
+                "",
+                url.toString()
+            );
+        }
+    }
+
     const close = useCallback(() => {
-        if (!canUseDOM) return;
-        if (!open) return;
+        if (!canUseDOM || !open) return;
 
         setIsExiting(true);
         onOpenChange(false);
 
-        // Откатываем историю, если мы её пушили при открытии
+        // откатываем только если маркер ещё на месте
         const url = new URL(window.location.href);
         if (url.searchParams.get("search") === "1") {
             window.history.back();
         }
     }, [canUseDOM, open, onOpenChange]);
 
-    const onSelect = useCallback(
-        (item: SearchItem) => {
-            if (!canUseDOM) return;
-            window.dispatchEvent(
-                new CustomEvent("app:navigate", {
-                    detail: { to: `/product/${item.id}` },
-                })
-            );
-            close();
-        },
-        [canUseDOM, close]
-    );
+
+
+    const onSelect = useCallback((item: SearchItem) => {
+        // 1) снимаем маркер, чтобы дальнейшее закрытие не дергало history.back()
+        removeSearchMarker();
+
+        // 2) нормальный переход роутером
+        navigate(`/product/${item.id}`);
+
+        // 3) закрываем модалку с анимацией
+        onOpenChange(false);
+        setIsExiting(true);
+    }, [navigate, onOpenChange]);
 
     const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
         if (e.key === "Escape") close();

@@ -1,4 +1,4 @@
-// Search.tsx
+// src/components/Header/Search.tsx
 import React, { useEffect, useRef, useState, type ChangeEvent } from "react";
 import styles from "./Search.module.scss";
 import SearchIcon from "../Icons/SearchIcon";
