@@ -11,126 +11,126 @@ $bp-md: 768px;
 $bp-lg: 1024px;
 
 .listContainer {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    width: 100%;
-    max-width: 100%;
-    margin: 0 auto;
-    margin-bottom: 1.5rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  margin-bottom: 1.5rem;
 }
 
 .title {
-    font-size: 1.8rem;
-    margin: 0;
-    color: var(--text);
+  font-size: 1.8rem;
+  margin: 0;
+  color: var(--text);
 }
 
 .carousel {
-    position: relative;
-    display: flex;
-    align-items: center;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .icon {
-    width: 2rem;
-    height: 2rem;
-    color: var(--text);
-    pointer-events: none;
+  width: 2rem;
+  height: 2rem;
+  color: var(--text);
+  pointer-events: none;
 }
 
 /* Scrollable viewport */
 .trackWrapper {
-    overflow-x: auto; // 🔑 enable horizontal scroll
-    overflow-y: hidden;
-    flex: 1 1 auto;
-    scroll-behavior: smooth; // smooth for manual swipe too
-    -webkit-overflow-scrolling: touch;
+  overflow-x: auto; // 🔑 enable horizontal scroll
+  overflow-y: hidden;
+  flex: 1 1 auto;
+  scroll-behavior: smooth; // smooth for manual swipe too
+  -webkit-overflow-scrolling: touch;
 
-    /* Optional: hide native scrollbar */
-    scrollbar-width: none; // Firefox
+  /* Optional: hide native scrollbar */
+  scrollbar-width: none; // Firefox
 
-    &::-webkit-scrollbar {
-        display: none; // Chrome / Safari / Edge
-    }
+  &::-webkit-scrollbar {
+    display: none; // Chrome / Safari / Edge
+  }
 }
 
 .track {
-    display: flex;
-    gap: 1.8rem;
-    scroll-snap-type: x mandatory;
+  display: flex;
+  gap: 1.8rem;
+  scroll-snap-type: x mandatory;
 }
 
 .item {
-    flex: 0 0 auto;
-    width: clamp(230px, 25%, 250px);
-    scroll-snap-align: start;
-    color: inherit;
-    text-decoration: none;
+  flex: 0 0 auto;
+  width: clamp(230px, 25%, 250px);
+  scroll-snap-align: start;
+  color: inherit;
+  text-decoration: none;
 }
 
 .image {
-    display: block;
-    width: 100%;
-    height: auto;
-    object-fit: cover;
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
 }
 
 .name {
-    display: block;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.2;
-    margin-top: 0.8rem;
-    margin-bottom: 0.25rem;
-    color: var(--text);
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-top: 0.8rem;
+  margin-bottom: 0.25rem;
+  color: var(--text);
 }
 
 .price {
-    font-weight: 300;
-    font-size: 20px;
-    margin-top: 4px;
-    margin-bottom: 10px;
-    color: var(--text);
+  font-weight: 300;
+  font-size: 20px;
+  margin-top: 4px;
+  margin-bottom: 10px;
+  color: var(--text);
 }
 
 .dotControls {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .dot {
-    width: 8px;
-    height: 8px;
-    border: 1px dashed var(--border);
-    background-color: var(--bg-dot);
-    border-radius: 50%;
-    margin: 0 4px;
-    display: flex;
+  width: 8px;
+  height: 8px;
+  border: 1px dashed var(--border);
+  background-color: var(--bg-dot);
+  border-radius: 50%;
+  margin: 0 4px;
+  display: flex;
 }
 
 .controls {
 
-    &__btnIcon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 2.5rem;
-        height: 2.5rem;
-        border-radius: 50%;
-        border: none;
-        background-color: transparent;
-        cursor: pointer;
+  &__btnIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
 
-        svg {
-            width: 1.5rem;
-            height: 1.5rem;
-            color: var(--text);
-        }
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      color: var(--text);
     }
+  }
 }
 
 /* New */
@@ -226,123 +226,123 @@ $bp-lg: 1024px;
   font-weight: 300;
   color: var(--color-text-primary);
 
-    @media (max-width: $bp-md) {
-      font-size: 12px;
-    }
+  @media (max-width: $bp-md) {
+    font-size: 12px;
+  }
 }
 
 .productDelivery {
   font-size: 14px;
   font-weight: 300;
 
-    @media (max-width: $bp-md) {
-      font-size: 12px;
-    }
+  @media (max-width: $bp-md) {
+    font-size: 12px;
+  }
 }
 
 
 .productMeta {
 
-    &__rating {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 14px;
-        color: var(--text);
-        margin-bottom: 10px;
-    }
+  &__rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
 
-    &__ratingValue {
-        font-weight: 300;
-        color: var(--text);
-    }
+  &__ratingValue {
+    font-weight: 300;
+    color: var(--text);
+  }
 
-    &__ratingCount {
-        font-weight: 300;
-        color: var(--text);
-    }
+  &__ratingCount {
+    font-weight: 300;
+    color: var(--text);
+  }
 
-    @media screen and (max-width: 768px) {
-        margin-top: 10px;
-        gap: 15px;
-    }
+  @media screen and (max-width: 768px) {
+    margin-top: 10px;
+    gap: 15px;
+  }
 
 }
 
 .meta__energyClass {
-    position: absolute;
-    bottom: 1rem;
-    right: 1rem;
-    display: flex;
-    align-items: center;
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
 }
 
 .price {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .priceRow {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .priceCompareAt {
-    font-size: 17px;
-    font-weight: 300;
-    color: var(--text);
-    position: relative;
-    display: inline-block;
-    /* важно, чтобы псевдо-элемент растягивался по ширине текста */
-    padding: 0 0.1em;
-    /* чуть шире, чтобы линия выходила за края текста на волосок */
+  font-size: 17px;
+  font-weight: 300;
+  color: var(--text);
+  position: relative;
+  display: inline-block;
+  /* важно, чтобы псевдо-элемент растягивался по ширине текста */
+  padding: 0 0.1em;
+  /* чуть шире, чтобы линия выходила за края текста на волосок */
 
-    /* тонкая диагональная линия */
-    &::after {
-        content: "";
-        position: absolute;
-        left: 2px;
-        right: 2px;
-        top: 50%;
-        height: 1px;
-        border-radius: 20px;
-        /* толщина линии: масштабируется с шрифтом */
-        background: var(--text);
-        /* цвет линии = цвет текста */
-        transform: translateY(-50%) rotate(-4deg);
-        transform-origin: 50% 50%;
-        pointer-events: none;
-    }
+  /* тонкая диагональная линия */
+  &::after {
+    content: "";
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    top: 50%;
+    height: 1px;
+    border-radius: 20px;
+    /* толщина линии: масштабируется с шрифтом */
+    background: var(--text);
+    /* цвет линии = цвет текста */
+    transform: translateY(-50%) rotate(-4deg);
+    transform-origin: 50% 50%;
+    pointer-events: none;
+  }
 
-    @media (max-width: $bp-md) {
-        font-size: 15px;
-    }
+  @media (max-width: $bp-md) {
+    font-size: 15px;
+  }
 }
 
 .badgeDiscount {
-    font-size: 12px;
-    font-weight: 500;
-    color: black;
-    background-color: #f8ffaa;
-    height: 26px;
-    padding: 0 10px;
-    border-radius: 14px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: black;
+  background-color: #dbff6d;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .imageWrap {
-    position: relative;
-    display: flex;
+  position: relative;
+  display: flex;
 }
 
 .imagePlaceholder {
-    background: #f2f2f2;
-    width: 100%;
-    aspect-ratio: 1/1;
+  background: #f2f2f2;
+  width: 100%;
+  aspect-ratio: 1/1;
 }
 
 .metaLink {

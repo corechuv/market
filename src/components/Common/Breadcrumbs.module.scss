@@ -1,22 +1,27 @@
 .category {
+    width: 100%;
     display: flex;
-    flex-direction: row;
     align-items: center;
     gap: 12px;
     font-size: 14px;
     color: var(--text);
-    flex-wrap: wrap;
-    /* ✅ разрешаем перенос на мобильных и узких экранах */
+
+    /* ❗ всегда в одну строку */
+    flex-wrap: nowrap;
+    white-space: nowrap;
+
+    /* по умолчанию без скролла (десктоп) */
+    overflow-x: hidden;
+    overflow-y: visible;
 }
 
-/* один «кусочек» крошки: стрелка + текст вместе */
 .category__crumb {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     min-width: 0;
-    /* важно для ellipsis внутри flex */
-    flex: 0 1 auto;
+    flex: 0 0 auto;
+    /* важно для горизонтального скролла */
 }
 
 .category__link {
@@ -24,9 +29,9 @@
     cursor: pointer;
     text-decoration: none;
     min-width: 0;
-    /* позволяет сжиматься */
     white-space: nowrap;
-    /* десктоп: в одну строку */
+
+    /* десктоп: если не помещается — троеточие */
     overflow: hidden;
     text-overflow: ellipsis;
 
@@ -41,7 +46,6 @@
     color: var(--bg-arrow);
     flex: 0 0 auto;
     stroke-width: 1.5;
-    /* иконка не растягивается */
 }
 
 .category__icon--home {
@@ -54,25 +58,48 @@
     color: var(--color-svg);
 }
 
-/* 📱 мобильные: разрешаем перенос текста и ломаем длинные слова */
-@media (max-width: 600px) {
+/* 📱 < 756px: разрешаем горизонтальный скролл вместо переноса */
+@media (max-width: 756px) {
     .category {
-        gap: 6px;
+        gap: 8px;
+
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+
+        /* мягкая подсказка, что есть скролл (фейд по краям) */
+        mask-image: linear-gradient(to right,
+                transparent 0,
+                black 16px,
+                black calc(100% - 16px),
+                transparent 100%);
+        /* Safari */
+        -webkit-mask-image: linear-gradient(to right,
+                transparent 0,
+                black 16px,
+                black calc(100% - 16px),
+                transparent 100%);
     }
 
-    .category__crumb {
-        max-width: 100%;
-    }
-
+    /* на мобиле показываем полный текст, т.к. можно проскроллить */
     .category__link {
-        white-space: normal;
-        /* можно в несколько строк */
         overflow: visible;
         text-overflow: clip;
-        word-break: break-word;
-        /* ломаем очень длинные слова/slug'и */
-        overflow-wrap: anywhere;
-        line-height: 1.25;
+    }
+
+    /* необязательно, но приятно: компактнее текст на очень узких экранах */
+    .category__crumb {
+        max-width: none;
+    }
+
+    /* скрыть скроллбар там, где это уместно */
+    .category {
+        scrollbar-width: none;
+        /* Firefox */
+    }
+
+    .category::-webkit-scrollbar {
+        display: none;
+        /* Chrome/Safari */
     }
 }
 
