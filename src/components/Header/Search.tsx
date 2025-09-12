@@ -85,6 +85,14 @@ const Search: React.FC<SearchProps> = ({ data, limit = 10, onSelect }) => {
 
       {open && results.length > 0 && (
         <div className={styles.panel}>
+          <div className={styles.footer}>
+            <span className={styles.count}>
+              {results.length} result{results.length > 1 ? "s" : ""}
+            </span>
+            <a href={`/search?q=${encodeURIComponent(query)}`} className={styles.footer__link}>
+              See all results
+            </a>
+          </div>
           <ul className={styles.dropdown} role="listbox">
             {results.map((item) => (
               <li
@@ -98,14 +106,6 @@ const Search: React.FC<SearchProps> = ({ data, limit = 10, onSelect }) => {
               </li>
             ))}
           </ul>
-          <div className={styles.footer}>
-            <span className={styles.count}>
-              {results.length} result{results.length > 1 ? "s" : ""}
-            </span>
-            <a href={`/search?q=${encodeURIComponent(query)}`} className={styles.footer__link}>
-              See all results
-            </a>
-          </div>
         </div>
       )}
     </div>

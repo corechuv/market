@@ -74,7 +74,7 @@
     background: var(--bg);
     border-radius: 6px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-    padding: 0.25rem 0;
+    padding: 0.5rem 0;
     z-index: 100;
 }
 
@@ -84,8 +84,8 @@
 
 .item {
     color: var(--text);
-    font-size: 0.9rem;
-    padding: 0.5rem 0.75rem;
+    font-size: 0.95rem;
+    padding: 0.75rem 1.2rem;
     cursor: pointer;
     transition: background 80ms;
 
@@ -96,18 +96,16 @@
 }
 
 .footer {
-    padding: 0.5rem 0;
-    margin: 0 0.75rem;
-    margin-top: 0.3rem;
-    border-top: 1px dashed var(--border);
+    font-size: 0.85rem;
+    padding: 0.25rem 1.2rem 0.5rem;
     font-size: 0.875rem;
     color: var(--text-secondary);
     display: flex;
     justify-content: space-between;
 
     &__link {
-        font-weight: 400;
-        color: var(--text-secondary);
+        font-weight: 300;
+        color: var(--color-link-primary);
         text-decoration: none;
         transition: color 0.2s;
 
