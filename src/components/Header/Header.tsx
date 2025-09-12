@@ -174,12 +174,12 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                         <button className={cls.header__navButton} aria-label="Account" onClick={() => nav("/auth")}>
                             <AccountIcon strokeWidth={1.5} />
                         </button>
+                        <button className={cls.header__navButton} aria-label="Wishlist" onClick={() => nav("/wishlist")}>
+                            <HeartIcon strokeWidth={1.5} />
+                        </button>
                         <button className={cls.header__navButton} aria-label="Cart" onClick={() => nav("/checkout")}>
                             <BagIcon strokeWidth={1.5} />
                             <CounterBadge count={cartCount} title={`In cart: ${cartCount}`} />
-                        </button>
-                        <button className={cls.header__navButton} aria-label="Wishlist" onClick={() => nav("/wishlist")}>
-                            <HeartIcon strokeWidth={1.5} />
                         </button>
                     </div>
                 </div>
