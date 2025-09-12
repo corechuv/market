@@ -105,6 +105,13 @@ export default function Home() {
                     categories={demo}
                     onSelect={(cat) => console.log("Выбрано:", cat)}
                 />
+
+                <ProductCarouselRich label="Best Products" products={products}
+                    visibleItems={4}
+                    onItemClick={(p) => nav(`/product/${p.id}`)}
+                // или, если хотите <a href> вместо onClick:
+                // itemLinkBuilder={(p) => `/product/${p.id}`}
+                />
                 <div className={stylesBanner.bannerGrid}>
                     {bannerList.map((banner) => (
                         <div key={banner.id} className={stylesBanner.bannerCard}>

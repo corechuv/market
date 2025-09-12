@@ -18,7 +18,7 @@ $bp-lg: 1024px;
     width: 100%;
     max-width: 100%;
     margin: 0 auto;
-    padding: 2rem 0; // for better spacing on smaller screens
+    margin-bottom: 1.5rem;
 }
 
 .title {
@@ -100,7 +100,6 @@ $bp-lg: 1024px;
     flex-direction: row;
     align-items: center;
     gap: 0.5rem;
-    margin-top: 1rem;
 }
 
 .dot {
