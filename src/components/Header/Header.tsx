@@ -160,9 +160,8 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                         </>
                     )}
 
-                    <CookieSettingsButton label="" />
-
                     <div className={cls.header__navigation}>
+                        <CookieSettingsButton label="" />
                         {isMobile && (
                             <button
                                 className={cls.header__navButton}
