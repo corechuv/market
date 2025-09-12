@@ -1,98 +1,173 @@
-// 6.1) components/header/MobileSearch.tsx
-import React, { useEffect, useMemo, useRef, useState } from "react";
+// components/header/MobileSearch.tsx
+import React, {
+    useCallback,
+    useEffect,
+    useId,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import styles from "./MobileSearch.module.scss";
 import SearchIcon from "../Icons/SearchIcon";
 import { createPortal } from "react-dom";
 import { getProducts } from "../../services/productService";
 import CloseIcon from "../Icons/CloseIcon";
 
-export interface SearchItem { id: string; label: string; }
+export interface SearchItem {
+    id: string;
+    label: string;
+}
 
 interface MobileSearchModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
 
+/** Определяет мобильный вьюпорт; безопасно для SSR. */
 function useIsMobile(breakpoint = 768) {
     const [isMobile, setIsMobile] = useState(false);
+
     useEffect(() => {
+        if (typeof window === "undefined") return;
+
         const mql = window.matchMedia(`(max-width:${breakpoint}px)`);
-        const onChange = (e: MediaQueryListEvent | MediaQueryList) =>
-            setIsMobile("matches" in e ? e.matches : (e as MediaQueryList).matches);
+        const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+
         setIsMobile(mql.matches);
-        mql.addEventListener ? mql.addEventListener("change", onChange as any) : mql.addListener(onChange as any);
-        return () => {
-            mql.removeEventListener ? mql.removeEventListener("change", onChange as any) : mql.removeListener(onChange as any);
-        };
+
+        if ("addEventListener" in mql) {
+            mql.addEventListener("change", handler);
+            return () => mql.removeEventListener("change", handler);
+        } else {
+            // @ts-expect-error: для старых браузеров
+            mql.addListener(handler);
+            // @ts-expect-error: для старых браузеров
+            return () => mql.removeListener(handler);
+        }
     }, [breakpoint]);
+
     return isMobile;
 }
 
-const MobileSearchModal: React.FC<MobileSearchModalProps> = ({ open, onOpenChange }) => {
+const MobileSearchModal: React.FC<MobileSearchModalProps> = ({
+    open,
+    onOpenChange,
+}) => {
     const isMobile = useIsMobile(768);
-    const items: SearchItem[] = useMemo(() => getProducts().map((p: any) => ({ id: String(p.id), label: String(p.name) })), []);
+    const canUseDOM =
+        typeof window !== "undefined" && typeof document !== "undefined";
+
+    const items: SearchItem[] = useMemo(
+        () =>
+            getProducts().map((p: { id: string | number; name: string }) => ({
+                id: String(p.id),
+                label: String(p.name),
+            })),
+        []
+    );
+
     const [query, setQuery] = useState("");
-    const [results, setResults] = useState<SearchItem[]>([]);
     const inputRef = useRef<HTMLInputElement>(null);
+    const listboxId = useId();
 
-    // Блокируем скролл и фокусируем инпут при открытии
-    useEffect(() => {
-        if (!open) return;
-        const prev = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-        const t = setTimeout(() => inputRef.current?.focus(), 0);
-        return () => { document.body.style.overflow = prev; clearTimeout(t); };
-    }, [open]);
-
-    // Синхронизация с кнопкой «назад» в браузере
-    useEffect(() => {
-        if (!open) return;
-        const url = new URL(window.location.href);
-        url.searchParams.set("search", "1");
-        const state = { searchModal: true };
-        window.history.pushState(state, "", url.toString());
-        const onPop = () => onOpenChange(false);
-        window.addEventListener("popstate", onPop);
-        return () => window.removeEventListener("popstate", onPop);
-    }, [open, onOpenChange]);
-
-    // Обновление результатов
-    useEffect(() => {
+    const results = useMemo(() => {
         const q = query.trim().toLowerCase();
-        if (!q) { setResults([]); return; }
-        setResults(items.filter(i => i.label.toLowerCase().includes(q)).slice(0, 50));
+        if (!q) return [];
+        return items
+            .filter((i) => i.label.toLowerCase().includes(q))
+            .slice(0, 50);
     }, [query, items]);
 
-    const close = () => {
+    const close = useCallback(() => {
+        if (!canUseDOM) return;
         if (!open) return;
+
         onOpenChange(false);
+
+        // Откатываем историю, если мы её пушили при открытии
         const url = new URL(window.location.href);
         if (url.searchParams.get("search") === "1") {
-            // вернёмся на предыдущую запись истории (которую добавили при открытии)
             window.history.back();
         }
-    };
+    }, [canUseDOM, open, onOpenChange]);
 
-    const onSelect = (item: SearchItem) => {
-        // Навигацию на страницу товара оставьте в месте, где используете модалку,
-        // либо импортируйте useNavigate здесь. Чтобы модалка была переиспользуемой,
-        // просто диспатчим кастомное событие.
-        window.dispatchEvent(new CustomEvent("app:navigate", { detail: { to: `/product/${item.id}` } }));
-        close();
-    };
+    const onSelect = useCallback(
+        (item: SearchItem) => {
+            if (!canUseDOM) return;
+            window.dispatchEvent(
+                new CustomEvent("app:navigate", {
+                    detail: { to: `/product/${item.id}` },
+                })
+            );
+            close();
+        },
+        [canUseDOM, close]
+    );
 
     const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
         if (e.key === "Escape") close();
         if (e.key === "Enter" && results[0]) onSelect(results[0]);
     };
 
-    if (!open) return null;
+    // Автозакрытие, если ушли с мобилки на десктоп
+    useEffect(() => {
+        if (open && !isMobile) close();
+    }, [isMobile, open, close]);
+
+    // Блокируем скролл и фокусируем инпут при открытии
+    useEffect(() => {
+        if (!canUseDOM) return;
+        if (!open || !isMobile) return;
+
+        const prevOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        const t = window.setTimeout(() => inputRef.current?.focus(), 0);
+
+        return () => {
+            document.body.style.overflow = prevOverflow;
+            window.clearTimeout(t);
+        };
+    }, [open, isMobile, canUseDOM]);
+
+    // Синхронизация с кнопкой «назад» в браузере
+    useEffect(() => {
+        if (!canUseDOM) return;
+        if (!open || !isMobile) return;
+
+        const url = new URL(window.location.href);
+        url.searchParams.set("search", "1");
+        const state = { searchModal: true as const };
+        window.history.pushState(state, "", url.toString());
+
+        const onPop = () => onOpenChange(false);
+        window.addEventListener("popstate", onPop);
+
+        return () => window.removeEventListener("popstate", onPop);
+    }, [open, isMobile, onOpenChange, canUseDOM]);
+
+    // Не рендерим на сервере, на десктопе и когда закрыто
+    if (!canUseDOM || !open || !isMobile) return null;
+
     return createPortal(
-        <div className={styles.overlay} role="dialog" aria-modal="true" aria-label="Поиск по каталогу" onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
+        <div
+            className={styles.overlay}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Поиск по каталогу"
+            onMouseDown={(e) => {
+                if (e.target === e.currentTarget) close();
+            }}
+        >
             <div className={styles.topbar}>
-                <button className={styles.backBtn} aria-label="Закрыть" onClick={close}>
+                <button
+                    className={styles.backBtn}
+                    aria-label="Закрыть"
+                    onClick={close}
+                    type="button"
+                >
                     <CloseIcon className={styles.backBtn__icon} />
                 </button>
+
                 <div className={styles.inputWrap}>
                     <SearchIcon className={styles.searchIcon} />
                     <input
@@ -108,21 +183,53 @@ const MobileSearchModal: React.FC<MobileSearchModalProps> = ({ open, onOpenChang
                         autoComplete="off"
                         autoCorrect="off"
                         aria-label="Строка поиска"
+                        aria-controls={listboxId}
                     />
-                    {query && <button className={styles.clearBtn} onClick={() => setQuery("")}>Очистить</button>}
+                    {query && (
+                        <button
+                            className={styles.clearBtn}
+                            onClick={() => setQuery("")}
+                            type="button"
+                            aria-label="Очистить запрос"
+                        >
+                            Очистить
+                        </button>
+                    )}
                 </div>
             </div>
 
             <div className={styles.content}>
-                {!query && <div className={styles.placeholder}>Начните вводить, чтобы увидеть результаты</div>}
+                {!query && (
+                    <div className={styles.placeholder}>
+                        Начните вводить, чтобы увидеть результаты
+                    </div>
+                )}
+
                 {query && (
                     <>
-                        <div className={styles.count}>{results.length > 0 ? `${results.length} результатов` : "Ничего не найдено"}</div>
-                        <ul className={styles.list} role="listbox">
+                        <div className={styles.count}>
+                            {results.length > 0
+                                ? `${results.length} результатов`
+                                : "Ничего не найдено"}
+                        </div>
+
+                        <ul
+                            id={listboxId}
+                            className={styles.list}
+                            role="listbox"
+                            aria-label="Результаты поиска"
+                        >
                             {results.map((item) => (
-                                <li key={item.id} className={styles.listItem} role="option" tabIndex={0}
+                                <li
+                                    key={item.id}
+                                    className={styles.listItem}
+                                    role="option"
+                                    tabIndex={0}
                                     onClick={() => onSelect(item)}
-                                    onKeyDown={(e) => { if (e.key === "Enter") onSelect(item); }}>
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") onSelect(item);
+                                    }}
+                                >
                                     <span className={styles.itemLabel}>{item.label}</span>
                                 </li>
                             ))}
