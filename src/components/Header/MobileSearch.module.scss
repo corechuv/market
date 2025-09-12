@@ -18,7 +18,7 @@
     flex-direction: column;
     align-items: flex-end;
     width: 100%;
-    gap: 1.5rem;
+    gap: 1.3rem;
     padding: calc(env(safe-area-inset-top) + 0.5rem) 1rem 0.5rem 1rem;
     background: var(--bg);
 }
@@ -103,8 +103,8 @@
 
 .placeholder {
     color: var(--text-secondary);
-    font-size: 0.95rem;
-    padding: 1rem 0.45rem 0.25rem;
+    font-size: 0.85rem;
+    padding: 0.25rem 1.2rem 0.5rem;
 }
 
 .count {
