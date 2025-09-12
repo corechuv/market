@@ -14,6 +14,7 @@ import BagIcon from "../Icons/BagIcon";
 import CounterBadge from "../Common/CounterBadge/CounterBadge";
 import { useCart } from "../../context/CartContext";
 import { CookieSettingsButton } from "../CookieConsent/CookieConsent";
+import MobileSearch from "./MobileSearch";
 
 export interface HeaderProps {
     className?: string;
@@ -45,6 +46,8 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
     const nav = useNavigate();
 
     const [mobileCatalogOpen, setMobileCatalogOpen] = useState(false);
+
+    const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
     // высота шапки -> CSS-переменная
     useLayoutEffect(() => {
@@ -164,7 +167,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                             <button
                                 className={cls.header__navButton}
                                 aria-label="Search"
-                                onClick={() => nav("/search")}
+                                onClick={() => setMobileSearchOpen(true)}
                             >
                                 <SearchIcon strokeWidth={1.5} width={24} />
                             </button>
@@ -188,6 +191,8 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                     mobileDrawerOpen={mobileCatalogOpen}
                     onMobileDrawerOpenChange={setMobileCatalogOpen}
                 />
+
+                <MobileSearch open={mobileSearchOpen} onOpenChange={setMobileSearchOpen} />
             </header>
         </>
     );
