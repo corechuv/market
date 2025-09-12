@@ -33,10 +33,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--color-link-primary);
-
-  &:hover {
-    text-decoration: underline;
-  }
 }
 
 .category__link[aria-current="page"] {
