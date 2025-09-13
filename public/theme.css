@@ -66,10 +66,12 @@ body[data-theme='light'] {
   --color-tab-text: 31 31 31;
 
   /* Options */
-  --option-border-color: #eaeaea;
-  --option-border-color-active: #b3c8d3;
-  /* End Options */
+  --option-border-color: #f2f2f2;
+  --option-border-color-active: #e8edf0;
 
+  --option-bg-color: #f2f2f2;
+  --option-bg-color-active: #e8edf0;
+  /* End Options */
 
   /* ReviewHistogram */
   --fill: #212121;
@@ -170,8 +172,11 @@ body[data-theme='dark'] {
   --color-tab-text: 255 255 255;
 
   /* Options */
-  --option-border-color: #1f1f1f;
-  --option-border-color-active: #546974;
+  --option-border-color: #181a1b;
+  --option-border-color-active: black;
+
+  --option-bg-color: #181a1b;
+  --option-bg-color-active: black;
   /* End Options */
 
   /* ReviewHistogram */

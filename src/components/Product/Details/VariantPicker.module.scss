@@ -36,11 +36,11 @@
 /* Чипы (для нецветовых опций) */
 .chip {
     appearance: none;
-    border: 1px solid var(--option-border-color);
-    background: transparent;
+    border: none;
+    background: var(--option-bg-color);
     color: var(--text);
     padding: .6rem .7rem;
-    border-radius: .6rem;
+    border-radius: .65rem;
     font-size: 1rem;
     font-weight: 400;
     font-family: "Roboto", sans-serif;
@@ -50,8 +50,7 @@
 }
 
 .chipActive {
-    outline: 1px solid var(--option-border-color-active);
-    border-color: transparent;
+    background-color: var(--option-bg-color-active);
 }
 
 .chip:disabled {
@@ -65,17 +64,16 @@
 
 /* Кнопки с превью-картинками (для цветов) */
 .thumbBtn {
-    min-width: 100px;
+    min-width: 80px;
     display: inline-flex;
     flex-direction: column;
     align-items: center;
-    gap: .35rem;
-    padding: .6rem 0.7rem;
+    padding: 0;
     font-family: "Roboto", sans-serif;
     font-weight: 400;
-    background: transparent;
-    border: 1px solid var(--option-border-color);
-    border-radius: .6rem;
+    background: var(--option-bg-color);
+    border: none;
+    border-radius: .65rem;
     cursor: pointer;
     transition: box-shadow .15s ease, transform .05s ease, border-color .15s ease;
 }
@@ -90,14 +88,13 @@
 }
 
 .active {
-    outline: 1px solid var(--option-border-color-active);
-    border-color: transparent;
+    background-color: var(--option-bg-color-active);
 }
 
 .thumb {
-    width: 62px;
-    height: 62px;
-    border-radius: .55rem;
+    width: 74px;
+    height: 74px;
+    border-radius: 10px;
     overflow: hidden;
     background: #fff;
     display: grid;
@@ -125,4 +122,5 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    padding: 8px 0;
 }
