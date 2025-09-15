@@ -7,6 +7,7 @@ import SearchPage from "./pages/Search/SearchPage";
 import ProductsPage from "./pages/Product/ProductsPage";
 import ProductPage from "./pages/Product/ProductPage";
 import CategoryPage from "./pages/Category/CategoryPage";
+import AccountPage from "./pages/Account/AccountPage";
 import AuthPage from "./pages/Auth/AuthPage";
 import "./styles/scrollbar.module.scss";
 
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/product/:productId" element={<ProductPage />} />
           <Route path="/category/*" element={<CategoryPage />} />
+          <Route path="/account" element={<AccountPage />} />
         </Route>
 
         <Route element={<AuthLayout />}>

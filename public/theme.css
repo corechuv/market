@@ -26,8 +26,11 @@ body[data-theme='light'] {
   --border-input: #cccccc;
 
   --red: #df5a91;
+
+  /* UI Buttons */
   --text-button: #ffffff;
   --bg-button: #1f1f1f;
+  /* END UI Buttons */
 
   --bg-transparent: #ffffffc2;
   --bg-hover-item: #f7f7f7;
@@ -75,8 +78,8 @@ body[data-theme='light'] {
 
   /* ReviewHistogram */
   --fill: #212121;
-    --muted: #475569;
-    --track: #e5e7eb;
+  --muted: #475569;
+  --track: #e5e7eb;
   /* End ReviewHistogram */
 
   --text-muted: #6b7280;
@@ -106,6 +109,33 @@ body[data-theme='light'] {
   /* Breadcrumbs */
   --color-svg: #2c2c2c;
 
+
+  /* Buttons UI */
+  --btn-text: #ffffff;
+  --btn-background: #1f1f1f;
+  --btn-border: #1f1f1f;
+
+  --btn-text-primary: #ffffff;
+  --btn-text-secondary: #1f1f1f;
+  --btn-text-ghost: #1f1f1f;
+  --btn-text-link: #1f1f1f;
+
+  --btn-background-primary: #1f1f1f;
+
+  --btn-background-secondary: #f3f3f3;
+  --btn-background-secondary-hover: #f3f3f3;
+
+  --btn-background-danger: #b90000;
+  --btn-background-danger-hover: #b90000;
+
+  --btn-background-ghost: transparent;
+  --btn-background-ghost-hover: #f3f3f3;
+  /* End Buttons UI */
+
+  /* Select UI */
+  --select-option-selected: #0000000d;
+  /* End Select UI */
+
   color-scheme: light;
 }
 
@@ -132,8 +162,11 @@ body[data-theme='dark'] {
   --border-input: #2f2f2f;
 
   --red: #df5a91;
+
+  /* UI Buttons */
   --text-button: #ffffff;
   --bg-button: #000000;
+  /* END UI Buttons */
 
   --bg-transparent: #131313c2;
   --bg-hover-item: #1f1f1f;
@@ -181,8 +214,8 @@ body[data-theme='dark'] {
 
   /* ReviewHistogram */
   --fill: #47597b;
-    --muted: #94a3b8;
-    --track: #1f2937;
+  --muted: #94a3b8;
+  --track: #1f2937;
   /* End ReviewHistogram */
 
   --text-muted: #6b7280;
@@ -211,6 +244,34 @@ body[data-theme='dark'] {
 
   /* Breadcrumbs */
   --color-svg: #4b4b4b;
+
+
+  /* Buttons UI */
+  --btn-text: #ffffff;
+  --btn-background: #000000;
+  --btn-border: #000000;
+
+  --btn-text-primary: white;
+  --btn-text-secondary: white;
+  --btn-text-ghost: white;
+  --btn-text-link: white;
+
+  --btn-background-primary: #000000;
+
+  --btn-background-secondary: #1b1b1b;
+  --btn-background-secondary-hover: #1b1b1b;
+
+  --btn-background-danger: #b90000;
+  --btn-background-danger-hover: #b90000;
+
+  --btn-background-ghost: transparent;
+  --btn-background-ghost-hover: #1b1b1b;
+  /* End Buttons UI */
+
+  /* Select UI */
+  --select-option-selected: #ffffff11;
+  /* End Select UI */
+
 
   color-scheme: dark;
 }

@@ -1,8 +1,9 @@
+// src/components/UI/TextField.tsx
 import React, { useId } from "react";
 import cs from "./TextField.module.scss";
 
 export type TextFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
-  label: string;
+  label?: string;
   hint?: string;
   error?: string;
 };
@@ -22,9 +23,11 @@ export const TextField: React.FC<TextFieldProps> = ({
 
   return (
     <div className={cs.field}>
-      <label className={cs.label} htmlFor={inputId}>
-        {label}
-      </label>
+      {label && (
+        <label className={cs.label} htmlFor={inputId}>
+          {label}
+        </label>
+      )}
       <input
         id={inputId}
         {...props}

@@ -1,0 +1,152 @@
+// src/components/UI/SelectField.module.scss
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.label {
+    font-weight: 400;
+    font-size: 14px;
+}
+
+.root {
+    position: relative;
+    /* Управление шириной кнопки через CSS-переменные */
+    min-width: var(--sf-min-w, 0);
+    max-width: var(--sf-max-w, none);
+}
+
+.control {
+    position: relative;
+    padding: 0 34px 0 14px;
+    /* справа запас под стрелку */
+    height: 43px;
+    width: 100%;
+    text-align: left;
+    font-size: 16px;
+    font-weight: 300;
+    font-family: var(--font);
+    border: none;
+    background: rgba(var(--background-color-input));
+    border-radius: 12px;
+    transition: box-shadow .15s, border-color .15s;
+    outline: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    /* выравнивание по вертикали */
+}
+
+.control:hover {
+    border-color: var(--bd);
+}
+
+.control:focus-visible {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--ring);
+}
+
+.controlError {
+    border-color: var(--error);
+}
+
+.controlDisabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.value {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    /* важно для обрезки внутри flex */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.placeholder {
+    color: var(--muted);
+}
+
+.chevron {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  /* важно: задать полный transform сразу */
+  transform: translateY(-50%) rotate(0deg);
+  transition: transform .2s ease; /* плавный поворот */
+  pointer-events: none;
+  opacity: .7;
+  display: flex;
+}
+
+/* когда раскрыто — крутим стрелку */
+.control[aria-expanded="true"] .chevron {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.listbox {
+    position: absolute;
+    z-index: 20;
+    margin-top: 6px;
+    /* Ширина списка: от ширины кнопки (100%) до заданного максимума */
+    width: max-content;
+    /* тянется по контенту */
+    min-width: var(--sf-dd-min-w, 100%);
+    /* но не уже кнопки */
+    max-width: var(--sf-dd-max-w, 480px);
+    /* и не шире лимита */
+    max-height: 240px;
+    overflow: auto;
+    background: var(--bg);
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.option {
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 300;
+    padding: 8px 12px;
+    cursor: pointer;
+
+    /* Однострочно с многоточием */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* чтобы не прилипать к краям при max-content */
+    min-width: 100%;
+    box-sizing: border-box;
+}
+
+.option:hover {
+    background: var(--bg-hover-item);
+}
+
+.optionFocused {
+    background: var(--bg-hover-item);
+}
+
+.optionSelected {
+    background: var(--select-option-selected);
+}
+
+.optionDisabled {
+    color: var(--muted);
+    cursor: not-allowed;
+}
+
+.hint {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.error {
+    color: var(--error);
+    font-size: 12px;
+    margin-top: 4px;
+}

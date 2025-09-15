@@ -1,3 +1,4 @@
+// src/components/UI/Button.module.scss
 .button {
     display: flex;
     align-items: center;
@@ -9,19 +10,53 @@
     font-size: 19px;
     font-weight: 400;
     font-family: "Roboto", sans-serif;
-    color: var(--text-button);
-    background-color: var(--bg-button);
+    color: var(--btn-text);
+    background-color: var(--btn-background);
     cursor: pointer;
 }
 
 .small {
-    padding: 10px 24px;
+    padding: 0 24px;
+    height: 42px;
 }
 
 .medium {
-    padding: 14px 24px;
+    padding: 0 24px;
+    height: 50px;
 }
 
 .large {
     padding: 14px 24px;
+}
+
+.primary {
+    color: var(--btn-text-primary);
+    background-color: var(--btn-background-primary);
+}
+
+.secondary {
+    color: var(--btn-text-secondary);
+    background-color: var(--btn-background-secondary);
+}
+
+.ghost {
+    color: var(--btn-text-ghost);
+    background-color: transparent;
+
+    &:hover {
+        background-color: var(--btn-background-ghost-hover);
+    }
+}
+
+.danger {
+    background-color: var(--btn-background-danger);
+}
+
+.link {
+    color: var(--btn-text-link);
+    background-color: transparent;
+
+    &:hover {
+        text-decoration: underline;
+    }
 }
