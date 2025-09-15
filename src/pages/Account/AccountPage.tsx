@@ -607,8 +607,8 @@ function ProfileForm({
         </div>
 
         <div className={styles.formActions}>
-          <Button type="submit" variant="primary">Save</Button>
-          <Button type="button" variant="secondary" onClick={() => setForm(profile)} aria-label="Отменить изменения">Canсel</Button>
+          <Button type="submit" variant="primary" size="small">Save</Button>
+          <Button type="button" variant="secondary" size="small" onClick={() => setForm(profile)} aria-label="Отменить изменения">Canсel</Button>
         </div>
       </form>
     </div>
@@ -1152,7 +1152,7 @@ function WishlistSection({
 
         <div style={{ display: "flex", marginTop: 20, justifyContent: "end" }}>
           {wishlist.length > 0 && (
-            <Button className={styles.ghostBtn} onClick={clearAll}>
+            <Button variant="ghost" size="small" onClick={clearAll}>
               Clear all
             </Button>
           )}
@@ -1258,8 +1258,8 @@ function SettingsSection({
             />
           </div>
           <div className={styles.formActions}>
-            <Button type="submit" variant="primary">Save</Button>
-            <Button type="button" variant="secondary" onClick={() => setForm(settings)}>
+            <Button type="submit" size="small" variant="primary">Save</Button>
+            <Button type="button" size="small" variant="secondary" onClick={() => setForm(settings)}>
               Cancel
             </Button>
           </div>
@@ -1298,7 +1298,7 @@ function SettingsSection({
             />
           </div>
           <div className={styles.formActions}>
-            <Button type="submit">Change password</Button>
+            <Button type="submit" size="small">Change password</Button>
           </div>
         </form>
       </div>
