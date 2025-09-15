@@ -19,6 +19,9 @@
     border: 1px dashed var(--border);
     background: transparent;
     overflow: hidden;
+    display: flex;
+    place-items: center;
+    justify-content: center;
     padding: 1px;
 }
 
