@@ -22,9 +22,9 @@
     width: 44px;
     height: 26px;
     border-radius: 999px;
-    background: var(--bg-toggle, #0f172a);
+    background: rgba(var(--background-color-input));
     /* fallback */
-    border: 1px solid var(--border-toggle, #334155);
+    border: none;
     transition: .2s;
 }
 
@@ -37,7 +37,7 @@
     height: 18px;
     transform: translateY(-50%);
     border-radius: 50%;
-    background: #e2e8f0;
+    background: #d0d3d8;
     transition: .2s;
 }
 
