@@ -9,6 +9,7 @@ import { AvatarField } from "../../components/UI/AvatarField";
 import { CheckboxField } from "../../components/UI/CheckboxField";
 import CloseIcon from "../../components/Icons/CloseIcon";
 import PlusIcon from "../../components/Icons/PlusIcon";
+import SwitchField from "../../components/UI/SwitchField";
 
 /**
  * EU-ready Account (React + TSX + SCSS Module)
@@ -1105,21 +1106,23 @@ function SettingsSection({
           }}
         >
           <div className={styles.grid2}>
-            <CheckboxField
-              checked={form.emailNotifications}
-              onChange={(e) => setForm({ ...form, emailNotifications: e.target.checked })}
-              label="Notification по email"
-            />
-            <CheckboxField
-              checked={form.smsNotifications}
-              onChange={(e) => setForm({ ...form, smsNotifications: e.target.checked })}
-              label="SMS-notifications"
-            />
-            <CheckboxField
-              checked={form.marketingOptIn}
-              onChange={(e) => setForm({ ...form, marketingOptIn: e.target.checked })}
-              label="Получать акции и предложения (GDPR согласие)"
-            />
+            <div className={styles.switchList}>
+              <SwitchField
+                label="Notification по email"
+                checked={form.emailNotifications}
+                onChange={(checked) => setForm({ ...form, emailNotifications: checked })}
+              />
+              <SwitchField
+                label="SMS-notifications"
+                checked={form.smsNotifications}
+                onChange={(checked) => setForm({ ...form, smsNotifications: checked })}
+              />
+              <SwitchField
+                label="Получать акции и предложения (GDPR согласие)"
+                checked={form.marketingOptIn}
+                onChange={(checked) => setForm({ ...form, marketingOptIn: checked })}
+              />
+            </div>
 
             <div></div>
 

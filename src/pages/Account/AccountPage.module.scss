@@ -404,6 +404,12 @@
     background: #0f1118;
 }
 
+.switchList {
+    display: flex;
+    flex-direction: column;
+    gap: 35px;
+}
+
 /* Key-value grid */
 .kv {
     display: grid;
