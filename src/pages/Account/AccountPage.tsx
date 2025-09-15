@@ -440,6 +440,105 @@ function ProfileForm({
     return Object.values(next).every((v) => !v);
   }
 
+  // helpers для DOB
+  const pad2 = (n: number | string) => String(n).padStart(2, "0");
+
+  // m: 1..12
+  const daysInMonth = (y: number, m: number) => new Date(y, m, 0).getDate();
+
+  const parseISODate = (iso?: string) => {
+    if (!iso) return { y: "", m: "", d: "" };
+    const [y, m, d] = iso.split("-");
+    return { y: y || "", m: m || "", d: d || "" };
+  };
+
+  const buildISO = (y?: string, m?: string, d?: string) => {
+    if (!y || !m || !d) return "";
+    return `${y}-${pad2(m)}-${pad2(d)}`;
+  };
+
+  function DOBField({
+    label = "Date of birth",
+    value,
+    onChange,
+    minYear = 1900,
+    maxYear = new Date().getFullYear(),
+    namePrefix = "bday",
+  }: {
+    label?: string;
+    value: string;                    // ISO: yyyy-mm-dd или ""
+    onChange: (iso: string) => void;  // в состояние уходит всегда ISO или ""
+    minYear?: number;
+    maxYear?: number;
+    namePrefix?: string;              // чтобы autocomplete не конфликтовал
+  }) {
+    const { y, m, d } = parseISODate(value);
+
+    const daysMax = y && m ? daysInMonth(+y, +m) : 31;
+
+    const dayOptions = Array.from({ length: daysMax }, (_, i) => {
+      const v = pad2(i + 1);
+      return { value: v, label: v };
+    });
+
+    const monthOptions = Array.from({ length: 12 }, (_, i) => {
+      const v = pad2(i + 1);
+      return { value: v, label: v }; // можно подставить локализованные названия месяцев
+    });
+
+    const yearOptions = Array.from({ length: maxYear - minYear + 1 }, (_, i) => {
+      const v = String(maxYear - i); // по убыванию
+      return { value: v, label: v };
+    });
+
+    function commit(next: { y?: string; m?: string; d?: string }) {
+      const ny = next.y ?? y;
+      const nm = next.m ?? m;
+      let nd = next.d ?? d;
+
+      if (ny && nm && nd) {
+        const maxD = daysInMonth(+ny, +nm);
+        const safeD = Math.min(+nd, maxD);
+        onChange(buildISO(ny, nm, String(safeD)));
+      } else {
+        // если что-то не выбрано — очищаем
+        onChange("");
+      }
+    }
+
+    return (
+      <div>
+        <div className={styles.label}>{label}</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+          <SelectField
+            value={d}
+            onChange={(v) => commit({ d: v })}
+            options={dayOptions}
+            placeholder="DD"
+            name={`${namePrefix}-day`}
+            autoComplete="bday-day"
+          />
+          <SelectField
+            value={m}
+            onChange={(v) => commit({ m: v })}
+            options={monthOptions}
+            placeholder="MM"
+            name={`${namePrefix}-month`}
+            autoComplete="bday-month"
+          />
+          <SelectField
+            value={y}
+            onChange={(v) => commit({ y: v })}
+            options={yearOptions}
+            placeholder="YYYY"
+            name={`${namePrefix}-year`}
+            autoComplete="bday-year"
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
@@ -499,15 +598,10 @@ function ProfileForm({
             autoComplete="tel"
           />
 
-          <TextField
+          <DOBField
             label="Date of birth"
-            type="date"
-            className={styles.dateOfBirthBtn}
-            style={{padding: 0}}
             value={form.birthday || ""}
-            /* onChange обязателен, даже для date */
-            onChange={(e) => setForm({ ...form, birthday: e.target.value })}
-            name="bday"
+            onChange={(iso) => setForm({ ...form, birthday: iso })}
           />
 
         </div>

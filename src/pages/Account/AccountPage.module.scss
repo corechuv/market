@@ -193,15 +193,11 @@
 }
 
 .label {
-    display: block;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 400;
+    margin: 0 3px;
     margin-bottom: 6px;
-    color: var(--muted);
-    font-size: 13px;
-}
-
-.dateOfBirthBtn {
-    display: flex;
-    justify-content: center;
 }
 
 .input,

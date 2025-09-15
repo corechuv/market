@@ -22,6 +22,8 @@ export type SelectFieldProps = {
     id?: string;
     className?: string;
     disabled?: boolean;
+    name?: string;               // для сабмита формы
+    autoComplete?: string;       // подсказка для браузера
 
     /** Ширина кнопки-селекта */
     minWidth?: CssSize;           // например: 160 | "12rem"
@@ -48,6 +50,9 @@ export const SelectField: React.FC<SelectFieldProps> = ({
     id,
     className,
     disabled,
+
+    name,
+    autoComplete,
 
     minWidth,
     maxWidth,
@@ -217,6 +222,15 @@ export const SelectField: React.FC<SelectFieldProps> = ({
                 </label>
             )}
 
+            {name && (
+                <input
+                    type="hidden"
+                    name={name}
+                    value={value ?? ""}
+                    autoComplete={autoComplete}
+                />
+            )}
+
             <div className={cs.root} style={vars}>
                 <button
                     ref={btnRef}
@@ -231,7 +245,6 @@ export const SelectField: React.FC<SelectFieldProps> = ({
                     onKeyDown={handleKeyDown}
                     onClick={() => !disabled && setOpen((v) => !v)}
                     disabled={disabled}
-                    // Полный текст подсказкой
                     title={showTitleOnHover ? showLabel : undefined}
                 >
                     <span className={[cs.value, !selected && cs.placeholder].join(" ")}>
