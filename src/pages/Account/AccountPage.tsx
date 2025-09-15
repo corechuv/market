@@ -503,6 +503,7 @@ function ProfileForm({
             label="Date of birth"
             type="date"
             className={styles.dateOfBirthBtn}
+            style={{padding: 0}}
             value={form.birthday || ""}
             /* onChange обязателен, даже для date */
             onChange={(e) => setForm({ ...form, birthday: e.target.value })}
