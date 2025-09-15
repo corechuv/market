@@ -440,7 +440,7 @@ function ProfileForm({
         }}
       >
         <AvatarField
-          label="Аватар"
+          label="Photo"
           value={form.avatar || ""}
           onChange={({ dataUrl }) => setForm((s) => ({ ...s, avatar: dataUrl || "" }))}
           hint=""
@@ -448,7 +448,7 @@ function ProfileForm({
         />
         <div className={styles.grid2}>
           <TextField
-            label="Имя *"
+            label="First name *"
             value={form.firstName}
             onChange={(e) => setForm({ ...form, firstName: e.target.value })}
             error={errors.firstName || undefined}
@@ -457,7 +457,7 @@ function ProfileForm({
           />
 
           <TextField
-            label="Фамилия *"
+            label="Last name *"
             value={form.lastName}
             onChange={(e) => setForm({ ...form, lastName: e.target.value })}
             error={errors.lastName || undefined}
@@ -476,7 +476,7 @@ function ProfileForm({
           />
 
           <TextField
-            label="Телефон"
+            label="Phone number"
             value={form.phone || ""}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
             error={errors.phone || undefined}
@@ -485,7 +485,7 @@ function ProfileForm({
           />
 
           <TextField
-            label="Дата рождения"
+            label="Date of birth"
             type="date"
             value={form.birthday || ""}
             /* onChange обязателен, даже для date */
