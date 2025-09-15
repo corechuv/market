@@ -1093,7 +1093,7 @@ function SettingsSection({
     <div className={styles.stackLg}>
       <div className={styles.card}>
         <div className={styles.cardHeader}>
-          <h2 className={styles.titlePage}>Настройки</h2>
+          <h2 className={styles.titlePage}>Settings</h2>
           <p className={styles.muted}>Уведомления, язык, валюта и тема. GDPR: маркетинговые рассылки включаются только по явному согласию.</p>
         </div>
 
