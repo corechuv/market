@@ -26,31 +26,35 @@ const SwitchField = forwardRef<HTMLInputElement, SwitchFieldProps>(function Swit
     ref
 ) {
     return (
-        <label
-            className={cx(styles.root, styles[size], disabled && styles.disabled, className)}
-            aria-disabled={disabled || undefined}
-        >
-            <input
-                ref={ref}
-                id={id}
-                name={name}
-                type="checkbox"
-                role="switch"
-                className={styles.input}
-                checked={checked}
-                onChange={(e) => onChange?.(e.currentTarget.checked)}
-                disabled={disabled}
-                aria-checked={checked}
-                aria-label={label}
-            />
-            <span className={styles.control} aria-hidden="true" />
-            {(label || description) && (
-                <span className={styles.meta}>
-                    {label && <span className={styles.title}>{label}</span>}
-                    {description && <span className={styles.desc}>{description}</span>}
-                </span>
-            )}
-        </label>
+        <>
+            <label
+                className={cx(styles.root, styles[size], disabled && styles.disabled, className)}
+                aria-disabled={disabled || undefined}
+            >
+                <input
+                    ref={ref}
+                    id={id}
+                    name={name}
+                    type="checkbox"
+                    role="switch"
+                    className={styles.input}
+                    checked={checked}
+                    onChange={(e) => onChange?.(e.currentTarget.checked)}
+                    disabled={disabled}
+                    aria-checked={checked}
+                    aria-label={label}
+                />
+                <span className={styles.control} aria-hidden="true" />
+                {
+                    (label || description) && (
+                        <span className={styles.meta}>
+                            {label && <span className={styles.title}>{label}</span>}
+                            {description && <span className={styles.desc}>{description}</span>}
+                        </span>
+                    )
+                }
+            </label>
+        </>
     );
 });
 
