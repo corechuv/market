@@ -260,14 +260,29 @@ export default function AccountPage() {
       <header className={styles.header}>
         <div className={styles.headerMain}>
           <div className={styles.avatarWrap}>
-            <img
-              className={styles.avatar}
-              src={
-                account.profile.avatar ||
-                "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><rect fill='transparent' width='100%' height='100%'/><text x='50%' y='54%' dominant-baseline='middle' text-anchor='middle' fill='' font-size='42' font-family='Arial'>🙂</text></svg>"
-              }
-              alt="Avatar"
-            />
+            {account.profile.avatar ? (
+              <img
+                className={styles.avatar}
+                src={account.profile.avatar}
+                alt="Avatar"
+              />
+            ) : (
+              <svg
+                className={styles.avatar}
+                width="128"
+                height="128"
+                viewBox="0 0 128 128"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                role="img"
+                aria-labelledby="t d"
+              >
+                <g stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity=".6">
+                  <circle cx="64" cy="52" r="16" fill="none" />
+                  <path d="M34 92c6-14 20-22 30-22s24 8 30 22" fill="none" />
+                </g>
+              </svg>
+            )}
           </div>
           <div>
             <h1 className={styles.title}>{account.profile.firstName} {account.profile.lastName}</h1>

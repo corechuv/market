@@ -118,7 +118,12 @@ export const AvatarField: React.FC<AvatarFieldProps> = ({
                         />
                     ) : (
                         <div className={cs.placeholder} aria-hidden>
-                            🙂
+                            <svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t d">
+                                <g stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".6">
+                                    <circle cx="64" cy="52" r="16" fill="none" />
+                                    <path d="M34 92c6-14 20-22 30-22s24 8 30 22" fill="none" />
+                                </g>
+                            </svg>
                         </div>
                     )}
                 </div>
