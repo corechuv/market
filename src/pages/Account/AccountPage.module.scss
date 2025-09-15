@@ -199,6 +199,11 @@
     font-size: 13px;
 }
 
+.dateOfBirthBtn {
+    display: flex;
+    justify-content: center;
+}
+
 .input,
 .select {
     width: 100%;
@@ -451,9 +456,10 @@
     display: table-cell;
 }
 
-    .layout {
-        grid-template-columns: 1fr;
-    }
+.layout {
+    grid-template-columns: 1fr;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .layout {

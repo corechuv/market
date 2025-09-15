@@ -502,6 +502,7 @@ function ProfileForm({
           <TextField
             label="Date of birth"
             type="date"
+            className={styles.dateOfBirthBtn}
             value={form.birthday || ""}
             /* onChange обязателен, даже для date */
             onChange={(e) => setForm({ ...form, birthday: e.target.value })}
