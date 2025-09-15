@@ -6,7 +6,6 @@ import { SelectField } from "../../components/UI/SelectField";
 import { TextField } from "../../components/UI/TextField";
 import { PasswordField } from "../../components/UI/PasswordField";
 import { AvatarField } from "../../components/UI/AvatarField";
-import { CheckboxField } from "../../components/UI/CheckboxField";
 import CloseIcon from "../../components/Icons/CloseIcon";
 import PlusIcon from "../../components/Icons/PlusIcon";
 import SwitchField from "../../components/UI/SwitchField";
