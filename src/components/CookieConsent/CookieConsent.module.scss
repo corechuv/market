@@ -135,10 +135,8 @@
     grid-template-columns: auto 1fr;
     gap: 12px;
     align-items: start;
-    padding: 12px;
-    border: 1px dashed var(--border);
-    border-radius: 12px;
-    background: rgba(255, 255, 255, .02);
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--border);
 }
 
 .toggle[aria-disabled] {
