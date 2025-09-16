@@ -1,5 +1,6 @@
 // src/pages/Account/AccountPage.tsx
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./AccountPage.module.scss";
 import Button from "../../components/UI/Button";
 import { SelectField } from "../../components/UI/SelectField";
@@ -10,18 +11,29 @@ import CloseIcon from "../../components/Icons/CloseIcon";
 import PlusIcon from "../../components/Icons/PlusIcon";
 import SwitchField from "../../components/UI/SwitchField";
 
+import { useAccount } from "../../context/AccountContext";
+
 import { exportInvoicePDF } from "../../types/helpers/invoiceConfig";
 import type { Profile } from "../../types/profile";
 import type { Settings } from "../../types/settings";
 import type { Address } from "../../types/address";
 import { statusLabel, type Order, type OrderStatus } from "../../types/order";
 import { fmtMoney } from "../../types/helpers/fmtMoney";
-import type { Account } from "../../types/account";
-import { DE_STATES, EU_COUNTRIES_RU } from "../../data/helpers/region";
-import { account, uid } from "../../data/account";
 import { STATUS_OPTIONS } from "../../data/helpers/deliveryStatus";
 import { Tabs, type TabItem } from "../../components/UI/Tabs";
-import { required, validatePhone } from "../../utils/validate/fields";
+
+// ✅ Универсальные валидаторы
+import {
+  required,
+  validatePhone,
+  validateEmail,
+  validateForm,
+  compose,
+  minLength,
+  sameAs,
+  passwordStrength,
+  type FieldErrors,
+} from "../../utils/validate/fields";
 
 type UUID = string;
 
@@ -31,40 +43,6 @@ const getPreferredLocale = (settings: Settings, addresses: Address[]): string =>
   const def = addresses.find((a) => a.isDefault) || addresses[0];
   if (def && isGermany(def.country)) return "de-DE";
   return settings.language === "ru" ? "ru-RU" : "en-GB";
-};
-
-const persistKey = "mp_account_demo_eu_v1";
-
-function loadData(): Account | null {
-  try {
-    const raw = localStorage.getItem(persistKey);
-    return raw ? (JSON.parse(raw) as Account) : null;
-  } catch {
-    return null;
-  }
-}
-
-function saveData(data: Account) {
-  localStorage.setItem(persistKey, JSON.stringify(data));
-}
-
-function usePersistentAccount() {
-  const [data, setData] = useState<Account>(() => loadData() ?? account);
-  useEffect(() => saveData(data), [data]);
-  return [data, setData] as const;
-}
-
-function classNames(...xs: Array<string | false | undefined | null>) {
-  return xs.filter(Boolean).join(" ");
-}
-
-const validateEmail = (v?: string) =>
-  !!v && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? null : "Некорректный email";
-
-const postalVal = (country: string, v?: string) => {
-  if (!v) return "Обязательное поле";
-  if (isGermany(country)) return /^\d{5}$/.test(v) ? null : "PLZ: 5 цифр";
-  return null; // other EU formats can be added per country
 };
 
 type TabKey = "profile" | "addresses" | "orders" | "settings";
@@ -77,14 +55,30 @@ const tabs: TabItem<TabKey>[] = [
 ];
 
 export default function AccountPage() {
-  const [account, setAccount] = usePersistentAccount();
-  const [active, setActive] = useState<TabKey>("profile");
+  const { account, setAccount, reset } = useAccount();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Активная вкладка <- из query ?tab=
+  const initialTab = (() => {
+    const sp = new URLSearchParams(location.search);
+    const v = sp.get("tab") as TabKey | null;
+    return (v ?? "profile") as TabKey;
+  })();
+  const [active, setActive] = useState<TabKey>(initialTab);
+
+  // Держим URL в синхронизации с выбранной вкладкой
+  useEffect(() => {
+    const sp = new URLSearchParams(location.search);
+    if (sp.get("tab") !== active) {
+      sp.set("tab", active);
+      navigate({ search: sp.toString() }, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
 
   // Locale preferred for formatting
   const locale = getPreferredLocale(account.settings, account.addresses);
-
-  // Модалка заказа
-  const [openOrder, setOpenOrder] = useState<Order | null>(null);
 
   return (
     <main className={styles.page}>
@@ -125,10 +119,7 @@ export default function AccountPage() {
         <div className={styles.headerActions}>
           <button
             className={styles.ghostBtn}
-            onClick={() => {
-              localStorage.removeItem(persistKey);
-              window.location.reload();
-            }}
+            onClick={() => reset()}
             aria-label="Сбросить демо-данные"
           >
             Сбросить демо
@@ -138,7 +129,6 @@ export default function AccountPage() {
       </header>
 
       <div className={styles.layout}>
-
         {/* Content */}
         <section className={styles.content}>
           <Tabs<TabKey>
@@ -175,7 +165,6 @@ export default function AccountPage() {
               orders={account.orders}
               currency={account.settings.currency}
               locale={locale}
-              onOpen={(o) => setOpenOrder(o)}
             />
           )}
 
@@ -187,16 +176,6 @@ export default function AccountPage() {
           )}
         </section>
       </div>
-
-      {openOrder && (
-        <OrderModal
-          order={openOrder}
-          currency={account.settings.currency}
-          locale={locale}
-          onClose={() => setOpenOrder(null)}
-          address={account.addresses.find((a) => a.id === openOrder.deliveryAddressId) || account.addresses.find(a => a.isDefault)}
-        />
-      )}
     </main>
   );
 }
@@ -222,11 +201,20 @@ function ProfileForm({
   useEffect(() => setForm(profile), [profile]);
 
   function validate(): boolean {
+    const rules = {
+      firstName: required("Обязательное поле"),
+      lastName: required("Обязательное поле"),
+      email: compose(required("Обязательное поле"), validateEmail),
+      phone: validatePhone,
+      // birthday / avatar — опционально
+    } as const;
+
+    const errs = validateForm(form, rules) as FieldErrors<Profile>;
     const next: typeof errors = {
-      firstName: required(form.firstName),
-      lastName: required(form.lastName),
-      email: required(form.email) || validateEmail(form.email),
-      phone: validatePhone(form.phone),
+      firstName: (errs as any).firstName || null,
+      lastName: (errs as any).lastName || null,
+      email: (errs as any).email || null,
+      phone: (errs as any).phone || null,
       birthday: null,
       avatar: null,
     };
@@ -397,7 +385,6 @@ function ProfileForm({
             value={form.birthday || ""}
             onChange={(iso) => setForm({ ...form, birthday: iso })}
           />
-
         </div>
 
         <div className={styles.formActions}>
@@ -417,7 +404,7 @@ function AddressesSection({
   addresses: Address[];
   onChange: React.Dispatch<React.SetStateAction<Address[]>>;
 }) {
-  const [editing, setEditing] = useState<Address | null>(null);
+  const navigate = useNavigate();
 
   function upsert(addr: Address) {
     onChange((prev: Address[]) => {
@@ -432,12 +419,14 @@ function AddressesSection({
 
       return next;
     });
-    setEditing(null);
   }
 
   function remove(id: UUID) {
     onChange((prev: Address[]) => prev.filter((a) => a.id !== id));
   }
+
+  const back = encodeURIComponent("/account?tab=addresses");
+
   return (
     <div className={styles.stackLg}>
       <div className={styles.card}>
@@ -451,18 +440,9 @@ function AddressesSection({
             size="small"
             variant="secondary"
             className={styles.addBtn}
-            onClick={() =>
-              setEditing({
-                id: uid(),
-                label: "New address",
-                fullName: "",
-                line1: "",
-                city: "",
-                postalCode: "",
-                country: "Germany",
-                isDefault: addresses.length === 0,
-              })
-            }>
+            onClick={() => navigate(`/account/addresses/new?back=${back}`)}
+            aria-label="Добавить адрес"
+          >
             <PlusIcon />
           </Button>
         </div>
@@ -489,6 +469,7 @@ function AddressesSection({
                 <div>{a.country}</div>
                 {a.phone && <div className={styles.muted}>{a.phone}</div>}
               </div>
+
               {!a.isDefault && (
                 <Button
                   variant="primary"
@@ -498,162 +479,17 @@ function AddressesSection({
                   Make default
                 </Button>
               )}
+
               <Button
                 variant="secondary"
                 size="small"
-                onClick={() => setEditing(a)}>
+                onClick={() => navigate(`/account/addresses/${a.id}?back=${back}`)}
+              >
                 Edit
               </Button>
             </article>
           ))}
         </div>
-      </div>
-
-      {editing && <AddressEditor initial={editing} onCancel={() => setEditing(null)} onSave={upsert} />}
-    </div>
-  );
-}
-
-function AddressEditor({
-  initial,
-  onCancel,
-  onSave,
-}: {
-  initial: Address;
-  onCancel: () => void;
-  onSave: (a: Address) => void;
-}) {
-  const [form, setForm] = useState<Address>(initial);
-  const [errs, setErrs] = useState<Record<string, string | null>>({});
-
-  function validate(): boolean {
-    const e: Record<string, string | null> = {
-      fullName: required(form.fullName),
-      line1: required(form.line1),
-      city: required(form.city),
-      postalCode: postalVal(form.country, form.postalCode),
-      country: required(form.country),
-      phone: validatePhone(form.phone),
-    };
-    setErrs(e);
-    return Object.values(e).every((v) => !v);
-  }
-
-  return (
-    <div className={styles.sheet} role="dialog" aria-modal="true" aria-label="Редактировать адрес">
-      <div className={styles.sheetContent}>
-        <div className={styles.sheetHeader}>
-          <h3>Адрес</h3>
-          <button className={styles.ghostBtn} onClick={onCancel} aria-label="Закрыть">
-            ✕
-          </button>
-        </div>
-
-        <form
-          className={styles.form}
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (!validate()) return;
-            onSave(form);
-          }}
-        >
-          <div className={styles.grid2}>
-            <TextField
-              label="Метка *"
-              value={form.label}
-              onChange={(e) => setForm({ ...form, label: e.target.value })}
-            />
-
-            <TextField
-              label="Получатель *"
-              value={form.fullName}
-              onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-              error={errs.fullName || undefined}
-            />
-
-            <TextField
-              label="Адрес строка 1 *"
-              value={form.line1}
-              onChange={(e) => setForm({ ...form, line1: e.target.value })}
-              error={errs.line1 || undefined}
-            />
-
-            <TextField
-              label="Адрес строка 2"
-              value={form.line2 || ""}
-              onChange={(e) => setForm({ ...form, line2: e.target.value })}
-            />
-
-            <TextField
-              label="Город *"
-              value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
-              error={errs.city || undefined}
-            />
-
-            {isGermany(form.country) ? (
-              <SelectField
-                label="Регион / земля (Bundesland)"
-                value={form.region || ""}
-                onChange={(v) => setForm({ ...form, region: v })}
-                options={DE_STATES.map((s) => ({ value: s, label: s }))}
-                placeholder="— Выберите землю —"
-              />
-            ) : (
-              <TextField
-                label="Регион / область"
-                value={form.region || ""}
-                onChange={(e) => setForm({ ...form, region: e.target.value })}
-              />
-            )}
-
-            <TextField
-              label="Индекс (PLZ) *"
-              value={form.postalCode}
-              onChange={(e) => setForm({ ...form, postalCode: e.target.value })}
-              error={errs.postalCode || undefined}
-              inputMode="numeric"
-              autoComplete="postal-code"
-            />
-
-            <SelectField
-              label="Страна (ЕС) *"
-              value={form.country}
-              onChange={(v) => setForm({ ...form, country: v })}
-              options={EU_COUNTRIES_RU.map((c) => ({ value: c, label: c }))}
-              placeholder="— Выберите страну —"
-              error={errs.country || undefined}
-            />
-
-            <TextField
-              label="Телефон"
-              value={form.phone || ""}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              error={errs.phone || undefined}
-              autoComplete="tel"
-            />
-
-            <div className={styles.gridColSpan2}>
-              <label className={styles.switch}>
-                <input
-                  type="checkbox"
-                  checked={!!form.isDefault}
-                  onChange={(e) => setForm({ ...form, isDefault: e.target.checked })}
-                />
-                <span>Сделать адресом по умолчанию</span>
-              </label>
-            </div>
-          </div>
-
-          <div className={styles.formActions}>
-            <button type="submit" className={styles.primaryBtn}>
-              Сохранить
-            </button>
-            <button type="button" className={styles.ghostBtn} onClick={onCancel}>
-              Отмена
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   );
@@ -664,13 +500,13 @@ function OrdersSection({
   orders,
   currency,
   locale,
-  onOpen,
 }: {
   orders: Order[];
   currency: Settings["currency"];
   locale: string;
-  onOpen: (o: Order) => void;
 }) {
+  const navigate = useNavigate();
+  const back = encodeURIComponent("/account?tab=orders")
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<OrderStatus | "all">("all");
 
@@ -704,7 +540,7 @@ function OrdersSection({
           onChange={(v) => setStatus(v as OrderStatus | "all")}
           options={STATUS_OPTIONS.map(o => ({ value: o.value, label: o.label }))}
           placeholder="Выберите статус"
-          className={styles.toolbarSelect} // опционально для ширины
+          className={styles.toolbarSelect}
         />
       </div>
 
@@ -765,7 +601,7 @@ function OrdersSection({
               </div>
 
               <div className={styles.orderActions}>
-                <Button size="small" variant="secondary" onClick={() => onOpen(o)}>
+                <Button size="small" variant="secondary" onClick={() => navigate(`/account/orders/${o.id}?back=${back}`)}>
                   Details
                 </Button>
                 <Button
@@ -796,165 +632,6 @@ function OrdersSection({
   );
 }
 
-function OrderModal({
-  order,
-  currency,
-  locale,
-  onClose,
-  address,
-}: {
-  order: Order;
-  currency: Settings["currency"];
-  locale: string;
-  onClose: () => void;
-  address?: Address;
-}) {
-  const totalItems = order.items.reduce((a, b) => a + b.qty, 0);
-
-  return (
-    <div className={styles.sheet} role="dialog" aria-modal="true" aria-label="Детали заказа">
-      <div className={styles.sheetContent}>
-        <div className={styles.sheetHeader}>
-          <h3>Заказ {order.number}</h3>
-          <button className={styles.ghostBtn} onClick={onClose} aria-label="Закрыть">
-            ✕
-          </button>
-        </div>
-
-        <div className={styles.stack}>
-          <div className={styles.kv}>
-            <div>
-              <span className={styles.muted}>Дата:</span> {new Date(order.createdAt).toLocaleString(locale)}
-            </div>
-            <div>
-              <span className={styles.muted}>Статус:</span>{" "}
-              <span className={classNames(styles.badge, styles[`st_${order.status}`])}>{statusLabel(order.status)}</span>
-            </div>
-            <div>
-              <span className={styles.muted}>Позиции:</span> {totalItems}
-            </div>
-            <div>
-              <span className={styles.muted}>Сумма:</span> {fmtMoney(order.total / 100, currency, locale)}
-            </div>
-          </div>
-
-          {address && (
-            <div className={styles.addrBox}>
-              <div className={styles.muted}>Адрес доставки</div>
-              <div>{address.fullName}</div>
-              <div>{address.line1}</div>
-              {address.line2 && <div>{address.line2}</div>}
-              <div>
-                {address.city}
-                {address.region ? `, ${address.region}` : ""}, {address.postalCode}
-              </div>
-              <div>{address.country}</div>
-              {address.phone && <div className={styles.muted}>{address.phone}</div>}
-            </div>
-          )}
-
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>SKU</th>
-                  <th>Товар</th>
-                  <th>Кол-во</th>
-                  <th>Цена</th>
-                  <th>Сумма</th>
-                </tr>
-              </thead>
-              <tbody>
-                {order.items.map((it) => (
-                  <tr key={it.sku}>
-                    <td>{it.sku}</td>
-                    <td>{it.name}</td>
-                    <td>{it.qty}</td>
-                    <td>{fmtMoney(it.price / 100, currency, locale)}</td>
-                    <td>{fmtMoney((it.price * it.qty) / 100, currency, locale)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className={styles.stack}>
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h4>Сводка заказа</h4>
-              </div>
-
-              <div className={styles.tableWrap}>
-                <table className={styles.table}>
-                  <tbody>
-                    {"subtotal" in order && typeof order.subtotal === "number" && (
-                      <tr>
-                        <td>Товары</td>
-                        <td className={styles.right}>{fmtMoney((order.subtotal) / 100, currency, locale)}</td>
-                      </tr>
-                    )}
-                    {"shippingCents" in order && typeof order.shippingCents === "number" && (
-                      <tr>
-                        <td>Доставка{order.shippingMethod ? ` (${order.shippingMethod})` : ""}</td>
-                        <td className={styles.right}>
-                          {order.shippingCents === 0
-                            ? "Free"
-                            : fmtMoney(order.shippingCents / 100, currency, locale)}
-                        </td>
-                      </tr>
-                    )}
-                    {"discountCents" in order && order.discountCents! > 0 && (
-                      <tr>
-                        <td>Скидка{order.promoCode ? ` (${order.promoCode})` : ""}</td>
-                        <td className={styles.right}>- {fmtMoney(order.discountCents! / 100, currency, locale)}</td>
-                      </tr>
-                    )}
-                    {"vatCents" in order && typeof order.vatCents === "number" && (
-                      <tr>
-                        <td>НДС</td>
-                        <td className={styles.right}>{fmtMoney(order.vatCents! / 100, currency, locale)}</td>
-                      </tr>
-                    )}
-                    <tr>
-                      <td><strong>Итого</strong></td>
-                      <td className={styles.right}>
-                        <strong>{fmtMoney(order.total / 100, currency, locale)}</strong>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.right}>
-            <button
-              className={styles.secondaryBtn}
-              onClick={() => exportInvoicePDF({
-                order,
-                address,
-                currency,
-                locale,
-                buyer: undefined, // можно передать account.profile, если поднимешь выше
-              })}
-            >
-              Экспорт инвойса (PDF)
-            </button>
-            <button
-              className={styles.secondaryBtn}
-              onClick={() => alert("Повторить заказ (демо)")}
-              style={{ marginLeft: 8 }}
-            >
-              Повторить заказ
-            </button>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /** ========== SETTINGS ========== */
 function SettingsSection({
   settings,
@@ -967,29 +644,28 @@ function SettingsSection({
 
   // Смена пароля (демо)
   const [pw, setPw] = useState({ current: "", next: "", confirm: "" });
-  const [pwErr, setPwErr] = useState<string | null>(null);
+  const [pwErrs, setPwErrs] = useState<Record<string, string>>({});
 
-  const strengthCalc = (v: string) => {
-    let s = 0;
-    if (v.length >= 8) s++;
-    if (/[a-z]/.test(v) && /[A-Z]/.test(v)) s++;
-    if (/\d/.test(v)) s++;
-    if (/[^A-Za-z0-9]/.test(v)) s++;
-    return s; // 0..4
-  };
+  const strengthCalc = (v: string) => passwordStrength(v);
 
   function submitPw(e: React.FormEvent) {
     e.preventDefault();
-    if (!pw.next || pw.next.length < 8) {
-      setPwErr("Новый пароль должен быть не менее 8 символов");
-      return;
-    }
-    if (pw.next !== pw.confirm) {
-      setPwErr("Пароли не совпадают");
-      return;
-    }
-    setPwErr(null);
+
+    const rules = {
+      next: compose(
+        required("Новый пароль обязателен"),
+        minLength(8, "Новый пароль должен быть не менее 8 символов")
+      ),
+      confirm: sameAs<string>((all) => all.next, "Пароли не совпадают"),
+      // current — намеренно без проверки в демо
+    } as const;
+
+    const errs = validateForm(pw, rules);
+    setPwErrs(errs as Record<string, string>);
+    if (Object.keys(errs).length) return;
+
     setPw({ current: "", next: "", confirm: "" });
+    setPwErrs({});
     alert("Пароль изменён (демо)");
   }
 
@@ -1080,13 +756,14 @@ function SettingsSection({
               withStrength
               strengthCalc={strengthCalc}
               autoComplete="new-password"
+              error={pwErrs.next}
             />
 
             <PasswordField
               label="Confirm password"
               value={pw.confirm}
               onChange={(e) => setPw({ ...pw, confirm: e.currentTarget.value })}
-              error={pwErr && pw.next !== pw.confirm ? "Пароли не совпадают" : undefined}
+              error={pwErrs.confirm}
               autoComplete="new-password"
             />
           </div>

@@ -18,6 +18,8 @@ import CheckoutLayout from "./components/layouts/CheckoutLayout";
 import CheckoutPage from "./pages/Checkout/CheckoutPage";
 
 import CookieConsent from "./components/CookieConsent/CookieConsent";
+import AddressEdit from "./pages/Account/AddressEdit";
+import OrderDetails from "./pages/Account/OrderDetails";
 
 export default function App() {
 
@@ -31,7 +33,11 @@ export default function App() {
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/product/:productId" element={<ProductPage />} />
           <Route path="/category/*" element={<CategoryPage />} />
+
           <Route path="/account" element={<AccountPage />} />
+          <Route path="/account/addresses/new" element={<AddressEdit />} />
+          <Route path="/account/addresses/:id" element={<AddressEdit />} />
+          <Route path="/account/orders/:id" element={<OrderDetails />} />
         </Route>
 
         <Route element={<AuthLayout />}>

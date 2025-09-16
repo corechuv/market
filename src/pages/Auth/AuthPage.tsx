@@ -1,3 +1,4 @@
+// src/pages/Auth/AuthPage.tsx
 import React, { useEffect, useRef, useState } from "react";
 import s from "./AuthPage.module.scss";
 import { TextField } from "../../components/UI/TextField";
@@ -5,7 +6,18 @@ import { PasswordField } from "../../components/UI/PasswordField";
 import { CheckboxField } from "../../components/UI/CheckboxField";
 import Button from "../../components/UI/Button";
 import Logo from "../../components/logo/Logo";
-import { passwordStrength, validateEmail } from "../../utils/validate/fields";
+
+import {
+    passwordStrength,
+    validateEmail,
+    required,
+    minLength,
+    sameAs,
+    requiredTrue,
+    validateForm,
+    type FieldErrors,
+    compose,
+} from "../../utils/validate/fields";
 
 type Mode = "login" | "register";
 
@@ -47,6 +59,7 @@ export default function AuthPage({ onLogin, onRegister }: AuthPageProps) {
     async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setErrors({});
+
         const data = new FormData(e.currentTarget);
         const payload: LoginPayload = {
             email: String(data.get("email") || ""),
@@ -54,11 +67,16 @@ export default function AuthPage({ onLogin, onRegister }: AuthPageProps) {
             remember: Boolean(data.get("remember")),
         };
 
-        const errs: Record<string, string> = {};
-        if (!validateEmail(payload.email)) errs.email = "Invalid email address";
-        if (payload.password.length < 6) errs.password = "Minimum 6 characters";
+        // Правила валидации для формы логина
+        const loginRules = {
+            email: compose(required("Email is required"), validateEmail),
+            password: compose(required("Password is required"), minLength(6)),
+            // remember — опционально, проверок нет
+        } as const;
+
+        const errs = validateForm(payload, loginRules) as FieldErrors<LoginPayload>;
         if (Object.keys(errs).length) {
-            setErrors(errs);
+            setErrors(errs as Record<string, string>);
             return;
         }
 
@@ -75,6 +93,7 @@ export default function AuthPage({ onLogin, onRegister }: AuthPageProps) {
     async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setErrors({});
+
         const data = new FormData(e.currentTarget);
         const payload: RegisterPayload = {
             name: String(data.get("name") || ""),
@@ -84,14 +103,18 @@ export default function AuthPage({ onLogin, onRegister }: AuthPageProps) {
             agree: Boolean(data.get("agree")),
         };
 
-        const errs: Record<string, string> = {};
-        if (payload.name.trim().length < 2) errs.name = "Name is too short";
-        if (!validateEmail(payload.email)) errs.email = "Invalid email address";
-        if (payload.password.length < 8) errs.password = "Password must be at least 8 characters";
-        if (payload.confirm !== payload.password) errs.confirm = "Passwords do not match";
-        if (!payload.agree) errs.agree = "Needs to be accepted";
+        // Правила валидации для формы регистрации
+        const registerRules = {
+            name: compose(required("Name is required"), minLength(2, "Name is too short")),
+            email: compose(required("Email is required"), validateEmail),
+            password: compose(required("Password is required"), minLength(8, "Password must be at least 8 characters")),
+            confirm: sameAs<string>((all) => all.password, "Passwords do not match"),
+            agree: requiredTrue("Needs to be accepted"),
+        } as const;
+
+        const errs = validateForm(payload, registerRules) as FieldErrors<RegisterPayload>;
         if (Object.keys(errs).length) {
-            setErrors(errs);
+            setErrors(errs as Record<string, string>);
             return;
         }
 
@@ -239,7 +262,7 @@ export default function AuthPage({ onLogin, onRegister }: AuthPageProps) {
                                     name="agree"
                                     label={
                                         <>
-                                            I {" "}
+                                            I{" "}
                                             <a className={s.mutedLink} href="#terms">
                                                 agree to the terms
                                             </a>

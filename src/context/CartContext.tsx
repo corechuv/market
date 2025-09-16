@@ -1,6 +1,5 @@
 import React from "react";
 
-
 export type CartLine = {
     /** Stable cart line id (product + variant) */
     id: string;
