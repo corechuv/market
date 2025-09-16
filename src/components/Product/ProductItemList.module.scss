@@ -297,3 +297,30 @@ $bp-lg: 1024px;
 .itemDisabled {
   opacity: .75;
 }
+
+
+.topActions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 10px;
+
+  &__btn {
+    background-color: transparent;
+    border: 1px dashed var(--border);
+    border-radius: 50%;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text);
+
+    svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 1.5;
+    }
+  }
+}

@@ -562,8 +562,8 @@
 
 .orderMore {
     background: var(--bg-order-more);
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 500;
     border-radius: 8px;
     display: inline-flex;
     align-items: center;
@@ -589,7 +589,7 @@
 .orderActions {
     display: flex;
     gap: 8px;
-    margin-top: 10px;
+    margin-top: 15px;
     justify-content: flex-end;
 }
 

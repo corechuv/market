@@ -6,6 +6,7 @@ import { getBreadcrumbs } from "../../services/categoryService";
 import { buildSpecs, getInitialVariant } from "../../specs/builders";
 import { parseMoney } from "../../types/helpers/parseMoney";
 import { getReviewSummaryById } from "../../services/reviewService";
+import { /*addWishlistItem, removeWishlistItemBySku,*/ isInWishlist, toggleWishlistItem } from "../../services/wishlistService";
 
 
 import cls from './ProductPage.module.scss'
@@ -138,13 +139,37 @@ export default function ProductPage() {
         return () => io.disconnect();
     }, []);
 
+    // SKU для избранного: берём из варианта, иначе из товара, иначе fallback
+    const sku = (variant as any)?.sku ?? (product as any)?.sku ?? `ID:${product.id}`;
+    const [inWish, setInWish] = React.useState<boolean>(() => isInWishlist(sku));
+
+    // при смене варианта/товара - пересчитать
+    React.useEffect(() => {
+        setInWish(isInWishlist(sku));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [sku]);
+
+    const priceCents = Math.max(0, Math.round((parseMoney(variant?.price ?? product.price) || 0) * 100));
+    const handleToggleWishlist = React.useCallback(() => {
+        const now = toggleWishlistItem({
+            sku,
+            name: product.name,
+            priceCents,
+        });
+        setInWish(now);
+    }, [sku, product.name, priceCents]);
+
     return (
         <div className="container">
             <div className={cls.product}>
                 {/* Крошки */}
                 <Breadcrumbs crumbs={categoryCrumbs as any} />
                 <div className={cls.productDetails}>
-                    <ProductImages images={images} />
+                    <ProductImages
+                        images={images}
+                        isFavorite={inWish}
+                        onToggleFavorite={handleToggleWishlist}
+                    />
                     <div className={cls.productInfo}>
                         <div className={cls.productTitle}>
                             <h1 className={cls.productName}>{product.name}</h1>
