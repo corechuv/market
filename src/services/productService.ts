@@ -1,3 +1,4 @@
+// src/services/productService.ts
 import type { Product, ProductVariant } from "../types/product";
 import { products as RAW } from "../data/products";
 import { getCategoryByFullSlug, getDescendants } from "./categoryService";

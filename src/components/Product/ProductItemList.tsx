@@ -5,13 +5,11 @@ import type { ViewMode } from "../../components/Product/ToggleViewSwitch";
 import type { Product, ProductVariant } from "../../types/product";
 import { parseMoney } from "../../types/helpers/parseMoney";
 import { getReviewSummaryMap } from "../../services/reviewService";
-import { isInWishlist, toggleWishlistItem } from "../../services/wishlistService";
 
 // эти утилиты берём из вашего проекта
 import { getInitialVariant } from "../../specs/builders";
 import EnergyLabel from "./Details/EnergyLabel";
 import Stars from "./Stars";
-import HeartIcon from "../Icons/HeartIcon";
 // buildSpecs не обязателен для списка, но при желании можно тоже подключить
 // import { buildSpecs } from "../../lib/buildSpecs";
 
@@ -20,7 +18,6 @@ type Props = {
     view: ViewMode; // 'grid' | 'list'
     onItemClick?: (product: Product) => void;
     className?: string;
-    onWishlistToggle?: (sku: string, inWish: boolean) => void;
 };
 
 // --- маленький хук для вычислений как на карточке товара ---
@@ -71,27 +68,12 @@ function useProductComputed(product: Product) {
     };
 }
 
-const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, className, onWishlistToggle }) => {
+const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, className }) => {
     const reviewSummaryMap = React.useMemo(() => getReviewSummaryMap(), []);
     return (
         <div className={[cls.productList, className].filter(Boolean).join(" ")}>
             <div className={view === "grid" ? cls.grid : cls.list}>
                 {products.map((product) => {
-
-                    const skuForWish = (product as any)?.sku ?? product.id;
-                    const [inWish, setInWish] = React.useState(() => isInWishlist(skuForWish));
-                    const toggle = (e: React.MouseEvent) => {
-                        e.stopPropagation();
-                        const now = toggleWishlistItem({
-                            sku: skuForWish,
-                            name: product.name,
-                            // берём текущую цену (строкой) -> деньги -> центы
-                            priceCents: Math.max(0, Math.round((parseMoney(price) || 0) * 100)),
-                        });
-                        setInWish(now);
-                        onWishlistToggle?.(skuForWish, now);
-                    };
-
                     const rs = reviewSummaryMap[product.id];
                     const {
                         imageSrc,
@@ -134,18 +116,6 @@ const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, classNa
                                         {energyClassArrow && energyClass && <EnergyLabel size="small" energyClassUrl={energyClass} energyClassArrowUrl={energyClassArrow} label="Energieklasse" />}
                                     </div>
                                 )}
-                                <div className={cls.topActions}>
-                                    <button
-                                        type="button"
-                                        onClick={toggle}
-                                        aria-pressed={inWish}
-                                        aria-label={inWish ? "Remove from Wishlist" : "Add to Wishlist"}
-                                        className={cls.topActions__btn}
-                                        style={{ marginLeft: 8 }}
-                                    >
-                                        <HeartIcon stroke={inWish ? "currentColor" : "black"} />
-                                    </button>
-                                </div>
                             </div>
 
                             <div className={cls.productDetails}>
@@ -189,7 +159,7 @@ const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, classNa
                     );
                 })}
             </div>
-        </div >
+        </div>
     );
 };
 

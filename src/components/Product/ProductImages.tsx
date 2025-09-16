@@ -5,13 +5,9 @@ import ProductImageActions from "./ProductImageActions";
 export interface ProductImagesProps {
     /** Ссылки на изображения; если не передать — берётся дефолтный набор */
     images?: string[];
-    /** Кнопка сердечка */
-    onToggleFavorite?: () => void;
-    isFavorite?: boolean;
-    onCopyLink?: () => void;
 }
 
-const ProductImages: FC<ProductImagesProps> = ({ images = [], onToggleFavorite, isFavorite, onCopyLink }) => {
+const ProductImages: FC<ProductImagesProps> = ({ images = [] }) => {
     const [current, setCurrent] = useState(0);
     const [origin, setOrigin] = useState<string>("center center");
     const carouselRef = useRef<HTMLDivElement | null>(null);
@@ -78,9 +74,8 @@ const ProductImages: FC<ProductImagesProps> = ({ images = [], onToggleFavorite, 
                 </aside>
 
                 <ProductImageActions
-                    onCopyLink={onCopyLink ?? (() => alert("Ссылка на изображение отправлена!"))}
-                    onToggleFavorite={onToggleFavorite}
-                    isFavorite={!!isFavorite}
+                    onCopyLink={() => alert("Ссылка на изображение отправлена!")}
+                    onToggleFavorite={() => alert("Добавлено в избранное!")}
                 />
             </div>
 
@@ -97,8 +92,8 @@ const ProductImages: FC<ProductImagesProps> = ({ images = [], onToggleFavorite, 
                         draggable={false}
                     />
                     <ProductImageActions
-                        onCopyLink={onCopyLink ?? (() => alert("Ссылка на изображение отправлена!"))}
-                        onToggleFavorite={onToggleFavorite}
+                        onCopyLink={() => alert("Ссылка на изображение отправлена!")}
+                        onToggleFavorite={() => alert("Добавлено в избранное!")}
                     />
                 </figure>
                 <aside className={cls.thumbs} aria-label="Миниатюры изображений">
