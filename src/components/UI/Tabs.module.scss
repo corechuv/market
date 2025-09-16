@@ -1,0 +1,31 @@
+// src/components/UI/Tabs.module.scss
+/* Mobile tabs */
+.tabsMobile {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+
+.chip {
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px dashed var(--border);
+    background: var(--bg);
+    font-family: var(--font);
+    color: var(--text);
+    cursor: pointer;
+}
+
+.chipActive {
+    border-color: var(--primary);
+}
+
+@media (max-width: 1024px) {
+    .tabsMobile {
+        display: flex;
+    }
+}

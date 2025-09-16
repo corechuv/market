@@ -16,65 +16,14 @@ import type { Settings } from "../../types/settings";
 import type { Address } from "../../types/address";
 import { statusLabel, type Order, type OrderStatus } from "../../types/order";
 import { fmtMoney } from "../../types/helpers/fmtMoney";
-
-/**
- * EU-ready Account (React + TSX + SCSS Module)
- * - Defaults: EU focus, primarily Germany (DE)
- * - Currency: EUR by default, proper locale formatting (de-DE when applicable)
- * - Addresses: EU country picker, DE Bundesland picker, PLZ validation (5 digits)
- * - Orders: localized dates & money
- * - Settings: language options kept (ru/en) — currency defaults to EUR; easy to extend
- * - Local storage key bumped to avoid clashing with older demo data
- */
-
-//#region Types
+import type { Account } from "../../types/account";
+import type { Wishlist } from "../../types/wishlist";
+import { DE_STATES, EU_COUNTRIES_RU } from "../../data/helpers/region";
+import { account, uid } from "../../data/account";
+import { STATUS_OPTIONS } from "../../data/helpers/deliveryStatus";
+import { Tabs, type TabItem } from "../../components/UI/Tabs";
 
 type UUID = string;
-
-type WishlistItem = {
-  id: UUID;
-  sku: string;
-  name: string;
-  price: number; // in cents
-  addedAt: string; // ISO
-};
-
-type AccountData = {
-  profile: Profile;
-  addresses: Address[];
-  orders: Order[];
-  wishlist: WishlistItem[];
-  settings: Settings;
-};
-
-//#endregion
-
-//#region EU helpers
-const EU_COUNTRIES_RU = [
-  "Германия", "Австрия", "Бельгия", "Болгария", "Хорватия", "Кипр", "Чехия", "Дания",
-  "Эстония", "Финляндия", "Франция", "Греция", "Венгрия", "Ирландия", "Италия",
-  "Латвия", "Литва", "Люксембург", "Мальта", "Нидерланды", "Польша", "Португалия",
-  "Румыния", "Словакия", "Словения", "Испания", "Швеция"
-];
-
-const DE_STATES = [
-  "Baden-Württemberg",
-  "Bayern",
-  "Berlin",
-  "Brandenburg",
-  "Bremen",
-  "Hamburg",
-  "Hessen",
-  "Mecklenburg-Vorpommern",
-  "Niedersachsen",
-  "Nordrhein-Westfalen",
-  "Rheinland-Pfalz",
-  "Saarland",
-  "Sachsen",
-  "Sachsen-Anhalt",
-  "Schleswig-Holstein",
-  "Thüringen",
-];
 
 const isGermany = (country: string) => /^(германи|deutschland)/i.test(country.trim());
 
@@ -83,95 +32,24 @@ const getPreferredLocale = (settings: Settings, addresses: Address[]): string =>
   if (def && isGermany(def.country)) return "de-DE";
   return settings.language === "ru" ? "ru-RU" : "en-GB";
 };
-//#endregion
-
-//#region Utils
-const uid = () => Math.random().toString(36).slice(2, 10);
 
 const persistKey = "mp_account_demo_eu_v1";
 
-function loadData(): AccountData | null {
+function loadData(): Account | null {
   try {
     const raw = localStorage.getItem(persistKey);
-    return raw ? (JSON.parse(raw) as AccountData) : null;
+    return raw ? (JSON.parse(raw) as Account) : null;
   } catch {
     return null;
   }
 }
 
-function saveData(data: AccountData) {
+function saveData(data: Account) {
   localStorage.setItem(persistKey, JSON.stringify(data));
 }
 
-const initialData: AccountData = {
-  profile: {
-    firstName: "Alex",
-    lastName: "Müller",
-    email: "alex@example.de",
-    phone: "+49 151 23456789",
-    birthday: "1993-05-20",
-    avatar: "",
-  },
-  addresses: [
-    {
-      id: uid(),
-      label: "Дом",
-      fullName: "Alex Müller",
-      line1: "Musterstraße 10",
-      city: "Berlin",
-      postalCode: "10115",
-      country: "Германия",
-      phone: "+49 151 23456789",
-      isDefault: true,
-    },
-    {
-      id: uid(),
-      label: "Офис",
-      fullName: "Alex Müller",
-      line1: "Leopoldstraße 25, Büro 302",
-      city: "München",
-      postalCode: "80802",
-      country: "Германия",
-    },
-  ],
-  orders: [
-    {
-      id: uid(),
-      number: "MP-2025-000123",
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
-      status: "delivered",
-      // сводка:
-      subtotal: 12990,
-      shippingCents: 0,
-      discountCents: 0,
-      vatCents: 2075, // пример, не принципиально
-      total: 12990,
-      shippingMethod: "Standard Versand",
-      promoCode: null,
-      currencyCode: "EUR",
-      items: [
-        { sku: "SKU-1001", name: "Kopfhörer Pro", qty: 1, price: 9990 },
-        { sku: "SKU-2001", name: "Hülle", qty: 1, price: 3000 },
-      ],
-      // deliveryAddressId оставляем пустым — модалка сападёт на адрес по умолчанию
-    },
-  ],
-  settings: {
-    emailNotifications: true,
-    smsNotifications: false,
-    marketingOptIn: false,
-    language: "ru",
-    currency: "EUR",
-    theme: "system",
-  },
-  wishlist: [
-    { id: uid(), sku: "SKU-5555", name: "Bluetooth Lautsprecher", price: 7990, addedAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString() },
-    { id: uid(), sku: "SKU-7777", name: "Kabellose Maus", price: 3490, addedAt: new Date().toISOString() },
-  ],
-};
-
 function usePersistentAccount() {
-  const [data, setData] = useState<AccountData>(() => loadData() ?? initialData);
+  const [data, setData] = useState<Account>(() => loadData() ?? account);
   useEffect(() => saveData(data), [data]);
   return [data, setData] as const;
 }
@@ -189,11 +67,10 @@ const postalVal = (country: string, v?: string) => {
   if (isGermany(country)) return /^\d{5}$/.test(v) ? null : "PLZ: 5 цифр";
   return null; // other EU formats can be added per country
 };
-//#endregion
 
 type TabKey = "profile" | "addresses" | "orders" | "wishlist" | "settings";
 
-const tabs: { key: TabKey; label: string }[] = [
+const tabs: TabItem<TabKey>[] = [
   { key: "profile", label: "Profile" },
   { key: "addresses", label: "Addresses" },
   { key: "orders", label: "Orders" },
@@ -263,35 +140,15 @@ export default function AccountPage() {
       </header>
 
       <div className={styles.layout}>
-        {/* Sidebar */}
-        <nav className={styles.sidebar} aria-label="Навигация по аккаунту">
-          {tabs.map((t) => (
-            <a
-              key={t.key}
-              className={classNames(styles.tab, active === t.key && styles.tabActive)}
-              onClick={() => setActive(t.key)}
-              aria-current={active === t.key ? "page" : undefined}
-            >
-              {t.label}
-            </a>
-          ))}
-        </nav>
 
         {/* Content */}
         <section className={styles.content}>
-          <div className={styles.tabsMobile} role="tablist" aria-label="Разделы аккаунта">
-            {tabs.map((t) => (
-              <button
-                key={t.key}
-                role="tab"
-                aria-selected={active === t.key}
-                className={classNames(styles.chip, active === t.key && styles.chipActive)}
-                onClick={() => setActive(t.key)}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
+          <Tabs<TabKey>
+            items={tabs}
+            activeKey={active}
+            onChange={setActive}
+            ariaLabel="Разделы аккаунта"
+          />
 
           {active === "profile" && (
             <ProfileForm
@@ -334,7 +191,7 @@ export default function AccountPage() {
                   ...d,
                   wishlist:
                     typeof next === "function"
-                      ? (next as (prev: WishlistItem[]) => WishlistItem[])(d.wishlist)
+                      ? (next as (prev: Wishlist[]) => Wishlist[])(d.wishlist)
                       : next,
                 }))
               }
@@ -836,15 +693,6 @@ function OrdersSection({
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<OrderStatus | "all">("all");
 
-  const STATUS_OPTIONS = [
-    { value: "all", label: "Все статусы" },
-    { value: "processing", label: "В обработке" },
-    { value: "shipped", label: "Отгружен" },
-    { value: "delivered", label: "Доставлен" },
-    { value: "cancelled", label: "Отменён" },
-    { value: "refunded", label: "Возврат" },
-  ] as const;
-
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
     return orders.filter((o) => {
@@ -1133,10 +981,10 @@ function WishlistSection({
   locale,
   onChange,
 }: {
-  wishlist: WishlistItem[];
+  wishlist: Wishlist[];
   currency: Settings["currency"];
   locale: string;
-  onChange: React.Dispatch<React.SetStateAction<WishlistItem[]>>;
+  onChange: React.Dispatch<React.SetStateAction<Wishlist[]>>;
 }) {
   const [q, setQ] = useState("");
 
