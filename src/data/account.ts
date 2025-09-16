@@ -64,8 +64,4 @@ export const account: Account = {
     currency: "EUR",
     theme: "system",
   },
-  wishlist: [
-    { id: uid(), sku: "SKU-5555", name: "Bluetooth Lautsprecher", price: 7990, addedAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString() },
-    { id: uid(), sku: "SKU-7777", name: "Kabellose Maus", price: 3490, addedAt: new Date().toISOString() },
-  ],
 };

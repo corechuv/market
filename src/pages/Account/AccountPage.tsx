@@ -17,11 +17,11 @@ import type { Address } from "../../types/address";
 import { statusLabel, type Order, type OrderStatus } from "../../types/order";
 import { fmtMoney } from "../../types/helpers/fmtMoney";
 import type { Account } from "../../types/account";
-import type { Wishlist } from "../../types/wishlist";
 import { DE_STATES, EU_COUNTRIES_RU } from "../../data/helpers/region";
 import { account, uid } from "../../data/account";
 import { STATUS_OPTIONS } from "../../data/helpers/deliveryStatus";
 import { Tabs, type TabItem } from "../../components/UI/Tabs";
+import { required, validatePhone } from "../../utils/validate/fields";
 
 type UUID = string;
 
@@ -58,23 +58,21 @@ function classNames(...xs: Array<string | false | undefined | null>) {
   return xs.filter(Boolean).join(" ");
 }
 
-const required = (v?: string) => (!!v && v.trim().length > 0 ? null : "Обязательное поле");
-const emailVal = (v?: string) =>
+const validateEmail = (v?: string) =>
   !!v && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? null : "Некорректный email";
-const phoneVal = (v?: string) => (!v || /^\+?[0-9\s\-()]{7,}$/.test(v) ? null : "Некорректный телефон");
+
 const postalVal = (country: string, v?: string) => {
   if (!v) return "Обязательное поле";
   if (isGermany(country)) return /^\d{5}$/.test(v) ? null : "PLZ: 5 цифр";
   return null; // other EU formats can be added per country
 };
 
-type TabKey = "profile" | "addresses" | "orders" | "wishlist" | "settings";
+type TabKey = "profile" | "addresses" | "orders" | "settings";
 
 const tabs: TabItem<TabKey>[] = [
   { key: "profile", label: "Profile" },
   { key: "addresses", label: "Addresses" },
   { key: "orders", label: "Orders" },
-  { key: "wishlist", label: "Wishlist" },
   { key: "settings", label: "Settings" },
 ];
 
@@ -181,23 +179,6 @@ export default function AccountPage() {
             />
           )}
 
-          {active === "wishlist" && (
-            <WishlistSection
-              wishlist={account.wishlist}
-              currency={account.settings.currency}
-              locale={locale}
-              onChange={(next) =>
-                setAccount((d) => ({
-                  ...d,
-                  wishlist:
-                    typeof next === "function"
-                      ? (next as (prev: Wishlist[]) => Wishlist[])(d.wishlist)
-                      : next,
-                }))
-              }
-            />
-          )}
-
           {active === "settings" && (
             <SettingsSection
               settings={account.settings}
@@ -244,8 +225,8 @@ function ProfileForm({
     const next: typeof errors = {
       firstName: required(form.firstName),
       lastName: required(form.lastName),
-      email: required(form.email) || emailVal(form.email),
-      phone: phoneVal(form.phone),
+      email: required(form.email) || validateEmail(form.email),
+      phone: validatePhone(form.phone),
       birthday: null,
       avatar: null,
     };
@@ -552,7 +533,7 @@ function AddressEditor({
       city: required(form.city),
       postalCode: postalVal(form.country, form.postalCode),
       country: required(form.country),
-      phone: phoneVal(form.phone),
+      phone: validatePhone(form.phone),
     };
     setErrs(e);
     return Object.values(e).every((v) => !v);
@@ -968,94 +949,6 @@ function OrderModal({
             </button>
           </div>
 
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** ========== WISHLIST ========== */
-function WishlistSection({
-  wishlist,
-  currency,
-  locale,
-  onChange,
-}: {
-  wishlist: Wishlist[];
-  currency: Settings["currency"];
-  locale: string;
-  onChange: React.Dispatch<React.SetStateAction<Wishlist[]>>;
-}) {
-  const [q, setQ] = useState("");
-
-  const list = useMemo(() => {
-    const s = q.trim().toLowerCase();
-    return [...wishlist]
-      .filter((w) => !s || w.name.toLowerCase().includes(s) || w.sku.toLowerCase().includes(s))
-      .sort((a, b) => +new Date(b.addedAt) - +new Date(a.addedAt));
-  }, [wishlist, q]);
-
-  function remove(id: UUID) {
-    onChange((prev) => prev.filter((x) => x.id !== id));
-  }
-
-  function clearAll() {
-    if (!confirm("Очистить избранное?")) return;
-    onChange([]);
-  }
-
-  return (
-    <div className={styles.stackLg}>
-      <div className={styles.card}>
-        <div className={styles.cardHeader}>
-          <h2 className={styles.titlePage}>Wishlist</h2>
-        </div>
-
-        <div className={styles.toolbar}>
-          <TextField
-            placeholder="Поиск по товару или SKU"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
-        </div>
-
-        {list.length === 0 ? (
-          <div className={styles.empty}>Список пуст</div>
-        ) : (
-          <div className={styles.listGrid}>
-            {list.map((w) => (
-              <article key={w.id} className={styles.addrCard}>
-                <div className={styles.addrHeader}>
-                  <strong className={styles.addrLabel}>{w.name}</strong>
-                  <div className={styles.addrActions}>
-                    <CloseIcon onClick={() => remove(w.id)} />
-                  </div>
-                </div>
-                <div className={styles.addrBody}>
-                  <div className={styles.muted}>SKU: {w.sku}</div>
-                  <div>Цена: {fmtMoney(w.price / 100, currency, locale)}</div>
-                  <div className={styles.muted}>
-                    Добавлено: {new Date(w.addedAt).toLocaleString(locale)}
-                  </div>
-                </div>
-                <Button
-                  size="small"
-                  variant="primary"
-                  onClick={() => alert("В корзину (демо)")}
-                >
-                  В корзину
-                </Button>
-              </article>
-            ))}
-          </div>
-        )}
-
-        <div style={{ display: "flex", marginTop: 20, justifyContent: "end" }}>
-          {wishlist.length > 0 && (
-            <Button variant="ghost" size="small" onClick={clearAll}>
-              Clear all
-            </Button>
-          )}
         </div>
       </div>
     </div>

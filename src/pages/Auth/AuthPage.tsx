@@ -5,6 +5,7 @@ import { PasswordField } from "../../components/UI/PasswordField";
 import { CheckboxField } from "../../components/UI/CheckboxField";
 import Button from "../../components/UI/Button";
 import Logo from "../../components/logo/Logo";
+import { passwordStrength, validateEmail } from "../../utils/validate/fields";
 
 type Mode = "login" | "register";
 
@@ -25,23 +26,6 @@ type RegisterPayload = {
 export interface AuthPageProps {
     onLogin?: (data: LoginPayload) => Promise<void> | void;
     onRegister?: (data: RegisterPayload) => Promise<void> | void;
-}
-
-const emailRegex =
-    /^(?:[a-zA-Z0-9_'^&/+-])+(?:\.(?:[a-zA-Z0-9_'^&/+-])+)*@(?:(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})$/;
-
-function validateEmail(v: string) {
-    return emailRegex.test(v.trim());
-}
-
-function passwordStrength(pw: string) {
-    let score = 0;
-    if (pw.length >= 8) score++;
-    if (/[A-Z]/.test(pw)) score++;
-    if (/[a-z]/.test(pw)) score++;
-    if (/[0-9]/.test(pw)) score++;
-    if (/[^A-Za-z0-9]/.test(pw)) score++;
-    return Math.min(score, 4); // 0..4
 }
 
 const Spinner = () => <span className={s.spinner} aria-label="Loading" />;
