@@ -17,6 +17,12 @@ import type { Address } from "../../types/address";
 import { statusLabel, type Order, type OrderStatus } from "../../types/order";
 import { fmtMoney } from "../../types/helpers/fmtMoney";
 
+import { useNavigate } from "react-router-dom";
+import ProductItemList from "../../components/Product/ProductItemList";
+import { findProductBySku } from "../../services/productService";
+import { getWishlist as loadWishlist } from "../../services/wishlistService";
+
+
 /**
  * EU-ready Account (React + TSX + SCSS Module)
  * - Defaults: EU focus, primarily Germany (DE)
@@ -1139,6 +1145,7 @@ function WishlistSection({
   onChange: React.Dispatch<React.SetStateAction<WishlistItem[]>>;
 }) {
   const [q, setQ] = useState("");
+  const nav = useNavigate();
 
   const list = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -1147,13 +1154,60 @@ function WishlistSection({
       .sort((a, b) => +new Date(b.addedAt) - +new Date(a.addedAt));
   }, [wishlist, q]);
 
-  function remove(id: UUID) {
-    onChange((prev) => prev.filter((x) => x.id !== id));
-  }
+  // адаптер: WishlistItem -> Product (с приоритетом найденного товара по SKU)
+  const productsForView = useMemo(() => {
+    const toPriceStr = (cents: number) => fmtMoney(cents / 100, currency, locale);
+
+    return list.map((w) => {
+      const found = findProductBySku(w.sku);
+      const priceStr = toPriceStr(w.price);
+
+      if (found) {
+        const p = { ...found.product };
+
+        if (found.variant) {
+          const v = { ...found.variant, price: priceStr };
+          p.variants = p.variants?.map((x) => (x.id === v.id ? v : x)) ?? [v];
+          p.defaultVariantId = v.id;
+        } else {
+          // у товара нет вариантов — просто подменим price
+          (p as any).price = priceStr;
+        }
+
+        return p;
+      }
+
+      // Фолбэк-продукт, если по SKU ничего не нашли
+      return {
+        id: w.sku, // уникально и кликабельно
+        name: w.name,
+        price: priceStr,
+        images: [],
+        available: true,
+        options: [],
+        variants: [
+          {
+            id: `wish-${w.sku}`,
+            sku: w.sku,
+            options: {},
+            price: priceStr,
+            available: true,
+            images: [],
+          },
+        ],
+        defaultVariantId: `wish-${w.sku}`,
+      } as any;
+    });
+  }, [list, currency, locale]);
+
+  // синхронизируемся после клика по сердцу внутри ProductItemList
+  const handleWishlistToggle = React.useCallback(() => {
+    onChange(() => loadWishlist());
+  }, [onChange]);
 
   function clearAll() {
     if (!confirm("Очистить избранное?")) return;
-    onChange([]);
+    onChange([]); // usePersistentAccount сам сохранит в localStorage
   }
 
   return (
@@ -1171,35 +1225,16 @@ function WishlistSection({
           />
         </div>
 
-        {list.length === 0 ? (
+        {productsForView.length === 0 ? (
           <div className={styles.empty}>Список пуст</div>
         ) : (
-          <div className={styles.listGrid}>
-            {list.map((w) => (
-              <article key={w.id} className={styles.addrCard}>
-                <div className={styles.addrHeader}>
-                  <strong className={styles.addrLabel}>{w.name}</strong>
-                  <div className={styles.addrActions}>
-                    <CloseIcon onClick={() => remove(w.id)} />
-                  </div>
-                </div>
-                <div className={styles.addrBody}>
-                  <div className={styles.muted}>SKU: {w.sku}</div>
-                  <div>Цена: {fmtMoney(w.price / 100, currency, locale)}</div>
-                  <div className={styles.muted}>
-                    Добавлено: {new Date(w.addedAt).toLocaleString(locale)}
-                  </div>
-                </div>
-                <Button
-                  size="small"
-                  variant="primary"
-                  onClick={() => alert("В корзину (демо)")}
-                >
-                  В корзину
-                </Button>
-              </article>
-            ))}
-          </div>
+          <ProductItemList
+            products={productsForView}
+            view="list"
+            className={styles.listGrid}
+            onItemClick={(p) => nav(`/product/${p.id}`)}
+            onWishlistToggle={handleWishlistToggle}
+          />
         )}
 
         <div style={{ display: "flex", marginTop: 20, justifyContent: "end" }}>

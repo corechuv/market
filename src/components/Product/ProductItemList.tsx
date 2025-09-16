@@ -20,6 +20,7 @@ type Props = {
     view: ViewMode; // 'grid' | 'list'
     onItemClick?: (product: Product) => void;
     className?: string;
+    onWishlistToggle?: (sku: string, inWish: boolean) => void;
 };
 
 // --- маленький хук для вычислений как на карточке товара ---
@@ -70,7 +71,7 @@ function useProductComputed(product: Product) {
     };
 }
 
-const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, className }) => {
+const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, className, onWishlistToggle }) => {
     const reviewSummaryMap = React.useMemo(() => getReviewSummaryMap(), []);
     return (
         <div className={[cls.productList, className].filter(Boolean).join(" ")}>
@@ -88,6 +89,7 @@ const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, classNa
                             priceCents: Math.max(0, Math.round((parseMoney(price) || 0) * 100)),
                         });
                         setInWish(now);
+                        onWishlistToggle?.(skuForWish, now);
                     };
 
                     const rs = reviewSummaryMap[product.id];
@@ -141,7 +143,7 @@ const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, classNa
                                         className={cls.topActions__btn}
                                         style={{ marginLeft: 8 }}
                                     >
-                                        <HeartIcon fill={inWish ? "currentColor" : "none"} />
+                                        <HeartIcon stroke={inWish ? "currentColor" : "black"} />
                                     </button>
                                 </div>
                             </div>
