@@ -1,8 +1,6 @@
-// src/services/productService.ts
-import type { Product, ProductVariant } from "../types/product";
+import type { Product } from "../types/product";
 import { products as RAW } from "../data/products";
 import { getCategoryByFullSlug, getDescendants } from "./categoryService";
-import { products } from "../data/products"; // или откуда у тебя берётся массив
 
 export type GetProductsParams = {
   q?: string;
@@ -181,19 +179,4 @@ export function getMoreProducts(options?: string | GetMoreProductsOptions, limit
   if (doShuffle) shuffleInPlace(candidates);
 
   return pick(candidates, limit);
-}
-
-
-export function findProductBySku(
-  sku: string
-): { product: Product; variant?: ProductVariant } | null {
-  for (const p of products) {
-    if (Array.isArray(p.variants)) {
-      const v = p.variants.find((x) => x.sku === sku);
-      if (v) return { product: p, variant: v };
-    }
-    // иногда sku может лежать прямо на товаре
-    if ((p as any).sku === sku) return { product: p };
-  }
-  return null;
 }
