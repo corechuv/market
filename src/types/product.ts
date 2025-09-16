@@ -1,3 +1,4 @@
+// src/types/product.ts
 export type AttrValue = string | number | boolean | Array<string | number> | null | undefined;
 
 export interface ProductAttribute {

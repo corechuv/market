@@ -136,6 +136,8 @@ body[data-theme='light'] {
   --select-option-selected: #0000000d;
   /* End Select UI */
 
+  --bg-order-more: #f0f0f0;
+
   color-scheme: light;
 }
 
@@ -271,6 +273,8 @@ body[data-theme='dark'] {
   /* Select UI */
   --select-option-selected: #ffffff11;
   /* End Select UI */
+
+  --bg-order-more: #000000;
 
 
   color-scheme: dark;

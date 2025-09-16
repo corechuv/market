@@ -41,6 +41,80 @@ const SHIPPING_METHODS: ShippingMethod[] = [
 
 const FREE_SHIPPING_THRESHOLD_CENTS = 50_00; // free standard shipping from €50
 
+// === Account sync (LS) ===
+const ACCOUNT_LS_KEY = "mp_account_demo_eu_v1";
+const mkUid = () => Math.random().toString(36).slice(2, 10);
+
+type LsAddress = {
+    id: string;
+    label: string;
+    fullName: string;
+    line1: string;
+    line2?: string;
+    city: string;
+    region?: string;
+    postalCode: string;
+    country: string;
+    phone?: string;
+    isDefault?: boolean;
+};
+
+type LsOrderItem = { sku: string; name: string; qty: number; price: number, image?: string; };
+type LsOrder = {
+    id: string;
+    number: string;
+    createdAt: string;
+    status: "processing" | "shipped" | "delivered" | "cancelled" | "refunded";
+
+    subtotal?: number;
+    shippingCents?: number;
+    discountCents?: number;
+    vatCents?: number;
+    total: number;
+
+    shippingMethod?: string;
+    promoCode?: string | null;
+    currencyCode?: "EUR" | "USD" | "RUB";
+
+    items: LsOrderItem[];
+    deliveryAddressId?: string;
+};
+
+type LsAccount = {
+    profile: {
+        avatar?: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        phone?: string;
+        birthday?: string;
+    };
+    addresses: LsAddress[];
+    orders: LsOrder[];
+    wishlist: any[];
+    settings: {
+        emailNotifications: boolean;
+        smsNotifications: boolean;
+        marketingOptIn: boolean;
+        language: "ru" | "en";
+        currency: "RUB" | "USD" | "EUR";
+        theme: "system" | "light" | "dark";
+    };
+};
+
+function readAccount(): LsAccount | null {
+    try {
+        const raw = localStorage.getItem(ACCOUNT_LS_KEY);
+        return raw ? (JSON.parse(raw) as LsAccount) : null;
+    } catch {
+        return null;
+    }
+}
+
+function writeAccount(acc: LsAccount) {
+    try { localStorage.setItem(ACCOUNT_LS_KEY, JSON.stringify(acc)); } catch { }
+}
+
 // --- Helpers
 const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
 
@@ -124,6 +198,91 @@ const CheckoutPage: React.FC = () => {
         const newOrderNo =
             `DS-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(100000 + Math.random() * 900000)}`;
         setOrderNo(newOrderNo);
+
+        // === Запись заказа в Account ===
+        const nowIso = new Date().toISOString();
+
+        // 1) Подготовим адрес доставки из checkout
+        const addrCandidate: LsAddress = {
+            id: mkUid(),
+            label: "Доставка",
+            fullName: address.fullName,
+            line1: address.street,
+            city: address.city,
+            postalCode: address.postalCode,
+            country: address.country,
+            phone: address.phone,
+        };
+
+        // 2) Прочитаем существующий аккаунт или создадим минимальный по умолчанию
+        const fallbackAccount: LsAccount = {
+            profile: {
+                firstName: (address.fullName || "User").split(" ")[0] || "User",
+                lastName: (address.fullName || "").split(" ").slice(1).join(" "),
+                email: address.email,
+                phone: address.phone,
+                avatar: "",
+            },
+            addresses: [],
+            orders: [],
+            wishlist: [],
+            settings: {
+                emailNotifications: true,
+                smsNotifications: false,
+                marketingOptIn: false,
+                language: "ru",
+                currency: "EUR",
+                theme: "system",
+            },
+        };
+
+        const acc = readAccount() ?? fallbackAccount;
+
+        // 3) Ищем похожий адрес (по ключевым полям), иначе добавляем
+        const sameAddr = acc.addresses.find(a =>
+            a.fullName.trim() === addrCandidate.fullName.trim() &&
+            a.line1.trim() === addrCandidate.line1.trim() &&
+            a.city.trim() === addrCandidate.city.trim() &&
+            a.postalCode.trim() === addrCandidate.postalCode.trim() &&
+            a.country.trim().toLowerCase() === addrCandidate.country.trim().toLowerCase()
+        );
+
+        const deliveryAddressId = (sameAddr?.id) || addrCandidate.id;
+        if (!sameAddr) acc.addresses.unshift(addrCandidate);
+
+        // 4) Маппим содержимое корзины в позиции заказа
+        const orderItems: LsOrderItem[] = lines.map(l => ({
+            sku: l.variantId || l.productId || l.id,
+            name: l.title,
+            qty: l.qty,
+            price: l.priceCents, // per unit, cents
+            image: l.image,      // +++ из варианта/карточки в корзине
+        }));
+
+        // 5) Собираем заказ с “полными данными”
+        const newOrder: LsOrder = {
+            id: mkUid(),
+            number: newOrderNo,
+            createdAt: nowIso,
+            status: "processing",
+
+            subtotal,
+            shippingCents,
+            discountCents: discount,
+            vatCents: vat,
+            total,
+
+            shippingMethod: shipping.label,
+            promoCode: promoApplied,
+            currencyCode: "EUR",
+
+            items: orderItems,
+            deliveryAddressId,
+        };
+
+        // 6) Сохраняем (новые сверху) и чистим старые демки при необходимости
+        acc.orders = [newOrder, ...(acc.orders ?? [])].slice(0, 30); // храним до 30
+        writeAccount(acc);
 
         setStep(3);
         clear(); // empty cart

@@ -10,6 +10,13 @@ import CloseIcon from "../../components/Icons/CloseIcon";
 import PlusIcon from "../../components/Icons/PlusIcon";
 import SwitchField from "../../components/UI/SwitchField";
 
+import { exportInvoicePDF } from "../../types/helpers/invoiceConfig";
+import type { Profile } from "../../types/profile";
+import type { Settings } from "../../types/settings";
+import type { Address } from "../../types/address";
+import { statusLabel, type Order, type OrderStatus } from "../../types/order";
+import { fmtMoney } from "../../types/helpers/fmtMoney";
+
 /**
  * EU-ready Account (React + TSX + SCSS Module)
  * - Defaults: EU focus, primarily Germany (DE)
@@ -21,58 +28,8 @@ import SwitchField from "../../components/UI/SwitchField";
  */
 
 //#region Types
+
 type UUID = string;
-
-type OrderItem = {
-  sku: string;
-  name: string;
-  qty: number;
-  price: number; // per unit (in cents)
-};
-
-type OrderStatus = "processing" | "shipped" | "delivered" | "cancelled" | "refunded";
-
-type Order = {
-  id: UUID;
-  number: string;
-  createdAt: string; // ISO
-  status: OrderStatus;
-  total: number; // in cents
-  items: OrderItem[];
-  deliveryAddressId?: UUID;
-};
-
-type Address = {
-  id: UUID;
-  label: string; // "Дом", "Офис"
-  fullName: string;
-  line1: string;
-  line2?: string;
-  city: string;
-  region?: string; // Bundesland / Region
-  postalCode: string; // PLZ
-  country: string; // country display name
-  phone?: string;
-  isDefault?: boolean;
-};
-
-type Profile = {
-  avatar?: string; // dataURL
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  birthday?: string; // yyyy-mm-dd
-};
-
-type Settings = {
-  emailNotifications: boolean;
-  smsNotifications: boolean;
-  marketingOptIn: boolean; // GDPR-friendly explicit toggle
-  language: "ru" | "en"; // UI still in RU/EN (can be extended)
-  currency: "RUB" | "USD" | "EUR";
-  theme: "system" | "light" | "dark";
-};
 
 type WishlistItem = {
   id: UUID;
@@ -89,6 +46,7 @@ type AccountData = {
   wishlist: WishlistItem[];
   settings: Settings;
 };
+
 //#endregion
 
 //#region EU helpers
@@ -129,9 +87,6 @@ const getPreferredLocale = (settings: Settings, addresses: Address[]): string =>
 
 //#region Utils
 const uid = () => Math.random().toString(36).slice(2, 10);
-
-const fmtMoney = (n: number, currency: Settings["currency"], locale?: string) =>
-  new Intl.NumberFormat(locale, { style: "currency", currency }).format(n);
 
 const persistKey = "mp_account_demo_eu_v1";
 
@@ -185,19 +140,20 @@ const initialData: AccountData = {
       number: "MP-2025-000123",
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
       status: "delivered",
+      // сводка:
+      subtotal: 12990,
+      shippingCents: 0,
+      discountCents: 0,
+      vatCents: 2075, // пример, не принципиально
       total: 12990,
+      shippingMethod: "Standard Versand",
+      promoCode: null,
+      currencyCode: "EUR",
       items: [
         { sku: "SKU-1001", name: "Kopfhörer Pro", qty: 1, price: 9990 },
         { sku: "SKU-2001", name: "Hülle", qty: 1, price: 3000 },
       ],
-    },
-    {
-      id: uid(),
-      number: "MP-2025-000124",
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1).toISOString(),
-      status: "shipped",
-      total: 4590,
-      items: [{ sku: "SKU-3009", name: "USB‑C Kabel", qty: 2, price: 2295 }],
+      // deliveryAddressId оставляем пустым — модалка сападёт на адрес по умолчанию
     },
   ],
   settings: {
@@ -923,64 +879,92 @@ function OrdersSection({
         />
       </div>
 
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Номер</th>
-              <th>Дата</th>
-              <th className={styles.hideSm}>Товары</th>
-              <th>Сумма</th>
-              <th>Статус</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((o) => (
-              <tr key={o.id}>
-                <td>{o.number}</td>
-                <td>{new Date(o.createdAt).toLocaleDateString(locale)}</td>
-                <td className={styles.hideSm}>{o.items.map((i) => i.name).join(", ")}</td>
-                <td>{fmtMoney(o.total / 100, currency, locale)}</td>
-                <td>
-                  <span className={classNames(styles.badge, styles[`st_${o.status}`])}>
-                    {statusLabel(o.status)}
-                  </span>
-                </td>
-                <td className={styles.right}>
-                  <Button size="small" variant="secondary" onClick={() => onOpen(o)}>
-                    Details
-                  </Button>
-                </td>
-              </tr>
-            ))}
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan={6} className={styles.empty}>
-                  Ничего не найдено
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      {/* === LIST (cards) instead of table === */}
+      <div className={styles.ordersList}>
+        {filtered.map((o) => {
+          const totalItems = o.items.reduce((s, it) => s + (it.qty || 0), 0);
+
+          // пытаемся достать картинку из item: image | imageUrl | images[0] | thumb
+          const getItemImage = (it: any): string | undefined =>
+            it?.image || it?.imageUrl || (Array.isArray(it?.images) ? it.images[0] : it?.thumb);
+
+          // до 4 миниатюр; если больше — "+N"
+          const thumbs = o.items.slice(0, 4).map((it, idx) => {
+            const src = getItemImage(it);
+            return src ? (
+              <img key={idx} src={src} alt={it.name} className={styles.orderThumb} loading="lazy" />
+            ) : (
+              <div key={idx} className={styles.orderThumb + " " + styles.thumbFallback} aria-hidden>
+                {it.name?.[0]?.toUpperCase() ?? "•"}
+              </div>
+            );
+          });
+          const extra = o.items.length > 4 ? o.items.length - 4 : 0;
+
+          return (
+            <article key={o.id} className={styles.orderCard} aria-label={`Order ${o.number}`}>
+              <div className={styles.orderHead}>
+                <div className={styles.orderId}>
+                  <div className={styles.orderNumber}>{o.number}</div>
+                  <div className={styles.orderDate}>{new Date(o.createdAt).toLocaleDateString(locale)}</div>
+                </div>
+                <span className={`${styles.badge} ${styles[`st_${o.status}`]}`}>
+                  {statusLabel(o.status)}
+                </span>
+              </div>
+
+              <div className={styles.orderBody}>
+                <div className={styles.orderThumbs}>
+                  {thumbs}
+                  {extra > 0 && <div className={styles.orderThumb + " " + styles.orderMore}>+{extra}</div>}
+                </div>
+
+                <div className={styles.orderMeta}>
+                  <div className={styles.orderTitles}>
+                    {o.items.slice(0, 3).map((it) => it.name).join(", ")}
+                    {o.items.length > 3 ? "…" : ""}
+                  </div>
+                  <div className={styles.muted}>
+                    {totalItems} items • {o.items.length} SKU
+                    {o.shippingMethod ? ` • ${o.shippingMethod}` : ""}
+                  </div>
+                </div>
+
+                <div className={styles.orderTotal}>
+                  {fmtMoney(o.total / 100, currency, locale)}
+                </div>
+              </div>
+
+              <div className={styles.orderActions}>
+                <Button size="small" variant="secondary" onClick={() => onOpen(o)}>
+                  Details
+                </Button>
+                <Button
+                  size="small"
+                  variant="ghost"
+                  onClick={() =>
+                    exportInvoicePDF({
+                      order: o,
+                      currency,
+                      locale,
+                      address: undefined,
+                      buyer: undefined,
+                    })
+                  }
+                >
+                  Invoice
+                </Button>
+              </div>
+            </article>
+          );
+        })}
+
+        {filtered.length === 0 && (
+          <div className={styles.empty}>Ничего не найдено</div>
+        )}
       </div>
     </div>
   );
-}
-
-function statusLabel(s: OrderStatus) {
-  switch (s) {
-    case "processing":
-      return "В обработке";
-    case "shipped":
-      return "Отгружен";
-    case "delivered":
-      return "Доставлен";
-    case "cancelled":
-      return "Отменён";
-    case "refunded":
-      return "Возврат";
-  }
 }
 
 function OrderModal({
@@ -1065,9 +1049,77 @@ function OrderModal({
             </table>
           </div>
 
-          <div className={styles.right}>
-            <button className={styles.secondaryBtn} onClick={() => alert("Повторить заказ (демо)")}>Повторить заказ</button>
+          <div className={styles.stack}>
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h4>Сводка заказа</h4>
+              </div>
+
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <tbody>
+                    {"subtotal" in order && typeof order.subtotal === "number" && (
+                      <tr>
+                        <td>Товары</td>
+                        <td className={styles.right}>{fmtMoney((order.subtotal) / 100, currency, locale)}</td>
+                      </tr>
+                    )}
+                    {"shippingCents" in order && typeof order.shippingCents === "number" && (
+                      <tr>
+                        <td>Доставка{order.shippingMethod ? ` (${order.shippingMethod})` : ""}</td>
+                        <td className={styles.right}>
+                          {order.shippingCents === 0
+                            ? "Free"
+                            : fmtMoney(order.shippingCents / 100, currency, locale)}
+                        </td>
+                      </tr>
+                    )}
+                    {"discountCents" in order && order.discountCents! > 0 && (
+                      <tr>
+                        <td>Скидка{order.promoCode ? ` (${order.promoCode})` : ""}</td>
+                        <td className={styles.right}>- {fmtMoney(order.discountCents! / 100, currency, locale)}</td>
+                      </tr>
+                    )}
+                    {"vatCents" in order && typeof order.vatCents === "number" && (
+                      <tr>
+                        <td>НДС</td>
+                        <td className={styles.right}>{fmtMoney(order.vatCents! / 100, currency, locale)}</td>
+                      </tr>
+                    )}
+                    <tr>
+                      <td><strong>Итого</strong></td>
+                      <td className={styles.right}>
+                        <strong>{fmtMoney(order.total / 100, currency, locale)}</strong>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
+
+          <div className={styles.right}>
+            <button
+              className={styles.secondaryBtn}
+              onClick={() => exportInvoicePDF({
+                order,
+                address,
+                currency,
+                locale,
+                buyer: undefined, // можно передать account.profile, если поднимешь выше
+              })}
+            >
+              Экспорт инвойса (PDF)
+            </button>
+            <button
+              className={styles.secondaryBtn}
+              onClick={() => alert("Повторить заказ (демо)")}
+              style={{ marginLeft: 8 }}
+            >
+              Повторить заказ
+            </button>
+          </div>
+
         </div>
       </div>
     </div>

@@ -493,3 +493,124 @@
         grid-template-columns: 1fr;
     }
 }
+
+
+/* List Orders */
+.ordersList {
+    display: grid;
+    gap: 12px;
+}
+
+.orderCard {
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+}
+
+.orderHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.orderId {
+    display: grid;
+    gap: 2px;
+}
+
+.orderNumber {
+    font-weight: 600;
+}
+
+.orderDate {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.orderBody {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 15px;
+    align-items: center;
+}
+
+.orderThumbs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.orderThumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #f3f4f6;
+    display: inline-block;
+}
+
+.thumbFallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.orderMore {
+    background: var(--bg-order-more);
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.orderMeta {
+    min-width: 0;
+}
+
+.orderTitles {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.orderTotal {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.orderActions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    justify-content: flex-end;
+}
+
+/* мобильная адаптация */
+@media (max-width: 640px) {
+    .orderBody {
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "thumbs total"
+            "meta total";
+    }
+
+    .orderThumbs {
+        grid-area: thumbs;
+    }
+
+    .orderMeta {
+        grid-area: meta;
+    }
+
+    .orderTotal {
+        grid-area: total;
+    }
+}

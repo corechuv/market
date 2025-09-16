@@ -1,3 +1,4 @@
+// src/types/review.ts
 export interface Review {
     id: string;
     reviewerName: string;
