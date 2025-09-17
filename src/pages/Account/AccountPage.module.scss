@@ -577,14 +577,13 @@
     padding: 8px 12px;
     padding-right: 18px;
     border-radius: 999px;
-    border: 1px dashed var(--border);
-    background: var(--bg);
+    border: none;
+    color: var(--btn-text-secondary);
+    background-color: var(--btn-background-secondary);
     align-items: center;
-    background-color: transparent;
     font-size: 16px;
     font-weight: 500;
     font-family: var(--font);
-    color: var(--text);
     cursor: pointer;
 
     svg {
