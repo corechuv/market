@@ -83,7 +83,7 @@ export default function OrderDetails() {
                         <ChevronRightIcon /> Back
                     </button>
                     <h1 className={styles.title}>
-                        Заказ {order.number}
+                        Order {order.number}
                     </h1>
                 </div>
                 <div className={styles.headerActions}>
@@ -95,25 +95,28 @@ export default function OrderDetails() {
 
             <section className={styles.content}>
                 <div className={styles.stack}>
-                    <div className={styles.kv}>
-                        <div>
-                            <span className={styles.muted}>Дата:</span>{" "}
-                            {new Date(order.createdAt).toLocaleString(locale)}
-                        </div>
-                        <div>
-                            <span className={styles.muted}>Статус:</span>{" "}
-                            <span className={classNames(styles.badge, styles[`st_${order.status}`])}>
-                                {statusLabel(order.status)}
-                            </span>
-                        </div>
-                        <div>
-                            <span className={styles.muted}>Позиции:</span> {totalItems}
-                        </div>
-                        <div>
-                            <span className={styles.muted}>Сумма:</span>{" "}
-                            {fmtMoney(order.total / 100, account.settings.currency, locale)}
-                        </div>
+                    <div>
+                        <span className={styles.muted}>Статус:</span>{" "}
+                        <span className={classNames(styles.badge, styles[`st_${order.status}`])}>
+                            {statusLabel(order.status)}
+                        </span>
                     </div>
+                    <section>
+                        <h3>Details</h3>
+                        <div className={styles.addrBody}>
+                            <div>
+                                <span className={styles.muted}>Дата:</span>{" "}
+                                {new Date(order.createdAt).toLocaleString(locale)}
+                            </div>
+                            <div>
+                                <span className={styles.muted}>Позиции:</span> {totalItems}
+                            </div>
+                            <div>
+                                <span className={styles.muted}>Сумма:</span>{" "}
+                                {fmtMoney(order.total / 100, account.settings.currency, locale)}
+                            </div>
+                        </div>
+                    </section>
                     <section>
                         <h3>Items</h3>
                         <div className="summary__mini">
