@@ -445,6 +445,12 @@ $gap-sm: 12px;
     border: 1px dashed var(--border);
 }
 
+.mini-item__sku {
+    color: var(--text-muted);
+    font-size: 1rem;
+    font-weight: 400;
+}
+
 .mini-item__title {
     font-size: 1rem;
     font-weight: 500;
