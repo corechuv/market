@@ -10,6 +10,7 @@ import type { Address } from "../../types/address";
 import type { Settings } from "../../types/settings";
 import { statusLabel, type Order } from "../../types/order";
 import ChevronRightIcon from "../../components/Icons/ChevronRightIcon";
+import Button from "../../components/UI/Button";
 
 /** helpers (локально, чтобы компонент был самодостаточным) */
 const isGermany = (country: string) => /^(германи|deutschland)/i.test(country.trim());
@@ -187,9 +188,10 @@ export default function OrderDetails() {
                         </li>
                     </ul>
 
-                    <div className={styles.right}>
-                        <button
-                            className={styles.secondaryBtn}
+                    <div className={styles.orderActions}>
+                        <Button
+                            size="small"
+                            variant="ghost"
                             onClick={() =>
                                 exportInvoicePDF({
                                     order,
@@ -200,15 +202,15 @@ export default function OrderDetails() {
                                 })
                             }
                         >
-                            Экспорт инвойса (PDF)
-                        </button>
-                        <button
-                            className={styles.secondaryBtn}
+                            Invoice
+                        </Button>
+                        <Button
+                            size="small"
+                            variant="secondary"
                             onClick={() => alert("Повторить заказ (демо)")}
-                            style={{ marginLeft: 8 }}
                         >
                             Повторить заказ
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </section>
