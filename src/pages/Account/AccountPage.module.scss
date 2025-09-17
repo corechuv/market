@@ -115,6 +115,14 @@
 .stack {
     display: grid;
     gap: var(--space-3);
+
+    section {
+        padding-bottom: 20px;
+
+        h3 {
+            margin: 10px 0;
+        }
+    }
 }
 
 .stackLg {
@@ -579,5 +587,31 @@
     svg {
         width: 24px;
         height: 24px;
+    }
+}
+
+.row {
+    display: flex;
+    gap: 20px;
+
+    div {
+        width: 50%;
+        justify-content: center;
+    }
+}
+
+.deliveryIcon {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    img {
+        padding: 10px 0;
+        width: 70px;
+    }
+}
+
+@media (max-width: 640px) {
+    .row {
+        flex-direction: column;
     }
 }

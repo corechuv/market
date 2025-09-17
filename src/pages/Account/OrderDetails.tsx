@@ -115,20 +115,31 @@ export default function OrderDetails() {
                         </div>
                     </div>
 
-                    {address && (
-                        <div className={styles.addrCard}>
-                            <div className={styles.muted}>Адрес доставки</div>
-                            <div>{address.fullName}</div>
-                            <div>{address.line1}</div>
-                            {address.line2 && <div>{address.line2}</div>}
-                            <div>
-                                {address.city}
-                                {address.region ? `, ${address.region}` : ""}, {address.postalCode}
+                    <section>
+                        <h3>Delivery address</h3>
+                        {address && (
+                            <div className={styles.addrBody}>
+                                <div className={styles.muted}>{address.fullName}</div>
+                                <div>{address.line1}</div>
+                                {address.line2 && <div>{address.line2}</div>}
+                                <div>
+                                    {address.city}
+                                    {address.region ? `, ${address.region}` : ""}, {address.postalCode}
+                                </div>
+                                <div>{address.country}</div>
+                                {address.phone && <div className={styles.muted}>{address.phone}</div>}
                             </div>
-                            <div>{address.country}</div>
-                            {address.phone && <div className={styles.muted}>{address.phone}</div>}
+                        )}
+                    </section>
+                    <section>
+                        <h3>Delivery by</h3>
+                        <div className={styles.addrBody}>
+                            <div className={styles.deliveryIcon}>
+                                <img src="/dhl.png" />
+                                <div className={styles.muted}>D3534545454354354</div>
+                            </div>
                         </div>
-                    )}
+                    </section>
 
                     <div className={styles.tableWrap}>
                         <table className={styles.table}>
@@ -155,38 +166,41 @@ export default function OrderDetails() {
                         </table>
                     </div>
 
-                    <ul className="summary__list">
-                        {"subtotal" in order && typeof order.subtotal === "number" && (
-                            <li>
-                                <span>Items</span>
-                                <span>{fmtMoney(order.subtotal / 100, account.settings.currency, locale)}</span>
+                    <section>
+                        <h3>Summary</h3>
+                        <ul className="summary__list">
+                            {"subtotal" in order && typeof order.subtotal === "number" && (
+                                <li>
+                                    <span>Items</span>
+                                    <span>{fmtMoney(order.subtotal / 100, account.settings.currency, locale)}</span>
+                                </li>
+                            )}
+                            {"shippingCents" in order && typeof order.shippingCents === "number" && (
+                                <li>
+                                    <span>Доставка{order.shippingMethod ? ` (${order.shippingMethod})` : ""}</span>
+                                    <span>{order.shippingCents === 0
+                                        ? "Free"
+                                        : fmtMoney(order.shippingCents / 100, account.settings.currency, locale)}</span>
+                                </li>
+                            )}
+                            {"discountCents" in order && order.discountCents! > 0 && (
+                                <li className="good">
+                                    <span>Скидка{order.promoCode ? ` (${order.promoCode})` : ""}</span>
+                                    <span>-{fmtMoney(order.discountCents! / 100, account.settings.currency, locale)}</span>
+                                </li>
+                            )}
+                            {"vatCents" in order && typeof order.vatCents === "number" && (
+                                <li>
+                                    <span>Including VAT (19%)</span>
+                                    <span>{fmtMoney(order.vatCents! / 100, account.settings.currency, locale)}</span>
+                                </li>
+                            )}
+                            <li className="sum">
+                                <span>Итого</span>
+                                <span>{fmtMoney(order.total / 100, account.settings.currency, locale)}</span>
                             </li>
-                        )}
-                        {"shippingCents" in order && typeof order.shippingCents === "number" && (
-                            <li>
-                                <span>Доставка{order.shippingMethod ? ` (${order.shippingMethod})` : ""}</span>
-                                <span>{order.shippingCents === 0
-                                    ? "Free"
-                                    : fmtMoney(order.shippingCents / 100, account.settings.currency, locale)}</span>
-                            </li>
-                        )}
-                        {"discountCents" in order && order.discountCents! > 0 && (
-                            <li className="good">
-                                <span>Скидка{order.promoCode ? ` (${order.promoCode})` : ""}</span>
-                                <span>-{fmtMoney(order.discountCents! / 100, account.settings.currency, locale)}</span>
-                            </li>
-                        )}
-                        {"vatCents" in order && typeof order.vatCents === "number" && (
-                            <li>
-                                <span>Including VAT (19%)</span>
-                                <span>{fmtMoney(order.vatCents! / 100, account.settings.currency, locale)}</span>
-                            </li>
-                        )}
-                        <li className="sum">
-                            <span>Итого</span>
-                            <span>{fmtMoney(order.total / 100, account.settings.currency, locale)}</span>
-                        </li>
-                    </ul>
+                        </ul>
+                    </section>
 
                     <div className={styles.orderActions}>
                         <Button
