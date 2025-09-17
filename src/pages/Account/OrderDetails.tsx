@@ -74,14 +74,16 @@ export default function OrderDetails() {
         <main className={styles.page}>
             <header className={styles.header}>
                 <div className={styles.headerMainPage}>
-                    <button
-                        type="button"
-                        className={styles.backBtn}
-                        onClick={() => navigate(backTo)}
-                        aria-label="Назад"
-                    >
-                        <ChevronRightIcon /> Back
-                    </button>
+                    <div>
+                        <button
+                            type="button"
+                            className={styles.backBtn}
+                            onClick={() => navigate(backTo)}
+                            aria-label="Назад"
+                        >
+                            <ChevronRightIcon /> Back
+                        </button>
+                    </div>
                     <h1 className={styles.title}>
                         {order.number}
                     </h1>
@@ -118,7 +120,7 @@ export default function OrderDetails() {
                         </div>
                     </section>
                     <section>
-                        <h3>Items</h3>
+                        <h3>Products</h3>
                         <div className="summary__mini">
                             {order.items.map((it) => (
                                 <div key={it.sku} className="mini-item">
@@ -139,7 +141,7 @@ export default function OrderDetails() {
                         <h3>Delivery address</h3>
                         {address && (
                             <div className={styles.addrBody}>
-                                <div className={styles.muted}>{address.fullName}</div>
+                                <div>{address.fullName}</div>
                                 <div>{address.line1}</div>
                                 {address.line2 && <div>{address.line2}</div>}
                                 <div>
@@ -147,7 +149,7 @@ export default function OrderDetails() {
                                     {address.region ? `, ${address.region}` : ""}, {address.postalCode}
                                 </div>
                                 <div>{address.country}</div>
-                                {address.phone && <div className={styles.muted}>{address.phone}</div>}
+                                {address.phone && <div>{address.phone}</div>}
                             </div>
                         )}
                     </section>
@@ -156,7 +158,7 @@ export default function OrderDetails() {
                         <div className={styles.addrBody}>
                             <div className={styles.deliveryIcon}>
                                 <img src="/dhl.png" />
-                                <div className={styles.muted}>D3534545454354354</div>
+                                <div>D3534545454354354</div>
                             </div>
                         </div>
                     </section>
@@ -165,13 +167,13 @@ export default function OrderDetails() {
                         <ul className="summary__list">
                             {"subtotal" in order && typeof order.subtotal === "number" && (
                                 <li>
-                                    <span>Items</span>
+                                    <span>Products</span>
                                     <span>{fmtMoney(order.subtotal / 100, account.settings.currency, locale)}</span>
                                 </li>
                             )}
                             {"shippingCents" in order && typeof order.shippingCents === "number" && (
                                 <li>
-                                    <span>Доставка{order.shippingMethod ? ` (${order.shippingMethod})` : ""}</span>
+                                    <span>Delivery{order.shippingMethod ? ` (${order.shippingMethod})` : ""}</span>
                                     <span>{order.shippingCents === 0
                                         ? "Free"
                                         : fmtMoney(order.shippingCents / 100, account.settings.currency, locale)}</span>
@@ -179,7 +181,7 @@ export default function OrderDetails() {
                             )}
                             {"discountCents" in order && order.discountCents! > 0 && (
                                 <li className="good">
-                                    <span>Скидка{order.promoCode ? ` (${order.promoCode})` : ""}</span>
+                                    <span>Discount{order.promoCode ? ` (${order.promoCode})` : ""}</span>
                                     <span>-{fmtMoney(order.discountCents! / 100, account.settings.currency, locale)}</span>
                                 </li>
                             )}
@@ -190,7 +192,7 @@ export default function OrderDetails() {
                                 </li>
                             )}
                             <li className="sum">
-                                <span>Итого</span>
+                                <span>Total</span>
                                 <span>{fmtMoney(order.total / 100, account.settings.currency, locale)}</span>
                             </li>
                         </ul>

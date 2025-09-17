@@ -453,9 +453,8 @@
 }
 
 .orderCard {
-    border: 1px dashed var(--border);
-    border-radius: 12px;
-    padding: 12px 14px;
+    border-bottom: 1px dashed var(--border);
+    padding: 12px 0;
 }
 
 .orderHead {
@@ -573,16 +572,20 @@
 }
 
 .backBtn {
-    display: flex;
+    display: inline-flex;
     gap: 8px;
-    padding: 0;
+    padding: 8px 12px;
+    padding-right: 18px;
+    border-radius: 999px;
+    border: 1px dashed var(--border);
+    background: var(--bg);
     align-items: center;
     background-color: transparent;
-    border: none;
-    border-radius: 0;
     font-size: 16px;
+    font-weight: 500;
     font-family: var(--font);
     color: var(--text);
+    cursor: pointer;
 
     svg {
         width: 24px;
