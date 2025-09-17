@@ -191,6 +191,13 @@ export default function OrderDetails() {
                     <div className={styles.orderActions}>
                         <Button
                             size="small"
+                            variant="secondary"
+                            onClick={() => alert("Повторить заказ (демо)")}
+                        >
+                            Повторить заказ
+                        </Button>
+                        <Button
+                            size="small"
                             variant="ghost"
                             onClick={() =>
                                 exportInvoicePDF({
@@ -203,13 +210,6 @@ export default function OrderDetails() {
                             }
                         >
                             Invoice
-                        </Button>
-                        <Button
-                            size="small"
-                            variant="secondary"
-                            onClick={() => alert("Повторить заказ (демо)")}
-                        >
-                            Повторить заказ
                         </Button>
                     </div>
                 </div>
