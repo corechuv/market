@@ -83,7 +83,7 @@ export default function OrderDetails() {
                         <ChevronRightIcon /> Back
                     </button>
                     <h1 className={styles.title}>
-                        Order {order.number}
+                        {order.number}
                     </h1>
                 </div>
                 <div className={styles.headerActions}>
