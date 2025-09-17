@@ -102,7 +102,7 @@ export default function AddressEdit() {
     return (
         <main className={styles.page}>
             <header className={styles.header}>
-                <div className={styles.headerMainPage}>
+                <div className={styles.headerMain}>
                     <button
                         type="button"
                         className={styles.backBtn}

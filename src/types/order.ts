@@ -38,6 +38,8 @@ export type Order = {
 
   items: OrderItem[];
   deliveryAddressId?: UUID;    // слинкуется на Address
+
+  deliveredAt?: string; // ISO: когда покупатель получил товар (если известно)
 };
 
 export function statusLabel(s: OrderStatus) {

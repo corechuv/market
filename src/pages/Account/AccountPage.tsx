@@ -248,11 +248,11 @@ function ProfileForm({
     namePrefix = "bday",
   }: {
     label?: string;
-    value: string;                    // ISO: yyyy-mm-dd или ""
-    onChange: (iso: string) => void;  // в состояние уходит всегда ISO или ""
+    value: string; // ISO: yyyy-mm-dd или ""
+    onChange: (iso: string) => void; // в состояние уходит всегда ISO или ""
     minYear?: number;
     maxYear?: number;
-    namePrefix?: string;              // чтобы autocomplete не конфликтовал
+    namePrefix?: string; // чтобы autocomplete не конфликтовал
   }) {
     const { y, m, d } = parseISODate(value);
 
@@ -506,7 +506,7 @@ function OrdersSection({
   locale: string;
 }) {
   const navigate = useNavigate();
-  const back = encodeURIComponent("/account?tab=orders")
+  const back = encodeURIComponent("/account?tab=orders");
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<OrderStatus | "all">("all");
 
@@ -538,7 +538,7 @@ function OrdersSection({
         <SelectField
           value={status}
           onChange={(v) => setStatus(v as OrderStatus | "all")}
-          options={STATUS_OPTIONS.map(o => ({ value: o.value, label: o.label }))}
+          options={STATUS_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
           placeholder="Выберите статус"
           className={styles.toolbarSelect}
         />
@@ -573,9 +573,7 @@ function OrdersSection({
                   <div className={styles.orderNumber}>{o.number}</div>
                   <div className={styles.orderDate}>{new Date(o.createdAt).toLocaleDateString(locale)}</div>
                 </div>
-                <span className={`${styles.badge} ${styles[`st_${o.status}`]}`}>
-                  {statusLabel(o.status)}
-                </span>
+                <span className={`${styles.badge} ${styles[`st_${o.status}`]}`}>{statusLabel(o.status)}</span>
               </div>
 
               <div className={styles.orderBody}>
@@ -601,9 +599,14 @@ function OrdersSection({
               </div>
 
               <div className={styles.orderActions}>
-                <Button size="small" variant="secondary" onClick={() => navigate(`/account/orders/${o.id}?back=${back}`)}>
+                <Button
+                  size="small"
+                  variant="secondary"
+                  onClick={() => navigate(`/account/orders/${o.id}?back=${back}`)}
+                >
                   Details
                 </Button>
+
                 <Button
                   size="small"
                   variant="ghost"
@@ -624,9 +627,7 @@ function OrdersSection({
           );
         })}
 
-        {filtered.length === 0 && (
-          <div className={styles.empty}>Ничего не найдено</div>
-        )}
+        {filtered.length === 0 && <div className={styles.empty}>Ничего не найдено</div>}
       </div>
     </div>
   );
@@ -674,7 +675,9 @@ function SettingsSection({
       <div className={styles.card}>
         <div className={styles.cardHeader}>
           <h2 className={styles.titlePage}>Settings</h2>
-          <p className={styles.muted}>Уведомления, язык, валюта и тема. GDPR: маркетинговые рассылки включаются только по явному согласию.</p>
+          <p className={styles.muted}>
+            Уведомления, язык, валюта и тема. GDPR: маркетинговые рассылки включаются только по явному согласию.
+          </p>
         </div>
 
         <form
@@ -709,25 +712,38 @@ function SettingsSection({
               label="Language"
               value={form.language}
               onChange={(v) => setForm({ ...form, language: v as Settings["language"] })}
-              options={[{ value: "ru", label: "Русский" }, { value: "en", label: "English" }]}
+              options={[
+                { value: "ru", label: "Русский" },
+                { value: "en", label: "English" },
+              ]}
             />
 
             <SelectField
               label="Currency"
               value={form.currency}
               onChange={(v) => setForm({ ...form, currency: v as Settings["currency"] })}
-              options={[{ value: "EUR", label: "EUR €" }, { value: "USD", label: "USD $" }, { value: "RUB", label: "RUB ₽" }]}
+              options={[
+                { value: "EUR", label: "EUR €" },
+                { value: "USD", label: "USD $" },
+                { value: "RUB", label: "RUB ₽" },
+              ]}
             />
 
             <SelectField
               label="Theme"
               value={form.theme}
               onChange={(v) => setForm({ ...form, theme: v as Settings["theme"] })}
-              options={[{ value: "system", label: "Системная" }, { value: "light", label: "Светлая" }, { value: "dark", label: "Тёмная" }]}
+              options={[
+                { value: "system", label: "Системная" },
+                { value: "light", label: "Светлая" },
+                { value: "dark", label: "Тёмная" },
+              ]}
             />
           </div>
           <div className={styles.formActions}>
-            <Button type="submit" size="small" variant="primary">Save</Button>
+            <Button type="submit" size="small" variant="primary">
+              Save
+            </Button>
             <Button type="button" size="small" variant="secondary" onClick={() => setForm(settings)}>
               Cancel
             </Button>
@@ -768,7 +784,9 @@ function SettingsSection({
             />
           </div>
           <div className={styles.formActions}>
-            <Button type="submit" size="small">Change password</Button>
+            <Button type="submit" size="small">
+              Change password
+            </Button>
           </div>
         </form>
       </div>

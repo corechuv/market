@@ -9,6 +9,7 @@ import React, {
 import type { Account } from "../types/account";
 import type { Address } from "../types/address";
 import { account as demoAccount } from "../data/account";
+import type { ReturnRequest, ReturnStatus } from "../types/return";
 
 export const ACCOUNT_STORAGE_KEY = "mp_account_demo_eu_v1";
 
@@ -21,6 +22,10 @@ type AccountCtx = {
     upsertAddress: (a: Address) => void;
     removeAddress: (id: string) => void;
     setDefaultAddress: (id: string) => void;
+
+    // Returns
+    upsertReturn: (r: ReturnRequest) => void;
+    setReturnStatus: (id: string, status: ReturnStatus) => void;
 };
 
 const Ctx = createContext<AccountCtx | undefined>(undefined);
@@ -97,10 +102,24 @@ export function AccountProvider({
         }));
     }, []);
 
-    const value = useMemo(
-        () => ({ account, setAccount, reset, upsertAddress, removeAddress, setDefaultAddress }),
-        [account, reset, upsertAddress, removeAddress, setDefaultAddress]
-    );
+    const value = useMemo(() => ({
+        account, setAccount, reset,
+        upsertAddress, removeAddress, setDefaultAddress,
+
+        upsertReturn: (r: ReturnRequest) =>
+            setAccount(prev => {
+                const list = [...(prev.returns || [])];
+                const i = list.findIndex(x => x.id === r.id);
+                if (i >= 0) list[i] = r; else list.unshift(r);
+                return { ...prev, returns: list };
+            }),
+
+        setReturnStatus: (id: string, status: ReturnStatus) =>
+            setAccount(prev => ({
+                ...prev,
+                returns: (prev.returns || []).map(r => r.id === id ? { ...r, status } : r),
+            })),
+    }), [account, reset, upsertAddress, removeAddress, setDefaultAddress]);
 
     return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

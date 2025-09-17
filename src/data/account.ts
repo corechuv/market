@@ -39,6 +39,7 @@ export const account: Account = {
       id: uid(),
       number: "MP-2025-000123",
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
+      deliveredAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1).toISOString(),
       status: "delivered",
       // сводка:
       subtotal: 12990,
@@ -56,6 +57,7 @@ export const account: Account = {
       // deliveryAddressId оставляем пустым — модалка сападёт на адрес по умолчанию
     },
   ],
+  returns: [],
   settings: {
     emailNotifications: true,
     smsNotifications: false,

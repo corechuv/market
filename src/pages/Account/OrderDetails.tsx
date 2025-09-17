@@ -12,7 +12,10 @@ import { statusLabel, type Order } from "../../types/order";
 import ChevronRightIcon from "../../components/Icons/ChevronRightIcon";
 import Button from "../../components/UI/Button";
 
-/** helpers (локально, чтобы компонент был самодостаточным) */
+import type { ReturnRequest, ReturnStatus } from "../../types/return";
+import { returnStatusLabel } from "../../types/return";
+
+/** helpers */
 const isGermany = (country: string) => /^(германи|deutschland)/i.test(country.trim());
 const getPreferredLocale = (settings: Settings, addresses: Address[]): string => {
     const def = addresses.find((a) => a.isDefault) || addresses[0];
@@ -70,6 +73,40 @@ export default function OrderDetails() {
 
     const totalItems = order.items.reduce((s, it) => s + (it.qty || 0), 0);
 
+    const returnsForOrder: ReturnRequest[] = (account.returns || []).filter((r) => r.orderId === order.id);
+
+    // сколько уже возвращается по SKU
+    const COUNT_STATUSES: ReturnStatus[] = [
+        "submitted", "approved", "label_issued", "in_transit", "received", "refunded",
+    ];
+    const returnedQtyBySku = useMemo(() => {
+        const m = new Map<string, number>();
+        returnsForOrder.forEach((r) => {
+            if (!COUNT_STATUSES.includes(r.status)) return;
+            r.items.forEach((it) => m.set(it.sku, (m.get(it.sku) || 0) + it.qty));
+        });
+        return m;
+    }, [returnsForOrder]);
+
+    // список возвратов по каждому SKU (для «Открыть возврат» прямо из товара)
+    const returnsBySku = useMemo(() => {
+        const m = new Map<string, Array<{ req: ReturnRequest; qty: number }>>();
+        returnsForOrder.forEach((req) => {
+            req.items.forEach((line) => {
+                const arr = m.get(line.sku) || [];
+                arr.push({ req, qty: line.qty });
+                m.set(line.sku, arr);
+            });
+        });
+        return m;
+    }, [returnsForOrder]);
+
+    const hasAnyReturnable = order.items.some((it) => {
+        const ordered = it.qty || 0;
+        const returned = returnedQtyBySku.get(it.sku) || 0;
+        return ordered - returned > 0;
+    });
+
     return (
         <main className={styles.page}>
             <header className={styles.header}>
@@ -84,9 +121,7 @@ export default function OrderDetails() {
                             <ChevronRightIcon /> Back
                         </button>
                     </div>
-                    <h1 className={styles.title}>
-                        {order.number}
-                    </h1>
+                    <h1 className={styles.title}>{order.number}</h1>
                 </div>
                 <div className={styles.headerActions}>
                     <Link to="/account?tab=orders" className={styles.ghostBtn}>
@@ -103,6 +138,7 @@ export default function OrderDetails() {
                             {statusLabel(order.status)}
                         </span>
                     </div>
+
                     <section>
                         <h3>Details</h3>
                         <div className={styles.addrBody}>
@@ -119,24 +155,67 @@ export default function OrderDetails() {
                             </div>
                         </div>
                     </section>
+
                     <section>
                         <h3>Products</h3>
                         <div className="summary__mini">
-                            {order.items.map((it) => (
-                                <div key={it.sku} className="mini-item">
-                                    {it.image && <img src={it.image} alt="" />}
-                                    <div>
-                                        <div className="mini-item__sku">{it.sku}</div>
-                                        <div className="mini-item__title">{it.name}</div>
-                                        <div className="muted">×{it.qty}</div>
+                            {order.items.map((it) => {
+                                const ordered = it.qty || 0;
+                                // const returned = returnedQtyBySku.get(it.sku) || 0;
+                                // const left = Math.max(0, ordered - returned);
+                                const skuReturns = returnsBySku.get(it.sku) || [];
+
+                                return (
+                                    <div key={it.sku} className="mini-item">
+                                        {it.image && <img src={it.image} alt="" />}
+                                        <div>
+                                            <div>
+                                                <div className="mini-item__sku">{it.sku}</div>
+                                                <div className="mini-item__title">{it.name}</div>
+                                                <div className="muted">×{ordered}</div>
+                                            </div>
+                                            <div style={{margin: "20px 0"}}>
+                                                {/* <div className="muted">Доступно к возврату: ×{left}</div> */}
+                                                {/* Возвраты по этому SKU */}
+                                                {skuReturns.length > 0 && (
+                                                    <div style={{ marginTop: 6 }}>
+                                                        <div className={styles.muted}>Returns for this item:</div>
+                                                        <div style={{ display: "grid", gap: 6, marginTop: 6 }}>
+                                                            {skuReturns.map(({ req, qty }) => (
+                                                                <div key={`${req.id}-${it.sku}`} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                                                                    <span className={styles.badge}>{returnStatusLabel(req.status)}</span>
+                                                                    <span className={styles.muted}>×{qty} • {req.rma}</span>
+                                                                    <Button
+                                                                        size="small"
+                                                                        variant="secondary"
+                                                                        type="button"
+                                                                        onClick={() =>
+                                                                            navigate(
+                                                                                `/account/returns/${req.id}?back=${encodeURIComponent(
+                                                                                    location.pathname + location.search
+                                                                                )}&sku=${encodeURIComponent(it.sku)}`
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        Open
+                                                                    </Button>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="mini-item__price">
+                                            {fmtMoney((it.price * it.qty) / 100, account.settings.currency, locale)}
+                                        </div>
                                     </div>
-                                    <div className="mini-item__price">
-                                        {fmtMoney((it.price * it.qty) / 100, account.settings.currency, locale)}
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </section>
+
                     <section>
                         <h3>Delivery address</h3>
                         {address && (
@@ -153,6 +232,7 @@ export default function OrderDetails() {
                             </div>
                         )}
                     </section>
+
                     <section>
                         <h3>Delivery by</h3>
                         <div className={styles.addrBody}>
@@ -162,6 +242,7 @@ export default function OrderDetails() {
                             </div>
                         </div>
                     </section>
+
                     <section>
                         <h3>Summary</h3>
                         <ul className="summary__list">
@@ -174,9 +255,11 @@ export default function OrderDetails() {
                             {"shippingCents" in order && typeof order.shippingCents === "number" && (
                                 <li>
                                     <span>Delivery{order.shippingMethod ? ` (${order.shippingMethod})` : ""}</span>
-                                    <span>{order.shippingCents === 0
-                                        ? "Free"
-                                        : fmtMoney(order.shippingCents / 100, account.settings.currency, locale)}</span>
+                                    <span>
+                                        {order.shippingCents === 0
+                                            ? "Free"
+                                            : fmtMoney(order.shippingCents / 100, account.settings.currency, locale)}
+                                    </span>
                                 </li>
                             )}
                             {"discountCents" in order && order.discountCents! > 0 && (
@@ -206,6 +289,17 @@ export default function OrderDetails() {
                         >
                             Повторить заказ
                         </Button>
+
+                        {hasAnyReturnable && (
+                            <Button
+                                size="small"
+                                variant="secondary"
+                                onClick={() => navigate(`/account/returns/new?order=${order.id}`)}
+                            >
+                                Return items
+                            </Button>
+                        )}
+
                         <Button
                             size="small"
                             variant="ghost"

@@ -20,6 +20,8 @@ import CheckoutPage from "./pages/Checkout/CheckoutPage";
 import CookieConsent from "./components/CookieConsent/CookieConsent";
 import AddressEdit from "./pages/Account/AddressEdit";
 import OrderDetails from "./pages/Account/OrderDetails";
+import ReturnRequestPage from "./pages/Account/ReturnRequest";
+import ReturnDetailsPage from "./pages/Account/ReturnDetails";
 
 export default function App() {
 
@@ -38,6 +40,8 @@ export default function App() {
           <Route path="/account/addresses/new" element={<AddressEdit />} />
           <Route path="/account/addresses/:id" element={<AddressEdit />} />
           <Route path="/account/orders/:id" element={<OrderDetails />} />
+          <Route path="/account/returns/new" element={<ReturnRequestPage />} />
+          <Route path="/account/returns/:id" element={<ReturnDetailsPage />} />
         </Route>
 
         <Route element={<AuthLayout />}>
