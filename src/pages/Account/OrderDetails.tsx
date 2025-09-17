@@ -174,7 +174,7 @@ export default function OrderDetails() {
                                                 <div className="mini-item__title">{it.name}</div>
                                                 <div className="muted">×{ordered}</div>
                                             </div>
-                                            <div style={{margin: "20px 0"}}>
+                                            <div style={{ margin: "20px 0" }}>
                                                 {/* <div className="muted">Доступно к возврату: ×{left}</div> */}
                                                 {/* Возвраты по этому SKU */}
                                                 {skuReturns.length > 0 && (
@@ -284,24 +284,6 @@ export default function OrderDetails() {
                     <div className={styles.orderActions}>
                         <Button
                             size="small"
-                            variant="secondary"
-                            onClick={() => alert("Повторить заказ (демо)")}
-                        >
-                            Повторить заказ
-                        </Button>
-
-                        {hasAnyReturnable && (
-                            <Button
-                                size="small"
-                                variant="secondary"
-                                onClick={() => navigate(`/account/returns/new?order=${order.id}`)}
-                            >
-                                Return items
-                            </Button>
-                        )}
-
-                        <Button
-                            size="small"
                             variant="ghost"
                             onClick={() =>
                                 exportInvoicePDF({
@@ -315,6 +297,15 @@ export default function OrderDetails() {
                         >
                             Invoice
                         </Button>
+                        {hasAnyReturnable && (
+                            <Button
+                                size="small"
+                                variant="secondary"
+                                onClick={() => navigate(`/account/returns/new?order=${order.id}`)}
+                            >
+                                Return items
+                            </Button>
+                        )}
                     </div>
                 </div>
             </section>
