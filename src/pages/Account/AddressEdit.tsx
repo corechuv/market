@@ -16,6 +16,7 @@ import { DE_STATES, EU_COUNTRIES_RU } from "../../data/helpers/region";
 
 // Валидаторы
 import { required, validatePhone, validateForm, type FieldErrors, } from "../../utils/validate/fields";
+import ChevronRightIcon from "../../components/Icons/ChevronRightIcon";
 
 
 /** ====== helpers ====== */
@@ -101,16 +102,16 @@ export default function AddressEdit() {
     return (
         <main className={styles.page}>
             <header className={styles.header}>
-                <div className={styles.headerMain}>
+                <div className={styles.headerMainPage}>
                     <button
                         type="button"
-                        className={styles.ghostBtn}
+                        className={styles.backBtn}
                         onClick={() => navigate(backTo)}
                         aria-label="Назад"
                     >
-                        ← Назад
+                        <ChevronRightIcon /> Back
                     </button>
-                    <h1 className={styles.title} style={{ marginLeft: 12 }}>
+                    <h1 className={styles.title}>
                         {isNew ? "New address" : "Edit address"}
                     </h1>
                 </div>
@@ -123,11 +124,6 @@ export default function AddressEdit() {
 
             <section className={styles.content}>
                 <div className={styles.card}>
-                    <div className={styles.cardHeader}>
-                        <h2 className={styles.titlePage}>
-                            {isNew ? "Create address" : "Update address"}
-                        </h2>
-                    </div>
 
                     <form className={styles.form} onSubmit={onSubmit}>
                         <div className={styles.grid2}>

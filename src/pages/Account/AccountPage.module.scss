@@ -557,3 +557,27 @@
         grid-area: total;
     }
 }
+
+.headerMainPage {
+    display: flex;
+    gap: 20px;
+    flex-direction: column;
+}
+
+.backBtn {
+    display: flex;
+    gap: 8px;
+    padding: 0;
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    font-size: 16px;
+    font-family: var(--font);
+    color: var(--text);
+
+    svg {
+        width: 24px;
+        height: 24px;
+    }
+}

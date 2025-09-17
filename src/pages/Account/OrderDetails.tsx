@@ -9,6 +9,7 @@ import { fmtMoney } from "../../types/helpers/fmtMoney";
 import type { Address } from "../../types/address";
 import type { Settings } from "../../types/settings";
 import { statusLabel, type Order } from "../../types/order";
+import ChevronRightIcon from "../../components/Icons/ChevronRightIcon";
 
 /** helpers (локально, чтобы компонент был самодостаточным) */
 const isGermany = (country: string) => /^(германи|deutschland)/i.test(country.trim());
@@ -71,16 +72,16 @@ export default function OrderDetails() {
     return (
         <main className={styles.page}>
             <header className={styles.header}>
-                <div className={styles.headerMain}>
+                <div className={styles.headerMainPage}>
                     <button
                         type="button"
-                        className={styles.ghostBtn}
+                        className={styles.backBtn}
                         onClick={() => navigate(backTo)}
                         aria-label="Назад"
                     >
-                        ← Назад
+                        <ChevronRightIcon /> Back
                     </button>
-                    <h1 className={styles.title} style={{ marginLeft: 12 }}>
+                    <h1 className={styles.title}>
                         Заказ {order.number}
                     </h1>
                 </div>
@@ -114,7 +115,7 @@ export default function OrderDetails() {
                     </div>
 
                     {address && (
-                        <div className={styles.addrBox}>
+                        <div className={styles.addrCard}>
                             <div className={styles.muted}>Адрес доставки</div>
                             <div>{address.fullName}</div>
                             <div>{address.line1}</div>
@@ -153,57 +154,38 @@ export default function OrderDetails() {
                         </table>
                     </div>
 
-                    <div className={styles.card}>
-                        <div className={styles.cardHeader}>
-                            <h4>Сводка заказа</h4>
-                        </div>
-                        <div className={styles.tableWrap}>
-                            <table className={styles.table}>
-                                <tbody>
-                                    {"subtotal" in order && typeof order.subtotal === "number" && (
-                                        <tr>
-                                            <td>Товары</td>
-                                            <td className={styles.right}>
-                                                {fmtMoney(order.subtotal / 100, account.settings.currency, locale)}
-                                            </td>
-                                        </tr>
-                                    )}
-                                    {"shippingCents" in order && typeof order.shippingCents === "number" && (
-                                        <tr>
-                                            <td>Доставка{order.shippingMethod ? ` (${order.shippingMethod})` : ""}</td>
-                                            <td className={styles.right}>
-                                                {order.shippingCents === 0
-                                                    ? "Free"
-                                                    : fmtMoney(order.shippingCents / 100, account.settings.currency, locale)}
-                                            </td>
-                                        </tr>
-                                    )}
-                                    {"discountCents" in order && order.discountCents! > 0 && (
-                                        <tr>
-                                            <td>Скидка{order.promoCode ? ` (${order.promoCode})` : ""}</td>
-                                            <td className={styles.right}>
-                                                - {fmtMoney(order.discountCents! / 100, account.settings.currency, locale)}
-                                            </td>
-                                        </tr>
-                                    )}
-                                    {"vatCents" in order && typeof order.vatCents === "number" && (
-                                        <tr>
-                                            <td>НДС</td>
-                                            <td className={styles.right}>
-                                                {fmtMoney(order.vatCents! / 100, account.settings.currency, locale)}
-                                            </td>
-                                        </tr>
-                                    )}
-                                    <tr>
-                                        <td><strong>Итого</strong></td>
-                                        <td className={styles.right}>
-                                            <strong>{fmtMoney(order.total / 100, account.settings.currency, locale)}</strong>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    <ul className="summary__list">
+                        {"subtotal" in order && typeof order.subtotal === "number" && (
+                            <li>
+                                <span>Items</span>
+                                <span>{fmtMoney(order.subtotal / 100, account.settings.currency, locale)}</span>
+                            </li>
+                        )}
+                        {"shippingCents" in order && typeof order.shippingCents === "number" && (
+                            <li>
+                                <span>Доставка{order.shippingMethod ? ` (${order.shippingMethod})` : ""}</span>
+                                <span>{order.shippingCents === 0
+                                    ? "Free"
+                                    : fmtMoney(order.shippingCents / 100, account.settings.currency, locale)}</span>
+                            </li>
+                        )}
+                        {"discountCents" in order && order.discountCents! > 0 && (
+                            <li className="good">
+                                <span>Скидка{order.promoCode ? ` (${order.promoCode})` : ""}</span>
+                                <span>-{fmtMoney(order.discountCents! / 100, account.settings.currency, locale)}</span>
+                            </li>
+                        )}
+                        {"vatCents" in order && typeof order.vatCents === "number" && (
+                            <li>
+                                <span>Including VAT (19%)</span>
+                                <span>{fmtMoney(order.vatCents! / 100, account.settings.currency, locale)}</span>
+                            </li>
+                        )}
+                        <li className="sum">
+                            <span>Итого</span>
+                            <span>{fmtMoney(order.total / 100, account.settings.currency, locale)}</span>
+                        </li>
+                    </ul>
 
                     <div className={styles.right}>
                         <button
