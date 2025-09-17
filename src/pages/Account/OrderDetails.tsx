@@ -114,7 +114,24 @@ export default function OrderDetails() {
                             {fmtMoney(order.total / 100, account.settings.currency, locale)}
                         </div>
                     </div>
-
+                    <section>
+                        <h3>Items</h3>
+                        <div className="summary__mini">
+                            {order.items.map((it) => (
+                                <div key={it.sku} className="mini-item">
+                                    {it.image && <img src={it.image} alt="" />}
+                                    <div>
+                                        <div className="mini-item__sku">{it.sku}</div>
+                                        <div className="mini-item__title">{it.name}</div>
+                                        <div className="muted">×{it.qty}</div>
+                                    </div>
+                                    <div className="mini-item__price">
+                                        {fmtMoney((it.price * it.qty) / 100, account.settings.currency, locale)}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
                     <section>
                         <h3>Delivery address</h3>
                         {address && (
@@ -140,27 +157,6 @@ export default function OrderDetails() {
                             </div>
                         </div>
                     </section>
-
-
-                    <section>
-                        <h3>Items</h3>
-                        <div className="summary__mini">
-                            {order.items.map((it) => (
-                                <div key={it.sku} className="mini-item">
-                                    {it.image && <img src={it.image} alt="" />}
-                                    <div>
-                                        <div className="mini-item__sku">{it.sku}</div>
-                                        <div className="mini-item__title">{it.name}</div>
-                                        <div className="muted">×{it.qty}</div>
-                                    </div>
-                                    <div className="mini-item__price">
-                                        {fmtMoney((it.price * it.qty) / 100, account.settings.currency, locale)}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-
                     <section>
                         <h3>Summary</h3>
                         <ul className="summary__list">
