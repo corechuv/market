@@ -8,6 +8,10 @@
         padding-bottom: 20px;
         margin-bottom: 20px;
         border-bottom: 1px dashed var(--border);
+
+        &:nth-last-child(1) {
+            border: none;
+        }
     }
 }
 
