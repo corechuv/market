@@ -17,6 +17,7 @@ import { RETURN_REASONS, REASONS_BY_KIND } from "../../types/return";
 import ChevronRightIcon from "../../components/Icons/ChevronRightIcon";
 import { TextareaField } from "../../components/UI/TextareaField";
 import { UploadField } from "../../components/UI/UploadField";
+import CloseIcon from "../../components/Icons/CloseIcon";
 
 const isGermany = (country: string) => /^(германи|deutschland)/i.test(country.trim());
 const getPreferredLocale = (settings: Settings, addresses: Address[]): string => {
@@ -258,128 +259,127 @@ export default function ReturnRequestPage() {
                             <div className="mini-item__sku">SKU: {it.sku}</div>
                             <div className="mini-item__sku">В заказе: ×{ordered}</div>
                             <div className="mini-item__sku">Уже в возвратах: ×{alreadyReserved} • Доступно: ×{leftGlobal}</div>
+                            <div className={cls.column}>
+
+                              {/* строки формы по этому SKU */}
+                              {skuFormLines.map((line) => {
+                                const selectedOther = selectedForSku - (line.qty || 0);
+                                const maxForThisLine = Math.max(0, ordered - alreadyReserved - selectedOther);
+                                const orderInWindow = withinReturnWindow(order);
+                                const active = (line.qty || 0) > 0;
+
+                                return (
+                                  <div key={line.lineId} className={cls.form}>
+                                    <div className={cls.form__header}>
+                                      <h4 className={cls["form__header--title"]}>
+                                        {active ? "Строка к возврату" : "Добавить к возврату"}
+                                      </h4>
+                                      <div className={cls["form__header--actions"]}>
+                                        <CloseIcon onClick={() => removeLine(line.lineId)} />
+                                      </div>
+                                    </div>
+
+                                    {/* Управление количеством/активацией */}
+                                    <div className="form__row">
+                                      {maxForThisLine <= 1 ? (
+                                        <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                          <input
+                                            type="checkbox"
+                                            checked={active}
+                                            onChange={(e) => updateLine(line.lineId, { qty: e.target.checked ? 1 : 0 })}
+                                          />
+                                          <span>{active ? "К возврату: ×1" : "Выбрать ×1 к возврату"}</span>
+                                        </label>
+                                      ) : (
+                                        <SelectField
+                                          value={String(Math.min(line.qty, maxForThisLine))}
+                                          label="Кол-во"
+                                          onChange={(v) =>
+                                            updateLine(line.lineId, {
+                                              qty: Math.min(Number(v), maxForThisLine),
+                                            })
+                                          }
+                                          options={[...Array(maxForThisLine + 1)].map((_, i) => ({
+                                            value: String(i),
+                                            label: String(i),
+                                          }))}
+                                        />
+                                      )}
+                                    </div>
+
+                                    {/* Остальные поля показываем только если позиция активна */}
+                                    {active && (
+                                      <>
+                                        <div className="form__row">
+                                          <SelectField
+                                            value={line.kind}
+                                            label="Тип"
+                                            onChange={(v) => {
+                                              const nextKind = v as ReturnKind;
+                                              const nextReason = fitReasonToKind(nextKind, line.reason);
+                                              updateLine(line.lineId, { kind: nextKind, reason: nextReason });
+                                            }}
+                                            options={[
+                                              { value: "withdrawal", label: "Widerruf (14 дней)", disabled: !orderInWindow },
+                                              { value: "defect", label: "Дефект (Gewährleistung)" },
+                                            ]}
+                                          />
+                                          <SelectField
+                                            value={line.reason}
+                                            label="Причина"
+                                            onChange={(v) =>
+                                              updateLine(line.lineId, { reason: fitReasonToKind(line.kind, v as ReturnReason) })
+                                            }
+                                            options={REASONS_BY_KIND[line.kind].map((value) => ({
+                                              value,
+                                              label: RETURN_REASONS[value],
+                                            }))}
+                                          />
+                                        </div>
+
+                                        <UploadField
+                                          label="Фото/доказательства (опционально)"
+                                          multiple
+                                          accept="image/*"
+                                          maxFiles={10}
+                                          maxSizeMb={8}
+                                          thumbSize={56}
+                                          value={Array.isArray(line.photos) ? line.photos : []}
+                                          onChange={({ dataUrls }) => {
+                                            updateLine(line.lineId, { photos: dataUrls });
+                                          }}
+                                          hint="Можно перетащить сюда файлы"
+                                          showCount="auto"
+                                        />
+
+                                        <TextareaField
+                                          label="Комментарий к строке (опционально)"
+                                          maxLength={500}
+                                          resizable="none"
+                                          value={line.note || ""}
+                                          onChange={(e) => updateLine(line.lineId, { note: e.target.value })}
+                                        />
+                                      </>
+                                    )}
+                                  </div>
+                                );
+                              })}
+
+                              {/* Разрешаем добавлять ещё причину только когда во всех текущих строках qty выбран (>0) */}
+                              {(() => {
+                                const canAddAnotherReason =
+                                  remainingForSku > 0 && skuFormLines.every((l) => (l.qty || 0) > 0);
+                                return canAddAnotherReason;
+                              })() && (
+                                  <div className={styles.orderActions}>
+                                    <Button size="small" variant="secondary" onClick={() => addLineForSku(it)}>
+                                      Добавить ещё причину
+                                    </Button>
+                                  </div>
+                                )}
+                            </div>
                           </div>
                         </div>
-
-                        {/* строки формы по этому SKU */}
-                        {skuFormLines.map((line) => {
-                          const selectedOther = selectedForSku - (line.qty || 0);
-                          const maxForThisLine = Math.max(0, ordered - alreadyReserved - selectedOther);
-                          const orderInWindow = withinReturnWindow(order);
-                          const active = (line.qty || 0) > 0;
-
-                          return (
-                            <div key={line.lineId} className="form">
-                              <div className="card__head">
-                                {active ? "Строка к возврату" : "Добавить к возврату"}
-                                <Button
-                                  variant="ghost"
-                                  size="small"
-                                  type="button"
-                                  onClick={() => removeLine(line.lineId)}
-                                >
-                                  Удалить
-                                </Button>
-                              </div>
-
-                              {/* Управление количеством/активацией */}
-                              <div className="form__row">
-                                {maxForThisLine <= 1 ? (
-                                  <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                    <input
-                                      type="checkbox"
-                                      checked={active}
-                                      onChange={(e) => updateLine(line.lineId, { qty: e.target.checked ? 1 : 0 })}
-                                    />
-                                    <span>{active ? "К возврату: ×1" : "Выбрать ×1 к возврату"}</span>
-                                  </label>
-                                ) : (
-                                  <SelectField
-                                    value={String(Math.min(line.qty, maxForThisLine))}
-                                    label="Кол-во"
-                                    onChange={(v) =>
-                                      updateLine(line.lineId, {
-                                        qty: Math.min(Number(v), maxForThisLine),
-                                      })
-                                    }
-                                    options={[...Array(maxForThisLine + 1)].map((_, i) => ({
-                                      value: String(i),
-                                      label: String(i),
-                                    }))}
-                                  />
-                                )}
-                              </div>
-
-                              {/* Остальные поля показываем только если позиция активна */}
-                              {active && (
-                                <>
-                                  <div className="form__row">
-                                    <SelectField
-                                      value={line.kind}
-                                      label="Тип"
-                                      onChange={(v) => {
-                                        const nextKind = v as ReturnKind;
-                                        const nextReason = fitReasonToKind(nextKind, line.reason);
-                                        updateLine(line.lineId, { kind: nextKind, reason: nextReason });
-                                      }}
-                                      options={[
-                                        { value: "withdrawal", label: "Widerruf (14 дней)", disabled: !orderInWindow },
-                                        { value: "defect", label: "Дефект (Gewährleistung)" },
-                                      ]}
-                                    />
-                                    <SelectField
-                                      value={line.reason}
-                                      label="Причина"
-                                      onChange={(v) =>
-                                        updateLine(line.lineId, { reason: fitReasonToKind(line.kind, v as ReturnReason) })
-                                      }
-                                      options={REASONS_BY_KIND[line.kind].map((value) => ({
-                                        value,
-                                        label: RETURN_REASONS[value],
-                                      }))}
-                                    />
-                                  </div>
-
-                                  <UploadField
-                                    label="Фото/доказательства (опционально)"
-                                    multiple
-                                    accept="image/*"
-                                    maxFiles={10}
-                                    maxSizeMb={8}
-                                    thumbSize={56}
-                                    value={Array.isArray(line.photos) ? line.photos : []}
-                                    onChange={({ dataUrls }) => {
-                                      updateLine(line.lineId, { photos: dataUrls });
-                                    }}
-                                    hint="Можно перетащить сюда файлы"
-                                    showCount="auto"
-                                  />
-
-                                  <TextareaField
-                                    label="Комментарий к строке (опционально)"
-                                    maxLength={500}
-                                    resizable="none"
-                                    value={line.note || ""}
-                                    onChange={(e) => updateLine(line.lineId, { note: e.target.value })}
-                                  />
-                                </>
-                              )}
-                            </div>
-                          );
-                        })}
-
-                        {/* Разрешаем добавлять ещё причину только когда во всех текущих строках qty выбран (>0) */}
-                        {(() => {
-                          const canAddAnotherReason =
-                            remainingForSku > 0 && skuFormLines.every((l) => (l.qty || 0) > 0);
-                          return canAddAnotherReason;
-                        })() && (
-                          <div className={styles.orderActions}>
-                            <Button size="small" variant="secondary" onClick={() => addLineForSku(it)}>
-                              Добавить ещё причину
-                            </Button>
-                          </div>
-                        )}
                       </article>
                     );
                   })}

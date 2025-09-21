@@ -10,3 +10,35 @@
         border-bottom: 1px dashed var(--border);
     }
 }
+
+.column {
+    display: grid;
+    gap: 20px;
+}
+
+.form {
+    display: grid;
+    gap: 12px;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 30px;
+
+        &--title {
+            margin: 0;
+        }
+
+        &--actions {
+            display: flex;
+            gap: 16px;
+
+            svg {
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
+            }
+        }
+    }
+}
