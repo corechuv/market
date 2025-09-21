@@ -1,4 +1,5 @@
 // src/types/return.ts
+
 export type ReturnReason =
   | "too_small"
   | "not_as_described"
@@ -21,15 +22,27 @@ export type ReturnStatus =
   | "received"
   | "refunded";
 
+// Новый статус для СТРОКИ возврата (независимо от статуса всей заявки)
+export type ReturnLineStatus =
+  | "pending"      // создана/отправлена, ждёт решения
+  | "approved"     // одобрена к возврату
+  | "rejected"     // отклонена
+  | "in_transit"   // отправлена покупателем
+  | "received"     // получена на складе
+  | "refunded";    // деньги возвращены
+
 export type ReturnItemLine = {
+  lineId: string;         // Уникальный ID строки (обязательно)
   sku: string;
   name: string;
-  qty: number;            // сколько возвращаем
+  qty: number;            // сколько возвращаем именно в ЭТОЙ строке
   unitPriceCents: number;
   kind: ReturnKind;       // тип для конкретной строки
   reason: ReturnReason;   // причина в рамках kind
   note?: string;
   photos?: string[];      // dataURLы (демо)
+
+  status?: ReturnLineStatus; // по умолчанию "pending" (если не задано)
 };
 
 export type ReturnRequest = {
@@ -37,17 +50,17 @@ export type ReturnRequest = {
   rma: string;
   // если все строки одного типа — "withdrawal" | "defect"; иначе "mixed"
   kind: ReturnKind | "mixed";
-  status: ReturnStatus;
-  createdAt: string;      // ISO
+  status: ReturnStatus;           // логистический статус всей заявки
+  createdAt: string;              // ISO
   orderId: string;
   orderNumber: string;
 
   currency: "EUR" | "USD" | "RUB";
-  items: ReturnItemLine[];
+  items: ReturnItemLine[];        // допускаем несколько строк на один SKU
   merchandiseTotalCents: number;
 
   customerNote?: string;
-  deliveredAt?: string;   // фактическая дата получения (для окна 14 дней)
+  deliveredAt?: string;           // фактическая дата получения (для окна 14 дней)
 };
 
 export function returnStatusLabel(s: ReturnStatus) {
@@ -57,6 +70,18 @@ export function returnStatusLabel(s: ReturnStatus) {
     case "approved": return "Одобрено";
     case "rejected": return "Отклонено";
     case "label_issued": return "Этикетка сформирована";
+    case "in_transit": return "В пути";
+    case "received": return "Получено";
+    case "refunded": return "Возвращено";
+  }
+}
+
+// Отдельная локализация для статуса СТРОКИ
+export function returnLineStatusLabel(s: ReturnLineStatus) {
+  switch (s) {
+    case "pending": return "В ожидании";
+    case "approved": return "Одобрено";
+    case "rejected": return "Отклонено";
     case "in_transit": return "В пути";
     case "received": return "Получено";
     case "refunded": return "Возвращено";
@@ -87,3 +112,19 @@ export const REASONS_BY_KIND: Record<ReturnKind, ReturnReason[]> = {
   withdrawal: ["changed_mind", "too_small", "not_as_described", "wrong_item", "arrived_late", "other"],
   defect: ["defective", "damaged", "not_as_described", "wrong_item", "other"],
 };
+
+// Утилиты сводки по строкам
+export function lineCounts(r: ReturnRequest) {
+  const total = r.items.length;
+  const approved = r.items.filter(l => ["approved", "in_transit", "received", "refunded"].includes((l.status || "pending") as string)).length;
+  const rejected = r.items.filter(l => (l.status || "pending") === "rejected").length;
+  return { total, approved, rejected, pending: total - approved - rejected };
+}
+
+export function requestDecisionSummary(r: ReturnRequest): "all_pending" | "all_rejected" | "all_approved" | "partially_approved" {
+  const { total, approved, rejected } = lineCounts(r);
+  if (approved === 0 && rejected === 0) return "all_pending";
+  if (rejected === total) return "all_rejected";
+  if (approved === total) return "all_approved";
+  return "partially_approved";
+}

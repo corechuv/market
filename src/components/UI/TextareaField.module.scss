@@ -1,0 +1,64 @@
+// src/components/UI/TextareaField.module.scss
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.label {
+  font-weight: 400;
+  font-size: 14px;
+  margin: 0 3px;
+}
+
+.requiredMark {
+  margin-left: 4px;
+  color: #ff6b6b;
+}
+
+.textarea {
+  padding: 12px 14px;
+  min-height: 96px; /* базово ≈4 строки */
+  width: 100%;
+  font-size: 16px;
+  font-weight: 400;
+  font-family: var(--font);
+  line-height: 1.4;
+  border: none;
+  background: rgba(var(--background-color-input));
+  border-radius: 12px;
+  transition: box-shadow .15s, border-color .15s;
+  outline: none;
+}
+
+.autoGrow {
+  overflow-y: hidden; /* прокрутку включаем динамически, если дошли до maxRows */
+}
+
+.textareaError {
+  border-color: #ff6b6b;
+  box-shadow: 0 0 0 4px #ff6b6b20;
+}
+
+.metaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 3px;
+}
+
+.hint {
+  color: rgb(var(--muted));
+  font-size: 12px;
+}
+
+.counter {
+  color: rgb(var(--muted));
+  font-size: 12px;
+}
+
+.error {
+  color: #ff6b6b;
+  font-size: 12px;
+}

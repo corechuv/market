@@ -1,0 +1,130 @@
+/* src/components/UI/UploadField.module.scss */
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.label {
+    font-weight: 400;
+    font-size: 14px;
+    margin: 0 3px;
+}
+
+.gridWrap {
+    border-radius: 12px;
+    background: rgba(var(--background-color-input));
+    padding: 10px;
+    transition: box-shadow .15s, border-color .15s;
+}
+
+.hasError {
+    box-shadow: 0 0 0 4px #ff6b6b20;
+}
+
+.dragActive {
+    outline: 2px dashed rgba(0, 0, 0, .2);
+    outline-offset: 2px;
+}
+
+.disabled {
+    opacity: .6;
+    pointer-events: none;
+}
+
+/* Адаптивная сетка ровных квадратов */
+.grid {
+    --tile-min: 80px;
+    /* можно переопределить через inline-style из пропса thumbSize */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--tile-min), 1fr));
+    gap: 8px;
+    align-items: stretch;
+}
+
+/* База для плиток */
+.tile {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, .03);
+    aspect-ratio: 1 / 1;
+    /* квадрат */
+    width: 100%;
+}
+
+/* превью */
+.thumb {
+    composes: tile;
+}
+
+.img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.removeBtn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    border: none;
+    padding: 0;
+    background: rgba(0, 0, 0, .5);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
+    svg {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+/* плитка добавления */
+.addTile {
+    composes: tile;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--border);
+    background: transparent;
+    cursor: pointer;
+
+    svg {
+        width: 20px;
+        height: 20px;
+        stroke-width: 1.5;
+    }
+}
+
+.metaRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 3px;
+}
+
+.hint {
+    color: rgb(var(--muted));
+    font-size: 12px;
+}
+
+.counter {
+    color: rgb(var(--muted));
+    font-size: 12px;
+}
+
+.error {
+    color: #ff6b6b;
+    font-size: 12px;
+}

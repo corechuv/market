@@ -9,6 +9,7 @@ import ProductPage from "./pages/Product/ProductPage";
 import CategoryPage from "./pages/Category/CategoryPage";
 import AccountPage from "./pages/Account/AccountPage";
 import AuthPage from "./pages/Auth/AuthPage";
+
 import "./styles/scrollbar.module.scss";
 
 import MainLayout from "./components/layouts/MainLayout";
