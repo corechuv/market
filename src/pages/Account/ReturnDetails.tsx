@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import styles from "./AccountPage.module.scss";
+import cls from "./ReturnDetails.module.scss";
 
 import { useAccount } from "../../context/AccountContext";
 import type { Address } from "../../types/address";
@@ -126,74 +127,76 @@ export default function ReturnDetailsPage() {
             </div>
           )}
 
-          <section>
+          <div>
             <h3>Items</h3>
-            <div className="summary__mini">
+            <section className={cls.section}>
               {lines.map((it, idx) => {
                 const img = imgBySku.get(it.sku);
                 const key = (it as any).lineId || `${it.sku}-${it.reason}-${idx}`; // fallback для старых данных
                 const lineStatus = (it.status || "pending");
                 return (
-                  <div className="mini-item" key={key}>
-                    {img && <img src={img} alt={it.name} className={styles.orderThumb} loading="lazy" />}
-                    <div>
-                      <div className="mini-item__sku">{it.sku}</div>
-                      <div className="mini-item__title">{it.name}</div>
-                      <div className="muted">×{it.qty}</div>
-                      <div className="muted">Тип: {returnKindLabel(it.kind)}</div>
-                      <div className="muted">Причина: {it.reason}</div>
-                      {it.note && <div className="muted">Комментарий: {it.note}</div>}
-                      {Array.isArray(it.photos) && it.photos.length > 0 && (
-                        <div style={{ display: "flex", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
-                          {it.photos.map((src, i) => (
-                            <img key={i} src={src} alt="evidence" style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 6 }} />
-                          ))}
-                        </div>
-                      )}
-                      <div className="muted">Статус строки: {returnLineStatusLabel(lineStatus as any)}</div>
-                      {(it as any).lineId && lineStatus === "pending" && (
-                        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                          <Button size="small" onClick={() => setReturnLineStatus(req.id, (it as any).lineId!, "approved")}>Одобрить строку (демо)</Button>
-                          <Button size="small" variant="secondary" onClick={() => setReturnLineStatus(req.id, (it as any).lineId!, "rejected")}>Отклонить строку (демо)</Button>
-                        </div>
-                      )}
+                  <article key={key} className={cls.section__article}>
+                    <div className={cls.item}>
+                      {img && <img src={img} alt={it.name} className={styles.orderThumb} loading="lazy" />}
+                      <div>
+                        <div className="mini-item__title">{it.name}</div>
+                        <div className="mini-item__sku">{it.sku}</div>
+                        <div className="muted">×{it.qty}</div>
+                        <div className="muted">Тип: {returnKindLabel(it.kind)}</div>
+                        <div className="muted">Причина: {it.reason}</div>
+                        {it.note && <div className="muted">Комментарий: {it.note}</div>}
+                        {Array.isArray(it.photos) && it.photos.length > 0 && (
+                          <div style={{ display: "flex", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
+                            {it.photos.map((src, i) => (
+                              <img key={i} src={src} alt="evidence" style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 6 }} />
+                            ))}
+                          </div>
+                        )}
+                        <div className="muted">Статус строки: {returnLineStatusLabel(lineStatus as any)}</div>
+                        {(it as any).lineId && lineStatus === "pending" && (
+                          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                            <Button size="small" onClick={() => setReturnLineStatus(req.id, (it as any).lineId!, "approved")}>Одобрить строку (демо)</Button>
+                            <Button size="small" variant="secondary" onClick={() => setReturnLineStatus(req.id, (it as any).lineId!, "rejected")}>Отклонить строку (демо)</Button>
+                          </div>
+                        )}
+                      </div>
+                      <div className="mini-item__price">
+                        {(it.unitPriceCents * it.qty / 100).toLocaleString(locale, { style: "currency", currency: req.currency })}
+                      </div>
                     </div>
-                    <div className="mini-item__price">
-                      {(it.unitPriceCents * it.qty / 100).toLocaleString(locale, { style: "currency", currency: req.currency })}
-                    </div>
-                  </div>
+                  </article>
                 );
               })}
-            </div>
-          </section>
-
-          {req.customerNote && (
-            <section>
-              <h3>Comment</h3>
-              <p>{req.customerNote}</p>
             </section>
-          )}
-
-          {/* Имитация жизненного цикла/кнопок для демо */}
-          <div className={styles.orderActions}>
-            {req.status === "submitted" && (
-              <Button size="small" onClick={() => setReturnStatus(req.id, "approved")}>Одобрить (демо)</Button>
-            )}
-            {req.status === "approved" && (
-              <Button size="small" onClick={() => setReturnStatus(req.id, "label_issued")}>Сформировать этикетку (демо)</Button>
-            )}
-            {req.status === "label_issued" && (
-              <Button size="small" onClick={() => setReturnStatus(req.id, "in_transit")}>Передано перевозчику (демо)</Button>
-            )}
-            {req.status === "in_transit" && (
-              <Button size="small" onClick={() => setReturnStatus(req.id, "received")}>Получено складом (демо)</Button>
-            )}
-            {req.status === "received" && (
-              <Button size="small" variant="secondary" onClick={() => setReturnStatus(req.id, "refunded")}>Возврат средств (демо)</Button>
-            )}
           </div>
         </div>
-      </section>
-    </main>
+
+        {req.customerNote && (
+          <section>
+            <h3>Comment</h3>
+            <p>{req.customerNote}</p>
+          </section>
+        )}
+
+        {/* Имитация жизненного цикла/кнопок для демо */}
+        <div className={styles.orderActions}>
+          {req.status === "submitted" && (
+            <Button size="small" onClick={() => setReturnStatus(req.id, "approved")}>Одобрить (демо)</Button>
+          )}
+          {req.status === "approved" && (
+            <Button size="small" onClick={() => setReturnStatus(req.id, "label_issued")}>Сформировать этикетку (демо)</Button>
+          )}
+          {req.status === "label_issued" && (
+            <Button size="small" onClick={() => setReturnStatus(req.id, "in_transit")}>Передано перевозчику (демо)</Button>
+          )}
+          {req.status === "in_transit" && (
+            <Button size="small" onClick={() => setReturnStatus(req.id, "received")}>Получено складом (демо)</Button>
+          )}
+          {req.status === "received" && (
+            <Button size="small" variant="secondary" onClick={() => setReturnStatus(req.id, "refunded")}>Возврат средств (демо)</Button>
+          )}
+        </div>
+    </section>
+    </main >
   );
 }
