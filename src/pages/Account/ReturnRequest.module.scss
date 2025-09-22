@@ -1,1 +1,15 @@
 @use "../../styles/global.module.scss";
+
+.item {
+    display: grid;
+    grid-template-columns: 48px 1fr auto;
+    gap: 10px;
+
+    &__thumb {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px dashed var(--border);
+    }
+}

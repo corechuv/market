@@ -253,8 +253,8 @@ export default function ReturnRequestPage() {
 
                     return (
                       <article key={it.sku} className={cls.section__article}>
-                        <div className="mini-item">
-                          {img && <img src={img} alt={it.name} loading="lazy" />}
+                        <div className={cls.item}>
+                          {img && <img src={img} alt={it.name} loading="lazy" className={cls.item__thumb} />}
                           <div>
                             <div className="mini-item__title">{it.name}</div>
                             <div className="mini-item__sku">SKU: {it.sku}</div>
