@@ -264,42 +264,6 @@ $gap-sm: 12px;
     font-weight: 500;
 }
 
-.qty {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 0;
-    border-radius: 999px;
-}
-
-.qty button {
-    width: 28px;
-    height: 28px;
-    border-radius: 999px;
-    border: 0;
-    color: var(--text);
-    background-color: var(--color-bg-qty-btn);
-    display: flex;
-    place-items: center;
-    justify-content: center;
-    cursor: pointer;
-    padding: 0;
-    margin: 0;
-
-    svg {
-        width: 14px;
-        height: 14px;
-        stroke: currentColor;
-        stroke-width: 1.5;
-    }
-}
-
-.qty output {
-    min-width: 18px;
-    text-align: center;
-    font-weight: 400;
-}
-
 .grid-2 {
     display: grid;
     grid-template-columns: 1fr;

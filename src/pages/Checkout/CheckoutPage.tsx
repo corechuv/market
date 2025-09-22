@@ -8,8 +8,7 @@ import Logo from "../../components/logo/Logo";
 import Button from "../../components/UI/Button";
 import { TextField } from "../../components/UI/TextField";
 import { CheckboxField } from "../../components/UI/CheckboxField";
-import MinusIcon from "../../components/Icons/MinusIcon";
-import PlusIcon from "../../components/Icons/PlusIcon";
+import QtyStepper from "../../components/UI/QtyStepper";
 
 // --- Types used locally
 export type Address = {
@@ -431,15 +430,15 @@ const CartSection: React.FC<CartSectionProps> = ({ lines, inc, onNext }) => {
                             {it.image && <img src={it.image} alt="" loading="lazy" />}
                             <div className="cart-item__meta">
                                 <h3>{it.title}</h3>
-                                <div className="qty">
-                                    <button aria-label="Уменьшить" onClick={() => inc(it.id, -1)}>
-                                        <MinusIcon />
-                                    </button>
-                                    <output aria-live="polite">{it.qty}</output>
-                                    <button aria-label="Увеличить" onClick={() => inc(it.id, +1)}>
-                                        <PlusIcon />
-                                    </button>
-                                </div>
+                                <QtyStepper
+                                    value={it.qty}
+                                    min={0}
+                                    size="sm"
+                                    showMax={false}
+                                    ariaLabel={`Количество для ${it.title}`}
+                                    onChange={(q) => inc(it.id, q - it.qty)} // дельта от текущего
+                                    max={99}
+                                />
                             </div>
                             <div className="cart-item__price">{formatMoney(it.priceCents * it.qty)}</div>
                         </li>

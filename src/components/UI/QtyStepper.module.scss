@@ -1,0 +1,61 @@
+// src/components/UI/QtyStepper.module.scss
+.stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    user-select: none;
+}
+
+.btn {
+    width: 30px;
+    height: 36px;
+    border-radius: 999px;
+    border: 0;
+    color: var(--text);
+    background-color: var(--color-bg-qty-btn);
+    display: flex;
+    place-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+
+    svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+    }
+}
+
+.btn:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.output {
+    min-width: 18px;
+    text-align: center;
+    font-weight: 400;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.meta {
+    font-size: 12px;
+    opacity: .7;
+}
+
+/* sizes */
+.md .btn,
+.md .output {
+    height: 36px;
+}
+
+.sm .btn,
+.sm .output {
+    height: 30px;
+}

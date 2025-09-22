@@ -8,6 +8,7 @@ import cls from "./ReturnRequest.module.scss";
 import { useAccount } from "../../context/AccountContext";
 import Button from "../../components/UI/Button";
 import { SelectField } from "../../components/UI/SelectField";
+import QtyStepper from "../../components/UI/QtyStepper";
 
 import type { Address } from "../../types/address";
 import type { Settings } from "../../types/settings";
@@ -266,7 +267,9 @@ export default function ReturnRequestPage() {
                                 const selectedOther = selectedForSku - (line.qty || 0);
                                 const maxForThisLine = Math.max(0, ordered - alreadyReserved - selectedOther);
                                 const orderInWindow = withinReturnWindow(order);
-                                const active = (line.qty || 0) > 0;
+
+                                const clampedQty = Math.min(line.qty || 0, maxForThisLine);
+                                const active = clampedQty > 0;
 
                                 return (
                                   <div key={line.lineId} className={cls.form}>
@@ -282,28 +285,29 @@ export default function ReturnRequestPage() {
                                     {/* Управление количеством/активацией */}
                                     <div className="form__row">
                                       {maxForThisLine <= 1 ? (
-                                        <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                          <input
-                                            type="checkbox"
-                                            checked={active}
-                                            onChange={(e) => updateLine(line.lineId, { qty: e.target.checked ? 1 : 0 })}
+                                        <div>
+
+                                          <QtyStepper
+                                            value={clampedQty}
+                                            max={maxForThisLine}
+                                            min={0}
+                                            onChange={(q) => updateLine(line.lineId, { qty: q })}
+                                            ariaLabel={`Количество к возврату для SKU ${it.sku}`}
+                                            size="sm"
                                           />
-                                          <span>{active ? "К возврату: ×1" : "Выбрать ×1 к возврату"}</span>
-                                        </label>
+                                        </div>
                                       ) : (
-                                        <SelectField
-                                          value={String(Math.min(line.qty, maxForThisLine))}
-                                          label="Кол-во"
-                                          onChange={(v) =>
-                                            updateLine(line.lineId, {
-                                              qty: Math.min(Number(v), maxForThisLine),
-                                            })
-                                          }
-                                          options={[...Array(maxForThisLine + 1)].map((_, i) => ({
-                                            value: String(i),
-                                            label: String(i),
-                                          }))}
-                                        />
+                                        <div>
+
+                                          <QtyStepper
+                                            value={clampedQty}
+                                            max={maxForThisLine}
+                                            min={0}
+                                            onChange={(q) => updateLine(line.lineId, { qty: q })}
+                                            ariaLabel={`Количество к возврату для SKU ${it.sku}`}
+                                            size="sm"
+                                          />
+                                        </div>
                                       )}
                                     </div>
 
