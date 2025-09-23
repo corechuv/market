@@ -5,7 +5,7 @@
     --card-border: #e7e7ecd1;
     --text: #14151a;
     --muted: #6b7280;
-    --accent: #2563eb;
+    --accent: #3ebc73;
     --success: #16a34a;
     --warn: #d97706;
     --danger: #dc2626;
@@ -206,32 +206,23 @@
 }
 
 .metaLabel {
-    font-size: 12px;
+    font-size: 14px;
     color: var(--muted);
 }
 
 .copyBtn {
     all: unset;
     cursor: pointer;
-    color: var(--accent);
-    font-weight: 600;
+    color: var(--text);
+    font-weight: 500;
     border-bottom: 1px dashed transparent;
     width: max-content;
 }
-
-.copyBtn:hover {
-    border-bottom-color: var(--accent);
-}
-
 .linkBtn {
-    color: var(--accent);
-    font-weight: 600;
+    color: var(--text);
+    font-weight: 500;
     text-decoration: none;
     border-bottom: 1px dashed transparent;
-}
-
-.linkBtn:hover {
-    border-bottom-color: var(--accent);
 }
 
 @media (max-width: 560px) {
