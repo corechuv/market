@@ -1,0 +1,240 @@
+// src/components/Order/OrderTrackingCard.module.scss
+@use "../../styles/global.module.scss";
+
+:root {
+    --card-border: #e7e7ec;
+    --text: #14151a;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --success: #16a34a;
+    --warn: #d97706;
+    --danger: #dc2626;
+    --surface: #f7f8fb;
+}
+
+.card {
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.right {
+    display: flex;
+    gap: 8px;
+}
+
+/* статус без иконок */
+.statusBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.statusText {
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.2;
+}
+
+.subtle {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+/* цвета статуса */
+.s_delivered,
+.s_picked_up {
+    color: var(--success);
+}
+
+.s_delayed {
+    color: var(--warn);
+}
+
+.s_cancelled,
+.s_error {
+    color: var(--danger);
+}
+
+/* СТЕППЕР */
+.stepper {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    margin-top: 12px;
+    position: relative;
+}
+
+.step {
+    position: relative;
+    flex: 1 1 0;
+    text-align: center;
+    padding: 0 8px;
+}
+
+/* соединительные линии — левая и правая половины */
+.lineLeft,
+.lineRight {
+    position: absolute;
+    top: 13px;
+    /* центр маркера 18px */
+    height: 2px;
+    background: var(--card-border);
+    z-index: 0;
+}
+
+.lineLeft {
+    left: 0;
+    right: 50%;
+}
+
+.lineRight {
+    left: 50%;
+    right: 0;
+}
+
+.step:first-child .lineLeft {
+    display: none;
+}
+
+.step:last-child .lineRight {
+    display: none;
+}
+
+/* маркер шага */
+.bullet {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: 2px solid var(--card-border);
+    background: #fff;
+    margin: 0 auto;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+}
+
+/* иконка галочки внутри маркера (для completed) */
+.checkIcon {
+    width: 14px;
+    height: 14px;
+    /* stroke берётся из currentColor; ниже задаём его через .completed .bullet */
+}
+
+/* достигнутый (включая текущий) — подсвечиваем левую линию */
+.reached .lineLeft {
+    background: var(--accent);
+}
+
+/* завершённый шаг — красим правую половину сегмента,
+   чтобы весь путь до текущего был синим */
+.completed .lineRight {
+    background: var(--accent);
+}
+
+/* завершённый шаг — заливка и галочка */
+.completed .bullet {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    /* цвет штриха для .checkIcon (stroke="currentColor") */
+}
+
+/* текущий шаг — активная окантовка */
+.current .bullet {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+    background: #fff;
+    color: inherit;
+    /* гасим белый для иконки, но иконки у current нет */
+}
+
+/* подписи под шагами */
+.stepText {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-height: 2.4em;
+}
+
+.stepLabel {
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.stepLabelActive {
+    color: var(--text);
+    font-weight: 500;
+}
+
+.stepDate {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* метаданные */
+.metaRow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.metaItem {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.metaLabel {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.copyBtn {
+    all: unset;
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: 600;
+    border-bottom: 1px dashed transparent;
+    width: max-content;
+}
+
+.copyBtn:hover {
+    border-bottom-color: var(--accent);
+}
+
+.linkBtn {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px dashed transparent;
+}
+
+.linkBtn:hover {
+    border-bottom-color: var(--accent);
+}
+
+@media (max-width: 560px) {
+    .metaRow {
+        grid-template-columns: 1fr;
+    }
+}

@@ -17,6 +17,9 @@ import type { ReturnRequest } from "../../types/return";
 import { returnStatusLabel } from "../../types/return";
 import PageLayout from "../../components/layouts/PageLayout";
 
+
+import OrderTrackingCompact from '../../components/Order/OrderTrackingCard';
+
 /** helpers */
 const isGermany = (country: string) => /^(германи|deutschland)/i.test(country.trim());
 const getPreferredLocale = (settings: Settings, addresses: Address[]): string => {
@@ -125,6 +128,20 @@ export default function OrderDetails() {
           </section>
 
           <section>
+            <h3>Tracking info</h3>
+            <OrderTrackingCompact
+              trackingNumber="00340434161094000001"
+              carrierName="DHL"
+              currentStatus="CREATED"
+              paidAt="2025-09-21T09:10:00Z"
+              lastUpdate="2025-09-21T14:32:00Z"
+              trackingUrl="https://www.dhl.de/de/privatkunden/dhl-sendungsverfolgung.html"
+              locale="ru"        // 'ru' | 'de' | 'en' (по умолчанию 'ru')
+              onCopy={(field) => console.log('copied', field)}
+            />
+          </section>
+
+          <section>
             <h3>Products</h3>
             <div className="summary__mini">
               {order.items.map((it) => {
@@ -198,16 +215,6 @@ export default function OrderDetails() {
           </section>
 
           <section>
-            <h3>Delivery by</h3>
-            <div className={styles.addrBody}>
-              <div className={styles.deliveryIcon}>
-                <img src="/dhl.png" />
-                <div>D3534545454354354</div>
-              </div>
-            </div>
-          </section>
-
-          <section>
             <h3>Summary</h3>
             <ul className="summary__list">
               {"subtotal" in order && typeof order.subtotal === "number" && (
@@ -272,7 +279,7 @@ export default function OrderDetails() {
             )}
           </div>
         </div>
-      </PageLayout>
+      </PageLayout >
     </>
   );
 }
