@@ -99,7 +99,7 @@ export default function OrderDetails() {
     <>
       <PageLayout title="Order" onBack={() => navigate(backTo)}>
         <div className={styles.stack}>
-          <div>
+          <div style={{display: "none"}}>
             <span className={styles.muted}>Статус:</span>{" "}
             <span className={classNames(cls.badge, cls[`st_${order.status}`])}>
               {statusLabel(order.status)}
@@ -107,7 +107,6 @@ export default function OrderDetails() {
           </div>
 
           <section>
-            <h3>Details</h3>
             <div className={styles.addrBody}>
               <div>
                 <span className={styles.muted}>Number:</span>{" "}
