@@ -19,8 +19,6 @@ type PageLayoutProps = {
     /** доп. классы, если нужно */
     className?: string;
     contentClassName?: string;
-    /** доступность: подпись к кнопке назад */
-    backLabel?: string;
 };
 
 export default function PageLayout({
@@ -30,7 +28,6 @@ export default function PageLayout({
     children,
     className,
     contentClassName,
-    backLabel = "Back",
     showBack,
 }: PageLayoutProps) {
     const navigate = useNavigate();
@@ -59,9 +56,8 @@ export default function PageLayout({
                             type="button"
                             className={styles["header__main--btn"]}
                             onClick={handleBack}
-                            aria-label={backLabel}
                         >
-                            <ChevronRightIcon /> {backLabel}
+                            <ChevronRightIcon />
                         </button>
                     )}
                     <h1 className={styles["header__main--title"]}>{title}</h1>
