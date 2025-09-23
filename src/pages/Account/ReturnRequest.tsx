@@ -179,10 +179,9 @@ export default function ReturnRequestPage() {
   }
 
   return (
-    <PageLayout title="Rücksendung" onBack={() => navigate(-1)}>
+    <PageLayout title="Return request" onBack={() => navigate(-1)}>
       <div className={styles.card}>
         <div className={styles.cardHeader}>
-          <h2 className={styles.titlePage}>Новый запрос на возврат</h2>
           <p className={styles.muted}>
             {RETURN_WINDOW_DAYS}-дневное право на отказ (Widerrufsrecht) действует с даты получения.
             По дефектам — законная гарантия (Gewährleistung) до 2 лет.
