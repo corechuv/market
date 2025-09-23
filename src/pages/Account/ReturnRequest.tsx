@@ -15,10 +15,10 @@ import type { Settings } from "../../types/settings";
 import type { Order } from "../../types/order";
 import type { ReturnRequest, ReturnItemLine, ReturnKind, ReturnReason } from "../../types/return";
 import { RETURN_REASONS, REASONS_BY_KIND } from "../../types/return";
-import ChevronRightIcon from "../../components/Icons/ChevronRightIcon";
 import { TextareaField } from "../../components/UI/TextareaField";
 import { UploadField } from "../../components/UI/UploadField";
 import CloseIcon from "../../components/Icons/CloseIcon";
+import PageLayout from "../../components/layouts/PageLayout";
 
 const isGermany = (country: string) => /^(германи|deutschland)/i.test(country.trim());
 const getPreferredLocale = (settings: Settings, addresses: Address[]): string => {
@@ -162,289 +162,272 @@ export default function ReturnRequestPage() {
   // если заказа нет — показываем заглушку
   if (!order) {
     return (
-      <main className={styles.page}>
-        <header className={styles.header}>
-          <div className={styles.headerMain}>
-            <button className={styles.backBtn} onClick={() => navigate(-1)} aria-label="Назад">
-              <ChevronRightIcon /> Back
-            </button>
-            <h1 className={styles.title}>Rücksendung</h1>
+      <PageLayout title="Order not found" onBack={() => navigate(-1)}>
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.titlePage}>Order not found</h2>
+            <p className={styles.muted}>Open your order and click "Return" to submit your request.</p>
           </div>
-        </header>
-        <section className={styles.content}>
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2 className={styles.titlePage}>Заказ не найден</h2>
-              <p className={styles.muted}>Откройте заказ и нажмите “Возврат”, чтобы оформить заявку.</p>
-            </div>
-            <div className={styles.formActions}>
-              <Button variant="secondary" size="small" onClick={() => navigate("/account?tab=orders")}>
-                К заказам
-              </Button>
-            </div>
+          <div className={styles.formActions}>
+            <Button variant="secondary" size="small" onClick={() => navigate("/account?tab=orders")}>
+              To orders
+            </Button>
           </div>
-        </section>
-      </main>
+        </div>
+      </PageLayout>
     );
   }
 
   return (
-    <main className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerMain}>
-          <button className={styles.backBtn} onClick={() => navigate(-1)} aria-label="Назад">
-            <ChevronRightIcon /> Back
-          </button>
-          <h1 className={styles.title}>Rücksendung</h1>
+    <PageLayout title="Rücksendung" onBack={() => navigate(-1)}>
+      <div className={styles.card}>
+        <div className={styles.cardHeader}>
+          <h2 className={styles.titlePage}>Новый запрос на возврат</h2>
+          <p className={styles.muted}>
+            {RETURN_WINDOW_DAYS}-дневное право на отказ (Widerrufsrecht) действует с даты получения.
+            По дефектам — законная гарантия (Gewährleistung) до 2 лет.
+          </p>
         </div>
-      </header>
 
-      <section className={styles.content}>
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <h2 className={styles.titlePage}>Новый запрос на возврат</h2>
-            <p className={styles.muted}>
-              {RETURN_WINDOW_DAYS}-дневное право на отказ (Widerrufsrecht) действует с даты получения.
-              По дефектам — законная гарантия (Gewährleistung) до 2 лет.
-            </p>
+        <div className={styles.form}>
+          {/* Краткая сводка выбранного заказа вместо селекта */}
+          <div className={styles.addrBody} style={{ marginTop: -8 }}>
+            <div>
+              <span className={styles.muted}>Status:</span>{" "}
+              <span className={cls.badge}>{order.status}</span>
+            </div>
+            <div>
+              <span className={styles.muted}>Order:</span>{" "}
+              {order.number}{" "}
+            </div>
+            <div>
+              <span className={styles.muted}>Date:</span> {new Date(order.createdAt).toLocaleDateString(locale)}
+            </div>
           </div>
 
-          <div className={styles.form}>
-            {/* Краткая сводка выбранного заказа вместо селекта */}
-            <div className={styles.addrBody} style={{ marginTop: -8 }}>
-              <div>
-                <span className={styles.muted}>Заказ:</span>{" "}
-                {order.number} • {new Date(order.createdAt).toLocaleDateString(locale)} • {order.status}
-              </div>
-              <div className={styles.muted}>
-                Не тот заказ? Откройте нужный заказ и нажмите «Возврат».
-              </div>
-            </div>
+          <div className={styles.stack}>
+            {/* Товары */}
+            <div>
+              <h3>Товары</h3>
+              <section className={cls.section}>
+                {order.items.map((it) => {
+                  const ordered = it.qty || 0;
+                  const alreadyReserved = reservedQtyBySku.get(it.sku) || 0;
+                  const skuFormLines = lines.filter((l) => l.sku === it.sku);
+                  const selectedForSku = skuFormLines.reduce((s, l) => s + (l.qty || 0), 0);
+                  const leftGlobal = Math.max(0, ordered - alreadyReserved);
+                  const remainingForSku = Math.max(0, leftGlobal - selectedForSku);
 
-            <div className={styles.stack}>
-              {/* Товары */}
-              <div>
-                <h3>Товары</h3>
-                <section className={cls.section}>
-                  {order.items.map((it) => {
-                    const ordered = it.qty || 0;
-                    const alreadyReserved = reservedQtyBySku.get(it.sku) || 0;
-                    const skuFormLines = lines.filter((l) => l.sku === it.sku);
-                    const selectedForSku = skuFormLines.reduce((s, l) => s + (l.qty || 0), 0);
-                    const leftGlobal = Math.max(0, ordered - alreadyReserved);
-                    const remainingForSku = Math.max(0, leftGlobal - selectedForSku);
+                  const img = getItemImage(it);
 
-                    const img = getItemImage(it);
-
-                    // если уже нечего возвращать — только заголовок карточки без полей
-                    if (leftGlobal === 0) {
-                      return (
-                        <article key={it.sku} className={styles.orderCard}>
-                          <div className={styles.orderBody}>
-                            <div className={styles.orderMeta}>
-                              {img && <img src={img} alt={it.name} className={styles.orderThumb} loading="lazy" />}
-                              <div className={styles.orderTitles}>{it.name}</div>
-                              <div className={styles.muted}>SKU: {it.sku} • Доступно к возврату: ×0</div>
-                            </div>
-                          </div>
-                        </article>
-                      );
-                    }
-
+                  // если уже нечего возвращать — только заголовок карточки без полей
+                  if (leftGlobal === 0) {
                     return (
-                      <article key={it.sku} className={cls.section__article}>
-                        <div className={cls.item}>
-                          {img && <img src={img} alt={it.name} loading="lazy" className={cls.item__thumb} />}
-                          <div>
-                            <div className="mini-item__title">{it.name}</div>
-                            <div className="mini-item__sku">SKU: {it.sku}</div>
-                            <div className="mini-item__sku">В заказе: ×{ordered}</div>
-                            <div className="mini-item__sku">Уже в возвратах: ×{alreadyReserved} • Доступно: ×{leftGlobal}</div>
-                            <div className={cls.column}>
-
-                              {/* строки формы по этому SKU */}
-                              {skuFormLines.map((line) => {
-                                const selectedOther = selectedForSku - (line.qty || 0);
-                                const maxForThisLine = Math.max(0, ordered - alreadyReserved - selectedOther);
-                                const orderInWindow = withinReturnWindow(order);
-
-                                const clampedQty = Math.min(line.qty || 0, maxForThisLine);
-                                const active = clampedQty > 0;
-
-                                return (
-                                  <div key={line.lineId} className={cls.form}>
-                                    <div className={cls.form__header}>
-                                      <h4 className={cls["form__header--title"]}>
-                                        {active ? "Строка к возврату" : "Добавить к возврату"}
-                                      </h4>
-                                      <div className={cls["form__header--actions"]}>
-                                        <CloseIcon onClick={() => removeLine(line.lineId)} />
-                                      </div>
-                                    </div>
-
-                                    {/* Управление количеством/активацией */}
-                                    <div className="form__row">
-                                      {maxForThisLine <= 1 ? (
-                                        <div>
-
-                                          <QtyStepper
-                                            value={clampedQty}
-                                            max={maxForThisLine}
-                                            min={0}
-                                            onChange={(q) => updateLine(line.lineId, { qty: q })}
-                                            ariaLabel={`Количество к возврату для SKU ${it.sku}`}
-                                            size="sm"
-                                          />
-                                        </div>
-                                      ) : (
-                                        <div>
-
-                                          <QtyStepper
-                                            value={clampedQty}
-                                            max={maxForThisLine}
-                                            min={0}
-                                            onChange={(q) => updateLine(line.lineId, { qty: q })}
-                                            ariaLabel={`Количество к возврату для SKU ${it.sku}`}
-                                            size="sm"
-                                          />
-                                        </div>
-                                      )}
-                                    </div>
-
-                                    {/* Остальные поля показываем только если позиция активна */}
-                                    {active && (
-                                      <>
-                                        <div className="form__row">
-                                          <SelectField
-                                            value={line.kind}
-                                            label="Тип"
-                                            onChange={(v) => {
-                                              const nextKind = v as ReturnKind;
-                                              const nextReason = fitReasonToKind(nextKind, line.reason);
-                                              updateLine(line.lineId, { kind: nextKind, reason: nextReason });
-                                            }}
-                                            options={[
-                                              { value: "withdrawal", label: "Widerruf (14 дней)", disabled: !orderInWindow },
-                                              { value: "defect", label: "Дефект (Gewährleistung)" },
-                                            ]}
-                                          />
-                                          <SelectField
-                                            value={line.reason}
-                                            label="Причина"
-                                            onChange={(v) =>
-                                              updateLine(line.lineId, { reason: fitReasonToKind(line.kind, v as ReturnReason) })
-                                            }
-                                            options={REASONS_BY_KIND[line.kind].map((value) => ({
-                                              value,
-                                              label: RETURN_REASONS[value],
-                                            }))}
-                                          />
-                                        </div>
-
-                                        <UploadField
-                                          label="Фото/доказательства (опционально)"
-                                          multiple
-                                          accept="image/*"
-                                          maxFiles={10}
-                                          maxSizeMb={8}
-                                          thumbSize={56}
-                                          value={Array.isArray(line.photos) ? line.photos : []}
-                                          onChange={({ dataUrls }) => {
-                                            updateLine(line.lineId, { photos: dataUrls });
-                                          }}
-                                          hint="Можно перетащить сюда файлы"
-                                          showCount="auto"
-                                        />
-
-                                        <TextareaField
-                                          label="Комментарий к строке (опционально)"
-                                          maxLength={500}
-                                          resizable="none"
-                                          value={line.note || ""}
-                                          onChange={(e) => updateLine(line.lineId, { note: e.target.value })}
-                                        />
-                                      </>
-                                    )}
-                                  </div>
-                                );
-                              })}
-
-                              {/* Разрешаем добавлять ещё причину только когда во всех текущих строках qty выбран (>0) */}
-                              {(() => {
-                                const canAddAnotherReason =
-                                  remainingForSku > 0 && skuFormLines.every((l) => (l.qty || 0) > 0);
-                                return canAddAnotherReason;
-                              })() && (
-                                  <div className={styles.orderActions}>
-                                    <Button size="small" variant="secondary" onClick={() => addLineForSku(it)}>
-                                      Добавить ещё причину
-                                    </Button>
-                                  </div>
-                                )}
-                            </div>
+                      <article key={it.sku} className={styles.orderCard}>
+                        <div className={styles.orderBody}>
+                          <div className={styles.orderMeta}>
+                            {img && <img src={img} alt={it.name} className={styles.orderThumb} loading="lazy" />}
+                            <div className={styles.orderTitles}>{it.name}</div>
+                            <div className={styles.muted}>SKU: {it.sku} • Доступно к возврату: ×0</div>
                           </div>
                         </div>
                       </article>
                     );
-                  })}
-                </section>
-              </div>
+                  }
 
-              <TextareaField
-                label="Примечание к заявке (опционально)"
-                maxLength={200}
-                resizable="none"
-                value={customerNote}
-                onChange={(e) => setCustomerNote(e.target.value)}
-              />
+                  return (
+                    <article key={it.sku} className={cls.section__article}>
+                      <div className={cls.item}>
+                        {img && <img src={img} alt={it.name} loading="lazy" className={cls.item__thumb} />}
+                        <div>
+                          <div className="mini-item__title">{it.name}</div>
+                          <div className="mini-item__sku">SKU: {it.sku}</div>
+                          <div className="mini-item__sku">В заказе: ×{ordered}</div>
+                          <div className="mini-item__sku">Уже в возвратах: ×{alreadyReserved} • Доступно: ×{leftGlobal}</div>
+                          <div className={cls.column}>
 
-              {/* Итого */}
-              <div className={styles.addrBody}>
-                <div>
-                  <span className={styles.muted}>Сумма товаров к возврату:</span>{" "}
-                  {(sumCents / 100).toLocaleString(locale, {
-                    style: "currency",
-                    currency: account.settings.currency,
-                  })}
-                </div>
-                <div className={styles.muted}>
-                  При полном отказе от заказа продавец возвращает стоимость стандартной доставки (если она была платной). Экспресс-доплаты обычно не возвращаются.
-                </div>
-              </div>
+                            {/* строки формы по этому SKU */}
+                            {skuFormLines.map((line) => {
+                              const selectedOther = selectedForSku - (line.qty || 0);
+                              const maxForThisLine = Math.max(0, ordered - alreadyReserved - selectedOther);
+                              const orderInWindow = withinReturnWindow(order);
 
-              <div className={styles.formActions}>
-                <Button variant="primary" size="small" onClick={submit}>
-                  Отправить запрос
-                </Button>
-                <Button variant="secondary" size="small" onClick={() => navigate(-1)}>
-                  Отмена
-                </Button>
+                              const clampedQty = Math.min(line.qty || 0, maxForThisLine);
+                              const active = clampedQty > 0;
+
+                              return (
+                                <div key={line.lineId} className={cls.form}>
+                                  <div className={cls.form__header}>
+                                    <h4 className={cls["form__header--title"]}>
+                                      {active ? "Строка к возврату" : "Добавить к возврату"}
+                                    </h4>
+                                    <div className={cls["form__header--actions"]}>
+                                      <CloseIcon onClick={() => removeLine(line.lineId)} />
+                                    </div>
+                                  </div>
+
+                                  {/* Управление количеством/активацией */}
+                                  <div className="form__row">
+                                    {maxForThisLine <= 1 ? (
+                                      <div>
+
+                                        <QtyStepper
+                                          value={clampedQty}
+                                          max={maxForThisLine}
+                                          min={0}
+                                          onChange={(q) => updateLine(line.lineId, { qty: q })}
+                                          ariaLabel={`Количество к возврату для SKU ${it.sku}`}
+                                          size="sm"
+                                        />
+                                      </div>
+                                    ) : (
+                                      <div>
+
+                                        <QtyStepper
+                                          value={clampedQty}
+                                          max={maxForThisLine}
+                                          min={0}
+                                          onChange={(q) => updateLine(line.lineId, { qty: q })}
+                                          ariaLabel={`Количество к возврату для SKU ${it.sku}`}
+                                          size="sm"
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* Остальные поля показываем только если позиция активна */}
+                                  {active && (
+                                    <>
+                                      <div className="form__row">
+                                        <SelectField
+                                          value={line.kind}
+                                          label="Тип"
+                                          onChange={(v) => {
+                                            const nextKind = v as ReturnKind;
+                                            const nextReason = fitReasonToKind(nextKind, line.reason);
+                                            updateLine(line.lineId, { kind: nextKind, reason: nextReason });
+                                          }}
+                                          options={[
+                                            { value: "withdrawal", label: "Widerruf (14 дней)", disabled: !orderInWindow },
+                                            { value: "defect", label: "Дефект (Gewährleistung)" },
+                                          ]}
+                                        />
+                                        <SelectField
+                                          value={line.reason}
+                                          label="Причина"
+                                          onChange={(v) =>
+                                            updateLine(line.lineId, { reason: fitReasonToKind(line.kind, v as ReturnReason) })
+                                          }
+                                          options={REASONS_BY_KIND[line.kind].map((value) => ({
+                                            value,
+                                            label: RETURN_REASONS[value],
+                                          }))}
+                                        />
+                                      </div>
+
+                                      <UploadField
+                                        label="Фото/доказательства (опционально)"
+                                        multiple
+                                        accept="image/*"
+                                        maxFiles={10}
+                                        maxSizeMb={8}
+                                        thumbSize={56}
+                                        value={Array.isArray(line.photos) ? line.photos : []}
+                                        onChange={({ dataUrls }) => {
+                                          updateLine(line.lineId, { photos: dataUrls });
+                                        }}
+                                        hint="Можно перетащить сюда файлы"
+                                        showCount="auto"
+                                      />
+
+                                      <TextareaField
+                                        label="Комментарий к строке (опционально)"
+                                        maxLength={500}
+                                        resizable="none"
+                                        value={line.note || ""}
+                                        onChange={(e) => updateLine(line.lineId, { note: e.target.value })}
+                                      />
+                                    </>
+                                  )}
+                                </div>
+                              );
+                            })}
+
+                            {/* Разрешаем добавлять ещё причину только когда во всех текущих строках qty выбран (>0) */}
+                            {(() => {
+                              const canAddAnotherReason =
+                                remainingForSku > 0 && skuFormLines.every((l) => (l.qty || 0) > 0);
+                              return canAddAnotherReason;
+                            })() && (
+                                <div className={styles.orderActions}>
+                                  <Button size="small" variant="secondary" onClick={() => addLineForSku(it)}>
+                                    Добавить ещё причину
+                                  </Button>
+                                </div>
+                              )}
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </section>
+            </div>
+
+            <TextareaField
+              label="Примечание к заявке (опционально)"
+              maxLength={200}
+              resizable="none"
+              value={customerNote}
+              onChange={(e) => setCustomerNote(e.target.value)}
+            />
+
+            {/* Итого */}
+            <div className={styles.addrBody}>
+              <div>
+                <span className={styles.muted}>Сумма товаров к возврату:</span>{" "}
+                {(sumCents / 100).toLocaleString(locale, {
+                  style: "currency",
+                  currency: account.settings.currency,
+                })}
               </div>
+              <div className={styles.muted}>
+                При полном отказе от заказа продавец возвращает стоимость стандартной доставки (если она была платной). Экспресс-доплаты обычно не возвращаются.
+              </div>
+            </div>
+
+            <div className={styles.formActions}>
+              <Button variant="primary" size="small" onClick={submit}>
+                Отправить запрос
+              </Button>
+              <Button variant="secondary" size="small" onClick={() => navigate(-1)}>
+                Отмена
+              </Button>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Правила */}
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <h3>Правила возврата (EU/DE — кратко)</h3>
-          </div>
-          <ul className="summary__list">
-            <li>
-              <span>Widerruf (онлайн/дистанционная покупка):</span>{" "}
-              <span>14 календарных дней с момента получения товара.</span>
-            </li>
-            <li>
-              <span>Исключения:</span>{" "}
-              <span>кастомные товары, запечатанные носители/гигиена — если вскрыты, и т. п.</span>
-            </li>
-            <li>
-              <span>Gewährleistung (дефект):</span>{" "}
-              <span>минимум 2 года для новых товаров в Германии.</span>
-            </li>
-          </ul>
+      {/* Правила */}
+      <div className={styles.card}>
+        <div className={styles.cardHeader}>
+          <h3>Правила возврата (EU/DE — кратко)</h3>
         </div>
-      </section>
-    </main>
+        <ul className="summary__list">
+          <li>
+            <span>Widerruf (онлайн/дистанционная покупка):</span>{" "}
+            <span>14 календарных дней с момента получения товара.</span>
+          </li>
+          <li>
+            <span>Исключения:</span>{" "}
+            <span>кастомные товары, запечатанные носители/гигиена — если вскрыты, и т. п.</span>
+          </li>
+          <li>
+            <span>Gewährleistung (дефект):</span>{" "}
+            <span>минимум 2 года для новых товаров в Германии.</span>
+          </li>
+        </ul>
+      </div>
+    </PageLayout >
   );
 }

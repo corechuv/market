@@ -1,0 +1,44 @@
+.page {
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+.header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    margin-bottom: 30px;
+    z-index: 3;
+
+    &__main {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+
+        &--btn {
+            display: inline-flex;
+            gap: 3px;
+            padding: 8px 12px;
+            padding-right: 18px;
+            border-radius: 999px;
+            border: none;
+            color: var(--btn-text-secondary);
+            background-color: var(--btn-background-secondary);
+            align-items: center;
+            font-size: 16px;
+            font-weight: 500;
+            font-family: var(--font);
+            cursor: pointer;
+
+            svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
+
+        &--title {
+            margin: 0;
+            font-size: 28px;
+        }
+    }
+}

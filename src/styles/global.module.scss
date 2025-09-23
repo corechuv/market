@@ -46,3 +46,40 @@
         }
     }
 }
+
+/* Badge with status */
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 400;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+}
+
+.st_processing {
+    color: #f1c40f;
+    border-color: #665a18;
+}
+
+.st_shipped {
+    color: #6c8cff;
+    border-color: #283785;
+}
+
+.st_delivered {
+    color: #2ecc71;
+    border-color: #1a613d;
+}
+
+.st_cancelled {
+    color: #ff6b6b;
+    border-color: #5c1c1c;
+}
+
+.st_refunded {
+    color: #ffd166;
+    border-color: #8a6d1e;
+}
+/* End badge with status */

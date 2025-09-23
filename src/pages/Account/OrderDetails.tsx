@@ -1,8 +1,9 @@
 // src/pages/Account/OrderDetails.tsx
 
 import React, { useMemo } from "react";
-import { useLocation, useNavigate, useParams, Link } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styles from "./AccountPage.module.scss";
+import cls from "./OrderDetails.module.scss";
 
 import { useAccount } from "../../context/AccountContext";
 import { exportInvoicePDF } from "../../types/helpers/invoiceConfig";
@@ -10,11 +11,11 @@ import { fmtMoney } from "../../types/helpers/fmtMoney";
 import type { Address } from "../../types/address";
 import type { Settings } from "../../types/settings";
 import { statusLabel, type Order } from "../../types/order";
-import ChevronRightIcon from "../../components/Icons/ChevronRightIcon";
 import Button from "../../components/UI/Button";
 
 import type { ReturnRequest } from "../../types/return";
 import { returnStatusLabel } from "../../types/return";
+import PageLayout from "../../components/layouts/PageLayout";
 
 /** helpers */
 const isGermany = (country: string) => /^(германи|deutschland)/i.test(country.trim());
@@ -42,33 +43,15 @@ export default function OrderDetails() {
   const order: Order | undefined = account.orders.find((o) => o.id === id);
   const address: Address | undefined = order
     ? account.addresses.find((a) => a.id === order.deliveryAddressId) ||
-      account.addresses.find((a) => a.isDefault)
+    account.addresses.find((a) => a.isDefault)
     : undefined;
 
   if (!order) {
     return (
-      <main className={styles.page}>
-        <header className={styles.header}>
-          <div className={styles.headerMain}>
-            <button className={styles.ghostBtn} onClick={() => navigate(backTo)}>← Назад</button>
-            <h1 className={styles.title} style={{ marginLeft: 12 }}>Order not found</h1>
-          </div>
-          <div className={styles.headerActions}>
-            <Link to="/account?tab=orders" className={styles.ghostBtn}>К списку заказов</Link>
-          </div>
-        </header>
-        <section className={styles.content}>
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2 className={styles.titlePage}>Заказ не найден</h2>
-            </div>
-            <div className={styles.stack}>
-              <p>Возможно, он был удалён или ссылка некорректна.</p>
-              <ButtonLike onClick={() => navigate(backTo)}>Вернуться</ButtonLike>
-            </div>
-          </div>
-        </section>
-      </main>
+      <PageLayout title="Order not found" onBack={() => navigate(backTo)}>
+        <p>It may have been removed or the link may be incorrect.</p>
+        <ButtonLike onClick={() => navigate(backTo)}>Go back</ButtonLike>
+      </PageLayout>
     );
   }
 
@@ -110,33 +93,12 @@ export default function OrderDetails() {
   });
 
   return (
-    <main className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerMainPage}>
-          <div>
-            <button
-              type="button"
-              className={styles.backBtn}
-              onClick={() => navigate(backTo)}
-              aria-label="Назад"
-            >
-              <ChevronRightIcon /> Back
-            </button>
-          </div>
-          <h1 className={styles.title}>{order.number}</h1>
-        </div>
-        <div className={styles.headerActions}>
-          <Link to="/account?tab=orders" className={styles.ghostBtn}>
-            Список заказов
-          </Link>
-        </div>
-      </header>
-
-      <section className={styles.content}>
+    <>
+      <PageLayout title="Order" onBack={() => navigate(backTo)}>
         <div className={styles.stack}>
           <div>
             <span className={styles.muted}>Статус:</span>{" "}
-            <span className={classNames(styles.badge, styles[`st_${order.status}`])}>
+            <span className={classNames(cls.badge, cls[`st_${order.status}`])}>
               {statusLabel(order.status)}
             </span>
           </div>
@@ -144,6 +106,10 @@ export default function OrderDetails() {
           <section>
             <h3>Details</h3>
             <div className={styles.addrBody}>
+              <div>
+                <span className={styles.muted}>Number:</span>{" "}
+                {order.number}
+              </div>
               <div>
                 <span className={styles.muted}>Дата:</span>{" "}
                 {new Date(order.createdAt).toLocaleString(locale)}
@@ -170,8 +136,8 @@ export default function OrderDetails() {
                     {it.image && <img src={it.image} alt="" />}
                     <div>
                       <div>
-                        <div className="mini-item__sku">{it.sku}</div>
                         <div className="mini-item__title">{it.name}</div>
+                        <div className="mini-item__sku">{it.sku}</div>
                         <div className="muted">×{ordered}</div>
                       </div>
                       <div style={{ margin: "20px 0" }}>
@@ -181,7 +147,7 @@ export default function OrderDetails() {
                             <div style={{ display: "grid", gap: 6, marginTop: 6 }}>
                               {skuReturns.map(({ req, qty }) => (
                                 <div key={`${req.id}-${it.sku}-${qty}`} style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                                  <span className={styles.badge}>{returnStatusLabel(req.status)}</span>
+                                  <span className={cls.badge}>{returnStatusLabel(req.status)}</span>
                                   <span className={styles.muted}>×{qty} • {req.rma}</span>
                                   <Button
                                     size="small"
@@ -306,8 +272,8 @@ export default function OrderDetails() {
             )}
           </div>
         </div>
-      </section>
-    </main>
+      </PageLayout>
+    </>
   );
 }
 
