@@ -2,7 +2,7 @@
 @use "../../styles/global.module.scss";
 
 :root {
-    --card-border: #e7e7ec;
+    --card-border: #e7e7ecd1;
     --text: #14151a;
     --muted: #6b7280;
     --accent: #2563eb;
@@ -135,6 +135,7 @@
 .checkIcon {
     width: 14px;
     height: 14px;
+    color: white;
     /* stroke берётся из currentColor; ниже задаём его через .completed .bullet */
 }
 
@@ -153,7 +154,7 @@
 .completed .bullet {
     background: var(--accent);
     border-color: var(--accent);
-    color: #fff;
+    color: var(--text);
     /* цвет штриха для .checkIcon (stroke="currentColor") */
 }
 
