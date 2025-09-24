@@ -135,7 +135,7 @@ export default function OrderDetails() {
               paidAt="2025-09-21T09:10:00Z"
               lastUpdate="2025-09-21T14:32:00Z"
               trackingUrl="https://www.dhl.de/de/privatkunden/dhl-sendungsverfolgung.html"
-              locale="ru"        // 'ru' | 'de' | 'en' (по умолчанию 'ru')
+              locale="en"        // 'ru' | 'de' | 'en' (по умолчанию 'ru')
               onCopy={(field) => console.log('copied', field)}
             />
           </section>

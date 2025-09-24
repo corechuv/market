@@ -5,11 +5,12 @@
     --card-border: #e7e7ecd1;
     --text: #14151a;
     --muted: #6b7280;
-    --accent: #3ebc73;
+    --accent: #1dc263;
     --success: #16a34a;
     --warn: #d97706;
     --danger: #dc2626;
     --surface: #f7f8fb;
+    --line-accent: #8bd8ac;
 }
 
 .card {
@@ -92,9 +93,9 @@
 .lineLeft,
 .lineRight {
     position: absolute;
-    top: 13px;
+    top: 5px;
     /* центр маркера 18px */
-    height: 2px;
+    height: 18px;
     background: var(--card-border);
     z-index: 0;
 }
@@ -141,13 +142,13 @@
 
 /* достигнутый (включая текущий) — подсвечиваем левую линию */
 .reached .lineLeft {
-    background: var(--accent);
+    background: var(--line-accent);
 }
 
 /* завершённый шаг — красим правую половину сегмента,
    чтобы весь путь до текущего был синим */
 .completed .lineRight {
-    background: var(--accent);
+    background: var(--line-accent);
 }
 
 /* завершённый шаг — заливка и галочка */
@@ -161,7 +162,7 @@
 /* текущий шаг — активная окантовка */
 .current .bullet {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+    box-shadow: 0 0 0 3px #1dc26333;
     background: #fff;
     color: inherit;
     /* гасим белый для иконки, но иконки у current нет */
