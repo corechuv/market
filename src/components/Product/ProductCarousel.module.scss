@@ -48,6 +48,9 @@ $bp-lg: 1024px;
   scroll-behavior: smooth; // smooth for manual swipe too
   -webkit-overflow-scrolling: touch;
 
+  padding-left: 16px;
+  padding-right: 16px;
+
   /* Optional: hide native scrollbar */
   scrollbar-width: none; // Firefox
 

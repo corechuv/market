@@ -52,10 +52,9 @@ p {
   box-sizing: border-box;
 }
 
-/* утилита для «прокола» паддинга контейнера */
 .bleed-inline {
-  margin-inline: calc(-1 * var(--page-pad));
-  padding-inline: var(--page-pad);
+  margin-left: -16px;
+  margin-right: -16px;
 }
 
 html, body, #root {
