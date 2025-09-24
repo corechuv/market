@@ -102,7 +102,7 @@ const ProductCarouselRich: React.FC<ProductCarouselRichProps> = ({
         <div className={cls.listContainer}>
             {label ? <h2 className={cls.title}>{label}</h2> : null}
 
-            <div className={`${cls.carousel} ${className}`.trim()}>
+            <div className={`${cls.carousel} bleed-inline ${className}`.trim()}>
                 <div className={cls.trackWrapper}
                     ref={viewportRef}
                     // передаём CSS-переменную, чтобы задать ширину карточки из SCSS
