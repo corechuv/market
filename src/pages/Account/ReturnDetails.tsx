@@ -11,6 +11,7 @@ import type { Settings } from "../../types/settings";
 import { returnStatusLabel, returnKindLabel, requestDecisionSummary, returnLineStatusLabel } from "../../types/return";
 import Button from "../../components/UI/Button";
 import PageLayout from "../../components/layouts/PageLayout";
+import DefinitionList from "../../components/UI/DefinitionList";
 
 const isGermany = (country: string) => /^(германи|deutschland)/i.test(country.trim());
 const getPreferredLocale = (settings: Settings, addresses: Address[]): string => {
@@ -60,27 +61,26 @@ export default function ReturnDetailsPage() {
 
   const lines = skuFilter ? req.items.filter((it) => it.sku === skuFilter) : req.items;
 
+  const returnDetails = [
+    {
+      name: "Status:",
+      description: <><span className={styles.badge}>{returnStatusLabel(req.status)}</span>
+        {decision === "partially_approved" && (
+          <span className={styles.badge} style={{ marginLeft: 6 }}>Частично одобрено</span>
+        )}</>
+    },
+    { name: "Return:", description: req.rma },
+    { name: "Created:", description: new Date(req.createdAt).toLocaleString(locale) },
+    { name: "Type:", description: returnKindLabel(req.kind) },
+    { name: "Order:", description: order ? order.number : req.orderNumber },
+    { name: "Total amount:", description: sumFmt },
+  ];
+
   return (
     <PageLayout title="Return" onBack={() => navigate(backTo)}>
       <div className={styles.stack}>
-        <div>
-          <span className={styles.muted}>Return:</span>{" "}
-          {req.rma}
-        </div>
-        <div>
-          <span className={styles.muted}>Статус заявки:</span>{" "}
-          <span className={styles.badge}>{returnStatusLabel(req.status)}</span>{" "}
-          {decision === "partially_approved" && (
-            <span className={styles.badge} style={{ marginLeft: 6 }}>Частично одобрено</span>
-          )}
-        </div>
 
-        <div className={styles.addrBody}>
-          <div><span className={styles.muted}>Created:</span> {new Date(req.createdAt).toLocaleString(locale)}</div>
-          <div><span className={styles.muted}>Тип заявки:</span> {returnKindLabel(req.kind)}</div>
-          <div><span className={styles.muted}>Order:</span> {order ? order.number : req.orderNumber}</div>
-          <div><span className={styles.muted}>Сумма товаров:</span> {sumFmt}</div>
-        </div>
+        <DefinitionList items={returnDetails} compact={true} />
 
         {skuFilter && (
           <div className={styles.addrBody}>

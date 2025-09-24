@@ -1,0 +1,52 @@
+/* Настраиваемые CSS-переменные:
+   --dl-col-gap: горизонтальный зазор между колонками
+   --dl-row-gap: вертикальный зазор между строками
+   --dl-stack-breakpoint: ширина контейнера, при которой уходим в одну колонку
+*/
+
+.root {
+  /* дефолты (можно переопределить инлайном/классом родителя) */
+  --dl-col-gap: 16px;
+  --dl-row-gap: 10px;
+  --dl-stack-breakpoint: 520px;
+
+  container-type: inline-size; /* для @container ниже */
+  display: grid;
+  grid-template-columns: max-content 1fr; /* 1-я колонка = ширине самого длинного dt */
+  column-gap: var(--dl-col-gap);
+  row-gap: var(--dl-row-gap);
+  align-items: start;
+
+  /* семантика <dl>: убираем дефолтные отступы */
+  margin: 0;
+  padding: 0;
+}
+
+.term {
+  margin: 0;            /* сброс для dt */
+  font-weight: 600;
+  line-height: 1.35;
+  /* Без nowrap: длинные названия могут переноситься по словам,
+     но ширину колонки все равно задает их max-content. */
+}
+
+.desc {
+  margin: 0;            /* сброс для dd */
+  line-height: 1.55;
+}
+
+/* Более плотная вертикальная компоновка */
+.compact {
+  --dl-row-gap: 6px;
+}
+
+/* Адаптив: когда сам КОНТЕЙНЕР узкий, складываемся в одну колонку */
+@container (max-width: 520px) {
+  .root {
+    grid-template-columns: 1fr;
+  }
+  .term,
+  .desc {
+    grid-column: 1;
+  }
+}

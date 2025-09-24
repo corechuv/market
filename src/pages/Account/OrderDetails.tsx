@@ -19,6 +19,8 @@ import PageLayout from "../../components/layouts/PageLayout";
 
 
 import OrderTrackingCompact from '../../components/Order/OrderTrackingCard';
+import DefinitionList from "../../components/UI/DefinitionList";
+
 
 /** helpers */
 const isGermany = (country: string) => /^(германи|deutschland)/i.test(country.trim());
@@ -95,11 +97,21 @@ export default function OrderDetails() {
     return ordered - returned > 0;
   });
 
+  const orderDetails = [
+    { name: "Number:", description: order.number },
+    {
+      name: "Date:",
+      description: new Date(order.createdAt).toLocaleString(locale)
+    },
+    { name: "Items:", description: totalItems },
+    { name: "In total:", description: fmtMoney(order.total / 100, account.settings.currency, locale) },
+  ];
+
   return (
     <>
       <PageLayout title="Order" onBack={() => navigate(backTo)}>
         <div className={styles.stack}>
-          <div style={{display: "none"}}>
+          <div style={{ display: "none" }}>
             <span className={styles.muted}>Статус:</span>{" "}
             <span className={classNames(cls.badge, cls[`st_${order.status}`])}>
               {statusLabel(order.status)}
@@ -107,23 +119,7 @@ export default function OrderDetails() {
           </div>
 
           <section>
-            <div className={styles.addrBody}>
-              <div>
-                <span className={styles.muted}>Number:</span>{" "}
-                {order.number}
-              </div>
-              <div>
-                <span className={styles.muted}>Дата:</span>{" "}
-                {new Date(order.createdAt).toLocaleString(locale)}
-              </div>
-              <div>
-                <span className={styles.muted}>Позиции:</span> {totalItems}
-              </div>
-              <div>
-                <span className={styles.muted}>Сумма:</span>{" "}
-                {fmtMoney(order.total / 100, account.settings.currency, locale)}
-              </div>
-            </div>
+            <DefinitionList items={orderDetails} compact={true} />
           </section>
 
           <section>
@@ -131,7 +127,7 @@ export default function OrderDetails() {
             <OrderTrackingCompact
               trackingNumber="00340434161094000001"
               carrierName="DHL"
-              currentStatus="PICKED_UP"
+              currentStatus="PICKUP_READY"
               paidAt="2025-09-21T09:10:00Z"
               lastUpdate="2025-09-21T14:32:00Z"
               trackingUrl="https://www.dhl.de/de/privatkunden/dhl-sendungsverfolgung.html"

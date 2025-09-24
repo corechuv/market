@@ -19,6 +19,7 @@ import { TextareaField } from "../../components/UI/TextareaField";
 import { UploadField } from "../../components/UI/UploadField";
 import CloseIcon from "../../components/Icons/CloseIcon";
 import PageLayout from "../../components/layouts/PageLayout";
+import DefinitionList from "../../components/UI/DefinitionList";
 
 const isGermany = (country: string) => /^(германи|deutschland)/i.test(country.trim());
 const getPreferredLocale = (settings: Settings, addresses: Address[]): string => {
@@ -178,6 +179,15 @@ export default function ReturnRequestPage() {
     );
   }
 
+  const orderDetails = [
+    { name: "Status:", description: <span className={cls.badge}>{order.status}</span> },
+    {
+      name: "Order:",
+      description: order.number
+    },
+    { name: "Date:", description: new Date(order.createdAt).toLocaleDateString(locale) },
+  ];
+
   return (
     <PageLayout title="Return request" onBack={() => navigate(-1)}>
       <div className={styles.card}>
@@ -189,20 +199,7 @@ export default function ReturnRequestPage() {
         </div>
 
         <div className={styles.form}>
-          {/* Краткая сводка выбранного заказа вместо селекта */}
-          <div className={styles.addrBody} style={{ marginTop: -8 }}>
-            <div>
-              <span className={styles.muted}>Status:</span>{" "}
-              <span className={cls.badge}>{order.status}</span>
-            </div>
-            <div>
-              <span className={styles.muted}>Order:</span>{" "}
-              {order.number}{" "}
-            </div>
-            <div>
-              <span className={styles.muted}>Date:</span> {new Date(order.createdAt).toLocaleDateString(locale)}
-            </div>
-          </div>
+          <DefinitionList items={orderDetails} compact={true} />
 
           <div className={styles.stack}>
             {/* Товары */}
