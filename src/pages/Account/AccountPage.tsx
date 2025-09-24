@@ -601,14 +601,6 @@ function OrdersSection({
               <div className={styles.orderActions}>
                 <Button
                   size="small"
-                  variant="secondary"
-                  onClick={() => navigate(`/account/orders/${o.id}?back=${back}`)}
-                >
-                  Details
-                </Button>
-
-                <Button
-                  size="small"
                   variant="ghost"
                   onClick={() =>
                     exportInvoicePDF({
@@ -621,6 +613,13 @@ function OrdersSection({
                   }
                 >
                   Invoice
+                </Button>
+                <Button
+                  size="small"
+                  variant="secondary"
+                  onClick={() => navigate(`/account/orders/${o.id}?back=${back}`)}
+                >
+                  Details
                 </Button>
               </div>
             </article>
