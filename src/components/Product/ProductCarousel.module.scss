@@ -48,9 +48,6 @@ $bp-lg: 1024px;
   scroll-behavior: smooth; // smooth for manual swipe too
   -webkit-overflow-scrolling: touch;
 
-  padding-left: 16px;
-  padding-right: 16px;
-
   /* Optional: hide native scrollbar */
   scrollbar-width: none; // Firefox
 
@@ -63,6 +60,9 @@ $bp-lg: 1024px;
   display: flex;
   gap: 1.8rem;
   scroll-snap-type: x mandatory;
+
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 .item {
