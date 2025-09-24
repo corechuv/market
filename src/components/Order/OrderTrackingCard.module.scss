@@ -11,6 +11,28 @@
     --danger: #dc2626;
     --surface: #f7f8fb;
     --line-accent: #8bd8ac;
+
+    /* одинаковая рамка под все лого (можно подогнать под ваш дизайн) */
+    --carrier-logo-w: 84px;
+    --carrier-logo-h: 24px;
+}
+
+/* ----- ЛОГОТИПЫ ПЕРЕВОЗЧИКА ----- */
+.carrierLogo {
+    width: var(--carrier-logo-w);
+    height: var(--carrier-logo-h);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logoImg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* одинаковая «коробка», логотип внутри с сохранением пропорций */
+    user-select: none;
+    pointer-events: none;
 }
 
 .card {
@@ -37,6 +59,7 @@
 .right {
     display: flex;
     gap: 8px;
+    align-items: center;
 }
 
 /* статус без иконок */
@@ -219,6 +242,7 @@
     border-bottom: 1px dashed transparent;
     width: max-content;
 }
+
 .linkBtn {
     color: var(--text);
     font-weight: 500;

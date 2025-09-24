@@ -3,6 +3,10 @@
 import React from 'react';
 import styles from './OrderTrackingCard.module.scss';
 
+import dpd from '/dpd.png';
+import dhl from '/dhl.png';
+import hermes from '@/assets/svg/hermes.svg';
+
 export type NormalizedStatus =
     | 'CREATED'
     | 'IN_TRANSIT'
@@ -136,6 +140,29 @@ function pickFlow(status: NormalizedStatus, hasPaid: boolean): {
     return { variant, steps, currentIdx };
 }
 
+/* Нормализуем имя и подбираем логотип */
+const carrierLogos: Record<string, { src: string; alt: string }> = {
+    dhl: { src: (dhl as unknown as string), alt: 'DHL' },
+    hermes: { src: (hermes as unknown as string), alt: 'Hermes' },
+    dpd: { src: (dpd as unknown as string), alt: 'DPD' },
+};
+
+function renderCarrierLogo(name?: string) {
+    if (!name) return null;
+    const key = name.trim().toLowerCase();
+    const logo = carrierLogos[key];
+    if (!logo) {
+        // Неизвестный перевозчик — показываем текстовый бейдж
+        return <span className={styles.badge}>{name}</span>;
+    }
+    return (
+        <span className={styles.carrierLogo} title={name}>
+            {/* img универсально работает и с png, и с svg-импортами */}
+            <img src={logo.src} alt={logo.alt} className={styles.logoImg} />
+        </span>
+    );
+}
+
 export const OrderTrackingCompact: React.FC<Props> = ({
     trackingNumber,
     carrierName,
@@ -175,7 +202,7 @@ export const OrderTrackingCompact: React.FC<Props> = ({
                     </div>
                 </div>
                 <div className={styles.right}>
-                    {carrierName && <span className={styles.badge}>{carrierName}</span>}
+                    {renderCarrierLogo(carrierName)}
                 </div>
             </div>
 
