@@ -5,6 +5,7 @@ import styles from './OrderTrackingCard.module.scss';
 
 import dpd from '/dpd.png';
 import dhl from '/dhl.png';
+import gls from '@/assets/gls.png';
 import hermes from '@/assets/svg/hermes.svg';
 
 export type NormalizedStatus =
@@ -145,6 +146,7 @@ const carrierLogos: Record<string, { src: string; alt: string }> = {
     dhl: { src: (dhl as unknown as string), alt: 'DHL' },
     hermes: { src: (hermes as unknown as string), alt: 'Hermes' },
     dpd: { src: (dpd as unknown as string), alt: 'DPD' },
+    gls: { src: (gls as unknown as string), alt: 'GLS' },
 };
 
 function renderCarrierLogo(name?: string) {

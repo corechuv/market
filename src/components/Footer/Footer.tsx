@@ -15,6 +15,7 @@ import paypal from "/paypal.png"
 import visa from "/visa.png"
 import dpd from "/dpd.png"
 import dhl from "/dhl.png"
+import gls from "@/assets/gls.png"
 import hermes from "@/assets/svg/hermes.svg"
 import klarna from "@/assets/svg/klarna.svg"
 import amazonWhite from "@/assets/amazonpay_white.png"
@@ -139,6 +140,7 @@ export default function Footer() {
                             <img loading="lazy" src={dhl} alt="Dhl" className={cls.deliveryMethods__dhl} />
                             <img loading="lazy" src={dpd} alt="Dpd" className={cls.deliveryMethods__dpd} />
                             <img loading="lazy" src={hermes} alt="Hermes" className={cls.deliveryMethods__hermes} />
+                            <img loading="lazy" src={gls} alt="Gls" className={cls.deliveryMethods__gls} />
                         </div>
                     </section>
                 </div>
