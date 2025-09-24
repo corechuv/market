@@ -40,13 +40,3 @@
   --dl-row-gap: 6px;
 }
 
-/* Адаптив: когда сам КОНТЕЙНЕР узкий, складываемся в одну колонку */
-@container (max-width: 520px) {
-  .root {
-    grid-template-columns: 1fr;
-  }
-  .term,
-  .desc {
-    grid-column: 1;
-  }
-}
