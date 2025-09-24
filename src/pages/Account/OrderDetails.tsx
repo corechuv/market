@@ -131,7 +131,7 @@ export default function OrderDetails() {
             <OrderTrackingCompact
               trackingNumber="00340434161094000001"
               carrierName="DHL"
-              currentStatus="CREATED"
+              currentStatus="PICKED_UP"
               paidAt="2025-09-21T09:10:00Z"
               lastUpdate="2025-09-21T14:32:00Z"
               trackingUrl="https://www.dhl.de/de/privatkunden/dhl-sendungsverfolgung.html"
