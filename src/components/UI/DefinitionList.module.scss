@@ -15,7 +15,7 @@
   grid-template-columns: max-content 1fr; /* 1-я колонка = ширине самого длинного dt */
   column-gap: var(--dl-col-gap);
   row-gap: var(--dl-row-gap);
-  align-items: start;
+  align-items: center;
 
   /* семантика <dl>: убираем дефолтные отступы */
   margin: 0;
