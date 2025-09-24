@@ -2,6 +2,9 @@
 
 import React, { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+
+import { getProducts } from "../../services/productService";
+
 import styles from "./AccountPage.module.scss";
 import cls from "./OrderDetails.module.scss";
 
@@ -20,6 +23,7 @@ import PageLayout from "../../components/layouts/PageLayout";
 
 import OrderTrackingCompact from '../../components/Order/OrderTrackingCard';
 import DefinitionList from "../../components/UI/DefinitionList";
+import ProductCarouselRich from "../../components/Product/ProductCarouselRich";
 
 
 /** helpers */
@@ -107,9 +111,15 @@ export default function OrderDetails() {
     { name: "In total:", description: fmtMoney(order.total / 100, account.settings.currency, locale) },
   ];
 
+  const nav = useNavigate();
+  const products = React.useMemo(
+    () => getProducts({ q: "", sort: "popular" as any }),
+    []
+  );
+
   return (
-    <>
-      <PageLayout title="Order" onBack={() => navigate(backTo)}>
+    <PageLayout title="Order" onBack={() => navigate(backTo)}>
+      <div style={{display: "flex", gap: 40, flexDirection: "column"}}>
         <div className={styles.stack}>
           <div style={{ display: "none" }}>
             <span className={styles.muted}>Статус:</span>{" "}
@@ -274,8 +284,20 @@ export default function OrderDetails() {
             )}
           </div>
         </div>
-      </PageLayout >
-    </>
+        <ProductCarouselRich label="Consider these items" products={products}
+          visibleItems={4}
+          onItemClick={(p) => nav(`/product/${p.id}`)}
+        // или, если хотите <a href> вместо onClick:
+        // itemLinkBuilder={(p) => `/product/${p.id}`}
+        />
+        <ProductCarouselRich label="These are for you" products={products}
+          visibleItems={4}
+          onItemClick={(p) => nav(`/product/${p.id}`)}
+        // или, если хотите <a href> вместо onClick:
+        // itemLinkBuilder={(p) => `/product/${p.id}`}
+        />
+      </div>
+    </PageLayout >
   );
 }
 
