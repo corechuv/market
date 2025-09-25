@@ -13,6 +13,7 @@ import ProductCarouselRich from "../../components/Product/ProductCarouselRich"
 import { getProducts } from "../../services/productService";
 import { useNavigate } from "react-router-dom";
 import React from "react"
+import BrandCarousel from "../../components/Home/BrandCarousel"
 
 const bannerList = [
     {
@@ -79,6 +80,58 @@ const demo = [
     { id: "5", title: "Case", color: "#8B5CF6", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
 ];
 
+import apple_light from "@/assets/brand_logos/Apple_Logo_black.png"
+import apple_dark from "@/assets/brand_logos/Apple_Logo_white.png"
+
+import samsung_light from "@/assets/brand_logos/Samsung_color.png"
+import samsung_dark from "@/assets/brand_logos/Samsung_color.png"
+
+import microsoft_light from "@/assets/brand_logos/Microsoft_Logo_color.svg"
+import microsoft_dark from "@/assets/brand_logos/Microsoft_Logo_color.svg"
+
+import intel_light from "@/assets/brand_logos/Intel_black.svg"
+import intel_dark from "@/assets/brand_logos/Intel_white.svg"
+
+import nvidia_light from "@/assets/brand_logos/NVIDIA_Logo_black.png"
+import nvidia_dark from "@/assets/brand_logos/NVIDIA_Logo_white.png"
+
+import hp_light from "@/assets/brand_logos/HP_Logo_color.svg"
+import hp_dark from "@/assets/brand_logos/HP_Logo_color.svg"
+
+
+const brandLogos = [
+  {
+    name: "Apple",
+    light: { svg: apple_light },
+    dark:  { svg: apple_dark },
+  },
+  {
+    name: "Samsung",
+    light: { svg: samsung_light },
+    dark:  { svg: samsung_dark  },
+  },
+  {
+    name: "Microsoft",
+    light: { svg: microsoft_light },
+    dark:  { svg: microsoft_dark  },
+  },
+  {
+    name: "Intel",
+    light: { svg: intel_light },
+    dark:  { svg: intel_dark  },
+  },
+  {
+    name: "Nvidia",
+    light: { svg: nvidia_light },
+    dark:  { svg: nvidia_dark  },
+  },
+  {
+    name: "HP",
+    light: { svg: hp_light },
+    dark:  { svg: hp_dark  },
+  },
+];
+
 export default function Home() {
     const nav = useNavigate();
     const products = React.useMemo(
@@ -125,6 +178,7 @@ export default function Home() {
                         </div>
                     ))}
                 </div>
+                <BrandCarousel label="Brands" images={brandLogos} />
                 <ProductCarouselRich label="Featured Products" products={products}
                     visibleItems={4}
                     onItemClick={(p) => nav(`/product/${p.id}`)}
