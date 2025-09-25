@@ -23,6 +23,7 @@ import AddressEdit from "./pages/Account/AddressEdit";
 import OrderDetails from "./pages/Account/OrderDetails";
 import ReturnRequestPage from "./pages/Account/ReturnRequest";
 import ReturnDetailsPage from "./pages/Account/ReturnDetails";
+import NotFound from "./pages/NotFound/NotFound";
 
 export default function App() {
 
@@ -43,15 +44,17 @@ export default function App() {
           <Route path="/account/orders/:id" element={<OrderDetails />} />
           <Route path="/account/returns/new" element={<ReturnRequestPage />} />
           <Route path="/account/returns/:id" element={<ReturnDetailsPage />} />
+          <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
         </Route>
 
         <Route element={<AuthLayout />}>
-          {/* /auth и любые /auth/* без Header/Footer */}
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
         </Route>
 
         <Route element={<CheckoutLayout />}>
           <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
         </Route>
       </Routes>
 

@@ -119,7 +119,7 @@ export default function OrderDetails() {
 
   return (
     <PageLayout title="Order" onBack={() => navigate(backTo)}>
-      <div style={{display: "flex", gap: 40, flexDirection: "column"}}>
+      <div style={{ display: "flex", gap: 40, flexDirection: "column" }}>
         <div className={styles.stack}>
           <div style={{ display: "none" }}>
             <span className={styles.muted}>Статус:</span>{" "}
@@ -217,6 +217,16 @@ export default function OrderDetails() {
                 {address.phone && <div>{address.phone}</div>}
               </div>
             )}
+          </section>
+
+          <section>
+            <h3>Payment info</h3>
+            <ul className="summary__list">
+              <li>
+                <span>Card</span>
+                <span>{fmtMoney(26000, account.settings.currency, locale)}</span>
+              </li>
+            </ul>
           </section>
 
           <section>
