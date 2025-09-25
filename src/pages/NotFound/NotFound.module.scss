@@ -25,9 +25,8 @@ $shadow-soft: 0 6px 20px rgba(0, 0, 0, 0.16);
     width: clamp(68px, 10vw, 120px);
     height: clamp(68px, 10vw, 120px);
     font-size: clamp(44px, 7vw, 84px);
-    color: var(--text-primary);
-    background: rgba(52, 59, 66, 0.05);
-    border: 1px solid var(--glass-stroke);
+    color: var(--text);
+    background: transparent;
     border-radius: 22%;
     transform: translateZ(0);
   }
