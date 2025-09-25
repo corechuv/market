@@ -5,7 +5,6 @@ import type { Profile } from "./profile";
 import type { ReturnRequest } from "./return";
 import type { Settings } from "./settings";
 
-
 export type Account = {
   profile: Profile;
   addresses: Address[];

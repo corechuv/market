@@ -24,6 +24,7 @@ import OrderDetails from "./pages/Account/OrderDetails";
 import ReturnRequestPage from "./pages/Account/ReturnRequest";
 import ReturnDetailsPage from "./pages/Account/ReturnDetails";
 import NotFound from "./pages/NotFound/NotFound";
+import ReturnsListPage from "./pages/Account/ReturnListPage";
 
 export default function App() {
 
@@ -42,6 +43,7 @@ export default function App() {
           <Route path="/account/addresses/new" element={<AddressEdit />} />
           <Route path="/account/addresses/:id" element={<AddressEdit />} />
           <Route path="/account/orders/:id" element={<OrderDetails />} />
+          <Route path="/account/returns" element={<ReturnsListPage />} />
           <Route path="/account/returns/new" element={<ReturnRequestPage />} />
           <Route path="/account/returns/:id" element={<ReturnDetailsPage />} />
           <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />

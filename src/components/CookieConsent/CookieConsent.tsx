@@ -315,11 +315,11 @@ export default function CookieConsent({
                 </p>
             </div>
             <div className={styles.banner__actions}>
-                <Button className={styles.btnSecondary} onClick={handleRejectAll}>
+                <Button variant="secondary" onClick={handleRejectAll}>
                     Отклонить
                 </Button>
-                <Button onClick={handleAcceptAll}>Принять все</Button>
-                <Button onClick={() => setManagerOpen(true)} aria-haspopup="dialog">
+                <Button variant="primary" onClick={handleAcceptAll}>Принять все</Button>
+                <Button variant="primary" onClick={() => setManagerOpen(true)} aria-haspopup="dialog">
                     Настроить
                 </Button>
             </div>
@@ -381,11 +381,11 @@ export default function CookieConsent({
                     </a>
                     <div className={styles.spacer} />
                 </div>
-                <Button className={styles.btnSecondary} onClick={handleRejectAll}>
+                <Button variant="secondary" onClick={handleRejectAll}>
                     Отклонить все
                 </Button>
-                <Button onClick={handleSave}>Сохранить</Button>
-                <Button onClick={handleAcceptAll}>Принять все</Button>
+                <Button variant="primary" onClick={handleSave}>Сохранить</Button>
+                <Button variant="primary" onClick={handleAcceptAll}>Принять все</Button>
             </div>
         </Modal>
     ) : null;
