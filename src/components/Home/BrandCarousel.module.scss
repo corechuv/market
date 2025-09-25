@@ -43,10 +43,10 @@
 /* ВАЖНО: стилизуем видимый ресурс */
 .item :is(img, svg) {
     width: 160px;
-    height: 80px;
+    height: 85px;
     object-fit: contain;
-    padding: 20px;
-    border-radius: 6px;
+    padding: 25px;
+    border-radius: 16px;
     background-color: var(--bg-card);
     cursor: pointer;
 }
