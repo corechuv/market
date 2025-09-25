@@ -178,13 +178,13 @@ export default function Home() {
                         </div>
                     ))}
                 </div>
-                <BrandCarousel label="Brands" images={brandLogos} />
                 <ProductCarouselRich label="Featured Products" products={products}
                     visibleItems={4}
                     onItemClick={(p) => nav(`/product/${p.id}`)}
                 // или, если хотите <a href> вместо onClick:
                 // itemLinkBuilder={(p) => `/product/${p.id}`}
                 />
+                <BrandCarousel label="Brands" images={brandLogos} />
             </div>
         </div>
     )
