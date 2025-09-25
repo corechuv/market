@@ -5,6 +5,24 @@
   --logo-pad: 8px;                     /* внутренний отступ */
 }
 
+.listContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.8rem;
+  margin: 0;
+  color: var(--text);
+}
+
+
 .track {
   display: flex;
   flex-wrap: wrap;
