@@ -41,7 +41,7 @@ const NotFound: React.FC<NotFoundProps> = ({
           <a className={`${s.btn} ${s.primary}`} href={homeHref}>
             Home
           </a>
-          <Button type="button" onClick={goBack}>
+          <Button size="small" variant="secondary" type="button" onClick={goBack}>
             Back
           </Button>
           {supportHref && (
