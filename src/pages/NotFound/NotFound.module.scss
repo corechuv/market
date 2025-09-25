@@ -12,9 +12,8 @@ $shadow-soft: 0 6px 20px rgba(0, 0, 0, 0.16);
 
 .code {
   display: inline-flex;
-  gap: clamp(8px, 1.6vw, 16px);
-  font-weight: 800;
-  letter-spacing: -0.04em;
+  gap: 20px;
+  font-weight: 600;
   margin-inline: auto;
   margin-bottom: clamp(10px, 2vw, 16px);
   user-select: none;
@@ -22,8 +21,6 @@ $shadow-soft: 0 6px 20px rgba(0, 0, 0, 0.16);
   span {
     display: inline-grid;
     place-items: center;
-    width: clamp(68px, 10vw, 120px);
-    height: clamp(68px, 10vw, 120px);
     font-size: clamp(44px, 7vw, 84px);
     color: var(--text);
     background: transparent;
