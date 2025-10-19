@@ -136,15 +136,15 @@ export const ReviewVideo: React.FC<Props> = ({
       } catch { /* noop */ }
     };
 
-    // Глобальный «включи звук» — размьючиваем текущее видео
+    // Глобальный «включи звук» — обязательно пытаемся проигрывать в том же callstack
     const onGlobalSoundOn = () => {
       const v = videoRef.current;
       if (!v) return;
-      if (v.muted) {
-        v.muted = false;
-        setIsMuted(false);
-        if (v.paused) v.play().catch(() => {});
-      }
+      v.muted = false;
+      setIsMuted(false);
+      // Даже если уже «играет», повторный play() нужен для надёжного включения аудио на iOS/Safari/Chrome
+      const p = v.play?.();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
     };
 
     video.addEventListener('play', onPlay);
@@ -193,6 +193,9 @@ export const ReviewVideo: React.FC<Props> = ({
       if (localStorage.getItem('reels:sound_on') !== '1') {
         localStorage.setItem('reels:sound_on', '1');
         window.dispatchEvent(new CustomEvent('reels:sound_on'));
+      } else {
+        // даже если флаг уже стоял — продублируем событие в рамках жеста
+        window.dispatchEvent(new CustomEvent('reels:sound_on'));
       }
     } catch {
       window.dispatchEvent(new CustomEvent('reels:sound_on'));
@@ -217,8 +220,10 @@ export const ReviewVideo: React.FC<Props> = ({
     v.muted = !v.muted;
     setIsMuted(v.muted);
     if (!v.muted) {
-      // Пользователь явно включил звук — запомним и сообщим всем
+      // Пользователь явно включил звук — запомним и обязательно дернём play()
       try { localStorage.setItem('reels:sound_on', '1'); } catch {}
+      const p = v.play?.();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
       window.dispatchEvent(new CustomEvent('reels:sound_on'));
     }
   }, []);

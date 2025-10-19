@@ -141,6 +141,7 @@ export default function ReelsLightbox({
     try {
       localStorage.setItem("reels:sound_on", "1");
     } catch {}
+    // синхронно уведомим все плееры
     window.dispatchEvent(new CustomEvent("reels:sound_on"));
   }, []);
 
@@ -295,6 +296,7 @@ export default function ReelsLightbox({
       role="dialog"
       aria-modal="true"
       onWheel={onWheel}
+      onPointerDown={ensureSoundUnlocked} // ← любой первый тап/клик разблокирует звук
     >
       <button
         className={styles.backdrop}
@@ -371,7 +373,7 @@ export default function ReelsLightbox({
               reviewType={cur.review.type}
               userId={cur.review.authorId}
               autoPlay
-              // Важно: не форсим mute для текущего — компонент сам упадёт в mute при запрете.
+              // текущий — без принудительного mute, дальше плеер сам разрулит
               muted={false}
             />
           </div>
