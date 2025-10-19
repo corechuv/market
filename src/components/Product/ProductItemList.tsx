@@ -5,13 +5,9 @@ import type { ViewMode } from "../../components/Product/ToggleViewSwitch";
 import type { Product, ProductVariant } from "../../types/product";
 import { parseMoney } from "../../types/helpers/parseMoney";
 import { getReviewSummaryMap } from "../../services/reviewService";
-
-// эти утилиты берём из вашего проекта
 import { getInitialVariant } from "../../specs/builders";
 import EnergyLabel from "./Details/EnergyLabel";
 import Stars from "./Stars";
-// buildSpecs не обязателен для списка, но при желании можно тоже подключить
-// import { buildSpecs } from "../../lib/buildSpecs";
 
 type Props = {
     products: Product[];
@@ -20,15 +16,10 @@ type Props = {
     className?: string;
 };
 
-// --- маленький хук для вычислений как на карточке товара ---
-function useProductComputed(product: Product) {
+// 🔧 БОЛЬШЕ НЕ ХУК — чистая функция, без React.useMemo и т.п.
+function computeProductComputed(product: Product) {
     const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
-
-    // в списке пользователь не выбирает вариант — используем стартовый
-    const variant: ProductVariant | undefined = React.useMemo(
-        () => (hasVariants ? getInitialVariant(product) : undefined),
-        [hasVariants, product]
-    );
+    const variant: ProductVariant | undefined = hasVariants ? getInitialVariant(product) : undefined;
 
     const images = (variant?.images?.length ? variant.images : product.images) ?? [];
 
@@ -36,24 +27,23 @@ function useProductComputed(product: Product) {
     const compareAt = variant?.compareAtPrice;
     const available = (variant?.available ?? product.available) ?? false;
 
-    // скидка
     const priceNum = parseMoney(variant?.price ?? product.price);
     const compareAtNum = parseMoney(variant?.compareAtPrice);
-    const discountPercent = React.useMemo(() => {
-        if (!Number.isFinite(priceNum) || !Number.isFinite(compareAtNum)) return null;
-        if (compareAtNum <= 0 || priceNum >= compareAtNum) return null;
-        return Math.round(((compareAtNum - priceNum) / compareAtNum) * 100);
-    }, [priceNum, compareAtNum]);
+    const discountPercent =
+        Number.isFinite(priceNum) &&
+            Number.isFinite(compareAtNum) &&
+            compareAtNum! > 0 &&
+            priceNum! < compareAtNum!
+            ? Math.round(((compareAtNum! - priceNum!) / compareAtNum!) * 100)
+            : null;
 
-    // доп. поля
     const energyClassArrow = variant?.energyClassArrowUrl ?? product.energyClassArrowUrl;
     const energyClass = variant?.energyClassUrl ?? product.energyClassUrl;
 
-    // безопасный src для первой картинки
     const imageSrc =
         (images?.[0] as any)?.url ??
         (images?.[0] as any)?.src ??
-        (product as any).imageUrl ?? // на случай старого поля
+        (product as any).imageUrl ??
         "";
 
     return {
@@ -70,6 +60,7 @@ function useProductComputed(product: Product) {
 
 const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, className }) => {
     const reviewSummaryMap = React.useMemo(() => getReviewSummaryMap(), []);
+
     return (
         <div className={[cls.productList, className].filter(Boolean).join(" ")}>
             <div className={view === "grid" ? cls.grid : cls.list}>
@@ -83,7 +74,7 @@ const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, classNa
                         discountPercent,
                         energyClassArrow,
                         energyClass,
-                    } = useProductComputed(product);
+                    } = computeProductComputed(product);
 
                     return (
                         <div
@@ -113,7 +104,14 @@ const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, classNa
                                 )}
                                 {(energyClassArrow || energyClass) && (
                                     <div className={cls.meta__energyClass}>
-                                        {energyClassArrow && energyClass && <EnergyLabel size="small" energyClassUrl={energyClass} energyClassArrowUrl={energyClassArrow} label="Energieklasse" />}
+                                        {energyClassArrow && energyClass && (
+                                            <EnergyLabel
+                                                size="small"
+                                                energyClassUrl={energyClass}
+                                                energyClassArrowUrl={energyClassArrow}
+                                                label="Energieklasse"
+                                            />
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -138,8 +136,8 @@ const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, classNa
                                 <div className={cls.price}>
                                     {!!discountPercent && compareAt && (
                                         <div className={cls.priceRow}>
-                                            {!!discountPercent && <div className={cls.badgeDiscount}>-{discountPercent}%</div>}
-                                            {compareAt ? <span className={cls.priceCompareAt}>{compareAt}</span> : null}
+                                            <div className={cls.badgeDiscount}>-{discountPercent}%</div>
+                                            <span className={cls.priceCompareAt}>{compareAt}</span>
                                         </div>
                                     )}
                                     <span className={cls.productPrice}>{price}</span>

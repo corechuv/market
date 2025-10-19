@@ -9,7 +9,6 @@ export interface Category {
   icon?: string;           // имя иконки или URL
   parentId?: string | null;
   children?: Category[];   // подкатегории (до 3 уровней в нашем датасете)
-  productsCount?: number;
   createdAt?: string;
   updatedAt?: string;
   isActive?: boolean;

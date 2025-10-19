@@ -1,4 +1,4 @@
-// FILE: src/utils/money.ts
+// src/utils/money.ts
 export const EUR = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" });
 export const formatMoney = (cents: number) => EUR.format(cents / 100);
 export const toCents = (amount: number) => Math.round(amount * 100);

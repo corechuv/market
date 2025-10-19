@@ -1,4 +1,4 @@
-// SpecTable.tsx
+// src/components/Product/SpecTable.tsx
 import React, { memo, useMemo } from "react";
 import styles from "./SpecTable.module.scss";
 

@@ -1,4 +1,5 @@
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+// components/header/Header.tsx
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { getProducts } from "../../services/productService";
 import cls from "./Header.module.scss";
 import Logo from "../logo/Logo";
@@ -7,6 +8,7 @@ import HeartIcon from "../Icons/HeartIcon";
 import AccountIcon from "../Icons/AccountIcon";
 import SearchIcon from "../Icons/SearchIcon";
 import Search from "./Search";
+import type { SearchItem } from "./Search";
 import Catalog from "./Catalog";
 import { SettingsMenuButton } from "./SettingsMenu";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +17,8 @@ import CounterBadge from "../Common/CounterBadge/CounterBadge";
 import { useCart } from "../../context/CartContext";
 import { CookieSettingsButton } from "../CookieConsent/CookieConsent";
 import MobileSearch from "./MobileSearch";
+import { useAuth } from "../../context/AuthContext";
+import PlayIcon from "../Icons/PlayIcon";
 
 export interface HeaderProps {
     className?: string;
@@ -36,8 +40,43 @@ function useIsMobile(breakpoint = 768) {
 }
 
 const Header: React.FC<HeaderProps> = ({ className }) => {
-    const allProducts = getProducts();
-    const items = useMemo(() => allProducts.map((p) => ({ id: p.id, label: p.name })), [allProducts]);
+
+    const { isAuthenticated, loading: authLoading } = useAuth();
+
+    const onAccountClick = () => {
+        if (authLoading) return;               // пока не знаем — ничего не делаем
+        nav(isAuthenticated ? "/account" : "/auth");
+    };
+
+    const [items, setItems] = useState<SearchItem[]>([]);
+    const [, setLoadingSuggest] = useState(false);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                setLoadingSuggest(true);
+                // поддержим обе реализации: синхронную и асинхронную
+                const maybe = getProducts as any;
+                const res = typeof maybe === "function" ? maybe({ sort: "name" }) : [];
+                const list = Array.isArray(res) ? res : await res; // если вернулся Promise — дождёмся
+
+                // некоторые API возвращают { items } или { data }
+                const arr = Array.isArray(list) ? list : (list?.items ?? list?.data ?? []);
+                const mapped: SearchItem[] = (Array.isArray(arr) ? arr : []).map((p: any) => ({
+                    id: String(p.id),
+                    label: String(p.name ?? ""),
+                }));
+
+                if (!cancelled) setItems(mapped);
+            } catch {
+                if (!cancelled) setItems([]);
+            } finally {
+                if (!cancelled) setLoadingSuggest(false);
+            }
+        })();
+        return () => { cancelled = true; };
+    }, []);
 
     const ref = useRef<HTMLElement | null>(null);
     const [hh, setHh] = useState<number>(80);
@@ -173,7 +212,14 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                                 <SearchIcon strokeWidth={1.5} width={24} />
                             </button>
                         )}
-                        <button className={cls.header__navButton} aria-label="Account" onClick={() => nav("/auth")}>
+                        <button
+                            className={cls.header__navButton}
+                            aria-label="Video feed"
+                            onClick={() => nav("/videos?sort=trending")}
+                        >
+                            <PlayIcon />
+                        </button>
+                        <button className={cls.header__navButton} aria-label={isAuthenticated ? "Profile" : "Login"} onClick={onAccountClick} disabled={authLoading}>
                             <AccountIcon strokeWidth={1.5} />
                         </button>
                         <button className={cls.header__navButton} aria-label="Wishlist" onClick={() => nav("/wishlist")}>

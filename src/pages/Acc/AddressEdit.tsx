@@ -48,7 +48,8 @@ export default function AddressEdit() {
         existing ?? {
             id: uid(),
             label: "New address",
-            fullName: "",
+            firstName: "",
+            lastName: "",
             line1: "",
             city: "",
             postalCode: "",
@@ -111,10 +112,17 @@ export default function AddressEdit() {
                         />
 
                         <TextField
-                            label="Получатель *"
-                            value={form.fullName}
-                            onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                            error={errs.fullName || undefined}
+                            label="Имя *"
+                            value={form.firstName}
+                            onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                            error={errs.firstName || undefined}
+                        />
+
+                        <TextField
+                            label="Фамилия *"
+                            value={form.lastName}
+                            onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                            error={errs.lastName || undefined}
                         />
 
                         <TextField

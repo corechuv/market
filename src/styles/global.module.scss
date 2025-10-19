@@ -82,4 +82,63 @@
     color: #ffd166;
     border-color: #8a6d1e;
 }
+
 /* End badge with status */
+
+/* Radio button custom */
+.list__radio {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.radio {
+    display: block;
+    border: 1px dashed var(--border);
+    border-radius: 16px;
+    cursor: pointer;
+
+    input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    &__selected {
+        border-color: #808080;
+    }
+
+    &__body {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px;
+    }
+
+    &__label {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__title {
+        display: flex;
+        gap: 10px;
+    }
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        img {
+            width: 52px;
+            height: 34px;
+            object-fit: contain;
+            padding: 0 6px;
+            border-radius: 6px;
+            background-color: var(--bg-card);
+            cursor: pointer;
+        }
+    }
+}

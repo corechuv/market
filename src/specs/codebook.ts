@@ -1,4 +1,4 @@
-// FILE: src/specs/codebook.ts
+// src/specs/codebook.ts
 import type { SpecDictionary } from "../components/Product/SpecTable";
 
 

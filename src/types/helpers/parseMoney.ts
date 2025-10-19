@@ -1,3 +1,4 @@
+// src/types/helpers/parseMoney.ts
 // помощник: приводим денежную строку к числу
 export function parseMoney(input: unknown): number {
     if (typeof input === "number") return input;

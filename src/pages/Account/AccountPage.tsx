@@ -1,794 +1,766 @@
 // src/pages/Account/AccountPage.tsx
-import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./AccountPage.module.scss";
 import Button from "../../components/UI/Button";
-import { SelectField } from "../../components/UI/SelectField";
 import { TextField } from "../../components/UI/TextField";
-import { PasswordField } from "../../components/UI/PasswordField";
-import { AvatarField } from "../../components/UI/AvatarField";
-import CloseIcon from "../../components/Icons/CloseIcon";
-import PlusIcon from "../../components/Icons/PlusIcon";
-import SwitchField from "../../components/UI/SwitchField";
-
-import { useAccount } from "../../context/AccountContext";
-
-import { exportInvoicePDF } from "../../types/helpers/invoiceConfig";
-import type { Profile } from "../../types/profile";
-import type { Settings } from "../../types/settings";
-import type { Address } from "../../types/address";
-import { statusLabel, type Order, type OrderStatus } from "../../types/order";
-import { fmtMoney } from "../../types/helpers/fmtMoney";
-import { STATUS_OPTIONS } from "../../data/helpers/deliveryStatus";
 import { Tabs, type TabItem } from "../../components/UI/Tabs";
+import { useAuth } from "../../context/AuthContext";
+import api from "../../lib/api";
 
-// ✅ Универсальные валидаторы
 import {
-  required,
-  validatePhone,
-  validateEmail,
-  validateForm,
-  compose,
-  minLength,
-  sameAs,
-  passwordStrength,
-  type FieldErrors,
+    required,
+    validatePhone,
+    validateEmail,
+    validateForm,
+    compose,
+    type FieldErrors,
 } from "../../utils/validate/fields";
 
-type UUID = string;
+import PlusIcon from "../../components/Icons/PlusIcon";
+import CloseIcon from "../../components/Icons/CloseIcon";
+import { EUROPE_COUNTRIES } from "../../utils/country";
 
-const isGermany = (country: string) => /^(германи|deutschland)/i.test(country.trim());
-
-const getPreferredLocale = (settings: Settings, addresses: Address[]): string => {
-  const def = addresses.find((a) => a.isDefault) || addresses[0];
-  if (def && isGermany(def.country)) return "de-DE";
-  return settings.language === "ru" ? "ru-RU" : "en-GB";
-};
-
+/* ================= types ================= */
 type TabKey = "profile" | "addresses" | "orders" | "settings";
-
 const tabs: TabItem<TabKey>[] = [
-  { key: "profile", label: "Profile" },
-  { key: "addresses", label: "Addresses" },
-  { key: "orders", label: "Orders" },
-  { key: "settings", label: "Settings" },
+    { key: "profile", label: "Profile" },
+    { key: "addresses", label: "Addresses" },
+    { key: "orders", label: "Orders" },
+    { key: "settings", label: "Settings" },
 ];
 
+type Address = {
+    id: string;
+    firstName: string;
+    lastName: string;
+    company?: string | null;
+    country: string;       // ISO-2
+    postalCode: string;
+    region?: string | null;
+    city: string;
+    line1: string;
+    line2?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    isDefault: boolean;
+    createdAt: string;
+};
+
+type Me = {
+    id: string;
+    email?: string | null;
+    username?: string | null;
+    phone?: string | null;
+    firstName?: string | null;
+    lastName?: string | null;
+    isEmailVerified?: boolean;
+    createdAt?: string | null;
+    updatedAt?: string | null;
+    role?: string;
+    addresses?: Address[];
+};
+
+type ProfileFormState = {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+};
+
+const fmtCountry = (code: string) => {
+    const c = EUROPE_COUNTRIES.find((x) => x.code === (code || "").toUpperCase());
+    return c ? `${c.name} (${c.code})` : (code || "");
+};
+
+/* ================= page ================= */
 export default function AccountPage() {
-  const { account, setAccount, reset } = useAccount();
-  const navigate = useNavigate();
-  const location = useLocation();
+    const navigate = useNavigate();
+    const { user, loading: authLoading } = useAuth();
 
-  // Активная вкладка <- из query ?tab=
-  const initialTab = (() => {
-    const sp = new URLSearchParams(location.search);
-    const v = sp.get("tab") as TabKey | null;
-    return (v ?? "profile") as TabKey;
-  })();
-  const [active, setActive] = useState<TabKey>(initialTab);
+    const [me, setMe] = useState<Me | null>((user ?? null) as Me | null);
+    const [active, setActive] = useState<TabKey>("profile");
+    const [loading, setLoading] = useState(false);
 
-  // Держим URL в синхронизации с выбранной вкладкой
-  useEffect(() => {
-    const sp = new URLSearchParams(location.search);
-    if (sp.get("tab") !== active) {
-      sp.set("tab", active);
-      navigate({ search: sp.toString() }, { replace: true });
+    // <<< ждём окончания инициализации auth, прежде чем дёргать /auth/me
+    useEffect(() => {
+        if (authLoading) return;
+        let mounted = true;
+        (async () => {
+            try {
+                const { data } = await api.get("/auth/me");
+                if (mounted) setMe(data as Me);
+            } catch {
+                if (mounted) navigate("/auth", { replace: true });
+            }
+        })();
+        return () => { mounted = false; };
+    }, [authLoading, navigate]);
+
+    // <<< можно без useMemo, чтобы не ловить порядок хуков
+    const displayName = (() => {
+        const f = me?.firstName?.trim() || "";
+        const l = me?.lastName?.trim() || "";
+        const full = `${f} ${l}`.trim();
+        return full || me?.username || me?.email || "User";
+    })();
+
+    const verified = !!me?.isEmailVerified;
+    const backSettings = encodeURIComponent("/account?tab=settings");
+
+    // редирект неавторизованных — когда точно знаем, что auth инициализирован
+    useEffect(() => {
+        if (!authLoading && !user) navigate("/auth", { replace: true });
+    }, [authLoading, user, navigate]);
+
+    if (authLoading || !me) {
+        return (
+            <main className={styles.page}>
+                <div className={styles.loadingWrap}>Loading…</div>
+            </main>
+        );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active]);
 
-  // Locale preferred for formatting
-  const locale = getPreferredLocale(account.settings, account.addresses);
+    async function resendVerify() {
+        try {
+            await api.post("/auth/email/request-verify", {});
+            alert("Verification email sent.");
+        } catch {
+            alert("Failed to send verification email.");
+        }
+    }
 
-  return (
-    <main className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerMain}>
-          <div className={styles.avatarWrap}>
-            {account.profile.avatar ? (
-              <img
-                className={styles.avatar}
-                src={account.profile.avatar}
-                alt="Avatar"
-              />
-            ) : (
-              <svg
-                className={styles.avatar}
-                width="128"
-                height="128"
-                viewBox="0 0 128 128"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                role="img"
-                aria-labelledby="t d"
-              >
-                <g stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity=".6">
-                  <circle cx="64" cy="52" r="16" fill="none" />
-                  <path d="M34 92c6-14 20-22 30-22s24 8 30 22" fill="none" />
-                </g>
-              </svg>
-            )}
-          </div>
-          <div>
-            <h1 className={styles.title}>{account.profile.firstName} {account.profile.lastName}</h1>
-            <p className={styles.subtitle}>
-              {account.profile.email}
-            </p>
-          </div>
-        </div>
-        <div className={styles.headerActions}>
-          <button
-            className={styles.ghostBtn}
-            onClick={() => reset()}
-            aria-label="Сбросить демо-данные"
-          >
-            Сбросить демо
-          </button>
-          <button className={styles.primaryBtn} onClick={() => alert("Выход из аккаунта (демо)")}>Выйти</button>
-        </div>
-      </header>
+    // === если НЕ верифицирован — показываем компактный экран
+    if (!verified) {
+        return (
+            <main className={styles.page}>
+                <header className={styles.header}>
+                    <div className={styles.headerMain}>
+                        <div className={styles.avatarWrap}>
+                            <svg className={styles.avatar} width="128" height="128" viewBox="0 0 128 128" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Avatar">
+                                <g stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity=".6">
+                                    <circle cx="64" cy="52" r="16" fill="none" />
+                                    <path d="M34 92c6-14 20-22 30-22s24 8 30 22" fill="none" />
+                                </g>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 className={styles.title}>{displayName}</h1>
+                            <p className={styles.subtitle}>{me.email}{me.username ? ` · @${me.username}` : ""}</p>
+                            <small className={styles.muted}>
+                                Please verify your email to access your account.
+                            </small>
+                        </div>
+                    </div>
+                </header>
 
-      <div className={styles.layout}>
-        {/* Content */}
-        <section className={styles.content}>
-          <Tabs<TabKey>
-            items={tabs}
-            activeKey={active}
-            onChange={setActive}
-            ariaLabel="Разделы аккаунта"
-          />
+                <div className={styles.layout}>
+                    <section className={styles.content}>
+                        <div className={styles.card}>
+                            <div className={styles.cardHeader}>
+                                <h2 className={styles.titlePage}>Email verification required</h2>
+                                <p className={styles.muted}>We sent you a link. You can resend it or open the verification screen.</p>
+                            </div>
 
-          {active === "profile" && (
-            <ProfileForm
-              profile={account.profile}
-              onSave={(p) => setAccount((d) => ({ ...d, profile: p }))}
-            />
-          )}
-
-          {active === "addresses" && (
-            <AddressesSection
-              addresses={account.addresses}
-              onChange={(next) =>
-                setAccount((d) => ({
-                  ...d,
-                  addresses:
-                    typeof next === "function"
-                      ? (next as (prev: Address[]) => Address[])(d.addresses)
-                      : next,
-                }))
-              }
-            />
-          )}
-
-          {active === "orders" && (
-            <OrdersSection
-              orders={account.orders}
-              currency={account.settings.currency}
-              locale={locale}
-            />
-          )}
-
-          {active === "settings" && (
-            <SettingsSection
-              settings={account.settings}
-              onSave={(settings) => setAccount((d) => ({ ...d, settings }))}
-            />
-          )}
-        </section>
-      </div>
-    </main>
-  );
-}
-
-/** ========== PROFILE ========== */
-function ProfileForm({
-  profile,
-  onSave,
-}: {
-  profile: Profile;
-  onSave: (p: Profile) => void;
-}) {
-  const [form, setForm] = useState<Profile>(profile);
-  const [errors, setErrors] = useState<Record<keyof Profile, string | null>>({
-    firstName: null,
-    lastName: null,
-    email: null,
-    phone: null,
-    birthday: null,
-    avatar: null,
-  });
-
-  useEffect(() => setForm(profile), [profile]);
-
-  function validate(): boolean {
-    const rules = {
-      firstName: required("Обязательное поле"),
-      lastName: required("Обязательное поле"),
-      email: compose(required("Обязательное поле"), validateEmail),
-      phone: validatePhone,
-      // birthday / avatar — опционально
-    } as const;
-
-    const errs = validateForm(form, rules) as FieldErrors<Profile>;
-    const next: typeof errors = {
-      firstName: (errs as any).firstName || null,
-      lastName: (errs as any).lastName || null,
-      email: (errs as any).email || null,
-      phone: (errs as any).phone || null,
-      birthday: null,
-      avatar: null,
-    };
-    setErrors(next);
-    return Object.values(next).every((v) => !v);
-  }
-
-  // helpers для DOB
-  const pad2 = (n: number | string) => String(n).padStart(2, "0");
-
-  // m: 1..12
-  const daysInMonth = (y: number, m: number) => new Date(y, m, 0).getDate();
-
-  const parseISODate = (iso?: string) => {
-    if (!iso) return { y: "", m: "", d: "" };
-    const [y, m, d] = iso.split("-");
-    return { y: y || "", m: m || "", d: d || "" };
-  };
-
-  const buildISO = (y?: string, m?: string, d?: string) => {
-    if (!y || !m || !d) return "";
-    return `${y}-${pad2(m)}-${pad2(d)}`;
-  };
-
-  function DOBField({
-    label = "Date of birth",
-    value,
-    onChange,
-    minYear = 1900,
-    maxYear = new Date().getFullYear(),
-    namePrefix = "bday",
-  }: {
-    label?: string;
-    value: string; // ISO: yyyy-mm-dd или ""
-    onChange: (iso: string) => void; // в состояние уходит всегда ISO или ""
-    minYear?: number;
-    maxYear?: number;
-    namePrefix?: string; // чтобы autocomplete не конфликтовал
-  }) {
-    const { y, m, d } = parseISODate(value);
-
-    const daysMax = y && m ? daysInMonth(+y, +m) : 31;
-
-    const dayOptions = Array.from({ length: daysMax }, (_, i) => {
-      const v = pad2(i + 1);
-      return { value: v, label: v };
-    });
-
-    const monthOptions = Array.from({ length: 12 }, (_, i) => {
-      const v = pad2(i + 1);
-      return { value: v, label: v }; // можно подставить локализованные названия месяцев
-    });
-
-    const yearOptions = Array.from({ length: maxYear - minYear + 1 }, (_, i) => {
-      const v = String(maxYear - i); // по убыванию
-      return { value: v, label: v };
-    });
-
-    function commit(next: { y?: string; m?: string; d?: string }) {
-      const ny = next.y ?? y;
-      const nm = next.m ?? m;
-      let nd = next.d ?? d;
-
-      if (ny && nm && nd) {
-        const maxD = daysInMonth(+ny, +nm);
-        const safeD = Math.min(+nd, maxD);
-        onChange(buildISO(ny, nm, String(safeD)));
-      } else {
-        // если что-то не выбрано — очищаем
-        onChange("");
-      }
+                            <div className={styles.formActions}>
+                                <Button
+                                    variant="primary"
+                                    size="small"
+                                    onClick={() => navigate(`/account/settings/verify-email?back=${backSettings}`)}
+                                >
+                                    Open verification screen
+                                </Button>
+                                <Button variant="secondary" size="small" onClick={resendVerify}>
+                                    Resend link
+                                </Button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        );
     }
 
     return (
-      <div>
-        <div className={styles.label}>{label}</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-          <SelectField
-            value={d}
-            onChange={(v) => commit({ d: v })}
-            options={dayOptions}
-            placeholder="DD"
-            name={`${namePrefix}-day`}
-            autoComplete="bday-day"
-          />
-          <SelectField
-            value={m}
-            onChange={(v) => commit({ m: v })}
-            options={monthOptions}
-            placeholder="MM"
-            name={`${namePrefix}-month`}
-            autoComplete="bday-month"
-          />
-          <SelectField
-            value={y}
-            onChange={(v) => commit({ y: v })}
-            options={yearOptions}
-            placeholder="YYYY"
-            name={`${namePrefix}-year`}
-            autoComplete="bday-year"
-          />
-        </div>
-      </div>
+        <main className={styles.page}>
+            <header className={styles.header}>
+                <div className={styles.headerMain}>
+                    <div className={styles.avatarWrap}>
+                        {/* placeholder avatar */}
+                        <svg
+                            className={styles.avatar}
+                            width="128" height="128" viewBox="0 0 128 128" fill="none"
+                            xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Avatar"
+                        >
+                            <g stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity=".6">
+                                <circle cx="64" cy="52" r="16" fill="none" />
+                                <path d="M34 92c6-14 20-22 30-22s24 8 30 22" fill="none" />
+                            </g>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 className={styles.title}>{displayName}</h1>
+                        <p className={styles.subtitle}>
+                            {me.email}{me.username ? ` · @${me.username}` : ""}
+                        </p>
+                    </div>
+                </div>
+                <div className={styles.headerActions} />
+            </header>
+
+            <div className={styles.layout}>
+                <section className={styles.content}>
+                    <Tabs<TabKey> items={tabs} activeKey={active} onChange={setActive} ariaLabel="Account sections" />
+                    {active === "profile" && (
+                        <ProfileForm
+                            me={me}
+                            saving={loading}
+                            onSave={async (patch) => {
+                                setLoading(true);
+                                try {
+                                    await api.put(`/customers/${me.id}`, {
+                                        email: patch.email || null,
+                                        phone: patch.phone || null,
+                                        firstName: patch.firstName || null,
+                                        lastName: patch.lastName || null,
+                                    });
+                                    const { data } = await api.get("/auth/me");
+                                    setMe(data as Me);
+                                    try {
+                                        localStorage.setItem("mp_auth_user", JSON.stringify(data));
+                                        sessionStorage.setItem("mp_auth_user", JSON.stringify(data));
+                                    } catch { /* ignore */ }
+                                } catch (e: any) {
+                                    const status = e?.response?.status;
+                                    const msg = e?.response?.data?.message || "Failed to save profile";
+                                    if (status === 409) throw { email: "Email already exists" };
+                                    throw { _form: msg };
+                                } finally {
+                                    setLoading(false);
+                                }
+                            }}
+                        />
+                    )}
+                    {active === "addresses" && (
+                        <AddressesSection
+                            me={me}
+                            onMeRefresh={async () => {
+                                const { data } = await api.get("/auth/me");
+                                setMe(data as Me);
+                                try {
+                                    localStorage.setItem("mp_auth_user", JSON.stringify(data));
+                                    sessionStorage.setItem("mp_auth_user", JSON.stringify(data));
+                                } catch { /* ignore */ }
+                            }}
+                        />
+                    )}
+                    {active === "orders" && <OrdersSection />}
+                    {active === "settings" && <SettingsSection me={me} />}
+                </section>
+            </div>
+        </main>
     );
-  }
-
-  return (
-    <div className={styles.card}>
-      <div className={styles.cardHeader}>
-        <h2 className={styles.titlePage}>Profile</h2>
-      </div>
-
-      <form
-        className={styles.form}
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (!validate()) return;
-          onSave(form);
-        }}
-      >
-        <AvatarField
-          label="Photo"
-          value={form.avatar || ""}
-          onChange={({ dataUrl }) => setForm((s) => ({ ...s, avatar: dataUrl || "" }))}
-          hint=""
-          maxSizeMb={5}
-        />
-        <div className={styles.grid2}>
-          <TextField
-            label="First name *"
-            value={form.firstName}
-            onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-            error={errors.firstName || undefined}
-            name="firstName"
-            autoComplete="given-name"
-          />
-
-          <TextField
-            label="Last name *"
-            value={form.lastName}
-            onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-            error={errors.lastName || undefined}
-            name="lastName"
-            autoComplete="family-name"
-          />
-
-          <TextField
-            label="Email *"
-            type="email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            error={errors.email || undefined}
-            name="email"
-            autoComplete="email"
-          />
-
-          <TextField
-            label="Phone number"
-            value={form.phone || ""}
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            error={errors.phone || undefined}
-            name="tel"
-            autoComplete="tel"
-          />
-
-          <DOBField
-            label="Date of birth"
-            value={form.birthday || ""}
-            onChange={(iso) => setForm({ ...form, birthday: iso })}
-          />
-        </div>
-
-        <div className={styles.formActions}>
-          <Button type="submit" variant="primary" size="small">Save</Button>
-          <Button type="button" variant="secondary" size="small" onClick={() => setForm(profile)} aria-label="Отменить изменения">Canсel</Button>
-        </div>
-      </form>
-    </div>
-  );
 }
 
-/** ========== ADDRESSES ========== */
-function AddressesSection({
-  addresses,
-  onChange,
+/** ================== Profile ================== */
+function ProfileForm({
+    me,
+    saving,
+    onSave,
 }: {
-  addresses: Address[];
-  onChange: React.Dispatch<React.SetStateAction<Address[]>>;
+    me: Me;
+    saving: boolean;
+    onSave: (p: ProfileFormState) => Promise<void>;
 }) {
-  const navigate = useNavigate();
-
-  function upsert(addr: Address) {
-    onChange((prev: Address[]) => {
-      let next = [...prev];
-      const i = next.findIndex((a) => a.id === addr.id);
-
-      if (addr.isDefault) {
-        next = next.map((a) => ({ ...a, isDefault: a.id === addr.id }));
-      }
-      if (i >= 0) next[i] = addr;
-      else next.unshift(addr);
-
-      return next;
+    const [form, setForm] = useState<ProfileFormState>({
+        firstName: me.firstName ?? "",
+        lastName: me.lastName ?? "",
+        email: me.email ?? "",
+        phone: me.phone ?? "",
     });
-  }
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
-  function remove(id: UUID) {
-    onChange((prev: Address[]) => prev.filter((a) => a.id !== id));
-  }
+    useEffect(() => {
+        setForm({
+            firstName: me.firstName ?? "",
+            lastName: me.lastName ?? "",
+            email: me.email ?? "",
+            phone: me.phone ?? "",
+        });
+    }, [me]);
 
-  const back = encodeURIComponent("/account?tab=addresses");
+    function validate(): boolean {
+        const rules = {
+            firstName: required("Required"),
+            lastName: required("Required"),
+            email: compose(required("Required"), validateEmail),
+            phone: validatePhone,
+        } as const;
+        const errs = validateForm(form, rules) as FieldErrors<ProfileFormState>;
+        setErrors(errs as Record<string, string>);
+        return Object.keys(errs).length === 0;
+    }
 
-  return (
-    <div className={styles.stackLg}>
-      <div className={styles.card}>
-        <div className={styles.cardHeader}>
-          <h2 className={styles.titlePage}>Addresses</h2>
-        </div>
+    async function submit(e: React.FormEvent) {
+        e.preventDefault();
+        setErrors({});
+        if (!validate()) return;
 
-        <div className={styles.toolbar}>
-          <Button
-            type="button"
-            size="small"
-            variant="secondary"
-            className={styles.addBtn}
-            onClick={() => navigate(`/account/addresses/new?back=${back}`)}
-            aria-label="Добавить адрес"
-          >
-            <PlusIcon />
-          </Button>
-        </div>
+        try {
+            await onSave(form);
+        } catch (fe: any) {
+            setErrors(fe || { _form: "Failed to save" });
+        }
+    }
 
-        <div className={styles.listGrid}>
-          {addresses.map((a) => (
-            <article key={a.id} className={styles.addrCard}>
-              <div className={styles.addrHeader}>
-                <strong className={styles.addrLabel}>
-                  {a.label} {a.isDefault && <span className={styles.badge}>По умолчанию</span>}
-                </strong>
-                <div className={styles.addrActions}>
-                  <CloseIcon onClick={() => remove(a.id)} />
-                </div>
-              </div>
-              <div className={styles.addrBody}>
-                <div>{a.fullName}</div>
-                <div>{a.line1}</div>
-                {a.line2 && <div>{a.line2}</div>}
-                <div>
-                  {a.city}
-                  {a.region ? `, ${a.region}` : ""}, {a.postalCode}
-                </div>
-                <div>{a.country}</div>
-                {a.phone && <div className={styles.muted}>{a.phone}</div>}
-              </div>
-
-              {!a.isDefault && (
-                <Button
-                  variant="primary"
-                  size="small"
-                  onClick={() => upsert({ ...a, isDefault: true })}
-                >
-                  Make default
-                </Button>
-              )}
-
-              <Button
-                variant="secondary"
-                size="small"
-                onClick={() => navigate(`/account/addresses/${a.id}?back=${back}`)}
-              >
-                Edit
-              </Button>
-            </article>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** ========== ORDERS ========== */
-function OrdersSection({
-  orders,
-  currency,
-  locale,
-}: {
-  orders: Order[];
-  currency: Settings["currency"];
-  locale: string;
-}) {
-  const navigate = useNavigate();
-  const back = encodeURIComponent("/account?tab=orders");
-  const [q, setQ] = useState("");
-  const [status, setStatus] = useState<OrderStatus | "all">("all");
-
-  const filtered = useMemo(() => {
-    const s = q.trim().toLowerCase();
-    return orders.filter((o) => {
-      const byText =
-        !s ||
-        o.number.toLowerCase().includes(s) ||
-        o.items.some((it) => it.name.toLowerCase().includes(s) || it.sku.toLowerCase().includes(s));
-      const byStatus = status === "all" || o.status === status;
-      return byText && byStatus;
-    });
-  }, [orders, q, status]);
-
-  return (
-    <div className={styles.card}>
-      <div className={styles.cardHeader}>
-        <h2 className={styles.titlePage}>Orders</h2>
-      </div>
-
-      <div className={styles.toolbar}>
-        <TextField
-          placeholder="Поиск по номеру, товару, SKU…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
-
-        <SelectField
-          value={status}
-          onChange={(v) => setStatus(v as OrderStatus | "all")}
-          options={STATUS_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
-          placeholder="Выберите статус"
-          className={styles.toolbarSelect}
-        />
-      </div>
-
-      {/* === LIST (cards) instead of table === */}
-      <div className={styles.ordersList}>
-        {filtered.map((o) => {
-          const totalItems = o.items.reduce((s, it) => s + (it.qty || 0), 0);
-
-          // пытаемся достать картинку из item: image | imageUrl | images[0] | thumb
-          const getItemImage = (it: any): string | undefined =>
-            it?.image || it?.imageUrl || (Array.isArray(it?.images) ? it.images[0] : it?.thumb);
-
-          // до 4 миниатюр; если больше — "+N"
-          const thumbs = o.items.slice(0, 4).map((it, idx) => {
-            const src = getItemImage(it);
-            return src ? (
-              <img key={idx} src={src} alt={it.name} className={styles.orderThumb} loading="lazy" />
-            ) : (
-              <div key={idx} className={styles.orderThumb + " " + styles.thumbFallback} aria-hidden>
-                {it.name?.[0]?.toUpperCase() ?? "•"}
-              </div>
-            );
-          });
-          const extra = o.items.length > 4 ? o.items.length - 4 : 0;
-
-          return (
-            <article key={o.id} className={styles.orderCard} aria-label={`Order ${o.number}`}>
-              <div className={styles.orderHead}>
-                <div className={styles.orderId}>
-                  <div className={styles.orderNumber}>{o.number}</div>
-                  <div className={styles.orderDate}>{new Date(o.createdAt).toLocaleDateString(locale)}</div>
-                </div>
-                <span className={`${styles.badge} ${styles[`st_${o.status}`]}`}>{statusLabel(o.status)}</span>
-              </div>
-
-              <div className={styles.orderBody}>
-                <div className={styles.orderThumbs}>
-                  {thumbs}
-                  {extra > 0 && <div className={styles.orderThumb + " " + styles.orderMore}>+{extra}</div>}
-                </div>
-
-                <div className={styles.orderMeta}>
-                  <div className={styles.orderTitles}>
-                    {o.items.slice(0, 3).map((it) => it.name).join(", ")}
-                    {o.items.length > 3 ? "…" : ""}
-                  </div>
-                  <div className={styles.muted}>
-                    {totalItems} items • {o.items.length} SKU
-                    {o.shippingMethod ? ` • ${o.shippingMethod}` : ""}
-                  </div>
-                </div>
-
-                <div className={styles.orderTotal}>
-                  {fmtMoney(o.total / 100, currency, locale)}
-                </div>
-              </div>
-
-              <div className={styles.orderActions}>
-                <Button
-                  size="small"
-                  variant="ghost"
-                  onClick={() =>
-                    exportInvoicePDF({
-                      order: o,
-                      currency,
-                      locale,
-                      address: undefined,
-                      buyer: undefined,
-                    })
-                  }
-                >
-                  Invoice
-                </Button>
-                <Button
-                  size="small"
-                  variant="secondary"
-                  onClick={() => navigate(`/account/orders/${o.id}?back=${back}`)}
-                >
-                  Details
-                </Button>
-              </div>
-            </article>
-          );
-        })}
-
-        {filtered.length === 0 && <div className={styles.empty}>Ничего не найдено</div>}
-      </div>
-    </div>
-  );
-}
-
-/** ========== SETTINGS ========== */
-function SettingsSection({
-  settings,
-  onSave,
-}: {
-  settings: Settings;
-  onSave: (s: Settings) => void;
-}) {
-  const [form, setForm] = useState(settings);
-
-  // Смена пароля (демо)
-  const [pw, setPw] = useState({ current: "", next: "", confirm: "" });
-  const [pwErrs, setPwErrs] = useState<Record<string, string>>({});
-
-  const strengthCalc = (v: string) => passwordStrength(v);
-
-  function submitPw(e: React.FormEvent) {
-    e.preventDefault();
-
-    const rules = {
-      next: compose(
-        required("Новый пароль обязателен"),
-        minLength(8, "Новый пароль должен быть не менее 8 символов")
-      ),
-      confirm: sameAs<string>((all) => all.next, "Пароли не совпадают"),
-      // current — намеренно без проверки в демо
-    } as const;
-
-    const errs = validateForm(pw, rules);
-    setPwErrs(errs as Record<string, string>);
-    if (Object.keys(errs).length) return;
-
-    setPw({ current: "", next: "", confirm: "" });
-    setPwErrs({});
-    alert("Пароль изменён (демо)");
-  }
-
-  return (
-    <div className={styles.stackLg}>
-      <div className={styles.card}>
-        <div className={styles.cardHeader}>
-          <h2 className={styles.titlePage}>Settings</h2>
-          <p className={styles.muted}>
-            Уведомления, язык, валюта и тема. GDPR: маркетинговые рассылки включаются только по явному согласию.
-          </p>
-        </div>
-
-        <form
-          className={styles.form}
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSave(form);
-          }}
-        >
-          <div className={styles.grid2}>
-            <div className={styles.switchList}>
-              <SwitchField
-                label="Notification по email"
-                checked={form.emailNotifications}
-                onChange={(checked) => setForm({ ...form, emailNotifications: checked })}
-              />
-              <SwitchField
-                label="SMS-notifications"
-                checked={form.smsNotifications}
-                onChange={(checked) => setForm({ ...form, smsNotifications: checked })}
-              />
-              <SwitchField
-                label="Получать акции и предложения (GDPR согласие)"
-                checked={form.marketingOptIn}
-                onChange={(checked) => setForm({ ...form, marketingOptIn: checked })}
-              />
+    return (
+        <div className={styles.card}>
+            <div className={styles.cardHeader}>
+                <h2 className={styles.titlePage}>Profile</h2>
             </div>
 
-            <div></div>
+            <form className={styles.form} onSubmit={submit} noValidate>
+                <div className={styles.grid2}>
+                    <TextField
+                        label="First name *"
+                        name="firstName"
+                        value={form.firstName}
+                        onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                        error={errors.firstName}
+                        autoComplete="given-name"
+                    />
+                    <TextField
+                        label="Last name *"
+                        name="lastName"
+                        value={form.lastName}
+                        onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                        error={errors.lastName}
+                        autoComplete="family-name"
+                    />
+                    <TextField
+                        label="Email *"
+                        type="email"
+                        name="email"
+                        value={form.email}
+                        onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        error={errors.email}
+                        autoComplete="email"
+                    />
+                    <TextField
+                        label="Phone"
+                        name="phone"
+                        value={form.phone}
+                        onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                        error={errors.phone}
+                        autoComplete="tel"
+                    />
+                </div>
 
-            <SelectField
-              label="Language"
-              value={form.language}
-              onChange={(v) => setForm({ ...form, language: v as Settings["language"] })}
-              options={[
-                { value: "ru", label: "Русский" },
-                { value: "en", label: "English" },
-              ]}
-            />
+                {errors._form && <div className={styles.formError} role="alert">{errors._form}</div>}
 
-            <SelectField
-              label="Currency"
-              value={form.currency}
-              onChange={(v) => setForm({ ...form, currency: v as Settings["currency"] })}
-              options={[
-                { value: "EUR", label: "EUR €" },
-                { value: "USD", label: "USD $" },
-                { value: "RUB", label: "RUB ₽" },
-              ]}
-            />
-
-            <SelectField
-              label="Theme"
-              value={form.theme}
-              onChange={(v) => setForm({ ...form, theme: v as Settings["theme"] })}
-              options={[
-                { value: "system", label: "Системная" },
-                { value: "light", label: "Светлая" },
-                { value: "dark", label: "Тёмная" },
-              ]}
-            />
-          </div>
-          <div className={styles.formActions}>
-            <Button type="submit" size="small" variant="primary">
-              Save
-            </Button>
-            <Button type="button" size="small" variant="secondary" onClick={() => setForm(settings)}>
-              Cancel
-            </Button>
-          </div>
-        </form>
-      </div>
-
-      <div className={styles.card}>
-        <div className={styles.cardHeader}>
-          <h3>Change password</h3>
+                <div className={styles.formActions}>
+                    <Button type="submit" variant="primary" size="small" disabled={saving}>
+                        {saving ? "Saving…" : "Save"}
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        size="small"
+                        onClick={() =>
+                            setForm({
+                                firstName: me.firstName ?? "",
+                                lastName: me.lastName ?? "",
+                                email: me.email ?? "",
+                                phone: me.phone ?? "",
+                            })
+                        }
+                    >
+                        Cancel
+                    </Button>
+                </div>
+            </form>
         </div>
+    );
+}
 
-        <form className={styles.form} onSubmit={submitPw}>
-          <div className={styles.grid2}>
-            <PasswordField
-              label="Current password"
-              value={pw.current}
-              onChange={(e) => setPw({ ...pw, current: e.currentTarget.value })}
-              autoComplete="current-password"
-            />
+/** ================== Addresses (list-only; edit on separate page) ================== */
+function AddressesSection({
+    me,
+    onMeRefresh,
+}: {
+    me: Me;
+    onMeRefresh: () => Promise<void>;
+}) {
+    const navigate = useNavigate();
+    const [items, setItems] = useState<Address[]>(me.addresses ?? []);
+    const [loading, setLoading] = useState<boolean>(true);
 
-            <PasswordField
-              label="New password"
-              value={pw.next}
-              onChange={(e) => setPw({ ...pw, next: e.currentTarget.value })}
-              withStrength
-              strengthCalc={strengthCalc}
-              autoComplete="new-password"
-              error={pwErrs.next}
-            />
+    // первичная загрузка / синхронизация
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            setLoading(true);
+            try {
+                const { data } = await api.get<Address[]>("/addresses/my");
+                if (mounted) setItems(data);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        })();
+        return () => { mounted = false; };
+    }, []);
 
-            <PasswordField
-              label="Confirm password"
-              value={pw.confirm}
-              onChange={(e) => setPw({ ...pw, confirm: e.currentTarget.value })}
-              error={pwErrs.confirm}
-              autoComplete="new-password"
-            />
-          </div>
-          <div className={styles.formActions}>
-            <Button type="submit" size="small">
-              Change password
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+    useEffect(() => {
+        if (me.addresses) setItems(me.addresses);
+    }, [me.addresses]);
+
+    const back = encodeURIComponent("/account?tab=addresses");
+
+    async function reloadAll() {
+        const { data } = await api.get<Address[]>("/addresses/my");
+        setItems(data);
+        await onMeRefresh();
+    }
+
+    async function removeAddress(id?: string) {
+        if (!id) return;
+        if (!confirm("Delete this address?")) return;
+        setLoading(true);
+        try {
+            await api.delete(`/addresses/${id}`);
+            await reloadAll();
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function makeDefault(id?: string) {
+        if (!id) return;
+        setLoading(true);
+        try {
+            await api.post(`/addresses/${id}/make-default`, {});
+            await reloadAll();
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    return (
+        <div className={styles.stackLg}>
+            <div className={styles.card}>
+                <div className={styles.cardHeader}>
+                    <h2 className={styles.titlePage}>Addresses</h2>
+                </div>
+
+                <div className={styles.toolbar}>
+                    <Button
+                        type="button"
+                        size="small"
+                        variant="secondary"
+                        className={styles.addBtn}
+                        onClick={() => navigate(`/account/addresses/new?back=${back}`)}
+                        aria-label="Add address"
+                    >
+                        <PlusIcon />
+                    </Button>
+                </div>
+
+                {loading && <div className={styles.loadingWrap}>Loading…</div>}
+
+                {!loading && (
+                    <div className={styles.listGrid}>
+                        {items.length === 0 && <div className={styles.muted}>No addresses yet.</div>}
+
+                        {items.map((a) => (
+                            <article key={a.id} className={styles.addrCard}>
+                                <div className={styles.addrHeader}>
+                                    <strong className={styles.addrLabel}>
+                                        {a.firstName} {a.lastName}
+                                        {a.company ? ` · ${a.company}` : ""}
+                                        {a.isDefault && <span className={styles.badge}>Default</span>}
+                                    </strong>
+                                    <div className={styles.addrActions}>
+                                        <CloseIcon onClick={() => removeAddress(a.id)} />
+                                    </div>
+                                </div>
+
+                                <div className={styles.addrBody}>
+                                    <div>{a.line1}{a.line2 ? `, ${a.line2}` : ""}</div>
+                                    <div>
+                                        {a.city}
+                                        {a.region ? `, ${a.region}` : ""}, {a.postalCode}
+                                    </div>
+                                    <div>{fmtCountry(a.country)}</div>
+                                    {(a.phone || a.email) && (
+                                        <>
+                                            <div className={styles.muted}>
+                                                {a.phone ? `${a.phone}` : ""}
+                                            </div>
+                                            <div className={styles.muted}>
+                                                {a.email ? `${a.email}` : ""}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+
+                                {!a.isDefault && (
+                                    <Button
+                                        variant="primary"
+                                        size="small"
+                                        onClick={() => makeDefault(a.id)}
+                                    >
+                                        Make default
+                                    </Button>
+                                )}
+                                <Button
+                                    variant="secondary"
+                                    size="small"
+                                    onClick={() => navigate(`/account/addresses/${a.id}?back=${back}`)}
+                                >
+                                    Edit
+                                </Button>
+                            </article>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function OrdersSection() {
+    const navigate = useNavigate();
+    const back = encodeURIComponent("/account?tab=orders");
+
+    type OrderPreviewItem = {
+        sku: string;
+        name: string;
+        qty: number;
+        priceCents: number;
+        imageUrl?: string;
+    };
+
+    type OrderListItem = {
+        id: string;
+        number: string;
+        createdAt: string;
+        status: string;
+        currency: string;
+        totalCents: number;
+        shippingCents: number;
+        itemsCount: number;
+        itemsPreview: OrderPreviewItem[];
+    };
+
+    const [items, setItems] = useState<OrderListItem[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const { data } = await api.get<OrderListItem[]>("/orders/my?limit=50");
+                if (mounted) setItems(data);
+            } catch (e: any) {
+                if (mounted) setError(e?.response?.data?.detail || "Failed to load orders");
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        })();
+        return () => { mounted = false; };
+    }, []);
+
+    const fmtMoney = (cents: number, cur = "EUR") =>
+        new Intl.NumberFormat("de-DE", { style: "currency", currency: cur }).format((cents || 0) / 100);
+
+    const fmtDate = (iso?: string) => {
+        if (!iso) return "";
+        const d = new Date(iso);
+        return new Intl.DateTimeFormat("de-DE", {
+            year: "numeric", month: "2-digit", day: "2-digit"
+        }).format(d);
+    };
+
+    const statusBadgeClass = (st: string) => {
+        // мапа под ваши стили: st_awaiting_payment, st_paid, st_shipped, st_delivered, st_exception...
+        const key = `st_${(st || "").toLowerCase()}`;
+        return `${styles.badge} ${styles[key] || ""}`;
+    };
+
+    return (
+        <div className={styles.card}>
+            <div className={styles.cardHeader}>
+                <h2 className={styles.titlePage}>Orders</h2>
+                <a href="account/returns">Returns</a>
+            </div>
+
+            {loading && <div className={styles.loadingWrap}>Loading…</div>}
+            {error && <div className={styles.formError} role="alert">{error}</div>}
+
+            {!loading && !error && (
+                <div className={styles.ordersList}>
+                    {items.length === 0 && (
+                        <div className={styles.muted}>You don't have any orders yet.</div>
+                    )}
+
+                    {items.map((o) => {
+                        const titles = o.itemsPreview.map(it => it.name).slice(0, 3);
+                        const more = Math.max(0, o.itemsCount - o.itemsPreview.length);
+                        const skuCount = o.itemsPreview.length; // быстрая метрика для превью
+
+                        return (
+                            <article key={o.id} className={styles.orderCard}>
+                                <div className={styles.orderHead}>
+                                    <div className={styles.orderId}>
+                                        <div className={styles.orderNumber}>{o.number}</div>
+                                        <div className={styles.orderDate}>{fmtDate(o.createdAt)}</div>
+                                    </div>
+                                    <span className={statusBadgeClass(o.status)}>{o.status}</span>
+                                </div>
+
+                                <div className={styles.orderBody}>
+                                    <div className={styles.orderThumbs}>
+                                        {o.itemsPreview.map((it, idx) =>
+                                            it.imageUrl ? (
+                                                <img
+                                                    key={`${it.sku}-${idx}`}
+                                                    src={it.imageUrl}
+                                                    alt={it.name}
+                                                    className={styles.orderThumb}
+                                                    loading="lazy"
+                                                />
+                                            ) : (
+                                                <div
+                                                    key={`${it.sku}-${idx}`}
+                                                    className={styles.orderThumb}
+                                                    title={it.name}
+                                                >
+                                                    {it.name?.[0]?.toUpperCase() || "•"}
+                                                </div>
+                                            )
+                                        )}
+                                        {more > 0 && (
+                                            <div className={styles.orderThumb + " " + styles.orderMore}>+{more}</div>
+                                        )}
+                                    </div>
+
+                                    <div className={styles.orderMeta}>
+                                        <div className={styles.orderTitles}>
+                                            {titles.join(" • ")}{o.itemsCount > titles.length ? " …" : ""}
+                                        </div>
+                                        <div className={styles.muted}>
+                                            {o.itemsCount} item{o.itemsCount !== 1 ? "s" : ""} • {skuCount} SKU
+                                            {o.shippingCents > 0 ? ` • Shipping ${fmtMoney(o.shippingCents, o.currency)}` : " • Free shipping"}
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.orderTotal}>
+                                        {fmtMoney(o.totalCents, o.currency)}
+                                    </div>
+                                </div>
+
+                                <div className={styles.orderActions}>
+                                    <Button
+                                        size="small"
+                                        variant="secondary"
+                                        onClick={() => navigate(`/account/orders/${o.id}?back=${back}`)}
+                                    >
+                                        Details
+                                    </Button>
+                                </div>
+                            </article>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+}
+
+
+/** ================== Settings (nav list) ================== */
+function SettingsSection({ me }: { me: Me }) {
+    const navigate = useNavigate();
+    const back = encodeURIComponent("/account?tab=settings");
+
+    const { logout } = useAuth();
+
+    async function onLogout() {
+        try { await logout(); } finally { navigate("/auth", { replace: true }); }
+    }
+
+    return (
+        <div className={styles.card}>
+            <div className={styles.cardHeader}>
+                <h2 className={styles.titlePage}>Settings</h2>
+                <p className={styles.muted}>Security, notifications, language, etc.</p>
+            </div>
+
+            <div className={styles.list}>
+                <div
+                    className={styles.listItem}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => navigate(`/account/settings/change-password?back=${back}`)}
+                    onKeyDown={(e) => e.key === "Enter" && navigate(`/account/settings/change-password?back=${back}`)}
+                    style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: 12,
+                        border: "1px solid var(--border, #e5e7eb)",
+                        borderRadius: 8,
+                        cursor: "pointer",
+                        marginBottom: 8,
+                    }}
+                >
+                    <div>
+                        <div style={{ fontWeight: 600 }}>Change password</div>
+                        <div className={styles.muted}>Reset via email link or apply token</div>
+                    </div>
+                    <span aria-hidden>›</span>
+                </div>
+
+                {!me.isEmailVerified && (
+                    <div
+                        className={styles.listItem}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => navigate(`/account/settings/verify-email?back=${back}`)}
+                        onKeyDown={(e) => e.key === "Enter" && navigate(`/account/settings/verify-email?back=${back}`)}
+                        style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            padding: 12,
+                            border: "1px solid var(--border, #e5e7eb)",
+                            borderRadius: 8,
+                            cursor: "pointer",
+                            marginBottom: 8,
+                        }}
+                    >
+                        <div>
+                            <div style={{ fontWeight: 600 }}>Verify email</div>
+                            <div className={styles.muted}>Confirm your address to secure your account</div>
+                        </div>
+                        <span aria-hidden>›</span>
+                    </div>
+                )}
+            </div>
+
+            <div className={styles.formActions}>
+                <Button
+                    size="small"
+                    variant="primary"
+                    onClick={() => onLogout()}
+                >
+                    Logout
+                </Button>
+            </div>
+        </div>
+    );
 }

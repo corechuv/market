@@ -1,3 +1,4 @@
+// src/data/products.ts
 import type { Product } from "../types/product";
 
 export const products: Product[] = [
@@ -27,7 +28,7 @@ export const products: Product[] = [
             "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
             "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
         ],
-        categoryId: "cat-electronics-computers-cpu",
+        categoryId: "b0c2a313-8f39-4b66-a127-ef55723ec292",
         attributes: [
             { code: "cpu.cores", value: 24 },
             { code: "cpu.threads", value: 32 },
@@ -84,7 +85,7 @@ export const products: Product[] = [
             "https://hydraulic-cdn.com/productimages/8/9/7/1/5/1/6/8/1/6/6/4/1/0/8/3/5/7/7/0196b754-6cdd-729b-85bb-0359118bb75d_2880.avif",
             "https://hydraulic-cdn.com/productimages/8/9/7/1/5/1/6/8/1/6/6/4/1/0/8/3/5/7/7/0196b754-6cdd-729b-85bb-0359118bb75d_2880.avif",
         ],
-        categoryId: "cat-electronics-computers-cpu",
+        categoryId: "b0c2a313-8f39-4b66-a127-ef55723ec292",
         options: [],
         variants: [
             {
@@ -122,7 +123,7 @@ export const products: Product[] = [
             "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
             "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
         ],
-        categoryId: "cat-electronics-computers-cpu",
+        categoryId: "b0c2a313-8f39-4b66-a127-ef55723ec292",
         options: [],
         variants: [
             {
@@ -160,7 +161,7 @@ export const products: Product[] = [
             "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
             "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
         ],
-        categoryId: "cat-electronics-computers-cpu",
+        categoryId: "b0c2a313-8f39-4b66-a127-ef55723ec292",
         options: [],
         variants: [
             {
@@ -194,7 +195,7 @@ export const products: Product[] = [
         images: [
             "https://hydraulic-cdn.com/productimages/8/9/7/1/5/1/6/8/1/6/6/4/1/0/8/3/5/7/7/0196b754-6cdd-729b-85bb-0359118bb75d_2880.avif",
         ],
-        categoryId: "cat-electronics-computers-cpu",
+        categoryId: "b0c2a313-8f39-4b66-a127-ef55723ec292",
         options: [],
         variants: [
             {
@@ -228,7 +229,7 @@ export const products: Product[] = [
         images: [
             "https://hydraulic-cdn.com/productimages/2/7/1/7/0/6/7/1/8/2/5/6/0/4/8/9/9/4/6/0196ba1d-2878-713f-bcc9-b8e945c7bca2_2880.avif",
         ],
-        categoryId: "cat-electronics-computers-cpu",
+        categoryId: "b0c2a313-8f39-4b66-a127-ef55723ec292",
         options: [],
         variants: [
             {
@@ -264,7 +265,7 @@ export const products: Product[] = [
         ],
         energyClassUrl: "/energy_labels/Label_2391178.svg",
         datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
-        categoryId: "cat-electronics-phones-smartphones",
+        categoryId: "1c53c774-ad69-49ee-a61a-6b5f3b0d814e",
         attributes: [
             { code: "screen.diagonal", label: "Диагональ", value: 6.1, unit: "дюйм", group: "Дисплей" },
             { code: "battery.capacity", label: "Батарея", value: 3274, unit: "мА·ч", group: "Аккумулятор" },
@@ -359,7 +360,7 @@ export const products: Product[] = [
         ],
         energyClassUrl: "/energy_labels/Label_2391178.svg",
         datasheetPdfUrl: "/energy_fiche/Fiche_2391178_EN.pdf",
-        categoryId: "cat-electronics-phones-smartphones",
+        categoryId: "1c53c774-ad69-49ee-a61a-6b5f3b0d814e",
         attributes: [
             { code: "screen.diagonal", label: "Диагональ", value: 6.1, unit: "дюйм", group: "Дисплей" },
             { code: "battery.capacity", label: "Батарея", value: 3349, unit: "мА·ч", group: "Аккумулятор" },

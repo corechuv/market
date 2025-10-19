@@ -1,5 +1,4 @@
 // src/components/Order/OrderTrackingCard.tsx
-'use client';
 import React from 'react';
 import styles from './OrderTrackingCard.module.scss';
 

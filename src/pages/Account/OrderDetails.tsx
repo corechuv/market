@@ -1,320 +1,519 @@
 // src/pages/Account/OrderDetails.tsx
-import React, { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-
-import { getProducts } from "../../services/productService";
-
 import styles from "./AccountPage.module.scss";
 import cls from "./OrderDetails.module.scss";
-
-import { useAccount } from "../../context/AccountContext";
-import { exportInvoicePDF } from "../../types/helpers/invoiceConfig";
-import { fmtMoney } from "../../types/helpers/fmtMoney";
-import type { Address } from "../../types/address";
-import type { Settings } from "../../types/settings";
-import { statusLabel, type Order } from "../../types/order";
 import Button from "../../components/UI/Button";
-
-import type { ReturnRequest } from "../../types/return";
-import { returnStatusLabel } from "../../types/return";
 import PageLayout from "../../components/layouts/PageLayout";
-
-
-import OrderTrackingCompact from '../../components/Order/OrderTrackingCard';
 import DefinitionList from "../../components/UI/DefinitionList";
-import ProductCarouselRich from "../../components/Product/ProductCarouselRich";
+import Accordion from "../../components/Product/Accordion";
+import api from "../../lib/api";
+import type { Totals } from "../../types/order";
 
-
-/** helpers */
-const isGermany = (country: string) => /^(германи|deutschland)/i.test(country.trim());
-const getPreferredLocale = (settings: Settings, addresses: Address[]): string => {
-  const def = addresses.find((a) => a.isDefault) || addresses[0];
-  if (def && isGermany(def.country)) return "de-DE";
-  return settings.language === "ru" ? "ru-RU" : "en-GB";
-};
 function classNames(...xs: Array<string | false | undefined | null>) {
-  return xs.filter(Boolean).join(" ");
+    return xs.filter(Boolean).join(" ");
 }
+
+// + тип инвойса
+type InvoiceDto = {
+    id: string;
+    orderId: string;
+    number: string;
+    issueDate: string;
+    status: string;
+    currency: string;
+    pdfUrl?: string | null;
+};
+
+/* ================= types ================= */
+type AddressSnap = {
+    firstName: string; lastName: string; company?: string | null;
+    country: string; postalCode: string; region?: string | null;
+    city: string; line1: string; line2?: string | null;
+    phone?: string | null; email?: string | null;
+};
+
+type Item = {
+    productId?: string | null;
+    sku: string; name: string; qty: number;
+    priceCents: number; currency: string;
+    imageUrl?: string | null;
+};
+
+type ShipmentPkg = { seq: number; tracking?: string | null; status?: string | null; labelUrl?: string | null; };
+type Shipment = { id: string; carrierCode?: string | null; serviceCode?: string | null; status?: string | null; masterTracking?: string | null; packages?: ShipmentPkg[] | null; };
+
+type Payment = {
+    id: string; status?: string; provider?: string; amountCents?: number; currency?: string; approvalUrl?: string | null;
+    // NEW: офлайн-инвойс и банковские реквизиты
+    invoiceNumber?: string | null;
+    invoicePdfUrl?: string | null;
+    dueDate?: string | null;
+    bank?: {
+        iban?: string | null;
+        bic?: string | null;
+        beneficiary?: string | null;
+        bank?: string | null;
+    } | null;
+    instructions?: string | null;
+};
+
+type OrderDetailsDto = {
+    id: string; number: string; createdAt?: string | null; status?: string | null;
+    shippingMethod?: string | null; shippingSnapshot?: any;
+    totals: Totals;
+    addresses: { delivery: AddressSnap; billing?: AddressSnap | null; };
+    items: Item[];
+    shipments?: Shipment[] | null;
+    payments?: Payment[] | null;
+    promo?: any;
+};
+
+/* ================= utils ================= */
+const fmtMoney = (cents: number, cur = "EUR") =>
+    new Intl.NumberFormat("de-DE", { style: "currency", currency: cur }).format((cents || 0) / 100);
+
+const fmtDateTime = (iso?: string | null) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short" }).format(d);
+};
+
+const isFinal = (s?: string | null) =>
+    ["paid", "succeeded", "completed", "captured"].includes(String(s || "").toLowerCase());
 
 export default function OrderDetails() {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const backTo = useMemo(() => {
-    const sp = new URLSearchParams(location.search);
-    return sp.get("back") || "/account?tab=orders";
-  }, [location.search]);
+    const { id } = useParams<{ id: string }>();
+    const nav = useNavigate();
+    const location = useLocation();
 
-  const { account } = useAccount();
-  const locale = getPreferredLocale(account.settings, account.addresses);
+    const backTo = useMemo(() => {
+        const sp = new URLSearchParams(location.search);
+        return sp.get("back") || "/account?tab=orders";
+    }, [location.search]);
 
-  const order: Order | undefined = account.orders.find((o) => o.id === id);
-  const address: Address | undefined = order
-    ? account.addresses.find((a) => a.id === order.deliveryAddressId) ||
-    account.addresses.find((a) => a.isDefault)
-    : undefined;
+    const [data, setData] = useState<OrderDetailsDto | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [err, setErr] = useState<string | null>(null);
 
-  if (!order) {
+    useEffect(() => {
+        let mounted = true;
+
+        async function load() {
+            if (!id) return;
+            setLoading(true);
+            setErr(null);
+
+            try {
+                // основной путь — такой же стиль, как в Account/OrdersSection (через общий axios-инстанс)
+                const { data } = await api.get<OrderDetailsDto>(`/orders/${id}/details`);
+                if (mounted) setData(data);
+            } catch (e: any) {
+                // fallback, если в API нет /details — попробуем без него
+                const status = e?.response?.status;
+                if (status === 401) {
+                    nav("/auth", { replace: true });
+                    return;
+                }
+
+                if (status === 404) {
+                    try {
+                        const { data } = await api.get<OrderDetailsDto>(`/orders/${id}`);
+                        if (mounted) setData(data);
+                    } catch (e2: any) {
+                        if (mounted) setErr(e2?.response?.data?.detail || e2?.message || "Failed to load order");
+                    } finally {
+                        if (mounted) setLoading(false);
+                    }
+                    return;
+                }
+
+                if (mounted) setErr(e?.response?.data?.detail || e?.message || "Failed to load order");
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        }
+
+        load();
+        return () => { mounted = false; };
+    }, [id, nav]);
+
+    const itemsCount = data?.items?.reduce((a, it) => a + (it?.qty || 0), 0) || 0;
+    const orderDetails = [
+        { name: "Number:", description: data?.number || "" },
+        { name: "Date:", description: fmtDateTime(data?.createdAt) },
+        { name: "Items:", description: String(itemsCount) },
+        {
+            name: "In total:",
+            description: data ? fmtMoney(data.totals.totalCents, data.totals.currency) : "",
+        },
+    ];
+
+    const shipments = data?.shipments ?? [];
+    const payments = data?.payments ?? [];
+    const firstPayment = payments[0];
+
+    const invFromPayment = useMemo(() => {
+        if (!firstPayment) return null;
+        if (firstPayment.invoiceNumber || firstPayment.invoicePdfUrl) {
+            return {
+                number: firstPayment.invoiceNumber || "",
+                pdfUrl: firstPayment.invoicePdfUrl || null,
+                dueDate: firstPayment.dueDate || null,
+            };
+        }
+        return null;
+    }, [firstPayment]);
+
+    // состояние
+    const [invoice, setInvoice] = useState<InvoiceDto | null>(null);
+    const [invLoading, setInvLoading] = useState(false);
+    const [invErr, setInvErr] = useState<string | null>(null);
+
+    useEffect(() => {
+        let mounted = true;
+        async function loadInvoice(orderId: string) {
+            try {
+                const { data } = await api.get<InvoiceDto>(`/invoices/by-order/${orderId}`);
+                if (mounted) setInvoice(data);
+            } catch (e: any) {
+                // 404 — инвойса пока нет, это нормально
+                if (e?.response?.status !== 404 && mounted) {
+                    setInvErr(e?.response?.data?.detail || e?.message || "Failed to load invoice");
+                }
+            }
+        }
+
+        if (id) loadInvoice(id);
+        return () => { mounted = false; };
+    }, [id]);
+
+    function canIssueInvoice(): boolean {
+        // инвойс выдаём только после оплаты
+        const st = (data?.status || "").toLowerCase();
+        return ["paid", "succeeded", "completed", "captured"].includes(st);
+    }
+
+    async function openPdfByBlob(pdfUrlOrPath: string) {
+        // ВАЖНО: не делаем new URL(...), не трогаем baseURL!
+        const win = window.open("", "_blank"); // без noopener, чтобы можно было навигироваться
+        try {
+            const res = await api.get(pdfUrlOrPath, { responseType: "blob" });
+            const blob: Blob = res.data;
+            // быстрая самопроверка
+            // console.log("ct:", res.headers["content-type"], "size:", blob.size);
+
+            const url = URL.createObjectURL(blob);
+            if (win) {
+                try { (win as any).opener = null; } catch { }
+                win.location.assign(url);
+            } else {
+                window.open(url, "_blank");
+            }
+            setTimeout(() => URL.revokeObjectURL(url), 5 * 60_000);
+        } catch (e) {
+            win?.close();
+            throw e;
+        }
+    }
+
+
+    async function handleInvoiceClick() {
+        if (!id) return;
+        setInvErr(null);
+        setInvLoading(true);
+
+        try {
+            // если инвойс уже есть — просто открыть PDF
+            if (invoice?.id) {
+                await openPdfByBlob(invoice.pdfUrl || `/invoices/${invoice.id}/pdf`);
+                return;
+            }
+
+            // иначе — если заказ оплачен, выписать и открыть
+            if (canIssueInvoice()) {
+                const { data: inv } = await api.post<InvoiceDto>(`/invoices/orders/${id}/issue`, {});
+                setInvoice(inv);
+                await openPdfByBlob(inv.pdfUrl || `/invoices/${inv.id}/pdf`);
+                return;
+            }
+
+            // заказ не оплачен — не выдаём
+            setInvErr("Инвойс доступен после оплаты.");
+        } catch (e: any) {
+            setInvErr(e?.response?.data?.detail || e?.message || "Не удалось открыть инвойс");
+        } finally {
+            setInvLoading(false);
+        }
+    }
+
+
     return (
-      <PageLayout title="Order not found" onBack={() => navigate(backTo)}>
-        <p>It may have been removed or the link may be incorrect.</p>
-        <ButtonLike onClick={() => navigate(backTo)}>Go back</ButtonLike>
-      </PageLayout>
-    );
-  }
+        <PageLayout title="Order" onBack={() => nav(backTo)}>
+            <div style={{ display: "flex", gap: 40, flexDirection: "column" }}>
+                {loading && <div className={styles.muted}>Loading…</div>}
+                {err && <div className={styles.error} role="alert">{err}</div>}
 
-  const totalItems = order.items.reduce((s, it) => s + (it.qty || 0), 0);
+                {!loading && !err && data && (
+                    <div className={styles.stack}>
+                        {/* Статус (если нужна цветовая подсветка — подхватываем через cls.*) */}
+                        <div style={{ display: "none" }}>
+                            <span className={styles.muted}>Status:</span>{" "}
+                            <span
+                                className={classNames(
+                                    cls.badge,
+                                    cls[(data.status || "new").toLowerCase() as keyof typeof cls]
+                                )}
+                            >
+                                {data.status || "—"}
+                            </span>
+                        </div>
 
-  const returnsForOrder: ReturnRequest[] = (account.returns || []).filter((r) => r.orderId === order.id);
+                        {/* Общие детали */}
+                        <section>
+                            <DefinitionList items={orderDetails} compact />
+                        </section>
 
-  // сколько уже возвращается по SKU — учитываем СТРОКИ (отклонённые строки не резервируют количество)
-  const returnedQtyBySku = useMemo(() => {
-    const m = new Map<string, number>();
-    returnsForOrder.forEach((r) => {
-      r.items.forEach((it) => {
-        const include = (it.status || "pending") !== "rejected";
-        if (include) m.set(it.sku, (m.get(it.sku) || 0) + it.qty);
-      });
-    });
-    return m;
-  }, [returnsForOrder]);
+                        {/* Трекинг */}
+                        <section>
+                            <h3>Tracking info</h3>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                                {(shipments?.length ?? 0) === 0 && (
+                                    <div className={styles.muted}>No tracking numbers yet.</div>
+                                )}
 
-  // список возвратов по каждому SKU (для «Открыть возврат» прямо из товара)
-  const returnsBySku = useMemo(() => {
-    const m = new Map<string, Array<{ req: ReturnRequest; qty: number }>>();
-    returnsForOrder.forEach((req) => {
-      req.items.forEach((line) => {
-        const include = (line.status || "pending") !== "rejected";
-        if (!include) return;
-        const arr = m.get(line.sku) || [];
-        arr.push({ req, qty: line.qty });
-        m.set(line.sku, arr);
-      });
-    });
-    return m;
-  }, [returnsForOrder]);
+                                {shipments.flatMap((sh, si) => {
+                                    const pkgs = (sh?.packages && sh.packages.length > 0)
+                                        ? sh.packages
+                                        : [{ seq: 1, tracking: sh?.masterTracking, status: sh?.status }];
 
-  const hasAnyReturnable = order.items.some((it) => {
-    const ordered = it.qty || 0;
-    const returned = returnedQtyBySku.get(it.sku) || 0;
-    return ordered - returned > 0;
-  });
-
-  const orderDetails = [
-    { name: "Number:", description: order.number },
-    {
-      name: "Date:",
-      description: new Date(order.createdAt).toLocaleString(locale)
-    },
-    { name: "Items:", description: totalItems },
-    { name: "In total:", description: fmtMoney(order.total / 100, account.settings.currency, locale) },
-  ];
-
-  const nav = useNavigate();
-  const products = React.useMemo(
-    () => getProducts({ q: "", sort: "popular" as any }),
-    []
-  );
-
-  return (
-    <PageLayout title="Order" onBack={() => navigate(backTo)}>
-      <div style={{ display: "flex", gap: 40, flexDirection: "column" }}>
-        <div className={styles.stack}>
-          <div style={{ display: "none" }}>
-            <span className={styles.muted}>Статус:</span>{" "}
-            <span className={classNames(cls.badge, cls[`st_${order.status}`])}>
-              {statusLabel(order.status)}
-            </span>
-          </div>
-
-          <section>
-            <DefinitionList items={orderDetails} compact={true} />
-          </section>
-
-          <section>
-            <h3>Tracking info</h3>
-            <OrderTrackingCompact
-              trackingNumber="00340434161094000001"
-              carrierName="DHL"
-              currentStatus="PICKUP_READY"
-              paidAt="2025-09-21T09:10:00Z"
-              lastUpdate="2025-09-21T14:32:00Z"
-              trackingUrl="https://www.dhl.de/de/privatkunden/dhl-sendungsverfolgung.html"
-              locale="en"        // 'ru' | 'de' | 'en' (по умолчанию 'ru')
-              onCopy={(field) => console.log('copied', field)}
-            />
-          </section>
-
-          <section>
-            <h3>Products</h3>
-            <div className="summary__mini">
-              {order.items.map((it) => {
-                const ordered = it.qty || 0;
-                const skuReturns = returnsBySku.get(it.sku) || [];
-
-                return (
-                  <div key={it.sku} className="mini-item">
-                    {it.image && <img src={it.image} alt="" />}
-                    <div>
-                      <div>
-                        <div className="mini-item__title">{it.name}</div>
-                        <div className="mini-item__sku">{it.sku}</div>
-                        <div className="muted">×{ordered}</div>
-                      </div>
-                      <div style={{ margin: "20px 0" }}>
-                        {skuReturns.length > 0 && (
-                          <div style={{ marginTop: 6 }}>
-                            <div className={styles.muted}>Returns for this item:</div>
-                            <div style={{ display: "grid", gap: 6, marginTop: 6 }}>
-                              {skuReturns.map(({ req, qty }) => (
-                                <div key={`${req.id}-${it.sku}-${qty}`} style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                                  <span className={cls.badge}>{returnStatusLabel(req.status)}</span>
-                                  <span className={styles.muted}>×{qty} • {req.rma}</span>
-                                  <Button
-                                    size="small"
-                                    variant="secondary"
-                                    type="button"
-                                    onClick={() =>
-                                      navigate(
-                                        `/account/returns/${req.id}?back=${encodeURIComponent(
-                                          location.pathname + location.search
-                                        )}&sku=${encodeURIComponent(it.sku)}`
-                                      )
-                                    }
-                                  >
-                                    Open
-                                  </Button>
-                                </div>
-                              ))}
+                                    return pkgs.map((p, pi) => (
+                                        <Accordion
+                                            key={`${si}-${pi}`}
+                                            title={p.tracking || sh.masterTracking || `Package #${p.seq}`}
+                                            margin={false}
+                                        >
+                                            <div className={styles.stack} style={{ gap: 6 }}>
+                                                <div className={styles.muted}>Status: {p.status || sh.status || "—"}</div>
+                                                {!!p.labelUrl && (
+                                                    <a href={p.labelUrl} target="_blank" rel="noreferrer">Label PDF</a>
+                                                )}
+                                                {(sh.carrierCode || sh.serviceCode) && (
+                                                    <div>
+                                                        Carrier: {sh.carrierCode || "—"}{sh.serviceCode ? ` • ${sh.serviceCode}` : ""}
+                                                    </div>
+                                                )}
+                                                {/* при желании — сюда можно добавить таймлайн событий */}
+                                            </div>
+                                        </Accordion>
+                                    ));
+                                })}
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                        </section>
 
-                    <div className="mini-item__price">
-                      {fmtMoney((it.price * it.qty) / 100, account.settings.currency, locale)}
+                        {/* Товары */}
+                        <section>
+                            <h3>Products</h3>
+                            <div className="summary__mini">
+                                {data.items.map((it, idx) => (
+                                    <div key={`${it.sku}-${idx}`} className="mini-item">
+                                        {it.imageUrl ? (
+                                            <img src={it.imageUrl} alt={it.name} />
+                                        ) : (
+                                            <div className="mini-item__noimg" />
+                                        )}
+                                        <div>
+                                            <div>
+                                                <div className="mini-item__title">{it.name}</div>
+                                                <div className="mini-item__sku">{it.sku}</div>
+                                                <div className="muted">x{it.qty}</div>
+                                            </div>
+                                        </div>
+                                        <div className="mini-item__price">
+                                            {fmtMoney((it.priceCents || 0) * (it.qty || 0), it.currency)}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+
+                        {/* Адрес доставки */}
+                        <section>
+                            <h3>Delivery address</h3>
+                            <div className={styles.addrBody}>
+                                <div>{data.addresses.delivery.firstName} {data.addresses.delivery.lastName}</div>
+                                {data.addresses.delivery.company && <div>{data.addresses.delivery.company}</div>}
+                                <div>{data.addresses.delivery.line1}</div>
+                                {data.addresses.delivery.line2 && <div>{data.addresses.delivery.line2}</div>}
+                                <div>
+                                    {data.addresses.delivery.postalCode} {data.addresses.delivery.city}
+                                    {data.addresses.delivery.region ? `, ${data.addresses.delivery.region}` : ""}
+                                </div>
+                                <div>{data.addresses.delivery.country}</div>
+                                {data.addresses.delivery.phone && (
+                                    <div className={styles.muted}>{data.addresses.delivery.phone}</div>
+                                )}
+                            </div>
+                        </section>
+
+                        {/* Оплата */}
+                        <section>
+                            <h3>Payment info</h3>
+                            <ul className="summary__list">
+                                <li>
+                                    <span>Method</span>
+                                    <span>{firstPayment?.provider || "—"}</span>
+                                </li>
+                                <li>
+                                    <span>{isFinal(firstPayment?.status) ? "Paid" : "Amount"}</span>
+                                    <span>
+                                        {firstPayment
+                                            ? fmtMoney(firstPayment.amountCents || 0, firstPayment.currency || data.totals.currency)
+                                            : fmtMoney(0, data.totals.currency)}
+                                    </span>
+                                </li>
+                                {/* --- Bank transfer instructions (только если это офлайн и еще не финализировано) --- */}
+                                {firstPayment?.bank && !isFinal(firstPayment?.status) && (
+                                    <div className={styles.stack} style={{ gap: 8, marginTop: 8 }}>
+                                        <h4 style={{ margin: 0 }}>Bank transfer (prepayment)</h4>
+                                        {firstPayment.instructions && (
+                                            <div className={styles.muted}>{firstPayment.instructions}</div>
+                                        )}
+                                        <ul className="summary__list">
+                                            <li>
+                                                <span>Beneficiary</span>
+                                                <span>{firstPayment.bank?.beneficiary || "—"}</span>
+                                            </li>
+                                            <li>
+                                                <span>IBAN</span>
+                                                <span><code>{firstPayment.bank?.iban || "—"}</code></span>
+                                            </li>
+                                            <li>
+                                                <span>BIC</span>
+                                                <span><code>{firstPayment.bank?.bic || "—"}</code></span>
+                                            </li>
+                                            {firstPayment.bank?.bank && (
+                                                <li>
+                                                    <span>Bank</span>
+                                                    <span>{firstPayment.bank.bank}</span>
+                                                </li>
+                                            )}
+                                            {firstPayment.dueDate && (
+                                                <li>
+                                                    <span>Due date</span>
+                                                    <span>{new Date(firstPayment.dueDate).toLocaleDateString()}</span>
+                                                </li>
+                                            )}
+                                        </ul>
+                                    </div>
+                                )}
+                                {!!firstPayment?.approvalUrl && (
+                                    <li>
+                                        <span>Approve</span>
+                                        <a href={firstPayment.approvalUrl} target="_blank" rel="noreferrer">Open</a>
+                                    </li>
+                                )}
+                            </ul>
+                        </section>
+
+                        {/* Сумма */}
+                        <section>
+                            <h3>Summary</h3>
+                            <ul className="summary__list">
+                                <li>
+                                    <span>Products</span>
+                                    <span>{fmtMoney(data.totals.subtotalCents, data.totals.currency)}</span>
+                                </li>
+                                <li>
+                                    <span>Delivery {data.shippingMethod ? `(${data.shippingMethod})` : ""}</span>
+                                    <span>{fmtMoney(data.totals.shippingCents, data.totals.currency)}</span>
+                                </li>
+                                {data.totals.discountCents > 0 && (
+                                    <li className="good">
+                                        <span>Discount</span>
+                                        <span>-{fmtMoney(data.totals.discountCents, data.totals.currency)}</span>
+                                    </li>
+                                )}
+                                <li>
+                                    <span>Including VAT</span>
+                                    <span>{fmtMoney(data.totals.vatCents, data.totals.currency)}</span>
+                                </li>
+                                <li className="sum">
+                                    <span>Total</span>
+                                    <span>{fmtMoney(data.totals.totalCents, data.totals.currency)}</span>
+                                </li>
+                            </ul>
+                        </section>
+
+                        <section>
+                            <h3>Invoice</h3>
+
+                            {invFromPayment ? (
+                                <div className={styles.stack} style={{ gap: 8 }}>
+                                    <div className={styles.muted}>
+                                        № {invFromPayment.number || "—"}
+                                        {invFromPayment.dueDate ? ` • due ${new Date(invFromPayment.dueDate).toLocaleDateString()}` : ""}
+                                    </div>
+                                    <div className={styles.orderActions}>
+                                        <Button size="small"
+                                            onClick={async () => {
+                                                // если API дал прямой URL — открываем им; иначе падаем на прежний механизм
+                                                const url = invFromPayment.pdfUrl || (invoice?.id ? `/invoices/${invoice.id}/pdf` : "");
+                                                if (!url) {
+                                                    // нет прямого URL — попробуем существующий флоу (создать/загрузить)
+                                                    await handleInvoiceClick();
+                                                } else {
+                                                    await openPdfByBlob(url);
+                                                }
+                                            }}
+                                            disabled={invLoading}
+                                        >
+                                            {invLoading ? "Opening…" : "Open PDF"}
+                                        </Button>
+                                    </div>
+                                </div>
+                            ) : (
+                                // старый флоу: если инвойс уже подгружен отдельным вызовом — показываем,
+                                // иначе: если заказ оплачен — кнопка "Issue & Open PDF", если нет — "Invoice unavailable"
+                                <>
+                                    {invoice ? (
+                                        <div className={styles.stack} style={{ gap: 8 }}>
+                                            <div className={styles.muted}>
+                                                № {invoice.number} • {new Date(invoice.issueDate).toLocaleDateString()}
+                                            </div>
+                                            <div className={styles.orderActions}>
+                                                <Button size="small" onClick={handleInvoiceClick} disabled={invLoading}>
+                                                    {invLoading ? "Opening…" : "Open PDF"}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className={styles.orderActions} style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                                            <Button size="small" onClick={handleInvoiceClick} disabled={invLoading || !canIssueInvoice()}>
+                                                {invLoading ? "Issuing…" : (canIssueInvoice() ? "Issue & Open PDF" : "Invoice unavailable")}
+                                            </Button>
+                                            {invErr && <div className={styles.error} role="alert">{invErr}</div>}
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </section>
+                        <section>
+                            <div className={styles.orderActions}>
+                                <Button
+                                    size="small"
+                                    onClick={() =>
+                                        nav(`/account/returns/new?order=${encodeURIComponent(id || data?.id || "")}`)
+                                    }
+                                    disabled={!id && !data?.id}
+                                >
+                                    Return items
+                                </Button>
+                            </div>
+                        </section>
                     </div>
-                  </div>
-                );
-              })}
+                )}
             </div>
-          </section>
-
-          <section>
-            <h3>Delivery address</h3>
-            {address && (
-              <div className={styles.addrBody}>
-                <div>{address.fullName}</div>
-                <div>{address.line1}</div>
-                {address.line2 && <div>{address.line2}</div>}
-                <div>
-                  {address.city}
-                  {address.region ? `, ${address.region}` : ""}, {address.postalCode}
-                </div>
-                <div>{address.country}</div>
-                {address.phone && <div>{address.phone}</div>}
-              </div>
-            )}
-          </section>
-
-          <section>
-            <h3>Payment info</h3>
-            <ul className="summary__list">
-              <li>
-                <span>Card</span>
-                <span>{fmtMoney(26000, account.settings.currency, locale)}</span>
-              </li>
-            </ul>
-          </section>
-
-          <section>
-            <h3>Summary</h3>
-            <ul className="summary__list">
-              {"subtotal" in order && typeof order.subtotal === "number" && (
-                <li>
-                  <span>Products</span>
-                  <span>{fmtMoney(order.subtotal / 100, account.settings.currency, locale)}</span>
-                </li>
-              )}
-              {"shippingCents" in order && typeof order.shippingCents === "number" && (
-                <li>
-                  <span>Delivery{order.shippingMethod ? ` (${order.shippingMethod})` : ""}</span>
-                  <span>
-                    {order.shippingCents === 0
-                      ? "Free"
-                      : fmtMoney(order.shippingCents / 100, account.settings.currency, locale)}
-                  </span>
-                </li>
-              )}
-              {"discountCents" in order && order.discountCents! > 0 && (
-                <li className="good">
-                  <span>Discount{order.promoCode ? ` (${order.promoCode})` : ""}</span>
-                  <span>-{fmtMoney(order.discountCents! / 100, account.settings.currency, locale)}</span>
-                </li>
-              )}
-              {"vatCents" in order && typeof order.vatCents === "number" && (
-                <li>
-                  <span>Including VAT (19%)</span>
-                  <span>{fmtMoney(order.vatCents! / 100, account.settings.currency, locale)}</span>
-                </li>
-              )}
-              <li className="sum">
-                <span>Total</span>
-                <span>{fmtMoney(order.total / 100, account.settings.currency, locale)}</span>
-              </li>
-            </ul>
-          </section>
-
-          <div className={styles.orderActions}>
-            <Button
-              size="small"
-              variant="ghost"
-              onClick={() =>
-                exportInvoicePDF({
-                  order,
-                  address,
-                  currency: account.settings.currency,
-                  locale,
-                  buyer: undefined,
-                })
-              }
-            >
-              Invoice
-            </Button>
-            {hasAnyReturnable && (
-              <Button
-                size="small"
-                variant="secondary"
-                onClick={() => navigate(`/account/returns/new?order=${order.id}`)}
-              >
-                Return items
-              </Button>
-            )}
-          </div>
-        </div>
-        <ProductCarouselRich label="Consider these items" products={products}
-          visibleItems={4}
-          onItemClick={(p) => nav(`/product/${p.id}`)}
-        // или, если хотите <a href> вместо onClick:
-        // itemLinkBuilder={(p) => `/product/${p.id}`}
-        />
-        <ProductCarouselRich label="These are for you" products={products}
-          visibleItems={4}
-          onItemClick={(p) => nav(`/product/${p.id}`)}
-        // или, если хотите <a href> вместо onClick:
-        // itemLinkBuilder={(p) => `/product/${p.id}`}
-        />
-      </div>
-    </PageLayout >
-  );
-}
-
-/** простой «кнопкоподобный» элемент, чтобы не тянуть Button из UI */
-function ButtonLike({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button type="button" onClick={onClick} className={styles.ghostBtn} style={{ alignSelf: "flex-start" }}>
-      {children}
-    </button>
-  );
+        </PageLayout>
+    );
 }

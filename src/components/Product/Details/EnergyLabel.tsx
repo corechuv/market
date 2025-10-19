@@ -1,16 +1,16 @@
+// src/components/Product/Details/EnergyLabel.tsx
 import React from "react";
 import styles from "./EnergyLabel.module.scss";
 import Modal from "../../Modal/Modal";
 
 export type EnergyLabelProps = {
-    energyClassArrowUrl: string;
-    energyClassUrl: string;
+    energyClassArrowUrl?: string;  // стало опциональным
+    energyClassUrl?: string;       // стало опциональным
     className?: string;
     label?: string;
     size?: "small" | "large"; // default: large
 };
 
-// EnergyLabel.tsx
 const EnergyLabel: React.FC<EnergyLabelProps> = ({
     energyClassUrl,
     energyClassArrowUrl,
@@ -20,40 +20,44 @@ const EnergyLabel: React.FC<EnergyLabelProps> = ({
 }) => {
     const [isOpen, setIsOpen] = React.useState(false);
 
-    const open = (e: React.MouseEvent | React.KeyboardEvent) => {
-        e.stopPropagation();            // главное!
-        setIsOpen(true);
+    const badgeSrc = energyClassArrowUrl ?? energyClassUrl; // фолбэк
+    if (!badgeSrc) return null; // вообще ничего не рисуем, если нет ни стрелки, ни лейбла
+
+    const open: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+        e.stopPropagation();
+        if (energyClassUrl) setIsOpen(true); // модалка только если есть full-label
     };
 
     const stop = (e: React.SyntheticEvent) => e.stopPropagation();
 
     return (
         <>
-            {/* семантически корректнее — button */}
             <button
                 type="button"
                 className={`${styles.badge} ${className ?? ""}`}
                 title={label}
-                aria-haspopup="dialog"
+                aria-haspopup={energyClassUrl ? "dialog" : undefined}
                 aria-expanded={isOpen}
                 onClick={open}
-                onMouseDown={stop}                       // на всякий случай
+                onMouseDown={stop}
                 onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") open(e);
+                    if (e.key === "Enter" || e.key === " ") open(e as any);
                 }}
             >
                 <img
-                    src={energyClassArrowUrl}
+                    src={badgeSrc}
                     className={`${styles.badge__arrow} ${styles[`badge__arrow--${size}`]}`}
                     alt={label}
                 />
             </button>
 
-            <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} header={label}>
-                <div className={styles.imgContainer}>
-                    <img src={energyClassUrl} alt={label} />
-                </div>
-            </Modal>
+            {energyClassUrl && (
+                <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} header={label}>
+                    <div className={styles.imgContainer}>
+                        <img src={energyClassUrl} alt={label} />
+                    </div>
+                </Modal>
+            )}
         </>
     );
 };

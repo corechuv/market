@@ -1,0 +1,214 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    padding-top: 60px;
+    padding-bottom: 60px;
+    place-items: center;
+}
+
+.backdrop {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.shell {
+    position: relative;
+    height: 100%;
+    aspect-ratio: 9/16;
+    background: #000;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 10px 50px #131313;
+}
+
+/* СЦЕНА: три ряда по 100% высоты, трек двигается целиком */
+.scene {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-rows: 100% 100% 100%;
+    will-change: transform;
+    transition: none;
+    /* <— по умолчанию БЕЗ анимации */
+    transform: translateY(-100%);
+}
+
+.isAnimating {
+    transition: transform var(--dur, 260ms) cubic-bezier(.22, .61, .36, 1);
+    /* <— только во время слайда */
+}
+
+.panel {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+}
+
+.ghost {
+    visibility: hidden;
+    /* на краях пустую панель не показываем */
+}
+
+.navV {
+    position: absolute;
+    right: 0;
+    padding: 16px;
+    top: 50%;
+    transform: translate(0, -50%);
+    display: grid;
+    gap: 6px;
+    z-index: 3;
+}
+
+.navBtn {
+    background: rgba(0, 0, 0, 0.07);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    cursor: pointer;
+
+    svg {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+.navBtn:disabled {
+    opacity: .4;
+    cursor: default;
+}
+
+.bottomBar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 3px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 8px;
+    color: #c6c6c6;
+    z-index: 4;
+}
+
+.metaLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.author {
+    display: flex;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.text {
+    font-size: 14px;
+    font-weight: 400;
+    margin: 0;
+    color: #c6c6c6;
+}
+
+.metaRight {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.info {
+    display: flex;
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: #00000024;
+    backdrop-filter: blur(2px);
+    padding: 2px 8px;
+    border-radius: 16px;
+
+    svg {
+        width: 12px;
+    }
+}
+
+.helpfulBtn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    background: none;
+    color: #c6c6c6;
+    font-family: "Roboto", sans-serif;
+    border: none;
+    padding: 0;
+    font-size: 16px;
+    font-weight: 300;
+    cursor: pointer;
+
+    svg {
+        width: 25px;
+        height: 25px;
+        stroke-width: 0;
+        color: gray;
+        fill: gray;
+    }
+}
+
+.closeBtn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 16px;
+    background-color: none;
+    border: none;
+    display: flex;
+    background-color: transparent;
+    color: var(--text);
+    cursor: pointer;
+
+    svg {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+.helpfulActive {
+    svg {
+        color: #ff004b;
+        fill: #ff004b;
+    }
+}
+
+.count {
+    display: block;
+    font-size: 14px;
+    font-weight: 300;
+}
+
+/* уважим системные настройки — отключим анимацию при reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .scene {
+        transition: none !important;
+    }
+}

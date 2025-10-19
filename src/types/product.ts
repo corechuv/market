@@ -16,23 +16,16 @@ export interface ProductAttribute {
 
 export interface ProductBase {
   id: string;
-
   // Внутренний номер товара
   articleNumber?: string;
-
   name: string;
   price: string;
-  
   imageUrl: string;
   images?: string[];
-
   link: string;
-
   available?: boolean;
-
   description?: string;
   shortDescription?: string[];
-
   /** Привязка к категориям */
   categoryId?: string;     // если товар в одной категории
   categoryIds?: string[];  // если товар в нескольких категориях
@@ -40,7 +33,7 @@ export interface ProductBase {
   datasheetPdfUrl?: string,
   energyClassUrl?: string,
   energyClassArrowUrl?: string; // URL картинки с энерго-классом
-
+  
   attributes?: ProductAttribute[];
 }
 
@@ -51,10 +44,10 @@ export type ProductVariant = {
   options: Record<string, string>; // { Color: 'Black', Memory: '256 GB' }
   price: string;                   // цена именно этого варианта
   compareAtPrice?: string;         // старая цена/перечёркнутая
+  compareAtCents?: number | null;
   available: boolean;
   images?: string[];               // фотки для цвета
   attributes?: ProductAttribute[]; // атрибуты-override (например, цвет/память)
-
   datasheetPdfUrl?: string;      // PDF именно этого SKU
   energyClassUrl?: string;     // класс именно этого SKU
   energyClassArrowUrl?: string; // URL картинки с энерго-классом

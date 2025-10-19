@@ -14,7 +14,7 @@ export default function ArrowBottomIcon(props: React.SVGProps<SVGSVGElement>): R
             <path
                 d="M6 9l6 6 6-6"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="1"
                 strokeLinecap="round"
                 strokeLinejoin="round"
             />

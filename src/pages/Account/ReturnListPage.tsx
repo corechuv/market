@@ -1,232 +1,231 @@
 // src/pages/Account/ReturnListPage.tsx
-import { useMemo, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import styles from "./AccountPage.module.scss";
-
-import Button from "../../components/UI/Button";
-import { TextField } from "../../components/UI/TextField";
-import { SelectField } from "../../components/UI/SelectField";
+import badgeCls from "./OrderDetails.module.scss";
 import PageLayout from "../../components/layouts/PageLayout";
+import Button from "../../components/UI/Button";
+import api from "../../lib/api";
 
-import { useAccount } from "../../context/AccountContext";
-import type { Address } from "../../types/address";
-import type { Settings } from "../../types/settings";
-import type { ReturnRequest, ReturnStatus, ReturnKind } from "../../types/return";
-import {
-  returnStatusLabel,
-  returnKindLabel,
-  requestDecisionSummary,
-  lineCounts,
-} from "../../types/return";
+function classNames(...xs: Array<string | false | undefined | null>) {
+  return xs.filter(Boolean).join(" ");
+}
 
-/** Helpers */
-const isGermany = (country: string) => /^(германи|deutschland)/i.test(country.trim());
-const getPreferredLocale = (settings: Settings, addresses: Address[]): string => {
-  const def = addresses.find((a) => a.isDefault) || addresses[0];
-  if (def && isGermany(def.country)) return "de-DE";
-  return settings.language === "ru" ? "ru-RU" : "en-GB";
+/* ===== types (в синхроне с API) ===== */
+type ReturnItemOut = {
+  id: string;
+  orderItemId: string;
+  requestedQty: number;
+  approvedQty?: number | null;
+  receivedQty?: number | null;
+  acceptedQty?: number | null;
+  restockingFeeCents: number;
+  reasonCode?: string | null;
+  reasonText?: string | null;
+  decision?: string | null; // accept|reject|partial
+  evidenceUrls?: string[] | null;
 };
 
-const getItemImage = (it: any): string | undefined =>
-  it?.image || it?.imageUrl || (Array.isArray(it?.images) ? it.images[0] : it?.thumb);
+type ReturnOut = {
+  id: string;
+  number: string;
+  orderId: string;
+  invoiceId?: string | null;
+  status: string;
+  refundShipping: boolean;
+  reasonCode?: string | null;
+  comment?: string | null;
+  createdAt: string;
+  items: ReturnItemOut[];
+};
 
-// --- Типы фильтров (чтобы не ругался TS и было наглядно) ---
-type KindFilter = ReturnKind | "all";
-type StatusFilter = ReturnStatus | "all";
+type OrderShort = { id: string; number: string };
 
-export default function ReturnsListPage() {
-  const { account } = useAccount();
+/* ===== utils ===== */
+const fmtDate = (iso?: string | null) =>
+  iso
+    ? new Intl.DateTimeFormat("de-DE", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date(iso))
+    : "";
+
+const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
+
+export default function ReturnListPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const locale = getPreferredLocale(account.settings, account.addresses);
 
-  const [q, setQ] = useState("");
-  const [status, setStatus] = useState<StatusFilter>("all");
-  const [kind, setKind] = useState<KindFilter>("all");
-  const [sort, setSort] = useState<"newest" | "oldest">("newest");
+  const backTo = useMemo(() => {
+    const sp = new URLSearchParams(location.search);
+    return sp.get("back") || "/account";
+  }, [location.search]);
 
-  const list = (account.returns || []) as ReturnRequest[];
+  const [rows, setRows] = useState<ReturnOut[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState<string | null>(null);
 
-  const filtered = useMemo(() => {
-    const s = q.trim().toLowerCase();
+  // карта orderId -> номер заказа (для красивого отображения)
+  const [orderNums, setOrderNums] = useState<Record<string, string>>({});
 
-    const byText = (r: ReturnRequest) =>
-      !s ||
-      r.rma.toLowerCase().includes(s) ||
-      r.orderNumber.toLowerCase().includes(s) ||
-      r.items.some(
-        (it) => it.sku.toLowerCase().includes(s) || (it.name || "").toLowerCase().includes(s)
-      );
+  useEffect(() => {
+    let mounted = true;
 
-    const byStatus = (r: ReturnRequest) => (status === "all" ? true : r.status === status);
+    async function load() {
+      setLoading(true);
+      setErr(null);
+      try {
+        const { data } = await api.get<ReturnOut[]>("/returns/my");
+        if (!mounted) return;
+        setRows(Array.isArray(data) ? data : []);
+      } catch (e: any) {
+        if (!mounted) return;
+        const msg = e?.response?.data?.detail || e?.message || "Failed to load returns";
+        setErr(msg);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
 
-    // Если выбран конкретный тип (withdrawal/defect), то:
-    //  - заявки с таким же r.kind проходят;
-    //  - заявки со статусом "mixed" проходят, если среди строк есть хотя бы одна нужного kind.
-    const byKind = (r: ReturnRequest) => {
-      if (kind === "all") return true;
-      if (r.kind === kind) return true;
-      if (r.kind === "mixed") return r.items.some((l) => l.kind === kind);
-      return false;
+    load();
+    return () => {
+      mounted = false;
     };
+  }, []);
 
-    const base = list.filter((r) => byText(r) && byStatus(r) && byKind(r));
+  // Подтянуть номера заказов, чтобы вместо UUID показывать “#12345”
+  useEffect(() => {
+    let cancelled = false;
+    async function hydrateOrderNumbers() {
+      const uniqueIds = Array.from(new Set(rows.map((r) => r.orderId).filter(Boolean)));
+      const miss = uniqueIds.filter((id) => !orderNums[id]);
+      if (miss.length === 0) return;
 
-    base.sort((a, b) => {
-      const da = new Date(a.createdAt).getTime();
-      const db = new Date(b.createdAt).getTime();
-      return sort === "newest" ? db - da : da - db;
-    });
+      try {
+        const fetched = await Promise.all(
+          miss.map(async (oid) => {
+            try {
+              const { data } = await api.get<OrderShort>(`/orders/${oid}`);
+              return [oid, data?.number || "—"] as const;
+            } catch {
+              return [oid, oid] as const; // fallback — покажем UUID
+            }
+          })
+        );
+        if (!cancelled) {
+          setOrderNums((prev) => {
+            const m = { ...prev };
+            for (const [id, num] of fetched) m[id] = num;
+            return m;
+          });
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+    if (rows.length) hydrateOrderNumbers();
+    return () => {
+      cancelled = true;
+    };
+  }, [rows, orderNums]);
 
-    return base;
-  }, [list, q, status, kind, sort]);
-
-  const openDetails = (id: string) => {
-    const back = encodeURIComponent(location.pathname + location.search);
-    navigate(`/account/returns/${id}?back=${back}`);
-  };
-
-  const openOrder = (orderId?: string) => {
-    if (!orderId) return;
-    const back = encodeURIComponent(location.pathname + location.search);
-    navigate(`/account/orders/${orderId}?back=${back}`);
-  };
+  const back = encodeURIComponent("/account/returns");
 
   return (
-    <PageLayout title="Returns" onBack={() => navigate("/account?tab=orders")}>
-      <div className={styles.card}>
-        <div className={styles.toolbar}>
-          <TextField
-            placeholder="Поиск: RMA, номер заказа, SKU, товар…"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
+    <PageLayout title="Returns" onBack={() => navigate(backTo)}>
+      <div className={styles.stack}>
+        {loading && <div className={styles.loadingWrap}>Loading…</div>}
+        {err && <div className={styles.error} role="alert">{err}</div>}
 
-          <SelectField
-            value={status}
-            onChange={(v) => setStatus(v as StatusFilter)}
-            className={styles.toolbarSelect}
-            options={[
-              { value: "all", label: "Все статусы" },
-              { value: "submitted", label: returnStatusLabel("submitted") },
-              { value: "approved", label: returnStatusLabel("approved") },
-              { value: "label_issued", label: returnStatusLabel("label_issued") },
-              { value: "in_transit", label: returnStatusLabel("in_transit") },
-              { value: "received", label: returnStatusLabel("received") },
-              { value: "refunded", label: returnStatusLabel("refunded") },
-              { value: "rejected", label: returnStatusLabel("rejected") },
-              { value: "draft", label: returnStatusLabel("draft") },
-            ]}
-          />
-
-          <SelectField
-            value={kind}
-            onChange={(v) => setKind(v as KindFilter)}
-            className={styles.toolbarSelect}
-            options={[
-              { value: "all", label: "Все типы" },
-              { value: "withdrawal", label: returnKindLabel("withdrawal") },
-              { value: "defect", label: returnKindLabel("defect") },
-            ]}
-          />
-
-          <SelectField
-            value={sort}
-            onChange={(v) => setSort(v as "newest" | "oldest")}
-            className={styles.toolbarSelect}
-            options={[
-              { value: "newest", label: "Сначала новые" },
-              { value: "oldest", label: "Сначала старые" },
-            ]}
-          />
-        </div>
-
-        {/* List */}
-        <div className={styles.ordersList}>
-          {filtered.map((r) => {
-            const order = account.orders.find((o) => o.id === r.orderId);
-
-            // thumbnails from order items by SKU
-            const thumbs = r.items.slice(0, 4).map((it, idx) => {
-              const src = order?.items.find((oi) => oi.sku === it.sku);
-              const img = src ? getItemImage(src) : undefined;
-              return img ? (
-                <img key={idx} src={img} alt={it.name} className={styles.orderThumb} loading="lazy" />
-              ) : (
-                <div key={idx} className={styles.orderThumb + " " + styles.thumbFallback} aria-hidden>
-                  {it.name?.[0]?.toUpperCase() ?? "•"}
-                </div>
-              );
-            });
-            const extra = r.items.length > 4 ? r.items.length - 4 : 0;
-
-            const sumFmt = (r.merchandiseTotalCents / 100).toLocaleString(locale, {
-              style: "currency",
-              currency: r.currency,
-            });
-
-            const counts = lineCounts(r);
-            const decision = requestDecisionSummary(r);
-
-            return (
-              <article key={r.id} className={styles.orderCard} aria-label={`Return ${r.rma}`}>
-                <div className={styles.orderHead}>
-                  <div className={styles.orderId}>
-                    <div className={styles.orderNumber}>{r.rma}</div>
-                    <div className={styles.orderDate}>{new Date(r.createdAt).toLocaleDateString(locale)}</div>
-                  </div>
-                  <span className={styles.badge}>{returnStatusLabel(r.status)}</span>
-                </div>
-
-                <div className={styles.orderBody}>
-                  <div className={styles.orderThumbs}>
-                    {thumbs}
-                    {extra > 0 && (
-                      <div className={styles.orderThumb + " " + styles.orderMore}>+{extra}</div>
-                    )}
-                  </div>
-
-                  <div className={styles.orderMeta}>
-                    <div className={styles.orderTitles}>
-                      {r.items.slice(0, 3).map((it) => it.name).join(", ")}
-                      {r.items.length > 3 ? "…" : ""}
-                    </div>
-                    <div className={styles.muted}>
-                      {r.items.length} строк • {returnKindLabel(r.kind)}
-                      {" • "}
-                      <span title="Одобрено/Ожидает/Отклонено">
-                        ✓ {counts.approved} / ⏳ {counts.pending} / ✕ {counts.rejected}
-                      </span>
-                      {decision === "partially_approved" && (
-                        <span className={styles.badge} style={{ marginLeft: 6 }}>Частично одобрено</span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className={styles.orderTotal}>{sumFmt}</div>
-                </div>
-
-                <div className={styles.orderActions}>
-                  <div style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
-                    <Button size="small" variant="ghost" onClick={() => openOrder(order?.id)}>
-                      К заказу
-                    </Button>
-                    <Button size="small" variant="secondary" onClick={() => openDetails(r.id)}>
-                      Открыть
-                    </Button>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-
-          {filtered.length === 0 && (
-            <div className={styles.empty}>
-              Возвратов не найдено
+        {!loading && !err && rows.length === 0 && (
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h2 className={styles.titlePage}>No returns yet</h2>
+              <p className={styles.muted}>Оформляйте возврат из деталей нужного заказа.</p>
             </div>
-          )}
-        </div>
+            <div className={styles.orderActions}>
+              <Button size="small" variant="secondary" onClick={() => navigate("/account?tab=orders")}>
+                My orders
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {!loading && !err && rows.length > 0 && (
+          <div className={styles.ordersList}>
+            {rows.map((rma) => {
+              const qtyTotal = sum(rma.items.map((i) => i.requestedQty || 0));
+              const orderNum = orderNums[rma.orderId] || rma.orderId;
+
+              return (
+                <article key={rma.id} className={styles.orderCard}>
+                  {/* header как в Orders */}
+                  <div className={styles.orderHead}>
+                    <div className={styles.orderId}>
+                      <div className={styles.orderNumber}>{rma.number}</div>
+                      <div className={styles.orderDate}>{fmtDate(rma.createdAt)}</div>
+                    </div>
+                    <span
+                      className={classNames(
+                        badgeCls.badge,
+                        badgeCls[(rma.status || "").toLowerCase() as keyof typeof badgeCls]
+                      )}
+                    >
+                      {rma.status}
+                    </span>
+                  </div>
+
+                  {/* body как в Orders: мета + “total” слот (без изображений/превью) */}
+                  <div className={styles.orderBody}>
+                    {/* мета: заказ, позиции, комментарий */}
+                    <div className={styles.orderMeta}>
+                      <div className={styles.orderTitles}>
+                        Order {orderNum} • Items ×{qtyTotal}
+                        {rma.refundShipping ? " • shipping refund requested" : ""}
+                      </div>
+                      <div className={styles.muted}>
+                        {rma.comment ? rma.comment : rma.reasonCode ? `Reason: ${rma.reasonCode}` : "—"}
+                      </div>
+                    </div>
+
+                    {/* правый блок — используем под “сводку” */}
+                    <div className={styles.orderTotal} title="Accepted / Received / Approved">
+                      {(() => {
+                        const acc = sum(rma.items.map((i) => i.acceptedQty || 0));
+                        const rec = sum(rma.items.map((i) => i.receivedQty || 0));
+                        const app = sum(rma.items.map((i) => i.approvedQty || 0));
+                        if (acc || rec || app) {
+                          return <>✓{acc} / ↧{rec} / ✔{app}</>;
+                        }
+                        return <>×{qtyTotal}</>;
+                      })()}
+                    </div>
+                  </div>
+
+                  {/* actions как в Orders */}
+                  <div className={styles.orderActions}>
+                    <Button
+                      size="small"
+                      variant="secondary"
+                      onClick={() => navigate(`/account/returns/${encodeURIComponent(rma.id)}?back=${back}`)}
+                    >
+                      Details
+                    </Button>
+                    <Button
+                      size="small"
+                      onClick={() =>
+                        navigate(`/account/orders/${encodeURIComponent(rma.orderId)}?back=${encodeURIComponent("/account/returns")}`)
+                      }
+                    >
+                      Order
+                    </Button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </div>
     </PageLayout>
   );

@@ -1,5 +1,5 @@
 // src/pages/Account/ReturnDetails.tsx
-
+/*
 import { useMemo } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import styles from "./AccountPage.module.scss";
@@ -8,10 +8,14 @@ import cls from "./ReturnDetails.module.scss";
 import { useAccount } from "../../context/AccountContext";
 import type { Address } from "../../types/address";
 import type { Settings } from "../../types/settings";
-import { returnStatusLabel, returnKindLabel, requestDecisionSummary, returnLineStatusLabel } from "../../types/return";
+import { returnStatusLabel, returnKindLabel, requestDecisionSummary, returnLineStatusLabel, refundDestinationLabel } from "../../types/return";
 import Button from "../../components/UI/Button";
 import PageLayout from "../../components/layouts/PageLayout";
 import DefinitionList from "../../components/UI/DefinitionList";
+
+import ReturnLabelCard from "../../components/Return/ReturnLabelCard";
+import React from "react";
+import { paymentMethodLabel } from "../../types/payment/payment";
 
 const isGermany = (country: string) => /^(германи|deutschland)/i.test(country.trim());
 const getPreferredLocale = (settings: Settings, addresses: Address[]): string => {
@@ -25,7 +29,8 @@ const getItemImage = (it: any): string | undefined =>
 
 export default function ReturnDetailsPage() {
   const { id } = useParams<{ id: string }>();
-  const { account, setReturnStatus, setReturnLineStatus } = useAccount();
+  const { account, setReturnStatus, setReturnLineStatus, issueReturnLabel } = useAccount();
+  const [issuing, setIssuing] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const backTo = useMemo(() => {
@@ -61,6 +66,9 @@ export default function ReturnDetailsPage() {
 
   const lines = skuFilter ? req.items.filter((it) => it.sku === skuFilter) : req.items;
 
+  const fallback = order?.payment ? paymentMethodLabel(order.payment.method) : "—";
+  const refundLabel = refundDestinationLabel(req.refund) || fallback;
+
   const returnDetails = [
     {
       name: "Status:",
@@ -74,6 +82,7 @@ export default function ReturnDetailsPage() {
     { name: "Type:", description: returnKindLabel(req.kind) },
     { name: "Order:", description: order ? order.number : req.orderNumber },
     { name: "Total amount:", description: sumFmt },
+    { name: "Refund to:", description: refundLabel },
   ];
 
   return (
@@ -154,16 +163,58 @@ export default function ReturnDetailsPage() {
         </section>
       )}
 
-      {/* Имитация жизненного цикла/кнопок для демо */}
+      {req.label && (
+        <section>
+          <h3>Return label</h3>
+          <ReturnLabelCard req={req} />
+        </section>
+      )}
+
       <div className={styles.orderActions}>
         {req.status === "submitted" && (
-          <Button size="small" onClick={() => setReturnStatus(req.id, "approved")}>Одобрить (демо)</Button>
+          <Button size="small" onClick={() => setReturnStatus(req.id, "approved")}>
+            Одобрить (демо)
+          </Button>
         )}
         {req.status === "approved" && (
-          <Button size="small" onClick={() => setReturnStatus(req.id, "label_issued")}>Сформировать этикетку (демо)</Button>
+          <>
+            <Button
+              size="small"
+              disabled={issuing}
+              onClick={async () => {
+                setIssuing(true);
+                try {
+                  await issueReturnLabel(req.id, "qr", "DHL"); // "qr" или "pdf", перевозчик на выбор
+                } finally {
+                  setIssuing(false);
+                }
+              }}
+            >
+              Сформировать этикетку (QR)
+            </Button>
+
+            <Button
+              size="small"
+              variant="secondary"
+              disabled={issuing}
+              onClick={async () => {
+                setIssuing(true);
+                try {
+                  await issueReturnLabel(req.id, "pdf", "DHL");
+                } finally {
+                  setIssuing(false);
+                }
+              }}
+            >
+              Сформировать этикетку (PDF-демо)
+            </Button>
+          </>
         )}
+
         {req.status === "label_issued" && (
-          <Button size="small" onClick={() => setReturnStatus(req.id, "in_transit")}>Передано перевозчику (демо)</Button>
+          <Button size="small" onClick={() => setReturnStatus(req.id, "in_transit")}>
+            Передано перевозчику (демо)
+          </Button>
         )}
         {req.status === "in_transit" && (
           <Button size="small" onClick={() => setReturnStatus(req.id, "received")}>Получено складом (демо)</Button>
@@ -175,3 +226,4 @@ export default function ReturnDetailsPage() {
     </PageLayout>
   );
 }
+*/

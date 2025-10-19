@@ -1,4 +1,4 @@
-// +++ PDF export
+/*
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import type { Profile } from "../profile";
@@ -155,3 +155,4 @@ export function exportInvoicePDF(opts: {
     const fname = `invoice_${order.number.replace(/\s+/g, "-")}.pdf`;
     doc.save(fname);
 }
+*/

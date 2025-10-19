@@ -11,6 +11,7 @@ import CategoryGrid from "../../components/CategoryGrid/CategoryGrid"
 import ProductCarouselRich from "../../components/Product/ProductCarouselRich"
 
 import { getProducts } from "../../services/productService";
+import type { Product } from "../../types/product";
 import { useNavigate } from "react-router-dom";
 import React from "react"
 import BrandCarousel from "../../components/Home/BrandCarousel"
@@ -100,44 +101,69 @@ import hp_dark from "@/assets/brand_logos/HP_Logo_color.svg"
 
 
 const brandLogos = [
-  {
-    name: "Apple",
-    light: { svg: apple_light },
-    dark:  { svg: apple_dark },
-  },
-  {
-    name: "Samsung",
-    light: { svg: samsung_light },
-    dark:  { svg: samsung_dark  },
-  },
-  {
-    name: "Microsoft",
-    light: { svg: microsoft_light },
-    dark:  { svg: microsoft_dark  },
-  },
-  {
-    name: "Intel",
-    light: { svg: intel_light },
-    dark:  { svg: intel_dark  },
-  },
-  {
-    name: "Nvidia",
-    light: { svg: nvidia_light },
-    dark:  { svg: nvidia_dark  },
-  },
-  {
-    name: "HP",
-    light: { svg: hp_light },
-    dark:  { svg: hp_dark  },
-  },
+    {
+        name: "Apple",
+        light: { svg: apple_light },
+        dark: { svg: apple_dark },
+    },
+    {
+        name: "Samsung",
+        light: { svg: samsung_light },
+        dark: { svg: samsung_dark },
+    },
+    {
+        name: "Microsoft",
+        light: { svg: microsoft_light },
+        dark: { svg: microsoft_dark },
+    },
+    {
+        name: "Intel",
+        light: { svg: intel_light },
+        dark: { svg: intel_dark },
+    },
+    {
+        name: "Nvidia",
+        light: { svg: nvidia_light },
+        dark: { svg: nvidia_dark },
+    },
+    {
+        name: "HP",
+        light: { svg: hp_light },
+        dark: { svg: hp_dark },
+    },
 ];
 
 export default function Home() {
     const nav = useNavigate();
-    const products = React.useMemo(
-        () => getProducts({ q: "", sort: "popular" as any }),
-        []
-    );
+    const [products, setProducts] = React.useState<Product[]>([]);
+    const [, setLoading] = React.useState(true);
+    const [error, setError] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                setLoading(true);
+                // поддержим и старый sync, и новый async сервисы
+                const maybe = (getProducts as any)({ q: "", sort: "name" }); // "popular" сейчас не поддерживается → возьмём "name"
+                const list = Array.isArray(maybe) ? maybe : await maybe;
+
+                // часто API возвращают { items } / { data } / { products }
+                const arr: Product[] = Array.isArray(list)
+                    ? list
+                    : (list?.items ?? list?.data ?? list?.products ?? []);
+
+                if (!cancelled) setProducts(arr);
+            } catch (e: any) {
+                if (!cancelled) setError(e?.message ?? "Failed to load products");
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
     return (
         <div className="container">
             <div className={cls.homeContent}>
@@ -159,31 +185,39 @@ export default function Home() {
                     onSelect={(cat) => console.log("Выбрано:", cat)}
                 />
 
-                <ProductCarouselRich label="Best Products" products={products}
-                    visibleItems={4}
-                    onItemClick={(p) => nav(`/product/${p.id}`)}
-                // или, если хотите <a href> вместо onClick:
-                // itemLinkBuilder={(p) => `/product/${p.id}`}
-                />
-                <div className={stylesBanner.bannerGrid}>
-                    {bannerList.map((banner) => (
-                        <div key={banner.id} className={stylesBanner.bannerCard}>
-                            <img src={banner.imageUrl} alt={banner.name} className={stylesBanner.bannerImage} />
-                            <div className={stylesBanner.bannerInfo}>
-                                <div className={stylesBanner.bannerTitle}>{banner.name}</div>
-                                <button className={stylesBanner.bannerButton}>
-                                    <ChevronRightIcon className={stylesBanner.icon} />
-                                </button>
-                            </div>
+                {error ? (
+                    <div style={{ padding: 16, color: "var(--danger, #c00)" }}>{error}</div>
+                ) : (
+                    <>
+                        <ProductCarouselRich
+                            label="Best Products"
+                            products={products /* пока пустой массив — ок */}
+                            visibleItems={4}
+                            onItemClick={(p) => nav(`/product/${p.id}`)}
+                        />
+
+                        <div className={stylesBanner.bannerGrid}>
+                            {bannerList.map((banner) => (
+                                <div key={banner.id} className={stylesBanner.bannerCard}>
+                                    <img src={banner.imageUrl} alt={banner.name} className={stylesBanner.bannerImage} />
+                                    <div className={stylesBanner.bannerInfo}>
+                                        <div className={stylesBanner.bannerTitle}>{banner.name}</div>
+                                        <button className={stylesBanner.bannerButton}>
+                                            <ChevronRightIcon className={stylesBanner.icon} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
-                <ProductCarouselRich label="Featured Products" products={products}
-                    visibleItems={4}
-                    onItemClick={(p) => nav(`/product/${p.id}`)}
-                // или, если хотите <a href> вместо onClick:
-                // itemLinkBuilder={(p) => `/product/${p.id}`}
-                />
+
+                        <ProductCarouselRich
+                            label="Featured Products"
+                            products={products}
+                            visibleItems={4}
+                            onItemClick={(p) => nav(`/product/${p.id}`)}
+                        />
+                    </>
+                )}
                 <BrandCarousel label="Brands" images={brandLogos} />
             </div>
         </div>

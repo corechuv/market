@@ -1,4 +1,4 @@
-// FILE: src/specs/builders.ts
+// src/specs/builders.ts
 import type { Product, ProductAttribute, ProductVariant } from "../types/product";
 import type { SpecEntry, SpecDictionary } from "../components/Product/SpecTable";
 import { codebook } from "./codebook";

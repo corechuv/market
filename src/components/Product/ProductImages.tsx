@@ -1,3 +1,4 @@
+// src/components/Product/ProductImages.tsx
 import { useRef, useState, type MouseEvent, type FC } from "react";
 import cls from "./ProductImages.module.scss";
 import ProductImageActions from "./ProductImageActions";

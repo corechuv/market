@@ -1,4 +1,4 @@
-import type { Category } from "../types/category";
+/*import type { Category } from "../types/category";
 
 const NOW = "2025-01-01T00:00:00.000Z";
 
@@ -281,3 +281,4 @@ export const categories: Category[] = [
     ]
   }
 ];
+*/

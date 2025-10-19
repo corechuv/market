@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import cs from "./TextareaField.module.scss";
+import cls from "./TextareaField.module.scss";
 
 type CountMode = "current" | "remaining";
 
@@ -126,8 +126,8 @@ export const TextareaField = React.forwardRef<
       countMode === "remaining" && typeof maxLength === "number"
         ? `${Math.max(maxLength - valueLen, 0)}`
         : typeof maxLength === "number"
-        ? `${valueLen}/${maxLength}`
-        : `${valueLen}`;
+          ? `${valueLen}/${maxLength}`
+          : `${valueLen}`;
 
     const describedBy = [
       hint ? hintId : "",
@@ -139,12 +139,12 @@ export const TextareaField = React.forwardRef<
       .trim();
 
     return (
-      <div className={cs.field}>
+      <div className={cls.field}>
         {label && (
-          <label className={cs.label} htmlFor={areaId}>
+          <label className={cls.field__label} htmlFor={areaId}>
             {label}
             {required && (
-              <span className={cs.requiredMark} aria-hidden="true">
+              <span className={cls["field__label--mark"]} aria-hidden="true">
                 *
               </span>
             )}
@@ -159,9 +159,9 @@ export const TextareaField = React.forwardRef<
           {...rest}
           onInput={handleInput}
           className={[
-            cs.textarea,
-            autoGrow ? cs.autoGrow : "",
-            error ? cs.textareaError : "",
+            cls.field__textarea,
+            autoGrow ? cls["field__textarea--autogrow"] : "",
+            error ? cls["field__textarea--error"] : "",
             className || "",
           ].join(" ")}
           style={{ resize: resizable }}
@@ -171,21 +171,21 @@ export const TextareaField = React.forwardRef<
           required={required}
         />
 
-        <div className={cs.metaRow}>
+        <div className={cls.field__meta}>
           {hint && (
-            <div id={hintId} className={cs.hint}>
+            <div id={hintId} className={cls["field__meta--hint"]}>
               {hint}
             </div>
           )}
           {shouldShowCount && (
-            <div id={countId} className={cs.counter} aria-live="polite">
+            <div id={countId} className={cls["field__meta--counter"]} aria-live="polite">
               {countText}
             </div>
           )}
         </div>
 
         {error && (
-          <div id={errId} className={cs.error} role="alert">
+          <div id={errId} className={cls.field__error} role="alert">
             {error}
           </div>
         )}

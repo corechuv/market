@@ -1,402 +1,888 @@
-// FILE: src/pages/CheckoutPage.tsx
+// src/pages/CheckoutPage.tsx
 import React, { useMemo, useState, useEffect } from "react";
 import "./Checkout.scss";
+import styles from "./Checkout.module.scss";
+import {
+  quoteTotals,
+  upsertCustomer,
+  toOrderItems,
+  toAddressIn,
+  createOrder,
+  createPaymentIntent,
+  confirmPayment,
+  listShippingOptions,
+  type ShippingOption,
+} from "../../services/checkoutApi";
 import { useCart } from "../../context/CartContext";
 import { formatMoney } from "../../utils/money";
-import { detectBrand, luhnCheck, formatCardNumber, formatExpiryInput, expiryValid, lengthOkForBrand, BRAND_RULES, type CardBrand } from "../../utils/paymentCard";
+
+import { useAuth } from "../../context/AuthContext";
+import api from "../../lib/api";
+import { SelectField } from "../../components/UI/SelectField";
+
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  Elements,
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
+
+import { toISO2 } from "../../utils/country";
+import { vatRateFor } from "../../utils/vat";
 import Logo from "../../components/logo/Logo";
 import Button from "../../components/UI/Button";
 import { TextField } from "../../components/UI/TextField";
 import { CheckboxField } from "../../components/UI/CheckboxField";
 import QtyStepper from "../../components/UI/QtyStepper";
+import RadioCard from "../../components/UI/RadioCard";
 
-// --- Types used locally
-export type Address = {
-    fullName: string;
-    email: string;
-    phone: string;
-    street: string;
-    city: string;
-    postalCode: string;
-    country: string;
+import dpd from "/dpd.png";
+import dhl from "/dhl.png";
+import gls from "@/assets/gls.png";
+import hermes from "@/assets/svg/hermes.svg";
+import mastercard from "/mastercard.png";
+import paypal from "/paypal.png";
+import visa from "/visa.png";
+import amex from "@/assets/svg/amex.svg";
+
+const CARRIER_LOGOS = { dhl, hermes, dpd, gls } as const;
+
+// === Stripe init
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PK as string);
+
+// === Тип адреса для формы (без обязательных id/label)
+type FormAddress = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  postalCode: string;
+  country: string;
 };
 
-export type ShippingMethod = {
-    id: string;
-    label: string;
-    eta: string;
-    priceCents: number; // incl. VAT
+type AccountAddress = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  company?: string | null;
+  country: string;        // ISO-2
+  postalCode: string;
+  region?: string | null;
+  city: string;
+  line1: string;
+  line2?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  isDefault: boolean;
+  createdAt: string;
 };
 
-// --- Config (tune here)
-const VAT_RATE = 0.19; // 19% (Germany)
-const PRICES_INCLUDE_VAT = true; // our catalog prices are gross (inkl. MwSt.)
+const accountToForm = (a: AccountAddress, u?: any): FormAddress => ({
+  firstName: a.firstName || u?.firstName || "",
+  lastName: a.lastName || u?.lastName || "",
+  email: a.email || u?.email || "",
+  phone: a.phone || u?.phone || "",
+  line1: a.line1 || "",
+  line2: a.line2 || "",
+  city: a.city || "",
+  postalCode: a.postalCode || "",
+  country: a.country || "DE", // ок: дальше в коде toISO2 всё нормализует
+});
 
-const SHIPPING_METHODS: ShippingMethod[] = [
-    { id: "standard", label: "Standard Versand", eta: "2–4 Tage", priceCents: 0 },
-    { id: "express", label: "Express", eta: "1–2 Tage", priceCents: 990 },
-    { id: "overnight", label: "Overnight", eta: "Nächster Tag", priceCents: 1990 },
-];
+// Вариант доставки для UI
+type ShippingUi = {
+  id: string;
+  label: string;
+  eta: string;
+  priceCents: number;
+  effectivePriceCents: number;
+  carrierCode: string;
+  serviceCode: string;
+  freeFromCents?: number | null;
+};
 
-const FREE_SHIPPING_THRESHOLD_CENTS = 50_00; // free standard shipping from €50
+// --- Config
+const PRICES_INCLUDE_VAT = true; // цены каталога — брутто
 
 // === Account sync (LS) ===
-const ACCOUNT_LS_KEY = "mp_account_demo_eu_v1";
-const mkUid = () => Math.random().toString(36).slice(2, 10);
+const CHECKOUT_ADDR_LS_KEY = "checkout_address";
 
-type LsAddress = {
-    id: string;
-    label: string;
-    fullName: string;
-    line1: string;
-    line2?: string;
-    city: string;
-    region?: string;
-    postalCode: string;
-    country: string;
-    phone?: string;
-    isDefault?: boolean;
-};
-
-type LsOrderItem = { sku: string; name: string; qty: number; price: number, image?: string; };
-type LsOrder = {
-    id: string;
-    number: string;
-    createdAt: string;
-    status: "processing" | "shipped" | "delivered" | "cancelled" | "refunded";
-
-    subtotal?: number;
-    shippingCents?: number;
-    discountCents?: number;
-    vatCents?: number;
-    total: number;
-
-    shippingMethod?: string;
-    promoCode?: string | null;
-    currencyCode?: "EUR" | "USD" | "RUB";
-
-    items: LsOrderItem[];
-    deliveryAddressId?: string;
-};
-
-type LsAccount = {
-    profile: {
-        avatar?: string;
-        firstName: string;
-        lastName: string;
-        email: string;
-        phone?: string;
-        birthday?: string;
+function readCheckoutDraft(): FormAddress {
+  const defaults: FormAddress = {
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    line1: "",
+    line2: "",
+    city: "",
+    postalCode: "",
+    country: "Deutschland",
+  };
+  try {
+    const raw = localStorage.getItem(CHECKOUT_ADDR_LS_KEY);
+    if (!raw) return defaults;
+    const parsed = JSON.parse(raw) as Partial<FormAddress>;
+    return {
+      ...defaults,
+      ...parsed,
+      firstName: String(parsed.firstName ?? ""),
+      lastName: String(parsed.lastName ?? ""),
+      email: String(parsed.email ?? ""),
+      phone: String(parsed.phone ?? ""),
+      line1: String(parsed.line1 ?? ""),
+      line2: parsed.line2 ? String(parsed.line2) : "",
+      city: String(parsed.city ?? ""),
+      postalCode: String(parsed.postalCode ?? ""),
+      country: String(parsed.country ?? "Deutschland"),
     };
-    addresses: LsAddress[];
-    orders: LsOrder[];
-    wishlist: any[];
-    settings: {
-        emailNotifications: boolean;
-        smsNotifications: boolean;
-        marketingOptIn: boolean;
-        language: "ru" | "en";
-        currency: "RUB" | "USD" | "EUR";
-        theme: "system" | "light" | "dark";
-    };
-};
-
-function readAccount(): LsAccount | null {
-    try {
-        const raw = localStorage.getItem(ACCOUNT_LS_KEY);
-        return raw ? (JSON.parse(raw) as LsAccount) : null;
-    } catch {
-        return null;
-    }
-}
-
-function writeAccount(acc: LsAccount) {
-    try { localStorage.setItem(ACCOUNT_LS_KEY, JSON.stringify(acc)); } catch { }
+  } catch {
+    return defaults;
+  }
 }
 
 // --- Helpers
 const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
 
+function etaToStr(min?: number | null, max?: number | null) {
+  if (!min && !max) return "";
+  if (min && max && min !== max) return `${min}–${max} Tage`;
+  return `${min || max} Tag${(min || max) === 1 ? "" : "e"}`;
+}
+
+function normalizeCarrier(code?: string) {
+  return (code || "").toLowerCase().replace(/[^a-z]/g, "");
+}
+
+function carrierIconFor(option: ShippingUi) {
+  const key = normalizeCarrier(option.carrierCode) as keyof typeof CARRIER_LOGOS;
+  const src = CARRIER_LOGOS[key];
+
+  if (!src) {
+    return (
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
+        <path d="M3 7h11v7h-1.5a2.5 2.5 0 0 0-5 0H6a2.5 2.5 0 0 0-5 0H0V9a2 2 0 0 1 2-2h1z" fill="currentColor" opacity=".5" />
+        <path d="M14 7h4l4 4v3h-2.5a2.5 2.5 0 0 0-5 0H14V7z" fill="currentColor" />
+      </svg>
+    );
+  }
+
+  const alt = option.label?.split("•")[0]?.trim() || option.carrierCode || "Carrier";
+  return <img loading="lazy" src={src} alt={`${alt} logo`} height={18} />;
+}
+
 // --- Component
 const CheckoutPage: React.FC = () => {
-    const { lines, inc, setQty, clear } = useCart();
+  type ProviderId = "stripe" | "paypal" | "invoice";
+  const [provider, setProvider] = useState<ProviderId>("stripe");
 
-    const [shipping, setShipping] = useState<ShippingMethod>(() => SHIPPING_METHODS[0]);
-    const [promo, setPromo] = useState<string>("");
-    const [promoApplied, setPromoApplied] = useState<string | null>(null);
+  const [theme, setTheme] = useState(() => document.documentElement.getAttribute("data-theme") || "light");
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setTheme(document.documentElement.getAttribute("data-theme") || "light");
+    });
+    observer.observe(document.documentElement, { attributes: true });
+    return () => observer.disconnect();
+  }, []);
 
-    const [address, setAddress] = useState<Address>(() => {
-        const cached = localStorage.getItem("checkout_address");
-        return (
-            (cached && (JSON.parse(cached) as Address)) || {
-                fullName: "",
-                email: "",
-                phone: "",
-                street: "",
-                city: "",
-                postalCode: "",
-                country: "Deutschland",
-            }
-        );
+  const pmOptions: Array<{
+    id: ProviderId;
+    title: React.ReactNode;
+    caption?: React.ReactNode;
+    icon?: React.ReactNode;
+  }> = [
+      {
+        id: "stripe",
+        title: <strong>Card payment</strong>,
+        icon: (
+          <>
+            <img loading="lazy" src={theme === "dark" ? visa : visa} alt="" />
+            <img loading="lazy" src={theme === "dark" ? mastercard : mastercard} alt="" />
+            <img loading="lazy" src={theme === "dark" ? amex : amex} alt="" />
+          </>
+        ),
+      },
+      {
+        id: "paypal",
+        title: <strong>PayPal</strong>,
+        icon: <img loading="lazy" src={theme === "dark" ? paypal : paypal} alt="" />,
+      },
+      {
+        id: "invoice",
+        title: <strong>Bank transfer / Invoice</strong>,
+        caption: <span className="muted">We’ll send payment instructions by email</span>,
+        icon: (
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
+            <path d="M12 3l9 5v2H3V8l9-5zM4 11h16v8H4z" fill="currentColor" />
+          </svg>
+        ),
+      },
+    ];
+
+  const { lines, inc, setQty, clear } = useCart();
+
+  // ACCOUNT step
+  const { user, isAuthenticated, loading: authLoading, login, register, logout } = useAuth();
+  const [, setIsGuest] = useState<boolean>(() => !isAuthenticated);
+  const [customerId, setCustomerId] = useState<string | null>(null);
+  const [forceAccount, setForceAccount] = useState(false);
+
+  // доставка
+  const [shippingOptions, setShippingOptions] = useState<ShippingUi[]>([]);
+  const [shipping, setShipping] = useState<ShippingUi | null>(null);
+  const [shipLoading, setShipLoading] = useState(false);
+  const [shipError, setShipError] = useState<string | null>(null);
+
+  const [promo, setPromo] = useState<string>("");
+  const [promoApplied, setPromoApplied] = useState<string | null>(null);
+
+  // форма адреса
+  const [address, setAddress] = useState<FormAddress>(() => readCheckoutDraft());
+  const [savedAddresses, setSavedAddresses] = useState<AccountAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | "manual">("manual");
+  const [manualDraft] = useState<FormAddress>(() => readCheckoutDraft());
+    /*
+  const setAddressSafe = (fa: FormAddress) => {
+    setAddress(fa);
+    if (selectedAddressId === "manual") setManualDraft(fa);
+  };
+    */
+
+  // 0 Cart, 1 Account, 2 Address, 3 Payment, 4 Success
+  const [step, setStep] = useState<0 | 1 | 2 | 3 | 4>(0);
+  const [isPaying, setIsPaying] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
+
+  const [orderNo, setOrderNo] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (isAuthenticated) {
+      setIsGuest(false);
+      setCustomerId(user?.id ?? null);
+
+      // ← всегда проставляем базовые поля из аккаунта (не оставляем старый LS-мусор)
+      setAddress((a) => ({
+        ...a,
+        email: (user as any)?.email || "",
+        firstName: (user as any)?.firstName || "",
+        lastName: (user as any)?.lastName || "",
+        phone: (user as any)?.phone || "",
+      }));
+
+      // подтягиваем адреса из /addresses/my и выбираем дефолтный
+      (async () => {
+        try {
+          const { data } = await api.get<AccountAddress[]>("/addresses/my");
+          const list = Array.isArray(data) ? data : [];
+          setSavedAddresses(list);
+
+          const def = list.find(x => x.isDefault) || list[0];
+          if (def) {
+            setSelectedAddressId(def.id);
+            setAddress(accountToForm(def, user));
+          } else {
+            setSelectedAddressId("manual");
+            // чистый ручной ввод, но с ФИО/email/phone из аккаунта:
+            setAddress((a) => ({
+              ...a,
+              line1: "", line2: "", city: "", postalCode: "",
+              country: a.country || "Deutschland",
+            }));
+          }
+        } catch {
+          // при ошибке загрузки адресов — просто ручной ввод
+          setSavedAddresses([]);
+          setSelectedAddressId("manual");
+        }
+      })();
+
+      if (step === 1 && !forceAccount) setStep(2);
+    } else {
+      // logout/гость — возвращаемся к черновику
+      setCustomerId(null);
+      setIsGuest(true);
+      setSavedAddresses([]);
+      setSelectedAddressId("manual");
+      setAddress(readCheckoutDraft());
+    }
+  }, [authLoading, isAuthenticated, user, step, forceAccount]);
+
+  const handleSelectSavedAddr = (id: string | "manual") => {
+    setSelectedAddressId(id);
+    if (id === "manual") {
+      setAddress(manualDraft);
+    } else {
+      const found = savedAddresses.find(a => a.id === id);
+      if (found) setAddress(accountToForm(found, user));
+    }
+  };
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CHECKOUT_ADDR_LS_KEY, JSON.stringify(address));
+    } catch { }
+  }, [address]);
+
+  // Totals
+  const subtotal = useMemo(() => lines.reduce((s, l) => s + l.priceCents * l.qty, 0), [lines]);
+
+  // страна доставки (для VAT и тарифов)
+  const countryISO2 = useMemo(() => toISO2(address.country || "DE"), [address.country]);
+
+  // Загрузка вариантов доставки
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setShipLoading(true);
+      setShipError(null);
+      try {
+        const raw: ShippingOption[] = await listShippingOptions({
+          country: countryISO2,
+          subtotalCents: subtotal,
+        });
+        if (cancelled) return;
+        const ui: ShippingUi[] = raw.map((o) => ({
+          id: o.id,
+          label: o.label,
+          eta: etaToStr(o.etaMinDays ?? undefined, o.etaMaxDays ?? undefined),
+          priceCents: o.priceCents,
+          effectivePriceCents: o.effectivePriceCents,
+          carrierCode: o.carrierCode,
+          serviceCode: o.serviceCode,
+          freeFromCents: o.freeFromCents ?? undefined,
+        }));
+        setShippingOptions(ui);
+        setShipping((cur) => {
+          if (cur && ui.find((x) => x.id === cur.id)) return cur;
+          return ui[0] || null;
+        });
+      } catch (e: any) {
+        if (!cancelled) {
+          setShipError(e?.message || "Failed to load shipping options");
+          setShippingOptions([]);
+          setShipping(null);
+        }
+      } finally {
+        if (!cancelled) setShipLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [countryISO2, subtotal]);
+
+  // базовая стоимость доставки
+  const baseShippingCents = useMemo(() => {
+    if (!shipping) return 0;
+    return shipping.effectivePriceCents ?? shipping.priceCents ?? 0;
+  }, [shipping]);
+
+  // --- серверный квот
+  const [qLoading, setQLoading] = useState(false);
+  const [qError, setQError] = useState<string | null>(null);
+  const [serverQuote, setServerQuote] = useState<null | {
+    subtotal: number;
+    shipping: number;
+    discount: number;
+    vat: number;
+    total: number;
+    reason?: string | null;
+  }>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setQLoading(true);
+      setQError(null);
+      try {
+        const q = await quoteTotals({
+          lines,
+          shippingCents: baseShippingCents,
+          promoCode: promoApplied,
+          country: countryISO2,
+          customerId: customerId,
+        });
+        if (!cancelled) {
+          setServerQuote({
+            subtotal: q.finalSubtotalCents,
+            shipping: q.finalShippingCents,
+            discount: q.discountCents,
+            vat: q.finalVatCents,
+            total: q.finalTotalCents,
+            reason: q.valid ? null : q.reason,
+          });
+        }
+      } catch (e: any) {
+        if (!cancelled) {
+          setServerQuote(null);
+          setQError(e?.message || "Failed to calculate totals on server");
+        }
+      } finally {
+        if (!cancelled) setQLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [lines, baseShippingCents, promoApplied, countryISO2, customerId]);
+
+  // Локальный фоллбэк промо
+  const discount = useMemo(() => {
+    if (!promoApplied) return 0;
+    if (promoApplied.toLowerCase() === "save10") return Math.round(subtotal * 0.1);
+    if (promoApplied.toLowerCase() === "freeexp") return baseShippingCents;
+    return 0;
+  }, [promoApplied, subtotal, baseShippingCents]);
+
+  const total = useMemo(() => clamp(subtotal - discount + baseShippingCents, 0, Number.MAX_SAFE_INTEGER), [
+    subtotal,
+    discount,
+    baseShippingCents,
+  ]);
+
+  // VAT
+  const fallbackVatRate = vatRateFor(countryISO2);
+  const vat = useMemo(() => {
+    if (serverQuote?.vat != null) return serverQuote.vat;
+    return PRICES_INCLUDE_VAT ? Math.round(total - total / (1 + fallbackVatRate)) : Math.round(total * fallbackVatRate);
+  }, [serverQuote, total, fallbackVatRate]);
+
+  const vatLabel = useMemo(() => {
+    if (serverQuote) {
+      const net = Math.max(0, serverQuote.total - serverQuote.vat);
+      if (net > 0) {
+        const eff = serverQuote.vat / net;
+        const pct = Math.round(eff * 100);
+        if (pct >= 1 && pct <= 27) return `Including VAT (~${pct}%)`;
+      }
+      return "Including VAT";
+    }
+    return `Including VAT (${Math.round(fallbackVatRate * 100)}%)`;
+  }, [serverQuote, fallbackVatRate]);
+
+  const applyPromo = () => {
+    const code = promo.trim();
+    if (!code) return;
+    setPromoApplied(code.toUpperCase());
+    setPromo("");
+  };
+
+  // --- Validation (simple)
+  const addressValid = useMemo(() => {
+    const emailOk = /.+@.+\..+/.test(address.email.trim());
+    const requiredOk = [address.firstName, address.lastName, address.line1, address.city, address.postalCode, address.country]
+      .every((x) => x.trim().length > 1);
+    const phoneLen = address.phone.trim().length;
+    const phoneOk = phoneLen === 0 || phoneLen >= 6;   // ← теперь можно без телефона
+    return emailOk && requiredOk && phoneOk;
+  }, [address]);
+
+  // ==== SUBMITTERS ====
+
+  // Manual — без карточной формы
+  const handlePayManual = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!acceptTerms) return alert("Подтвердите согласие с условиями.");
+    if (lines.length === 0) return alert("Корзина пуста.");
+    if (!shipping) return alert("Выберите способ доставки.");
+
+    setIsPaying(true);
+    try {
+      const customer =
+        customerId ||
+        (await upsertCustomer({
+          email: address.email,
+          phone: address.phone,
+          firstName: address.firstName,
+          lastName: address.lastName,
+        }).catch(() => ({ id: undefined } as any)))?.id ||
+        null;
+
+      const clientSubtotal = subtotal;
+      const clientDiscount = serverQuote?.discount ?? discount;
+      const clientShipping = serverQuote?.shipping ?? baseShippingCents;
+      const clientVat = serverQuote?.vat ?? vat;
+      const clientTotal = serverQuote?.total ?? clientSubtotal - clientDiscount + clientShipping;
+
+      const order = await createOrder({
+        customerId: customer,
+        items: toOrderItems(lines),
+        currency: "EUR",
+        shippingCents: clientShipping,
+        shippingMethod: shipping.label,
+        selectedCarrierCode: shipping.carrierCode,
+        selectedServiceCode: shipping.serviceCode,
+        deliveryAddress: toAddressIn(address),
+        billingAddress: null,
+        promoCode: promoApplied,
+        subtotalCents: clientSubtotal,
+        discountCents: clientDiscount,
+        vatCents: clientVat,
+        totalCents: clientTotal,
+        serverCalculate: true,
+      });
+
+      await createPaymentIntent(order.id, order.totalCents, "invoice");
+      setOrderNo(order.number);
+      setStep(4);
+      clear();
+    } catch (err: any) {
+      console.error(err);
+      alert(`Оплата не прошла: ${err?.message ?? err}`);
+    } finally {
+      setIsPaying(false);
+    }
+  };
+
+  // Stripe
+  const handlePayStripe = async (
+    e: React.FormEvent<HTMLFormElement>,
+    args: { stripe: any; elements: any; holder: string }
+  ) => {
+    e.preventDefault();
+    if (!acceptTerms) return alert("Подтвердите согласие с условиями.");
+    if (lines.length === 0) return alert("Корзина пуста.");
+    if (!shipping) return alert("Выберите способ доставки.");
+
+    setIsPaying(true);
+    try {
+      const customer =
+        customerId ||
+        (await upsertCustomer({
+          email: address.email,
+          phone: address.phone,
+          firstName: address.firstName,
+          lastName: address.lastName,
+        }).catch(() => ({ id: undefined } as any)))?.id ||
+        null;
+
+      const clientSubtotal = subtotal;
+      const clientDiscount = serverQuote?.discount ?? discount;
+      const clientShipping = serverQuote?.shipping ?? baseShippingCents;
+      const clientVat = serverQuote?.vat ?? vat;
+      const clientTotal = serverQuote?.total ?? clientSubtotal - clientDiscount + clientShipping;
+
+      const order = await createOrder({
+        customerId: customer,
+        items: toOrderItems(lines),
+        currency: "EUR",
+        shippingCents: clientShipping,
+        shippingMethod: shipping.label,
+        selectedCarrierCode: shipping.carrierCode,
+        selectedServiceCode: shipping.serviceCode,
+        deliveryAddress: toAddressIn(address),
+        billingAddress: null,
+        promoCode: promoApplied,
+        subtotalCents: clientSubtotal,
+        discountCents: clientDiscount,
+        vatCents: clientVat,
+        totalCents: clientTotal,
+        serverCalculate: true,
+      });
+
+      const intent = await createPaymentIntent(order.id, order.totalCents, "stripe");
+      if (!intent?.clientSecret) throw new Error("Stripe client secret not returned from server");
+
+      const numberEl = args.elements.getElement(CardNumberElement);
+      if (!numberEl) throw new Error("Stripe card element not ready");
+
+      const result = await args.stripe.confirmCardPayment(intent.clientSecret, {
+        payment_method: {
+          card: numberEl,
+          billing_details: { name: args.holder || `${address.firstName} ${address.lastName}`.trim() },
+        },
+      });
+
+      if (result.error) throw new Error(result.error.message || "Stripe confirmation failed");
+
+      await confirmPayment(intent.id);
+
+      setOrderNo(order.number);
+      setStep(4);
+      clear();
+    } catch (err: any) {
+      console.error(err);
+      alert(`Оплата не прошла: ${err?.message ?? err}`);
+    } finally {
+      setIsPaying(false);
+    }
+  };
+
+  // PayPal
+  const preparePayPalPayment = async () => {
+    if (!acceptTerms) throw new Error("Подтвердите согласие с условиями.");
+    if (lines.length === 0) throw new Error("Корзина пуста.");
+    if (!shipping) throw new Error("Выберите способ доставки.");
+
+    const customer =
+      customerId ||
+      (await upsertCustomer({
+        email: address.email,
+        phone: address.phone,
+        firstName: address.firstName,
+        lastName: address.lastName,
+      }).catch(() => ({ id: undefined } as any)))?.id ||
+      null;
+
+    const clientSubtotal = subtotal;
+    const clientDiscount = serverQuote?.discount ?? discount;
+    const clientShipping = serverQuote?.shipping ?? baseShippingCents;
+    const clientVat = serverQuote?.vat ?? vat;
+    const clientTotal = serverQuote?.total ?? clientSubtotal - clientDiscount + clientShipping;
+
+    const order = await createOrder({
+      customerId: customer,
+      items: toOrderItems(lines),
+      currency: "EUR",
+      shippingCents: clientShipping,
+      shippingMethod: shipping.label,
+      selectedCarrierCode: shipping.carrierCode,
+      selectedServiceCode: shipping.serviceCode,
+      deliveryAddress: toAddressIn(address),
+      billingAddress: null,
+      promoCode: promoApplied,
+      subtotalCents: clientSubtotal,
+      discountCents: clientDiscount,
+      vatCents: clientVat,
+      totalCents: clientTotal,
+      serverCalculate: true,
     });
 
-    const [step, setStep] = useState<0 | 1 | 2 | 3>(0); // 0 Cart, 1 Address, 2 Payment, 3 Success
-    const [isPaying, setIsPaying] = useState(false);
-    const [acceptTerms, setAcceptTerms] = useState(false);
+    const payment = await createPaymentIntent(order.id, order.totalCents, "paypal");
+    if (!payment?.providerPaymentId) throw new Error("PayPal order id не получен от сервера");
 
-    const [orderNo, setOrderNo] = useState<string | null>(null);
-
-    useEffect(() => {
-        localStorage.setItem("checkout_address", JSON.stringify(address));
-    }, [address]);
-
-    // ---- Totals (gross pricing model)
-    const subtotal = useMemo(() => lines.reduce((s, l) => s + l.priceCents * l.qty, 0), [lines]);
-
-    const shippingCents = useMemo(() => {
-        if (shipping.id === "standard" && subtotal >= FREE_SHIPPING_THRESHOLD_CENTS) return 0;
-        return shipping.priceCents;
-    }, [shipping, subtotal]);
-
-    const discount = useMemo(() => {
-        if (!promoApplied) return 0;
-        if (promoApplied.toLowerCase() === "save10") return Math.round(subtotal * 0.1);
-        if (promoApplied.toLowerCase() === "freeexp") return shipping.id !== "standard" ? shippingCents : 0;
-        return 0;
-    }, [promoApplied, subtotal, shipping.id, shippingCents]);
-
-    const total = useMemo(() => clamp(subtotal - discount + shippingCents, 0, Number.MAX_SAFE_INTEGER), [subtotal, discount, shippingCents]);
-
-    // VAT portion from a gross total: VAT = total - total / (1 + rate)
-    const vat = useMemo(() => (PRICES_INCLUDE_VAT ? Math.round(total - total / (1 + VAT_RATE)) : Math.round(total * VAT_RATE)), [total]);
-
-    const applyPromo = () => {
-        const code = promo.trim();
-        if (!code) return;
-        setPromoApplied(code);
-        setPromo("");
+    return {
+      paypalOrderId: payment.providerPaymentId,
+      paymentId: payment.id,
+      orderNo: order.number,
+      approvalUrl: payment.approvalUrl,
     };
+  };
 
-    // --- Validation (simple)
-    const addressValid = useMemo(() => {
-        const emailOk = /.+@.+\..+/.test(address.email.trim());
-        const phoneOk = address.phone.trim().length >= 6;
-        const requiredOk = [address.fullName, address.street, address.city, address.postalCode, address.country].every((x) => x.trim().length > 1);
-        return emailOk && phoneOk && requiredOk;
-    }, [address]);
+  const onPayPalApproved = async (paymentId: string, orderNo: string) => {
+    setIsPaying(true);
+    try {
+      await confirmPayment(paymentId);
+      setOrderNo(orderNo);
+      setStep(4);
+      clear();
+    } catch (err: any) {
+      console.error(err);
+      alert(`Оплата не прошла: ${err?.message ?? err}`);
+    } finally {
+      setIsPaying(false);
+    }
+  };
 
-    const handlePay = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (!acceptTerms) return alert("Подтвердите согласие с условиями.");
-        setIsPaying(true);
-        // TODO: replace with your payment API (Stripe/Adyen/etc.)
-        await new Promise((r) => setTimeout(r, 1200));
-        setIsPaying(false);
+  const displaySubtotal = serverQuote?.subtotal ?? subtotal;
+  const displayShipping = serverQuote?.shipping ?? baseShippingCents;
+  const displayDiscount = serverQuote?.discount ?? discount;
+  const displayVat = serverQuote?.vat ?? vat;
+  const displayTotal = serverQuote?.total ?? total;
 
-        // Генерируем номер заказа (пример)
-        const newOrderNo =
-            `DS-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(100000 + Math.random() * 900000)}`;
-        setOrderNo(newOrderNo);
+  const minFreeThreshold = useMemo(() => {
+    const vals = shippingOptions
+      .map((o) => o.freeFromCents ?? 0)
+      .filter((v) => v && v > 0) as number[];
+    return vals.length ? Math.min(...vals) : undefined;
+  }, [shippingOptions]);
 
-        // === Запись заказа в Account ===
-        const nowIso = new Date().toISOString();
-
-        // 1) Подготовим адрес доставки из checkout
-        const addrCandidate: LsAddress = {
-            id: mkUid(),
-            label: "Доставка",
-            fullName: address.fullName,
-            line1: address.street,
-            city: address.city,
-            postalCode: address.postalCode,
-            country: address.country,
-            phone: address.phone,
-        };
-
-        // 2) Прочитаем существующий аккаунт или создадим минимальный по умолчанию
-        const fallbackAccount: LsAccount = {
-            profile: {
-                firstName: (address.fullName || "User").split(" ")[0] || "User",
-                lastName: (address.fullName || "").split(" ").slice(1).join(" "),
-                email: address.email,
-                phone: address.phone,
-                avatar: "",
-            },
-            addresses: [],
-            orders: [],
-            wishlist: [],
-            settings: {
-                emailNotifications: true,
-                smsNotifications: false,
-                marketingOptIn: false,
-                language: "ru",
-                currency: "EUR",
-                theme: "system",
-            },
-        };
-
-        const acc = readAccount() ?? fallbackAccount;
-
-        // 3) Ищем похожий адрес (по ключевым полям), иначе добавляем
-        const sameAddr = acc.addresses.find(a =>
-            a.fullName.trim() === addrCandidate.fullName.trim() &&
-            a.line1.trim() === addrCandidate.line1.trim() &&
-            a.city.trim() === addrCandidate.city.trim() &&
-            a.postalCode.trim() === addrCandidate.postalCode.trim() &&
-            a.country.trim().toLowerCase() === addrCandidate.country.trim().toLowerCase()
-        );
-
-        const deliveryAddressId = (sameAddr?.id) || addrCandidate.id;
-        if (!sameAddr) acc.addresses.unshift(addrCandidate);
-
-        // 4) Маппим содержимое корзины в позиции заказа
-        const orderItems: LsOrderItem[] = lines.map(l => ({
-            sku: l.variantId || l.productId || l.id,
-            name: l.title,
-            qty: l.qty,
-            price: l.priceCents, // per unit, cents
-            image: l.image,      // +++ из варианта/карточки в корзине
-        }));
-
-        // 5) Собираем заказ с “полными данными”
-        const newOrder: LsOrder = {
-            id: mkUid(),
-            number: newOrderNo,
-            createdAt: nowIso,
-            status: "processing",
-
-            subtotal,
-            shippingCents,
-            discountCents: discount,
-            vatCents: vat,
-            total,
-
-            shippingMethod: shipping.label,
-            promoCode: promoApplied,
-            currencyCode: "EUR",
-
-            items: orderItems,
-            deliveryAddressId,
-        };
-
-        // 6) Сохраняем (новые сверху) и чистим старые демки при необходимости
-        acc.orders = [newOrder, ...(acc.orders ?? [])].slice(0, 30); // храним до 30
-        writeAccount(acc);
-
-        setStep(3);
-        clear(); // empty cart
-    };
-
-    return (
-        <div className={`checkout ${step === 3 ? "is-success" : ""}`}>
-            <header className="checkout__header">
-                <div className="checkout__brand">
-                    <Logo size="28px" />
-                </div>
-                <div className="checkout__secure">
-                    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
-                        <path d="M12 2l7 4v6c0 5-3.5 9.74-7 10-3.5-.26-7-5-7-10V6l7-4z" fill="currentColor" />
-                    </svg>
-                    <span>SSL Secure Checkout</span>
-                </div>
-            </header>
-
-            {step !== 3 && (
-                <nav className="checkout__steps" aria-label="Шаги оформления">
-                    {[
-                        { k: 0, label: "Cart" },
-                        { k: 1, label: "Delivery" },
-                        { k: 2, label: "Pay" },
-                        { k: 3, label: "Complete" },
-                    ].map((s, i) => (
-                        <div key={s.k} className={`steps__item ${step === i ? "is-active" : step > i ? "is-done" : ""}`}>
-                            <span className="steps__index">{i + 1}</span>
-                            <span className="steps__label">{s.label}</span>
-                        </div>
-                    ))}
-                </nav>
-            )}
-            <main className="checkout__main">
-                <section className="checkout__content">
-                    {step === 0 && (
-                        <CartSection
-                            lines={lines}
-                            inc={inc}
-                            setQty={setQty}
-                            onNext={() => setStep(1)}
-                        />
-                    )}
-
-                    {step === 1 && (
-                        <AddressSection
-                            address={address}
-                            setAddress={setAddress}
-                            shipping={shipping}
-                            setShipping={setShipping}
-                            onPrev={() => setStep(0)}
-                            onNext={() => setStep(2)}
-                            canContinue={addressValid}
-                            subtotal={subtotal}
-                        />
-                    )}
-
-                    {step === 2 && (
-                        <PaymentSection
-                            total={total}
-                            acceptTerms={acceptTerms}
-                            setAcceptTerms={setAcceptTerms}
-                            onPrev={() => setStep(1)}
-                            onSubmit={handlePay}
-                        />
-                    )}
-
-                    {step === 3 && <SuccessSection orderNo={orderNo ?? undefined} />}
-                </section>
-
-                {step !== 3 && (
-                    <aside className="checkout__sidebar" aria-label="Итог заказа">
-                        <OrderSummary
-                            lines={lines}
-                            subtotal={subtotal}
-                            shipping={shipping}
-                            vat={vat}
-                            discount={discount}
-                            total={total}
-                            promo={promo}
-                            setPromo={setPromo}
-                            promoApplied={promoApplied}
-                            applyPromo={applyPromo}
-                            freeThresholdCents={FREE_SHIPPING_THRESHOLD_CENTS}
-                            shippingCents={shippingCents}
-                        />
-                    </aside>
-                )}
-            </main>
-
-            {isPaying && (
-                <div className="checkout__overlay" role="alert" aria-live="polite">
-                    <div className="spinner" />
-                    <p>Обработка платежа…</p>
-                </div>
-            )}
-
-            <footer className="checkout__footer">
-                <div className="corp">
-                    © {new Date().getFullYear()} dashedo.com
-                </div>
-                <ul>
-                    <li>
-                        <a href="/">Политика возврата</a>
-                    </li>
-                    <li>
-                        <a href="/">Условия обслуживания</a></li>
-                    <li>
-                        <a href="/">Конфиденциальность</a>
-                    </li>
-                </ul>
-            </footer>
+  return (
+    <div className={`${styles.checkout} ${step === 4 ? styles["checkout--success"] : ""}`}>
+      <header className={styles.checkout__header}>
+        <div className={styles.checkout__brand}>
+          <Logo size="28px" />
         </div>
-    );
+        <div className={styles.checkout__secure}>
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
+            <path d="M12 2l7 4v6c0 5-3.5 9.74-7 10-3.5-.26-7-5-7-10V6l7-4z" fill="currentColor" />
+          </svg>
+          <span>SSL Secure Checkout</span>
+        </div>
+      </header>
+
+      {step !== 4 && (
+        <nav className={styles.steps} aria-label="Шаги оформления">
+          {[
+            { k: 0, label: "Cart" },
+            { k: 1, label: "Account" },
+            { k: 2, label: "Delivery" },
+            { k: 3, label: "Pay" },
+            { k: 4, label: "Complete" },
+          ].map((s, i) => (
+            <div
+              key={s.k}
+              className={`${styles.steps__item} ${step === i ? `${styles["steps__item--active"]}` : step > i ? `${styles["steps__item--done"]}` : ``
+                }`}
+            >
+              <span className={styles.steps__index}>{i + 1}</span>
+              <span className={styles.steps__label}>{s.label}</span>
+            </div>
+          ))}
+        </nav>
+      )}
+
+      <main className={styles.checkout__main}>
+        <section className={styles.checkout__content}>
+          {step === 0 &&
+            <CartSection
+              lines={lines}
+              inc={inc}
+              setQty={setQty}
+              onNext={() => {
+                setForceAccount(true); // хотим видеть шаг Account даже если юзер уже залогинен
+                setStep(1);
+              }}
+            />
+          }
+
+          {step === 1 && (
+            <AccountSection
+              defaultEmail={address.email}
+              onGuest={(email) => {
+                setIsGuest(true);
+                setCustomerId(null);
+                setAddress({ ...address, email });
+                setForceAccount(false);
+                setStep(2);
+              }}
+              onLogin={async ({ email, password }) => {
+                await login({ email, password, remember: true });
+                setIsGuest(false);
+                setAddress((a) => ({ ...a, email }));
+                setForceAccount(false);
+                setStep(2);
+              }}
+              onRegister={async ({ firstName, lastName, email, password }) => {
+                await register({ firstName, lastName, email, password, remember: true });
+                setIsGuest(false);
+                setAddress((a) => ({ ...a, firstName, lastName, email }));
+                setForceAccount(false);
+                setStep(2);
+              }}
+              onAuthedContinue={() => { setForceAccount(false); setStep(2); }}
+              onSwitchAccount={async () => {
+                await logout();
+                setIsGuest(true);
+                setCustomerId(null);
+                setAddress((a) => ({ ...a, email: "" })); // опционально очистить e-mail
+                setForceAccount(true); // остаёмся на шаге Account с вкладками
+              }}
+              onBack={() => setStep(0)}
+            />
+          )}
+
+          {step === 2 && (
+            <AddressSection
+              address={address}
+              setAddress={setAddress}
+              shipping={shipping}
+              setShipping={setShipping}
+              shippingOptions={shippingOptions}
+              shipLoading={shipLoading}
+              shipError={shipError}
+              onPrev={() => { setForceAccount(true); setStep(1); }}
+              onNext={() => setStep(3)}
+              canContinue={addressValid}
+              isAuthed={isAuthenticated}
+              savedAddresses={savedAddresses}
+              selectedAddrId={selectedAddressId}
+              onSelectSavedAddr={handleSelectSavedAddr}
+              fieldsDisabled={selectedAddressId !== "manual"}
+            />
+          )}
+
+          {step === 3 && (
+            <>
+              <div className="card" style={{ marginBottom: 12 }}>
+                <div className="card__head">
+                  <h2>Payment Method</h2>
+                </div>
+                <RadioCard
+                  name="pm"
+                  value={provider}
+                  onChangeValue={(id) => setProvider(id as ProviderId)}
+                  items={pmOptions.map((o) => ({
+                    id: o.id,
+                    title: o.title,
+                    caption: o.caption,
+                    icon: o.icon,
+                  }))}
+                />
+              </div>
+
+              <PaymentSection
+                displayTotal={displayTotal}
+                acceptTerms={acceptTerms}
+                setAcceptTerms={setAcceptTerms}
+                onPrev={() => setStep(2)}
+                onSubmitManual={handlePayManual}
+                onSubmitStripe={handlePayStripe}
+                disablePay={qLoading || isPaying}
+                provider={provider}
+                preparePayPalPayment={preparePayPalPayment}
+                onPayPalApproved={onPayPalApproved}
+              />
+            </>
+          )}
+
+          {step === 4 && <SuccessSection orderNo={orderNo ?? undefined} />}
+        </section>
+
+        {step !== 4 && (
+          <aside className={styles.checkout__sidebar} aria-label="Итог заказа">
+            <OrderSummary
+              lines={lines}
+              subtotal={displaySubtotal}
+              vat={displayVat}
+              vatLabel={vatLabel}
+              discount={displayDiscount}
+              total={displayTotal}
+              promo={promo}
+              setPromo={setPromo}
+              promoApplied={promoApplied}
+              applyPromo={applyPromo}
+              freeThresholdCents={minFreeThreshold}
+              shippingCents={displayShipping}
+              loading={qLoading}
+              quoteError={qError}
+              quoteReason={serverQuote?.reason ?? null}
+            />
+          </aside>
+        )}
+      </main>
+
+      {isPaying && (
+        <div className={styles.checkout__overlay} role="alert" aria-live="polite">
+          <div className={styles.spinner} />
+          <p>Обработка платежа…</p>
+        </div>
+      )}
+
+      <footer className={styles.checkout__footer}>
+        <div className={styles["checkout__footer--corp"]}>© {new Date().getFullYear()} dashedo.com</div>
+        <ul>
+          <li>
+            <a href="/">Политика возврата</a>
+          </li>
+          <li>
+            <a href="/">Условия обслуживания</a>
+          </li>
+          <li>
+            <a href="/">Конфиденциальность</a>
+          </li>
+        </ul>
+      </footer>
+    </div>
+  );
 };
 
 export default CheckoutPage;
@@ -404,346 +890,891 @@ export default CheckoutPage;
 // ---- Sections
 
 type CartSectionProps = {
-    lines: import("../../context/CartContext").CartLine[];
-    inc: (id: string, delta: number) => void;
-    setQty: (id: string, qty: number) => void;
-    onNext: () => void;
+  lines: import("../../context/CartContext").CartLine[];
+  inc: (id: string, delta: number) => void;
+  setQty: (id: string, qty: number) => void;
+  onNext: () => void;
 };
 
-const CartSection: React.FC<CartSectionProps> = ({ lines, inc, onNext }) => {
-    const itemsCount = lines.reduce((s, l) => s + l.qty, 0);
-    return (
-        <div className="card">
-            <div className="card__head">
-                <h2 className="checkout__title">Cart</h2>
-                <span className="muted">{itemsCount} items</span>
-            </div>
-            {lines.length === 0 ? (
-                <div className="">
-                    <p>Your cart is empty.</p>
-                    <a className="btn" href="/">Return to shopping</a>
-                </div>
-            ) : (
-                <ul className="cart-list">
-                    {lines.map((it) => (
-                        <li key={it.id} className="cart-item">
-                            {it.image && <img src={it.image} alt="" loading="lazy" />}
-                            <div className="cart-item__meta">
-                                <h3>{it.title}</h3>
-                                <QtyStepper
-                                    value={it.qty}
-                                    min={0}
-                                    size="sm"
-                                    showMax={false}
-                                    ariaLabel={`Количество для ${it.title}`}
-                                    onChange={(q) => inc(it.id, q - it.qty)} // дельта от текущего
-                                    max={99}
-                                />
-                            </div>
-                            <div className="cart-item__price">{formatMoney(it.priceCents * it.qty)}</div>
-                        </li>
-                    ))}
-                </ul>
-            )}
-
-            <div className="card__foot">
-                <Button className="btn" size="large" disabled={lines.length === 0} onClick={onNext}>
-                    Proceed to delivery
-                </Button>
-            </div>
+const CartSection: React.FC<CartSectionProps> = ({ lines, inc, /* setQty, */ onNext }) => {
+  const itemsCount = lines.reduce((s, l) => s + l.qty, 0);
+  return (
+    <div className="card">
+      <div className="card__head">
+        <h2>Cart</h2>
+        <span className="muted">{itemsCount} items</span>
+      </div>
+      {lines.length === 0 ? (
+        <div>
+          <p>Your cart is empty.</p>
+          <a className="btn" href="/">
+            Return to shopping
+          </a>
         </div>
-    );
+      ) : (
+        <ul className="cart-list">
+          {lines.map((it) => (
+            <li key={it.id} className="cart-item">
+              {it.image && <img src={it.image} alt="" loading="lazy" />}
+              <div className="cart-item__meta">
+                <h3>{it.title}</h3>
+                <QtyStepper
+                  value={it.qty}
+                  min={0}
+                  size="sm"
+                  showMax={false}
+                  ariaLabel={`Количество для ${it.title}`}
+                  onChange={(q) => inc(it.id, q - it.qty)}
+                  max={99}
+                />
+              </div>
+              <div className="cart-item__price">{formatMoney(it.priceCents * it.qty)}</div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="card__foot">
+        <Button className="btn" size="small" disabled={lines.length === 0} onClick={onNext}>
+          Proceed to account
+        </Button>
+      </div>
+    </div>
+  );
 };
+
+const AccountSection: React.FC<{
+  defaultEmail?: string;
+  onGuest: (email: string) => void;
+  onLogin: (data: { email: string; password: string }) => Promise<void> | void;
+  onRegister: (data: { firstName: string; lastName: string; email: string; password: string }) => Promise<void> | void;
+  onBack: () => void;
+  onAuthedContinue: () => void;
+  onSwitchAccount: () => void | Promise<void>;
+}> = ({ defaultEmail = "", onGuest, onLogin, onRegister, onBack, onAuthedContinue, onSwitchAccount }) => {
+  // ВСЕ хуки — только тут, в самом верху компонента
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
+
+  const [tab, setTab] = useState<"guest" | "login" | "register">("guest");
+
+  // Guest
+  const [guestEmail, setGuestEmail] = useState(defaultEmail);
+
+  // Login
+  const [loginEmail, setLoginEmail] = useState(defaultEmail);
+  const [loginPass, setLoginPass] = useState("");
+
+  // Register
+  const [rFirst, setRFirst] = useState("");
+  const [rLast, setRLast] = useState("");
+  const [rEmail, setREmail] = useState(defaultEmail);
+  const [rPass, setRPass] = useState("");
+
+  // если defaultEmail меняется (например после логаута/префила) — обновим поля
+  useEffect(() => {
+    setGuestEmail(defaultEmail);
+    setLoginEmail(defaultEmail);
+    setREmail(defaultEmail);
+  }, [defaultEmail]);
+
+  // --- дальше уже можно делать ранние возвраты
+  if (authLoading) {
+    return (
+      <div className="card">
+        <div className="card__head"><h2>Account</h2></div>
+        <div className="muted">Checking session…</div>
+        <div className="actions" style={{ marginTop: 8 }}>
+          <Button size="small" variant="secondary" onClick={onBack} type="button">Back</Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    const nameOrEmail =
+      (user as any)?.firstName || (user as any)?.lastName
+        ? `${(user as any)?.firstName ?? ""} ${(user as any)?.lastName ?? ""}`.trim()
+        : (user as any)?.email ?? "Account";
+    return (
+      <div className="card">
+        <div className="card__head"><h2>Account</h2></div>
+        <div className="info" style={{ marginBottom: 12 }}>
+          You are signed in as <strong>{nameOrEmail}</strong>.
+        </div>
+        <div className="actions">
+          <Button size="small" variant="secondary" onClick={onBack} type="button">Back</Button>
+          <Button size="small" className="btn" onClick={onAuthedContinue} type="button">
+            Continue to delivery
+          </Button>
+          <Button size="small" className="btn btn--ghost" onClick={onSwitchAccount} type="button">
+            Switch account
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid-2">
+      <div className="card">
+        <div className="card__head">
+          <h2>Account</h2>
+        </div>
+        <nav className={styles.tabs}>
+          <button className={`${styles.tabs__tab} ${tab === "guest" ? `${styles["tabs__tab--active"]}` : ``}`} onClick={() => setTab("guest")}>
+            Continue as guest
+          </button>
+          <button className={`${styles.tabs__tab} ${tab === "login" ? `${styles["tabs__tab--active"]}` : ``}`} onClick={() => setTab("login")}>
+            Sign in
+          </button>
+          <button className={`${styles.tabs__tab} ${tab === "register" ? `${styles["tabs__tab--active"]}` : ``}`} onClick={() => setTab("register")}>
+            Register
+          </button>
+          <div className={styles.pill} aria-hidden />
+        </nav>
+
+        {tab === "guest" && (
+          <form
+            className="form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!/.+@.+\..+/.test(guestEmail)) return;
+              onGuest(guestEmail.trim());
+            }}
+          >
+            <TextField
+              label="Email"
+              type="email"
+              value={guestEmail}
+              onChange={(e) => setGuestEmail(e.target.value)}
+              placeholder="name@mail.com"
+              required
+            />
+            <div className="actions">
+              <Button size="small" variant="secondary" onClick={onBack} type="button">
+                Back
+              </Button>
+              <Button size="small" className="btn" type="submit" disabled={!/.+@.+\..+/.test(guestEmail)}>
+                Continue to delivery
+              </Button>
+            </div>
+          </form>
+        )}
+
+        {tab === "login" && (
+          <form
+            className="form"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!/.+@.+\..+/.test(loginEmail) || loginPass.length < 6) return;
+              await onLogin({ email: loginEmail.trim(), password: loginPass });
+            }}
+          >
+            <TextField label="Email" type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required />
+            <TextField label="Password" type="password" value={loginPass} onChange={(e) => setLoginPass(e.target.value)} required />
+            <div className="actions">
+              <Button size="small" variant="secondary" onClick={onBack} type="button">
+                Back
+              </Button>
+              <Button size="small" className="btn" type="submit" disabled={!/.+@.+\..+/.test(loginEmail) || loginPass.length < 6}>
+                Sign in & continue
+              </Button>
+            </div>
+          </form>
+        )}
+
+        {tab === "register" && (
+          <form
+            className="form"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!/.+@.+\..+/.test(rEmail) || rPass.length < 6 || rFirst.trim().length < 2 || rLast.trim().length < 2) return;
+              await onRegister({ firstName: rFirst.trim(), lastName: rLast.trim(), email: rEmail.trim(), password: rPass });
+            }}
+          >
+            <div className="form__row">
+              <TextField label="First Name" value={rFirst} onChange={(e) => setRFirst(e.target.value)} required />
+              <TextField label="Last Name" value={rLast} onChange={(e) => setRLast(e.target.value)} required />
+            </div>
+            <TextField label="Email" type="email" value={rEmail} onChange={(e) => setREmail(e.target.value)} required />
+            <TextField label="Password" type="password" value={rPass} onChange={(e) => setRPass(e.target.value)} required />
+            <div className="actions">
+              <Button size="small" variant="secondary" onClick={onBack} type="button">
+                Back
+              </Button>
+              <Button
+                size="small"
+                className="btn"
+                type="submit"
+                disabled={
+                  !/.+@.+\..+/.test(rEmail) || rPass.length < 6 || rFirst.trim().length < 2 || rLast.trim().length < 2
+                }
+              >
+                Create account & continue
+              </Button>
+            </div>
+          </form>
+        )}
+      </div>
+
+      <div className="card">
+        <div className="card__head">
+          <h2>Why create an account?</h2>
+        </div>
+        <ul className="bullets">
+          <li>Faster checkout next time</li>
+          <li>Track orders and returns</li>
+          <li>Exclusive offers</li>
+        </ul>
+      </div>
+    </div>
+  );
+};
+
 
 type AddressSectionProps = {
-    address: Address;
-    setAddress: (a: Address) => void;
-    shipping: ShippingMethod;
-    setShipping: (s: ShippingMethod) => void;
-    onPrev: () => void;
-    onNext: () => void;
-    canContinue: boolean;
-    subtotal: number;
+  address: FormAddress;
+  setAddress: (a: FormAddress) => void;
+
+  shipping: ShippingUi | null;
+  setShipping: (s: ShippingUi) => void;
+  shippingOptions: ShippingUi[];
+  shipLoading: boolean;
+  shipError: string | null;
+
+  onPrev: () => void;
+  onNext: () => void;
+  canContinue: boolean;
+
+  // + новое
+  isAuthed?: boolean;
+  savedAddresses: AccountAddress[];
+  selectedAddrId: string | "manual";
+  onSelectSavedAddr: (id: string | "manual") => void;
+  fieldsDisabled?: boolean;
 };
 
-const AddressSection: React.FC<AddressSectionProps> = ({ address, setAddress, shipping, setShipping, onPrev, onNext, canContinue, subtotal }) => {
-    const set = (k: keyof Address) => (e: React.ChangeEvent<HTMLInputElement>) => setAddress({ ...address, [k]: e.target.value });
+const AddressSection: React.FC<AddressSectionProps> = ({
+  address, setAddress,
+  shipping, setShipping, shippingOptions, shipLoading, shipError,
+  onPrev, onNext, canContinue,
+  isAuthed = false, savedAddresses, selectedAddrId, onSelectSavedAddr, fieldsDisabled = false,
+}) => {
+  const set =
+    (k: keyof FormAddress) =>
+      (e: React.ChangeEvent<HTMLInputElement>) =>
+        setAddress({ ...address, [k]: e.target.value });
 
-    return (
-        <div className="grid-2">
-            <div className="card">
-                <div className="card__head"><h2>Address</h2></div>
-                <form className="form" onSubmit={(e) => e.preventDefault()}>
-                    <div className="form__row">
-                        <TextField label="Full Name" value={address.fullName} onChange={set("fullName")} placeholder="John Doe" required />
-                        <TextField label="Email" type="email" value={address.email} onChange={set("email")} placeholder="name@mail.com" required />
-                    </div>
-                    <div className="form__row">
-                        <TextField label="Phone" value={address.phone} onChange={set("phone")} placeholder="+49 170 000000" required />
-                        <TextField label="Postal Code" value={address.postalCode} onChange={set("postalCode")} placeholder="10115" required />
-                    </div>
-                    <div className="form__row">
-                        <TextField label="Street Address" value={address.street} onChange={set("street")} placeholder="Unter den Linden 1" required />
-                    </div>
-                    <div className="form__row">
-                        <TextField label="City" value={address.city} onChange={set("city")} placeholder="Berlin" required />
-                        <TextField label="Country" value={address.country} onChange={set("country")} placeholder="Deutschland" required />
-                    </div>
-                </form>
-            </div>
+  const canProceed = canContinue && !!shipping && !shipLoading && !shipError && shippingOptions.length > 0;
 
-            <div className="card">
-                <div className="card__head"><h2>Shipping Method</h2></div>
-                <div className="shipping">
-                    {SHIPPING_METHODS.map((m) => {
-                        const freeByThreshold = m.id === "standard" && subtotal >= FREE_SHIPPING_THRESHOLD_CENTS;
-                        const effectivePrice = freeByThreshold ? 0 : m.priceCents;
-                        return (
-                            <label key={m.id} className={`ship ${shipping.id === m.id ? "is-selected" : ""}`}>
-                                <input type="radio" name="shipping" checked={shipping.id === m.id} onChange={() => setShipping(m)} />
-                                <div className="ship__body">
-                                    <div className="ship__label">
-                                        <strong>{m.label}</strong>
-                                        <span className="muted">{m.eta}</span>
-                                    </div>
-                                    <div className="ship__price">{effectivePrice === 0 ? "Free" : formatMoney(effectivePrice)}</div>
-                                </div>
-                            </label>
-                        );
-                    })}
-                </div>
-            </div>
+  const addrOptions = [
+    { value: "manual", label: "— Enter a new address —" },
+    ...savedAddresses.map(a => ({
+      value: a.id,
+      label: `${a.isDefault ? "Default • " : ""}${a.firstName} ${a.lastName}, ${a.city}, ${a.country}`,
+    })),
+  ];
 
-            <div className="actions">
-                <Button className="btn btn--ghost" size="large" onClick={onPrev}>Back</Button>
-                <Button className="btn" size="large" onClick={onNext} disabled={!canContinue}>Proceed to Payment</Button>
-            </div>
+  return (
+    <div className="grid-2">
+      <div className="card">
+        <div className="card__head">
+          <h2>Address</h2>
         </div>
-    );
+
+        {isAuthed && savedAddresses.length > 0 && (
+          <div className="form" style={{ marginBottom: 8 }}>
+            <SelectField
+              label="Saved address"
+              value={selectedAddrId}
+              onChange={(v) => onSelectSavedAddr((v as any) || "manual")}
+              options={addrOptions}
+              minWidth="100%"
+              dropdownMinWidth="100%"
+            />
+            {selectedAddrId !== "manual" && (
+              <div className="muted" style={{ marginTop: 6 }}>
+                This address comes from your account. Edit it in <a href="/account?tab=addresses">Addresses</a>.
+              </div>
+            )}
+          </div>
+        )}
+
+        <form className="form" onSubmit={(e) => e.preventDefault()}>
+          <div className="form__row">
+            <TextField label="First Name" value={address.firstName} onChange={set("firstName")} placeholder="John" required disabled={fieldsDisabled} />
+            <TextField label="Last Name" value={address.lastName} onChange={set("lastName")} placeholder="Doe" required disabled={fieldsDisabled} />
+          </div>
+          <div className="form__row">
+            <TextField label="Email" type="email" value={address.email} onChange={set("email")} placeholder="name@mail.com" required disabled={fieldsDisabled} />
+            <TextField label="Phone" value={address.phone} onChange={set("phone")} placeholder="+49 170 000000" required disabled={fieldsDisabled} />
+          </div>
+          <div className="form__row">
+            <TextField label="Address 1" value={address.line1} onChange={set("line1")} placeholder="Unter den Linden 1" required disabled={fieldsDisabled} />
+            <TextField label="Address 2 (optional)" value={address.line2 ?? ""} onChange={set("line2")} placeholder="Apt, suite, etc." disabled={fieldsDisabled} />
+          </div>
+          <div className="form__row">
+            <TextField label="City" value={address.city} onChange={set("city")} placeholder="Berlin" required disabled={fieldsDisabled} />
+            <TextField label="Country" value={address.country} onChange={set("country")} placeholder="Deutschland" required disabled={fieldsDisabled} />
+          </div>
+          <div className="form__row">
+            <TextField label="Postal Code" value={address.postalCode} onChange={set("postalCode")} placeholder="10115" required disabled={fieldsDisabled} />
+          </div>
+        </form>
+      </div>
+
+      <div className="card">
+        <div className="card__head">
+          <h2>Shipping Method</h2>
+        </div>
+
+        {shipLoading && (
+          <div className="muted" style={{ marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
+            <div className={styles.checkout__spinner} style={{ width: 16, height: 16 }} />
+            Loading options…
+          </div>
+        )}
+        {shipError && (
+          <div className="warn" style={{ marginBottom: 8 }}>
+            Failed to load shipping options. Try again later.
+          </div>
+        )}
+        {!shipLoading && !shipError && shippingOptions.length === 0 && (
+          <div className="muted">No shipping methods available for your country.</div>
+        )}
+
+        <RadioCard
+          name="shipping"
+          value={shipping?.id ?? ""}
+          onChangeValue={(id) => {
+            const found = shippingOptions.find((o) => o.id === id);
+            if (found) setShipping(found);
+          }}
+          items={shippingOptions.map((m) => ({
+            id: m.id,
+            title: <strong>{m.label}</strong>,
+            subtitle: <span>({m.effectivePriceCents === 0 ? "Free" : formatMoney(m.effectivePriceCents)})</span>,
+            caption: m.eta && <span className="muted">{m.eta}</span>,
+            icon: carrierIconFor(m),
+          }))}
+        />
+      </div>
+
+      <div className="actions">
+        <Button size="small" variant="secondary" onClick={onPrev}>
+          Back
+        </Button>
+        <Button className="btn" size="small" onClick={onNext} disabled={!canProceed}>
+          Proceed to Payment
+        </Button>
+      </div>
+    </div>
+  );
 };
 
+// ---------- Payment
 const PaymentSection: React.FC<{
-    total: number;
-    acceptTerms: boolean;
-    setAcceptTerms: (b: boolean) => void;
-    onPrev: () => void;
-    onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-}> = ({ total, acceptTerms, setAcceptTerms, onPrev, onSubmit }) => {
+  displayTotal: number;
+  acceptTerms: boolean;
+  setAcceptTerms: (b: boolean) => void;
+  onPrev: () => void;
+  onSubmitManual: (e: React.FormEvent<HTMLFormElement>) => void;
+  onSubmitStripe: (e: React.FormEvent<HTMLFormElement>, args: { stripe: any; elements: any; holder: string }) => void;
+  disablePay?: boolean;
+  provider: "stripe" | "paypal" | "invoice";
+  preparePayPalPayment: () => Promise<{
+    paypalOrderId: string;
+    paymentId: string;
+    orderNo: string;
+    approvalUrl?: string;
+  }>;
+  onPayPalApproved: (paymentId: string, orderNo: string) => Promise<void>;
+}> = ({
+  displayTotal,
+  acceptTerms,
+  setAcceptTerms,
+  onPrev,
+  onSubmitManual,
+  onSubmitStripe,
+  disablePay,
+  provider,
+  preparePayPalPayment,
+  onPayPalApproved,
+}) => {
+    // Общее поле держателя для Stripe
     const [cardName, setCardName] = useState("");
-    const [cardNumber, setCardNumber] = useState("");
-    const [exp, setExp] = useState("");
-    const [cvc, setCvc] = useState("");
-    const [brand, setBrand] = useState<CardBrand>("unknown");
 
-    const digits = cardNumber.replace(/\s+/g, "");
-    const rule = BRAND_RULES[brand];
-    const cardLenOk = lengthOkForBrand(brand, digits.length);
-    const luhnOk = digits.length >= 12 && luhnCheck(digits);
-    const cardOk = cardLenOk && luhnOk;
+    if (provider === "stripe") {
+      return (
+        <div className="grid-2">
+          <div className="card">
+            <div className="card__head">
+              <h2>Payment</h2>
+            </div>
 
-    const expOk = expiryValid(exp);
-    const cvcMax = rule.cvc;
-    const cvcOk = new RegExp(`^\\d{${cvcMax}}$`).test(cvc);
-
-    // --- Тексты ошибок для TextField
-    const nameError =
-        cardName.trim().length === 0 ? "Укажите имя как на карте" :
-            cardName.trim().length < 3 ? "Слишком короткое имя" : undefined;
-
-    let numberError: string | undefined;
-    if (digits.length > 0 && !cardLenOk) {
-        numberError = `Неверная длина для ${rule.label}`;
-    } else if (digits.length > 0 && !luhnOk) {
-        numberError = "Проверьте номер карты (Луна)";
+            <Elements stripe={stripePromise}>
+              <StripeForm
+                cardName={cardName}
+                setCardName={setCardName}
+                acceptTerms={acceptTerms}
+                setAcceptTerms={setAcceptTerms}
+                onPrev={onPrev}
+                onSubmitStripe={onSubmitStripe}
+                disablePay={disablePay}
+                displayTotal={displayTotal}
+                nameError={cardName.trim().length === 0 ? "Укажите имя как на карте" : undefined}
+              />
+            </Elements>
+          </div>
+        </div>
+      );
     }
 
-    const expError =
-        exp.length > 0 && !expOk ? "Неверная дата или карта просрочена" : undefined;
-
-    const cvcError =
-        cvc.length > 0 && !cvcOk ? `CVC должен быть из ${cvcMax} цифр` : undefined;
-
-    const formOk = !nameError && cardOk && expOk && cvcOk && acceptTerms;
-
-    return (
+    if (provider === "paypal") {
+      return (
         <div className="grid-2">
-            <div className="card">
-                <div className="card__head"><h2>Payment</h2></div>
-
-                <form className="form" onSubmit={onSubmit} noValidate>
-                    <TextField
-                        label="Cardholder"
-                        value={cardName}
-                        onChange={(e) => setCardName(e.target.value)}
-                        placeholder="IVAN IVANOV"
-                        required
-                        autoComplete="cc-name"
-                        error={nameError}
-                    />
-
-                    <TextField
-                        label={`Card Number${brand !== "unknown" ? ` (${rule.label})` : ""}`}
-                        value={cardNumber}
-                        onChange={(e) => {
-                            const raw = e.target.value;
-                            const onlyDigits = raw.replace(/\D/g, "");
-                            const b = detectBrand(onlyDigits);
-                            setBrand(b);
-                            setCardNumber(formatCardNumber(raw, b));
-                            // подрежем CVC под бренд
-                            const cvcLen = BRAND_RULES[b].cvc;
-                            setCvc((prev) => prev.replace(/\D/g, "").slice(0, cvcLen));
-                        }}
-                        placeholder="1234 5678 9012 3456"
-                        inputMode="numeric"
-                        pattern="[0-9\s]*"
-                        autoComplete="cc-number"
-                        error={numberError}
-                        hint="Мы не сохраняем данные карты"
-                    />
-
-                    <div className="form__row">
-                        <TextField
-                            label="Expiration Date (MM/YY)"
-                            value={exp}
-                            onChange={(e) => setExp(formatExpiryInput(e.target.value))}
-                            placeholder="08/28"
-                            inputMode="numeric"
-                            maxLength={5}
-                            autoComplete="cc-exp"
-                            error={expError}
-                        />
-
-                        <TextField
-                            label={`CVC${brand === "amex" ? " (4 digits)" : ""}`}
-                            value={cvc}
-                            onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, cvcMax))}
-                            placeholder={brand === "amex" ? "1234" : "123"}
-                            inputMode="numeric"
-                            pattern={brand === "amex" ? "\\d{4}" : "\\d{3}"}
-                            maxLength={cvcMax}
-                            autoComplete="cc-csc"
-                            error={cvcError}
-                            hint={brand === "amex" ? "Для AmEx — 4 цифры" : "Для остальных — 3 цифры"}
-                        />
-                    </div>
-
-                    <div className="card__head"><h2>Secure Payment</h2></div>
-
-                    <div className="col-row card__section">
-                        <div aria-hidden>
-                            <div className="cc">
-                                <div className="cc__chip" />
-                                <div className="cc__num">{cardNumber || "•••• •••• •••• ••••"}</div>
-                                <div className="cc__row">
-                                    <span>{cardName || "CARDHOLDER"}</span>
-                                    <span>{exp || "MM/YY"}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <ul className="bullets">
-                            <li>TLS 1.2 encryption</li>
-                            <li>Two-step transaction verification</li>
-                            <li>We do not store card data</li>
-                        </ul>
-                    </div>
-
-                    <CheckboxField
-                        checked={acceptTerms}
-                        onChange={(e) => setAcceptTerms(e.target.checked)}
-                        label={<>I <a href="#terms">accept the terms and conditions</a></>}
-                    />
-
-                    <div className="actions">
-                        <Button className="btn btn--ghost" onClick={onPrev}>Back</Button>
-                        <Button className="btn btn--xl" type="submit" disabled={!formOk}>
-                            Pay {formatMoney(total)}
-                        </Button>
-                    </div>
-                </form>
+          <div className="card">
+            <div className="card__head">
+              <h2>Payment</h2>
             </div>
+
+            <PayPalForm
+              acceptTerms={acceptTerms}
+              setAcceptTerms={setAcceptTerms}
+              onPrev={onPrev}
+              disablePay={disablePay}
+              preparePayPalPayment={preparePayPalPayment}
+              onPayPalApproved={onPayPalApproved}
+              displayTotal={displayTotal}
+            />
+          </div>
         </div>
+      );
+    }
+
+    // Manual — «Оплата по счёту / банковский перевод»
+    return (
+      <div className="grid-2">
+        <div className="card">
+          <div className="card__head">
+            <h2>Payment</h2>
+          </div>
+
+          <form className="form" onSubmit={onSubmitManual} noValidate>
+            <div className="info" style={{ marginBottom: 12 }}>
+              Мы оформим заказ и вышлем вам на e-mail инструкции по оплате (счёт/реквизиты). Обработка может занять 1–2 рабочих
+              дня.
+            </div>
+
+            <CheckboxField
+              checked={acceptTerms}
+              onChange={(e) => setAcceptTerms(e.target.checked)}
+              label={
+                <>
+                  I <a href="#terms">accept the terms and conditions</a>
+                </>
+              }
+            />
+
+            <div className="actions">
+              <Button size="small" variant="secondary" onClick={onPrev} type="button">
+                Back
+              </Button>
+              <Button size="small" className="btn btn--xl" type="submit" disabled={!!disablePay || !acceptTerms}>
+                Place order — {formatMoney(displayTotal)}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
     );
+  };
+
+// Внутренняя форма для Stripe (под <Elements>)
+const StripeForm: React.FC<{
+  cardName: string;
+  setCardName: (s: string) => void;
+  acceptTerms: boolean;
+  setAcceptTerms: (b: boolean) => void;
+  onPrev: () => void;
+  onSubmitStripe: (e: React.FormEvent<HTMLFormElement>, args: { stripe: any; elements: any; holder: string }) => void;
+  disablePay?: boolean;
+  displayTotal: number;
+  nameError?: string;
+}> = ({ cardName, setCardName, acceptTerms, setAcceptTerms, onPrev, onSubmitStripe, disablePay, displayTotal, nameError }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+
+  const stripeFormOk = !!stripe && !!elements && cardName.trim().length >= 3 && acceptTerms;
+  const payDisabled = !!disablePay || !stripeFormOk;
+
+  const inputStyle = {
+    iconColor: "#c4f0ff",
+    fontWeight: "400",
+    lineHeight: "43px",
+    fontFamily: "Inter, Open Sans, Segoe UI, sans-serif",
+    fontSize: "16px",
+    fontSmoothing: "antialiased",
+    ":-webkit-autofill": {
+      color: "#fce883",
+    },
+    "::placeholder": {
+      color: "#9CA3AF",
+    },
+  } as any;
+
+  return (
+    <form
+      className="form"
+      onSubmit={(e) => {
+        if (!stripe || !elements) return e.preventDefault();
+        return onSubmitStripe(e, { stripe, elements, holder: cardName.trim() });
+      }}
+      noValidate
+    >
+      <TextField
+        label="Cardholder"
+        value={cardName}
+        onChange={(e) => setCardName(e.target.value)}
+        placeholder="IVAN IVANOV"
+        required
+        autoComplete="cc-name"
+        error={nameError}
+      />
+
+      <div className="field">
+        <label className="label">Card Number</label>
+        <div className="stripe-input">
+          <CardNumberElement
+            options={{
+              placeholder: "1234 1234 1234 1234",
+              style: { base: inputStyle },
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="form__row">
+        <div className="field">
+          <label className="label">Expiration (MM/YY)</label>
+          <div className="stripe-input">
+            <CardExpiryElement
+              options={{
+                placeholder: "MM/YY",
+                style: { base: inputStyle },
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="field">
+          <label className="label">CVC</label>
+          <div className="stripe-input">
+            <CardCvcElement
+              options={{
+                placeholder: "CVC",
+                style: { base: inputStyle },
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <CheckboxField
+        checked={acceptTerms}
+        onChange={(e) => setAcceptTerms(e.target.checked)}
+        label={
+          <>
+            I <a href="#terms">accept the terms and conditions</a>
+          </>
+        }
+      />
+
+      <div className="actions">
+        <Button size="small" variant="secondary" onClick={onPrev}>
+          Back
+        </Button>
+        <Button size="small" className="btn btn--xl" type="submit" disabled={payDisabled}>
+          Pay {formatMoney(displayTotal)}
+        </Button>
+      </div>
+    </form>
+  );
 };
 
+const PayPalForm: React.FC<{
+  acceptTerms: boolean;
+  setAcceptTerms: (b: boolean) => void;
+  onPrev: () => void;
+  disablePay?: boolean;
+  displayTotal: number;
+  preparePayPalPayment: () => Promise<{ paypalOrderId: string; paymentId: string; orderNo: string; approvalUrl?: string }>;
+  onPayPalApproved: (paymentId: string, orderNo: string) => Promise<void>;
+}> = ({ acceptTerms, setAcceptTerms, onPrev, disablePay, displayTotal, preparePayPalPayment, onPayPalApproved }) => {
+  const [busy, setBusy] = useState(false);
+  const paymentIdRef = React.useRef<string | null>(null);
+  const orderNoRef = React.useRef<string | null>(null);
+  const chRef = React.useRef<BroadcastChannel | null>(null);
 
+  const openInNewTab = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!acceptTerms) {
+      alert("Подтвердите согласие с условиями.");
+      return;
+    }
+    if (disablePay || busy) return;
+
+    setBusy(true);
+    let tab: Window | null = null;
+    let closePoll: number | null = null;
+
+    const cleanup = () => {
+      if (closePoll) window.clearInterval(closePoll);
+      try {
+        chRef.current?.close();
+      } catch { }
+      window.removeEventListener("message", onMessage);
+      try {
+        tab && tab.close();
+      } catch { }
+      setBusy(false);
+    };
+
+    try {
+      chRef.current = new BroadcastChannel("pp-redirect");
+      chRef.current.onmessage = async (ev) => {
+        const data = ev?.data || {};
+        if (data?.type !== "paypal-approved") return;
+        try {
+          if (!paymentIdRef.current || !orderNoRef.current) throw new Error("Нет paymentId/orderNo");
+          await onPayPalApproved(paymentIdRef.current, orderNoRef.current);
+        } finally {
+          cleanup();
+        }
+      };
+    } catch {
+      // старые браузеры — без BroadcastChannel
+    }
+
+    const onMessage = async (ev: MessageEvent) => {
+      const data = ev?.data || {};
+      if (data?.type !== "paypal-approved") return;
+      try {
+        if (!paymentIdRef.current || !orderNoRef.current) throw new Error("Нет paymentId/orderNo");
+        await onPayPalApproved(paymentIdRef.current, orderNoRef.current);
+      } finally {
+        cleanup();
+      }
+    };
+    window.addEventListener("message", onMessage);
+
+    try {
+      const { paypalOrderId, paymentId, orderNo, approvalUrl } = await preparePayPalPayment();
+      paymentIdRef.current = paymentId;
+      orderNoRef.current = orderNo;
+
+      const href = approvalUrl || `https://www.sandbox.paypal.com/checkoutnow?token=${paypalOrderId}`;
+
+      tab = window.open(href, "_blank");
+      if (!tab) {
+        window.location.assign(href);
+        return;
+      }
+
+      closePoll = window.setInterval(() => {
+        if (tab && tab.closed) cleanup();
+      }, 700);
+    } catch (err: any) {
+      console.error(err);
+      alert(`PayPal: не удалось начать оплату. ${err?.message ?? err}`);
+      setBusy(false);
+    }
+  };
+
+  return (
+    <form className="form" onSubmit={openInNewTab} noValidate>
+      <div className="info" style={{ marginBottom: 12 }}>
+        You will be redirected to PayPal to complete your purchase — total {formatMoney(displayTotal)}.
+      </div>
+      <CheckboxField
+        checked={acceptTerms}
+        onChange={(e) => setAcceptTerms(e.target.checked)}
+        label={
+          <>
+            I <a href="#terms">accept the terms and conditions</a>
+          </>
+        }
+      />
+      <div className="actions">
+        <Button size="small" variant="secondary" onClick={onPrev} type="button">
+          Back
+        </Button>
+        <Button size="small" className="btn btn--xl" type="submit" disabled={!!disablePay || busy}>
+          Pay with PayPal
+        </Button>
+      </div>
+    </form>
+  );
+};
+
+// ---------- Success
 const SuccessSection: React.FC<{ orderNo?: string }> = ({ orderNo }) => (
-    <div className="success card">
-        <div className="success__icon" aria-hidden>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                width="80" height="80" role="img" aria-label="Заказ успешно оформлен"
-                style={{ "--w": 1.5, color: "#16a34a" } as React.CSSProperties}>
-                <circle cx="12" cy="12" r="10"
-                    fill="none" stroke="currentColor"
-                    stroke-width="var(--w, 4)" opacity="0.25"
-                    vector-effect="non-scaling-stroke" />
-                <path d="M7 12.5l3 3L17 9"
-                    fill="none" stroke="currentColor"
-                    stroke-width="var(--w, 4)"
-                    stroke-linecap="round" stroke-linejoin="round"
-                    vector-effect="non-scaling-stroke" />
-            </svg>
-        </div>
-        <h2>Thanks! Your order has been placed</h2>
-        {orderNo && (
-            <p className="success__order">Order number: <strong>{orderNo}</strong></p>
-        )}
-        <p className="muted">We have sent a confirmation to your email.</p>
-        <a className="btn" href="/">Continue Shopping</a>
+  <div className="success card">
+    <div className="success__icon" aria-hidden>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        width="80"
+        height="80"
+        role="img"
+        aria-label="Заказ успешно оформлен"
+        style={{ "--w": 1.5, color: "#16a34a" } as React.CSSProperties}
+      >
+        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth={1 as unknown as number} opacity="0.25" />
+        <path
+          d="M7 12.5l3 3L17 9"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1 as unknown as number}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
     </div>
+    <h2>Thanks! Your order has been placed</h2>
+    {orderNo && (
+      <p className="success__order">
+        Order number: <strong>{orderNo}</strong>
+      </p>
+    )}
+    <p className="muted">We have sent a confirmation to your email.</p>
+    <a className="btn" href="/">
+      Continue Shopping
+    </a>
+  </div>
 );
 
 // ---- Sidebar
 const OrderSummary: React.FC<{
-    lines: import("../../context/CartContext").CartLine[];
-    subtotal: number;
-    shipping: ShippingMethod;
-    vat: number;
-    discount: number;
-    total: number;
-    promo: string;
-    setPromo: (s: string) => void;
-    promoApplied: string | null;
-    applyPromo: () => void;
-    freeThresholdCents: number;
-    shippingCents: number;
-}> = ({ lines, subtotal, vat, discount, total, promo, setPromo, promoApplied, applyPromo, freeThresholdCents, shippingCents }) => {
+  lines: import("../../context/CartContext").CartLine[];
+  subtotal: number;
+  vat: number;
+  vatLabel: string;
+  discount: number;
+  total: number;
+  promo: string;
+  setPromo: (s: string) => void;
+  promoApplied: string | null;
+  applyPromo: () => void;
+  freeThresholdCents?: number;
+  shippingCents: number;
+  loading?: boolean;
+  quoteError?: string | null;
+  quoteReason?: string | null;
+}> = ({
+  lines,
+  subtotal,
+  vat,
+  vatLabel,
+  discount,
+  total,
+  promo,
+  setPromo,
+  promoApplied,
+  applyPromo,
+  freeThresholdCents,
+  shippingCents,
+  loading,
+  quoteError,
+  quoteReason,
+}) => {
+    const promoMsg = promoApplied
+      ? discount > 0
+        ? { kind: "ok", text: `Promo applied: ${promoApplied}` }
+        : { kind: "warn", text: quoteReason ? `Promo not applied: ${quoteReason}` : `Promo not applicable` }
+      : null;
+
     return (
-        <div className="summary">
-            <h3>Total</h3>
-            <ul className="summary__list">
-                <li><span>Items</span><span>{formatMoney(subtotal)}</span></li>
-                <li><span>Shipping</span><span>{shippingCents === 0 ? "Free" : formatMoney(shippingCents)}</span></li>
-                {discount > 0 && <li className="good"><span>Discount{promoApplied ? ` (${promoApplied})` : ""}</span><span>-{formatMoney(discount)}</span></li>}
-                <li><span>Including VAT (19%)</span><span>{formatMoney(vat)}</span></li>
-                <li className="sum"><span>To pay</span><span>{formatMoney(total)}</span></li>
-            </ul>
+      <div className="summary">
+        <h3>Total</h3>
 
-            <div className="promo">
-                <TextField label="Promo code" className="promo__input" id="promo" value={promo} onChange={(e) => setPromo(e.target.value)} placeholder="Promo code: SAVE10" />
-                <Button className="btn btn--ghost" size="small" disabled={!promo.trim()} onClick={applyPromo}>Apply</Button>
-            </div>
+        {loading && (
+          <div className="muted" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <div className={styles.checkout__spinner} style={{ width: 16, height: 16 }} />
+            Recalculating totals…
+          </div>
+        )}
+        {quoteError && (
+          <div className="warn" role="status" style={{ marginBottom: 8 }}>
+            Pricing service unavailable — totals are estimated.
+          </div>
+        )}
 
-            <div className="muted" style={{ marginTop: 8 }}>
-                Free shipment from {formatMoney(freeThresholdCents)}
-            </div>
+        <ul className="summary__list">
+          <li>
+            <span>Items</span>
+            <span>{formatMoney(subtotal)}</span>
+          </li>
+          <li>
+            <span>Shipping</span>
+            <span>{shippingCents === 0 ? "Free" : formatMoney(shippingCents)}</span>
+          </li>
+          {discount > 0 && (
+            <li className="good">
+              <span>
+                Discount{promoApplied ? ` (${promoApplied})` : ""}
+              </span>
+              <span>-{formatMoney(discount)}</span>
+            </li>
+          )}
+          <li>
+            <span>{vatLabel}</span>
+            <span>{formatMoney(vat)}</span>
+          </li>
+          <li className="sum">
+            <span>To pay</span>
+            <span>{formatMoney(total)}</span>
+          </li>
+        </ul>
 
-            <div className="summary__mini">
-                {lines.length === 0 ? (
-                    <p className="muted">Cart is empty</p>
-                ) : (
-                    lines.map((it) => (
-                        <div key={it.id} className="mini-item">
-                            {it.image && <img src={it.image} alt="" />}
-                            <div>
-                                <div className="mini-item__title">{it.title}</div>
-                                <div className="muted">×{it.qty}</div>
-                            </div>
-                            <div className="mini-item__price">{formatMoney(it.priceCents * it.qty)}</div>
-                        </div>
-                    ))
-                )}
-            </div>
+        <div className="promo">
+          <TextField
+            label="Promo code"
+            className="promo__input"
+            id="promo"
+            value={promo}
+            onChange={(e) => setPromo(e.target.value)}
+            placeholder="Promo code"
+          />
+          <Button className="btn btn--ghost" size="small" disabled={!promo.trim()} onClick={applyPromo}>
+            Apply
+          </Button>
         </div>
+
+        {promoMsg && <div className={promoMsg.kind === "ok" ? "good" : "warn"} style={{ marginTop: 6 }}>{promoMsg.text}</div>}
+
+        {typeof freeThresholdCents === "number" && freeThresholdCents > 0 && (
+          <div className="muted" style={{ marginTop: 8 }}>
+            Free shipment from {formatMoney(freeThresholdCents)}
+          </div>
+        )}
+
+        <div className="summary__mini">
+          {lines.length === 0 ? (
+            <p className="muted">Cart is empty</p>
+          ) : (
+            lines.map((it) => (
+              <div key={it.id} className="mini-item">
+                {it.image && <img src={it.image} alt="" />}
+                <div>
+                  <div className="mini-item__title">{it.title}</div>
+                  <div className="muted">×{it.qty}</div>
+                </div>
+                <div className="mini-item__price">{formatMoney(it.priceCents * it.qty)}</div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     );
-};
+  };

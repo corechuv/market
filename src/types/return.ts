@@ -1,4 +1,23 @@
 // src/types/return.ts
+import type { Currency } from "./currency";
+import type { Carriers } from "./delivery/carrier";
+import { paymentMethodLabel, type PaymentMethod } from "./payment/payment";
+
+type RefundBase = { label?: string };
+
+export type RefundDestination =
+  | (RefundBase & { kind: "original"; method: PaymentMethod })
+  | (RefundBase & { kind: "bank"; ibanMasked: string; holder?: string })
+  | (RefundBase & { kind: "store_credit" });
+
+export function refundDestinationLabel(dest?: RefundDestination): string {
+  if (!dest) return "—";
+  switch (dest.kind) {
+    case "original": return dest.label ?? paymentMethodLabel(dest.method);
+    case "bank": return dest.label ?? `Bank transfer (${dest.ibanMasked})`;
+    case "store_credit": return dest.label ?? "Store credit";
+  }
+}
 
 export type ReturnReason =
   | "too_small"
@@ -45,6 +64,22 @@ export type ReturnItemLine = {
   status?: ReturnLineStatus; // по умолчанию "pending" (если не задано)
 };
 
+export type ReturnLabelKind = "pdf" | "qr" | "link";
+
+export type ReturnLabel = {
+  kind: ReturnLabelKind;       // как выдаём: PDF-файл, QR или просто ссылка
+  carrier: Carriers;
+  createdAt: string;           // ISO
+  expiresAt?: string;          // ISO (опционально)
+  trackingNumber?: string;     // если есть от перевозчика
+  // PDF/ссылка:
+  labelUrl?: string;           // data:URL или https://… на PDF/PNG
+  // QR:
+  qrPayload?: string;          // сырая строка для кодирования
+  qrDataUrl?: string;          // PNG dataURL уже сгенерированного QR (для предпросмотра/печати)
+  dropoffHint?: string;        // подсказка: "Сдайте в DHL Filiale/Packstation"
+};
+
 export type ReturnRequest = {
   id: string;
   rma: string;
@@ -55,12 +90,14 @@ export type ReturnRequest = {
   orderId: string;
   orderNumber: string;
 
-  currency: "EUR" | "USD" | "RUB";
+  currency: Currency;
   items: ReturnItemLine[];        // допускаем несколько строк на один SKU
   merchandiseTotalCents: number;
 
   customerNote?: string;
   deliveredAt?: string;           // фактическая дата получения (для окна 14 дней)
+  label?: ReturnLabel;
+  refund?: RefundDestination;
 };
 
 export function returnStatusLabel(s: ReturnStatus) {

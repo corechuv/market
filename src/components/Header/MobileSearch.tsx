@@ -60,14 +60,40 @@ const MobileSearch: React.FC<MobileSearchProps> = ({
     const canUseDOM =
         typeof window !== "undefined" && typeof document !== "undefined";
 
-    const items: SearchItem[] = useMemo(
-        () =>
-            getProducts().map((p: { id: string | number; name: string }) => ({
-                id: String(p.id),
-                label: String(p.name),
-            })),
-        []
-    );
+    const [items, setItems] = useState<SearchItem[]>([]);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        (async () => {
+            try {
+                // поддерживаем обе версии: sync и async
+                const maybe = (getProducts as any)({ sort: "name" }); // можно без аргументов, если не нужно
+                const list = Array.isArray(maybe) ? maybe : await maybe;
+
+                // некоторые API возвращают { items } / { data } / { products }
+                const arr =
+                    Array.isArray(list)
+                        ? list
+                        : (list?.items ?? list?.data ?? list?.products ?? []);
+
+                const mapped: SearchItem[] = (Array.isArray(arr) ? arr : [])
+                    .map((p: any) => ({
+                        id: String(p?.id ?? p?.productId ?? ""),
+                        label: String(p?.name ?? p?.title ?? ""),
+                    }))
+                    .filter((x) => x.id && x.label);
+
+                if (!cancelled) setItems(mapped);
+            } catch {
+                if (!cancelled) setItems([]);
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     const [query, setQuery] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);

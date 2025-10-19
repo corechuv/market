@@ -1,6 +1,6 @@
 // src/components/UI/TextField.tsx
 import React, { useId } from "react";
-import cs from "./TextField.module.scss";
+import cls from "./TextField.module.scss";
 
 export type TextFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
   label?: string;
@@ -22,26 +22,26 @@ export const TextField: React.FC<TextFieldProps> = ({
   const errId = `${inputId}-err`;
 
   return (
-    <div className={cs.field}>
+    <div className={cls.field}>
       {label && (
-        <label className={cs.label} htmlFor={inputId}>
+        <label className={cls.field__label} htmlFor={inputId}>
           {label}
         </label>
       )}
       <input
         id={inputId}
         {...props}
-        className={[cs.input, error ? cs.inputError : "", className || ""].join(" ")}
+        className={[cls.field__input, error ? cls["field__input--error"] : "", className || ""].join(" ")}
         aria-invalid={!!error}
         aria-describedby={`${hint ? hintId : ""} ${error ? errId : ""}`.trim()}
       />
       {hint && (
-        <div id={hintId} className={cs.hint}>
+        <div id={hintId} className={cls["field__meta--error"]}>
           {hint}
         </div>
       )}
       {error && (
-        <div id={errId} className={cs.error} role="alert">
+        <div id={errId} className={cls.field__error} role="alert">
           {error}
         </div>
       )}

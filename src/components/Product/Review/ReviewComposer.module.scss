@@ -1,0 +1,195 @@
+// src/components/Product/Review/ReviewComposer.module.scss
+/*
+  — Нормальные, аккуратные стили для ReviewComposer
+  — Локальные переменные темы; адаптация к тёмной теме
+  — Оптимальные размеры кликов, адекватные фокусы, disabled-состояния
+*/
+
+.root {
+  /* Design tokens (локальные переменные модуля) */
+  --rc-radius: 12px;
+  --rc-pad: 12px;
+  --rc-gap: 10px;
+
+  --rc-bg: #fff;
+  --rc-text: #111;
+  --rc-muted: #777;
+  --rc-border: #e9e9ec;
+  --rc-track: #eee;
+  --rc-ring: #2563eb33; /* полупрозрачное синее */
+  --rc-primary: #2563eb; /* кнопка/акцент */
+  --rc-primary-pressed: #1e40af;
+  --rc-success: #16a34a;
+  --rc-danger: #c1121f;
+
+  display: grid;
+  gap: var(--rc-gap);
+}
+
+@media (prefers-color-scheme: dark) {
+  .root {
+    --rc-bg: #111417;
+    --rc-text: #e9eef3;
+    --rc-muted: #9aa5b1;
+    --rc-border: #232a31;
+    --rc-track: #1f242a;
+    --rc-ring: #60a5fa33;
+    --rc-primary: #60a5fa;
+    --rc-primary-pressed: #3b82f6;
+    --rc-success: #22c55e;
+    --rc-danger: #ef4444;
+  }
+}
+
+/* --- Верхняя панель управления --- */
+.controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--rc-text);
+}
+
+/* --- Бэйслайны для полей ввода --- */
+.input,
+.select,
+.textarea,
+.fileInput,
+.number {
+  appearance: none;
+  outline: none;
+  border: 1px solid var(--rc-border);
+  background: transparent;
+  color: inherit;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font: inherit;
+  line-height: 1.3;
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+/* Размеры и исключения */
+.number {
+  width: 60px; /* как в исходнике */
+  text-align: center;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 84px; /* rows={3} ≈ */
+}
+
+/* Фокусы/hover/disabled */
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible,
+.fileInput:focus-visible,
+.number:focus-visible {
+  border-color: var(--rc-primary);
+  box-shadow: 0 0 0 4px var(--rc-ring);
+}
+
+.input:hover,
+.select:hover,
+.textarea:hover,
+.fileInput:hover,
+.number:hover {
+  background: color-mix(in srgb, var(--rc-track) 35%, transparent);
+}
+
+.input:disabled,
+.select:disabled,
+.textarea:disabled,
+.fileInput:disabled,
+.number:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+/* --- Блок reel (загрузка видео) --- */
+.reel {
+  display: grid;
+  gap: 6px;
+}
+
+/* Стайлим input[type=file] максимально дружелюбно */
+.fileInput {
+  padding: 6px 10px;
+}
+.fileInput::-webkit-file-upload-button,
+.fileInput::file-selector-button {
+  margin-right: 10px;
+  border: 1px solid var(--rc-border);
+  background: color-mix(in srgb, var(--rc-primary) 8%, transparent);
+  color: var(--rc-text);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, transform .02s linear;
+}
+.fileInput::-webkit-file-upload-button:hover,
+.fileInput::file-selector-button:hover {
+  border-color: var(--rc-primary);
+}
+.fileInput::-webkit-file-upload-button:active,
+.fileInput::file-selector-button:active {
+  transform: translateY(1px);
+}
+
+/* --- Прогресс-бар --- */
+.progress {
+  font-size: 12px;
+}
+.progressTrack {
+  height: 6px;
+  background: var(--rc-track);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.progressBar {
+  height: 100%;
+  background: var(--rc-success);
+  width: 0%; /* ширина выставляется inline-стилем */
+  transition: width .2s ease;
+}
+
+/* --- Сообщения --- */
+.msg {
+  font-size: 12px;
+  color: #333;
+}
+.msgError {
+  color: var(--rc-danger);
+}
+
+/* Небольшая адаптивность */
+@media (max-width: 480px) {
+  .root {
+    --rc-pad: 10px;
+    --rc-radius: 10px;
+  }
+  .controls {
+    gap: 8px;
+  }
+}
+
+/* Предпочтение по снижению анимаций */
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .progressBar,
+  .input,
+  .select,
+  .textarea,
+  .fileInput,
+  .number {
+    transition: none;
+  }
+}

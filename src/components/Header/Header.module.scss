@@ -90,3 +90,17 @@
 .withShadow {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
+
+.logo {
+  height: 22px;        /* или любой другой размер */
+  width: auto;
+  display: block;
+  color: var(--text);  /* Задаёт цвет логотипа */
+
+}
+
+
+
+.logo-mobile {
+
+}

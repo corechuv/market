@@ -1,3 +1,4 @@
+// src/context/CartContext.tsx
 import React from "react";
 
 export type CartLine = {
@@ -12,7 +13,6 @@ export type CartLine = {
     qty: number;
 };
 
-
 export type CartState = {
     lines: CartLine[];
     add: (line: CartLine) => void;
@@ -22,14 +22,11 @@ export type CartState = {
     clear: () => void;
 };
 
-
 const LS_KEY = "cart_v1";
-
 
 function clamp(n: number, min: number, max: number) {
     return Math.max(min, Math.min(max, n));
 }
-
 
 function readLS(): CartLine[] {
     try {
@@ -40,21 +37,15 @@ function readLS(): CartLine[] {
     }
 }
 
-
 function writeLS(lines: CartLine[]) {
     try { localStorage.setItem(LS_KEY, JSON.stringify(lines)); } catch { }
 }
 
-
 const Ctx = React.createContext<CartState | null>(null);
-
 
 export const CartProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const [lines, setLines] = React.useState<CartLine[]>(() => readLS());
-
-
     React.useEffect(() => { writeLS(lines); }, [lines]);
-
 
     const add: CartState["add"] = (line) => {
         setLines((prev) => {
@@ -68,25 +59,19 @@ export const CartProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
         });
     };
 
-
     const setQty: CartState["setQty"] = (id, qty) => {
         setLines((prev) => prev.map((l) => (l.id === id ? { ...l, qty: clamp(qty, 0, 99) } : l)).filter((l) => l.qty > 0));
     };
 
-
     const inc: CartState["inc"] = (id, delta) => setQty(id, (lines.find((l) => l.id === id)?.qty ?? 0) + delta);
-
 
     const remove: CartState["remove"] = (id) => setLines((prev) => prev.filter((l) => l.id !== id));
 
-
     const clear: CartState["clear"] = () => setLines([]);
-
 
     const value: CartState = { lines, add, setQty, inc, remove, clear };
     return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 };
-
 
 export function useCart() {
     const ctx = React.useContext(Ctx);

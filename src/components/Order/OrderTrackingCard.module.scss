@@ -255,3 +255,16 @@
         grid-template-columns: 1fr;
     }
 }
+
+.qr__container {
+    background-color: white;
+    padding: 16px;
+    display: flex;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+
+    img {
+        width: 180px;
+        height: 180px;
+    }
+}

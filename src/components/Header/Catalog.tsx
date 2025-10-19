@@ -1,4 +1,4 @@
-// Catalog.tsx – desktop dropdown + mobile drawer (обновлено "категории → товары" свайп)
+// Catalog.tsx – desktop dropdown + mobile drawer
 import React, {
   useState,
   useCallback,
@@ -10,7 +10,13 @@ import React, {
 import { useNavigate } from "react-router-dom";
 
 import type { Category as Cat } from "../../types/category";
-import { getRootCategories, getChildren } from "../../services/categoryService";
+import {
+  getRootCategories,
+  getChildren,
+  subscribe,
+  syncFromApi,
+  getStatus,
+} from "../../services/categoryService";
 
 import cls from "./Catalog.module.scss";
 import CloseIcon from "../Icons/CloseIcon";
@@ -62,6 +68,20 @@ export default function Catalog({
 }: CatalogProps) {
   const nav = useNavigate();
 
+  // реактивность по событию из сервиса
+  const [tick, force] = React.useReducer((x) => x + 1, 0);
+  const [{ loaded, error }, setStatus] = useState(getStatus());
+
+  useEffect(() => {
+    const off = subscribe(() => {
+      setStatus(getStatus());
+      force();
+    });
+    // стартовая синхронизация
+    void syncFromApi().then(() => setStatus(getStatus()));
+    return off;
+  }, []);
+
   const [isHover, setIsHover] = useState(false);
   const [isMobile, setIsMobile] = useState<boolean>(
     typeof window !== "undefined" ? window.innerWidth < 768 : false
@@ -72,8 +92,9 @@ export default function Catalog({
     return () => window.removeEventListener("resize", h);
   }, []);
 
-  // 🔥 РУТЫ каталога (L1)
-  const roots = useMemo(() => getRootCategories(), []);
+  // L1 корни
+  const roots = useMemo(() => getRootCategories(), [tick]);
+  const isLoading = !loaded && roots.length === 0;
 
   // активный корень (desktop)
   const initialActive = useMemo<Cat | null>(() => {
@@ -102,18 +123,17 @@ export default function Catalog({
     onMobileDrawerOpenChange ? onMobileDrawerOpenChange(open) : setInternalOpen(open);
 
   const [stage, setStage] = useState<MobileStage>("L1");
-  const [rootCat, setRootCat] = useState<Cat | null>(null); // выбранный L1
-  const [l2Cat, setL2Cat] = useState<Cat | null>(null); // выбранный L2
+  const [rootCat, setRootCat] = useState<Cat | null>(null);
+  const [l2Cat, setL2Cat] = useState<Cat | null>(null);
 
-  const l2List = useMemo<Cat[]>(() => (rootCat ? getChildren(rootCat.id) : []), [rootCat]);
-  const l3List = useMemo<Cat[]>(() => (l2Cat ? getChildren(l2Cat.id) : []), [l2Cat]);
+  const l2List = useMemo<Cat[]>(() => (rootCat ? getChildren(rootCat.id) : []), [rootCat, tick]);
+  const l3List = useMemo<Cat[]>(() => (l2Cat ? getChildren(l2Cat.id) : []), [l2Cat, tick]);
 
   useEffect(() => {
     if (!drawerOpen) return;
     const esc = (e: KeyboardEvent) => e.key === "Escape" && closeDrawer();
     window.addEventListener("keydown", esc);
     return () => window.removeEventListener("keydown", esc);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawerOpen, stage]);
 
   const openL2 = (cat: Cat) => {
@@ -125,7 +145,6 @@ export default function Catalog({
   const openL3 = (cat: Cat) => {
     const children = getChildren(cat.id);
     if (!children.length) {
-      // нет L3 — сразу переходим
       closeDrawer();
       nav(`/category${cat.fullSlug}`);
       return;
@@ -135,15 +154,8 @@ export default function Catalog({
   };
 
   const back = () => {
-    if (stage === "L3") {
-      setStage("L2");
-      return;
-    }
-    if (stage === "L2") {
-      setStage("L1");
-      setL2Cat(null);
-      return;
-    }
+    if (stage === "L3") { setStage("L2"); return; }
+    if (stage === "L2") { setStage("L1"); setL2Cat(null); return; }
     closeDrawer();
   };
 
@@ -156,13 +168,11 @@ export default function Catalog({
 
   // свайп-назад (вправо) на L2/L3
   const touchStartX = useRef<number | null>(null);
-  const onTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
+  const onTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
   const onTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current == null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (dx > 60) back(); // свайп вправо → назад
+    if (dx > 60) back();
     touchStartX.current = null;
   };
 
@@ -182,21 +192,20 @@ export default function Catalog({
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // 🔥 L2/L3 для активного корня (desktop)
-  const level2 = useMemo(() => (active ? getChildren(active.id) : []), [active]);
+  // L2/L3 для активного корня (desktop)
+  const level2 = useMemo(() => (active ? getChildren(active.id) : []), [active, tick]);
   const level3ByL2 = useMemo(() => {
     const map = new Map<string, Cat[]>();
     level2.forEach((l2) => map.set(l2.id, getChildren(l2.id)));
     return map;
-  }, [level2]);
+  }, [level2, tick]);
 
   // класс экрана для слайдов
   const screenClass = (name: MobileStage) => {
     if (stage === name) return cls.screenActive;
     if (name === "L1") return stage === "L2" || stage === "L3" ? cls.screenHiddenLeft : cls.screenHiddenRight;
     if (name === "L2") return stage === "L1" ? cls.screenHiddenRight : cls.screenHiddenLeft;
-    // name === "L3"
-    return cls.screenHiddenRight;
+    return cls.screenHiddenRight; // L3
   };
 
   const handleClick = useCallback(
@@ -224,8 +233,7 @@ export default function Catalog({
       />
 
       <div
-        className={`${cls.catalogContainer} ${active ? cls.isOpen : ""} ${isHover ? cls.isHover : ""
-          }`}
+        className={`${cls.catalogContainer} ${active ? cls.isOpen : ""} ${isHover ? cls.isHover : ""}`}
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
       >
@@ -241,26 +249,40 @@ export default function Catalog({
             </button>
           )}
 
+          {/* Состояния загрузки/ошибки */}
+          {isLoading && (
+            <div className={cls.skeleton} role="status" aria-live="polite">
+              Загрузка каталога…
+            </div>
+          )}
+          {!isLoading && error && roots.length === 0 && (
+            <div className={cls.error} role="alert">
+              Не удалось загрузить категории. <button onClick={() => syncFromApi()}>Повторить</button>
+            </div>
+          )}
+
           {/* DESKTOP NAV: корневые категории */}
-          <ul className={cls.categories} aria-label="Catalog navigation">
-            {roots.map((cat) => (
-              <li key={cat.id} className={cls.categoryItem}>
-                <a
-                  href={`/category${cat.fullSlug}`}
-                  className={
-                    active?.id === cat.id
-                      ? `${cls.categoryLink} ${cls.categoryLinkActive}`
-                      : cls.categoryLink
-                  }
-                  onClick={(e) => handleClick(cat, e)}
-                  onMouseEnter={() => handleMouseEnter(cat)}
-                  aria-expanded={active?.id === cat.id}
-                >
-                  {cat.name}
-                </a>
-              </li>
-            ))}
-          </ul>
+          {!isLoading && roots.length > 0 && (
+            <ul className={cls.categories} aria-label="Catalog navigation">
+              {roots.map((cat) => (
+                <li key={cat.id} className={cls.categoryItem}>
+                  <a
+                    href={`/category${cat.fullSlug}`}
+                    className={
+                      active?.id === cat.id
+                        ? `${cls.categoryLink} ${cls.categoryLinkActive}`
+                        : cls.categoryLink
+                    }
+                    onClick={(e) => handleClick(cat, e)}
+                    onMouseEnter={() => handleMouseEnter(cat)}
+                    aria-expanded={active?.id === cat.id}
+                  >
+                    {cat.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
 
           {/* DESKTOP DROPDOWN */}
           {!isMobile && active && (
@@ -276,10 +298,9 @@ export default function Catalog({
                   </button>
                 )}
 
-                {/* Заголовок = активный корень */}
                 <h2 className={cls.panelTitle}>{active.name}</h2>
 
-                {/* 🔥 Группы: L2 как маленький тайтл, под ним список L3 */}
+                {/* группы L2 -> список L3 */}
                 <div className={cls.groupsGrid}>
                   {level2.map((l2) => {
                     const l3 = level3ByL2.get(l2.id) ?? [];
@@ -326,20 +347,24 @@ export default function Catalog({
             >
               {/* SCREEN L1: ROOTS */}
               <div className={screenClass("L1")}>
-                <ul className={cls.mobileCategories}>
-                  {roots.map((cat) => (
-                    <li key={cat.id}>
-                      <button
-                        className={cls.mobileCatBtn}
-                        onClick={() => openL2(cat)}
-                        aria-label={`Open ${cat.name}`}
-                      >
-                        {cat.name}
-                        <ChevronRightIcon className={cls.mobileChevron} />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+                {isLoading ? (
+                  <div className={cls.skeleton}>Загрузка…</div>
+                ) : (
+                  <ul className={cls.mobileCategories}>
+                    {roots.map((cat) => (
+                      <li key={cat.id}>
+                        <button
+                          className={cls.mobileCatBtn}
+                          onClick={() => openL2(cat)}
+                          aria-label={`Open ${cat.name}`}
+                        >
+                          {cat.name}
+                          <ChevronRightIcon className={cls.mobileChevron} />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
                 <div className={cls.mobileFooter}>
                   <a>Help</a>
@@ -372,12 +397,8 @@ export default function Catalog({
                 </div>
               </div>
 
-              {/* SCREEN L2: subcats of selected root */}
-              <div
-                className={screenClass("L2")}
-                onTouchStart={onTouchStart}
-                onTouchEnd={onTouchEnd}
-              >
+              {/* SCREEN L2 */}
+              <div className={screenClass("L2")} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
                 <button className={cls.backBtn} onClick={back} aria-label="Back to roots">
                   <ChevronLeftIcon /> Back
                 </button>
@@ -385,14 +406,10 @@ export default function Catalog({
                 {rootCat && (
                   <>
                     <h2 className={cls.panelTitle}>{rootCat.name}</h2>
-
                     <ul className={cls.groupList}>
                       {l2List.map((l2) => (
                         <li key={l2.id} className={cls.groupItem}>
-                          <a
-                            onClick={() => openL3(l2)}
-                            aria-label={`Open ${l2.name}`}
-                          >
+                          <a onClick={() => openL3(l2)} aria-label={`Open ${l2.name}`}>
                             {l2.name}
                             <ChevronRightIcon className={cls.mobileChevron} />
                           </a>
@@ -403,12 +420,8 @@ export default function Catalog({
                 )}
               </div>
 
-              {/* SCREEN L3: leafs of selected L2 */}
-              <div
-                className={screenClass("L3")}
-                onTouchStart={onTouchStart}
-                onTouchEnd={onTouchEnd}
-              >
+              {/* SCREEN L3 */}
+              <div className={screenClass("L3")} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
                 <button className={cls.backBtn} onClick={back} aria-label="Back to subcategories">
                   <ChevronLeftIcon /> Back
                 </button>
@@ -416,7 +429,6 @@ export default function Catalog({
                 {l2Cat && (
                   <>
                     <h2 className={cls.panelTitle}>{l2Cat.name}</h2>
-
                     <ul className={cls.groupList}>
                       {l3List.map((leaf) => (
                         <li key={leaf.id} className={cls.groupItem}>
