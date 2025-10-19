@@ -100,12 +100,28 @@ export const ReviewVideo: React.FC<Props> = ({
       startMonitor();
     }
 
-    // autoplay & initial mute
-    video.muted = muted ?? true;
+    // ---- Инициализация звука c учётом «глобального» флага
+    const globalSoundOn = (() => {
+      try { return localStorage.getItem('reels:sound_on') === '1'; } catch { return false; }
+    })();
+    const wantSound = globalSoundOn || !muted;
+    video.muted = !wantSound;
     setIsMuted(video.muted);
-    if (autoPlay) {
-      video.play().catch(() => { });
-    }
+
+    // Автоплей с фолбэком: если со звуком нельзя, сыграем в mute
+    const tryAutoplay = async () => {
+      if (!autoPlay) return;
+      try {
+        await video.play();
+      } catch {
+        if (!video.muted) {
+          video.muted = true;
+          setIsMuted(true);
+        }
+        try { await video.play(); } catch { /* окончательно сдаёмся */ }
+      }
+    };
+    tryAutoplay();
 
     // listeners for playback/position/buffer
     const onPlay = () => setIsPlaying(true);
@@ -120,12 +136,24 @@ export const ReviewVideo: React.FC<Props> = ({
       } catch { /* noop */ }
     };
 
+    // Глобальный «включи звук» — размьючиваем текущее видео
+    const onGlobalSoundOn = () => {
+      const v = videoRef.current;
+      if (!v) return;
+      if (v.muted) {
+        v.muted = false;
+        setIsMuted(false);
+        if (v.paused) v.play().catch(() => {});
+      }
+    };
+
     video.addEventListener('play', onPlay);
     video.addEventListener('pause', onPause);
     video.addEventListener('loadedmetadata', onLoadedMeta);
     video.addEventListener('durationchange', onLoadedMeta);
     video.addEventListener('timeupdate', onTimeUpdate);
     video.addEventListener('progress', onProgress);
+    window.addEventListener('reels:sound_on', onGlobalSoundOn);
 
     // init now (in case metadata is already available)
     onLoadedMeta(); onTimeUpdate(); onProgress();
@@ -137,6 +165,7 @@ export const ReviewVideo: React.FC<Props> = ({
       video.removeEventListener('durationchange', onLoadedMeta);
       video.removeEventListener('timeupdate', onTimeUpdate);
       video.removeEventListener('progress', onProgress);
+      window.removeEventListener('reels:sound_on', onGlobalSoundOn);
       destroy();
     };
   }, [hlsUrl, reviewId, productId, reviewType, userId, autoPlay, muted]);
@@ -145,7 +174,10 @@ export const ReviewVideo: React.FC<Props> = ({
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    v.muted = !!muted;
+    const globalSoundOn = (() => {
+      try { return localStorage.getItem('reels:sound_on') === '1'; } catch { return false; }
+    })();
+    v.muted = globalSoundOn ? false : !!muted;
     setIsMuted(v.muted);
   }, [muted]);
 
@@ -154,6 +186,18 @@ export const ReviewVideo: React.FC<Props> = ({
     (hlsUrl.startsWith('https://stream.mux.com/') && hlsUrl.includes('.m3u8')
       ? `https://image.mux.com/${hlsUrl.split('/').pop()!.split('.m3u8')[0]}/thumbnail.jpg?time=1`
       : undefined);
+
+  // локальный хелпер: первый клик по плееру тоже «разблокирует» звук
+  const ensureSoundUnlockedLocal = useCallback(() => {
+    try {
+      if (localStorage.getItem('reels:sound_on') !== '1') {
+        localStorage.setItem('reels:sound_on', '1');
+        window.dispatchEvent(new CustomEvent('reels:sound_on'));
+      }
+    } catch {
+      window.dispatchEvent(new CustomEvent('reels:sound_on'));
+    }
+  }, []);
 
   // ---- Controls: toggle play/pause
   const togglePlay = useCallback(() => {
@@ -172,12 +216,18 @@ export const ReviewVideo: React.FC<Props> = ({
     if (!v) return;
     v.muted = !v.muted;
     setIsMuted(v.muted);
+    if (!v.muted) {
+      // Пользователь явно включил звук — запомним и сообщим всем
+      try { localStorage.setItem('reels:sound_on', '1'); } catch {}
+      window.dispatchEvent(new CustomEvent('reels:sound_on'));
+    }
   }, []);
 
   // keyboard toggle when center button focused
   const onKeyDownBtn = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault();
+      ensureSoundUnlockedLocal();
       togglePlay();
     }
   };
@@ -213,7 +263,10 @@ export const ReviewVideo: React.FC<Props> = ({
   };
 
   // optional: clicking on the video surface also toggles
-  const onVideoClick = () => togglePlay();
+  const onVideoClick = () => {
+    ensureSoundUnlockedLocal();
+    togglePlay();
+  };
 
   const playedPct = duration > 0 ? (currentTime / duration) * 100 : 0;
   const bufferedPct = duration > 0 ? (Math.min(bufferedEnd, duration) / duration) * 100 : 0;
@@ -266,7 +319,7 @@ export const ReviewVideo: React.FC<Props> = ({
         type="button"
         aria-label={isPlaying ? 'Pause video' : 'Play video'}
         className={`${styles.centerBtn} ${isPlaying ? styles.hidden : ''}`}
-        onClick={togglePlay}
+        onClick={() => { ensureSoundUnlockedLocal(); togglePlay(); }}
         onKeyDown={onKeyDownBtn}
       >
         <span className={styles.visuallyHidden}>
