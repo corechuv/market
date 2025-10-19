@@ -316,8 +316,8 @@ export default function ReelsLightbox({ items, startIndex = 0, onClose, onIndexC
                 </div>
 
                 {/* нижняя панель */}
-                <div className={styles.bottomBar}>
-                    <div className={styles.metaLeft}>
+                <div className={styles.bar__bottom}>
+                    <div className={styles.meta}>
                         <div className={styles.info}>
                             <div className={styles.rating}>
                                 <StarIcon fill="#5dbc00" />
@@ -330,9 +330,9 @@ export default function ReelsLightbox({ items, startIndex = 0, onClose, onIndexC
                             {cur.review.verified && (<><span style={{ display: "none" }}>✅ verified</span></>)}
                         </div>
                     </div>
-                    <div className={styles.metaRight}>
+                    <div className={styles.meta}>
                         <button
-                            className={clsx(styles.helpfulBtn, helpful.mine && styles.helpfulActive)}
+                            className={clsx(styles.meta__btn, helpful.mine && styles.meta__btnActive)}
                             onClick={toggleHelpful}
                             disabled={busy}
                             aria-pressed={helpful.mine}
@@ -342,7 +342,7 @@ export default function ReelsLightbox({ items, startIndex = 0, onClose, onIndexC
                             <span className={styles.count}>{helpful.count}</span>
                         </button>
                         <button
-                            className={clsx(styles.helpfulBtn)}
+                            className={clsx(styles.meta__btn)}
                             onClick={onShare}
                             aria-label="Copy link"
                             title="Copy link"
