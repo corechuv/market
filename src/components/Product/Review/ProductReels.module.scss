@@ -1,9 +1,25 @@
 // src/components/Product/Review/ReviewReels.module.scss
 .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 14px;
+  --gap: 14px;
+  --cell: 200px;
+
+  display: grid;
+  gap: var(--gap);
+
+  /* ≥2 колонки всегда, ≤4 максимум */
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(
+      clamp(
+        calc((100% - 3 * var(--gap)) / 4), /* нижняя граница: не даёт стать >4 колонок */
+        var(--cell),                        /* желаемая ширина карточки ~200px */
+        calc((100% - 1 * var(--gap)) / 2)  /* верхняя граница: гарантирует ≥2 колонки */
+      ),
+      1fr
+    )
+  );
 }
+
 
 .thumb {
     display: flex;
