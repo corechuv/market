@@ -138,25 +138,32 @@ export default function ReelsLightbox({
   const ensureSoundUnlocked = React.useCallback(() => {
     if (unlockedRef.current) return;
     unlockedRef.current = true;
-    try {
-      localStorage.setItem("reels:sound_on", "1");
-    } catch {}
+    try { localStorage.setItem("reels:sound_on", "1"); } catch {}
     // синхронно уведомим все плееры
     window.dispatchEvent(new CustomEvent("reels:sound_on"));
   }, []);
+
+  // Глобальный «ловец» первого pointer-события вообще на странице (надёжнее, чем колесо/клавиши)
+  React.useEffect(() => {
+    const handler = () => ensureSoundUnlocked();
+    // capture+once — чтобы гарантированно попасть в тот же callstack жеста
+    document.addEventListener("pointerdown", handler, { once: true, capture: true });
+    document.addEventListener("touchstart", handler, { once: true, capture: true });
+    document.addEventListener("click", handler, { once: true, capture: true });
+    return () => {
+      document.removeEventListener("pointerdown", handler, true as any);
+      document.removeEventListener("touchstart", handler, true as any);
+      document.removeEventListener("click", handler, true as any);
+    };
+  }, [ensureSoundUnlocked]);
 
   // клавиши
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
-      if (e.key === "ArrowDown" || e.key === "PageDown") {
-        ensureSoundUnlocked();
-        go(1);
-      }
-      if (e.key === "ArrowUp" || e.key === "PageUp") {
-        ensureSoundUnlocked();
-        go(-1);
-      }
+      if (e.key === "ArrowDown" || e.key === "PageDown") { ensureSoundUnlocked(); go(1); }
+      if (e.key === "ArrowUp" || e.key === "PageUp")   { ensureSoundUnlocked(); go(-1); }
+      if (e.key === " " || e.key === "Enter") { ensureSoundUnlocked(); } // на случай Space/Enter
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -171,9 +178,7 @@ export default function ReelsLightbox({
       setBusy(true);
       setDir(d);
       // два rAF, чтобы гарантировать старт CSS-транзишна
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => setKick(true))
-      );
+      requestAnimationFrame(() => requestAnimationFrame(() => setKick(true)));
     },
     [busy, kick, hasNext, hasPrev]
   );
@@ -197,14 +202,8 @@ export default function ReelsLightbox({
     if (busy || kick) return;
     if (now - wheelLock.current < 250) return;
     wheelLock.current = now;
-    if (e.deltaY > 8) {
-      ensureSoundUnlocked();
-      go(1);
-    }
-    if (e.deltaY < -8) {
-      ensureSoundUnlocked();
-      go(-1);
-    }
+    if (e.deltaY > 8) { ensureSoundUnlocked(); go(1); }
+    if (e.deltaY < -8) { ensureSoundUnlocked(); go(-1); }
   };
 
   // свайпы
@@ -217,24 +216,16 @@ export default function ReelsLightbox({
     const s = touchStartY.current;
     if (s == null) return;
     const dy = e.changedTouches[0].clientY - s;
-    if (dy < -40) {
-      ensureSoundUnlocked();
-      go(1);
-    }
-    if (dy > 40) {
-      ensureSoundUnlocked();
-      go(-1);
-    }
+    if (dy < -40) { ensureSoundUnlocked(); go(1); }
+    if (dy > 40)  { ensureSoundUnlocked(); go(-1); }
     touchStartY.current = null;
   };
 
   // helpful
-  const [helpful, setHelpful] = React.useState<{ count: number; mine: boolean }>(
-    {
-      count: cur?.review.helpfulCount ?? 0,
-      mine: !!cur?.review.helpfulByMe,
-    }
-  );
+  const [helpful, setHelpful] = React.useState<{ count: number; mine: boolean }>({
+    count: cur?.review.helpfulCount ?? 0,
+    mine: !!cur?.review.helpfulByMe,
+  });
 
   React.useEffect(() => {
     setHelpful({
@@ -249,11 +240,8 @@ export default function ReelsLightbox({
       setBusy(true);
       const res = await setReviewHelpful(cur.review.id, !helpful.mine);
       setHelpful({ count: res.helpfulCount, mine: res.helpful });
-    } catch {
-      /* noop */
-    } finally {
-      setBusy(false);
-    }
+    } catch { /* noop */ }
+    finally { setBusy(false); }
   };
 
   // ===== SHARE =====
@@ -263,11 +251,8 @@ export default function ReelsLightbox({
     const origin = window.location.origin;
     const query = window.location.search || ""; // сохраним ?sort=...
     const url = `${origin}/videos/${cur.review.id}${query}`;
-    const title = cur.review.authorName
-      ? `${cur.review.authorName} — видео-отзыв`
-      : "Видео-отзыв";
-    const text =
-      (cur.review.text && cur.review.text.trim()) || "Посмотри этот отзыв";
+    const title = cur.review.authorName ? `${cur.review.authorName} — видео-отзыв` : "Видео-отзыв";
+    const text = (cur.review.text && cur.review.text.trim()) || "Посмотри этот отзыв";
 
     const navAny = navigator as any;
     try {
@@ -278,16 +263,13 @@ export default function ReelsLightbox({
         setCopied(true);
         setTimeout(() => setCopied(false), 1600);
       } else {
-        // максимально совместимый фолбэк
         window.prompt("Скопируйте ссылку:", url);
       }
-    } catch {
-      // юзер мог отменить — ничего
-    }
+    } catch { /* user cancelled */ }
   };
 
   if (!cur) return null;
-  // позиция трека: по умолчанию центр (-100%), а при анимации уходит к 0% (вверх) или -200% (вниз)
+  // позиция трека
   const trackY = kick ? (dir === -1 ? 0 : -200) : -100;
 
   return (
@@ -296,13 +278,9 @@ export default function ReelsLightbox({
       role="dialog"
       aria-modal="true"
       onWheel={onWheel}
-      onPointerDown={ensureSoundUnlocked} // ← любой первый тап/клик разблокирует звук
+      onPointerDown={ensureSoundUnlocked} // ← любой первый тап/клик
     >
-      <button
-        className={styles.backdrop}
-        aria-label="Close"
-        onClick={onClose}
-      />
+      <button className={styles.backdrop} aria-label="Close" onClick={onClose} />
       <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
         <CloseIcon />
       </button>
@@ -311,10 +289,7 @@ export default function ReelsLightbox({
       <div className={styles.navV}>
         <button
           className={styles.navBtn}
-          onClick={() => {
-            ensureSoundUnlocked();
-            go(-1);
-          }}
+          onClick={() => { ensureSoundUnlocked(); go(-1); }}
           disabled={!hasPrev || busy}
           aria-label="Previous (Up)"
         >
@@ -322,16 +297,14 @@ export default function ReelsLightbox({
         </button>
         <button
           className={styles.navBtn}
-          onClick={() => {
-            ensureSoundUnlocked();
-            go(1);
-          }}
+          onClick={() => { ensureSoundUnlocked(); go(1); }}
           disabled={!hasNext || busy}
           aria-label="Next (Down)"
         >
           <ArrowBottomIcon />
         </button>
       </div>
+
       <div
         className={styles.shell}
         ref={shellRef}
@@ -340,15 +313,9 @@ export default function ReelsLightbox({
         style={{ ["--dur" as any]: `${durMs}ms` }}
       >
         {/* СЦЕНА */}
-        <div
-          className={clsx(styles.scene, kick && styles.isAnimating)}
-          style={{ transform: `translateY(${trackY}%)` }}
-        >
+        <div className={clsx(styles.scene, kick && styles.isAnimating)} style={{ transform: `translateY(${trackY}%)` }}>
           {/* prev */}
-          <div
-            className={clsx(styles.panel, !hasPrev && styles.ghost)}
-            aria-hidden={!hasPrev}
-          >
+          <div className={clsx(styles.panel, !hasPrev && styles.ghost)} aria-hidden={!hasPrev}>
             {prevItem && (
               <ReviewVideoResolver
                 key={`prev-${prevItem.review.id}`}
@@ -357,7 +324,6 @@ export default function ReelsLightbox({
                 productId={prevItem.review.productId}
                 reviewType={prevItem.review.type}
                 userId={prevItem.review.authorId}
-                // соседей не автоплеим
                 muted
               />
             )}
@@ -373,16 +339,12 @@ export default function ReelsLightbox({
               reviewType={cur.review.type}
               userId={cur.review.authorId}
               autoPlay
-              // текущий — без принудительного mute, дальше плеер сам разрулит
-              muted={false}
+              muted={false} // плеер сам отфолбэчит при запрете
             />
           </div>
 
           {/* next */}
-          <div
-            className={clsx(styles.panel, !hasNext && styles.ghost)}
-            aria-hidden={!hasNext}
-          >
+          <div className={clsx(styles.panel, !hasNext && styles.ghost)} aria-hidden={!hasNext}>
             {nextItem && (
               <ReviewVideoResolver
                 key={`next-${nextItem.review.id}`}
@@ -407,39 +369,23 @@ export default function ReelsLightbox({
               </div>
             </div>
             <div>
-              <strong className={styles.author}>
-                {cur.review.authorName || "Аноним"}
-              </strong>
+              <strong className={styles.author}>{cur.review.authorName || "Аноним"}</strong>
               <p className={styles.text}>{cur.review.text || ""}</p>
-              {cur.review.verified && (
-                <>
-                  <span style={{ display: "none" }}>✅ verified</span>
-                </>
-              )}
+              {cur.review.verified && (<><span style={{ display: "none" }}>✅ verified</span></>)}
             </div>
           </div>
           <div className={styles.meta}>
             <button
-              className={clsx(
-                styles.meta__btn,
-                helpful.mine && styles.meta__btnActive
-              )}
+              className={clsx(styles.meta__btn, helpful.mine && styles.meta__btnActive)}
               onClick={toggleHelpful}
               disabled={busy}
               aria-pressed={helpful.mine}
-              aria-label={
-                helpful.mine ? "Убрать отметку полезно" : "Отметить как полезный"
-              }
+              aria-label={helpful.mine ? "Убрать отметку полезно" : "Отметить как полезный"}
             >
               <HeartIcon fill="white" />
               <span className={styles.count}>{helpful.count}</span>
             </button>
-            <button
-              className={clsx(styles.meta__btn)}
-              onClick={onShare}
-              aria-label="Copy link"
-              title="Copy link"
-            >
+            <button className={clsx(styles.meta__btn)} onClick={onShare} aria-label="Copy link" title="Copy link">
               <LinkIcon />
             </button>
           </div>
