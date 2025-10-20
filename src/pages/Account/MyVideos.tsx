@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import { listMyReviews, posterFromMediaUrl } from "../../services/reviewApi";
 import type { ReviewOut } from "../../types/review/review";
-import styles from "../Product/Review/ProductReels.module.scss"; // переиспользуем стили
+import styles from "../../components/Product/Review/ProductReels.module.scss";
 import ReelsLightbox from "../../components/Videos/ReelsLightbox";
 
 type Props = {
