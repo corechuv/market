@@ -1,7 +1,6 @@
 import React from "react";
 import clsx from "clsx";
 import styles from "../../components/Product/Review/ProductReels.module.scss";
-import CloseIcon from "../../components/Icons/CloseIcon";
 import ReelsLightbox from "../../components/Videos/ReelsLightbox";
 import { listMyReels, posterFromMediaUrl } from "../../services/reviewApi";
 import type { ReviewOut } from "../../types/review/review";
