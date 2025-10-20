@@ -1,8 +1,8 @@
 import React from "react";
-import { listMyReviews, posterFromMediaUrl } from "../../services/reviewApi";
+import { useNavigate } from "react-router-dom";
+import { listMyReels, posterFromMediaUrl } from "../../services/reviewApi";
 import type { ReviewOut } from "../../types/review/review";
 import ReelsLightbox from "../../components/Videos/ReelsLightbox";
-import { useNavigate } from "react-router-dom";
 
 type Item = { review: ReviewOut; url: string; poster?: string };
 
@@ -15,12 +15,19 @@ export default function MyVideosPage() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await listMyReviews({ type: "reel", status: "approved", onlyWithVideo: true, limit: 200 });
+        const res = await listMyReels({
+          status: "approved",
+          type: "reel",
+          onlyWithVideo: true,
+          limit: 200,
+        });
         if (cancelled) return;
-        const mapped = res.map(r => {
-          const v = r.media.find(m => m.kind === "video");
-          return v?.url ? { review: r, url: v.url, poster: posterFromMediaUrl(v.url) } : null;
-        }).filter(Boolean) as Item[];
+        const mapped = res
+          .map((r) => {
+            const v = r.media.find((m) => m.kind === "video" && m.url);
+            return v?.url ? { review: r, url: v.url, poster: posterFromMediaUrl(v.url) } : null;
+          })
+          .filter(Boolean) as Item[];
         setItems(mapped);
       } finally {
         if (!cancelled) setLoading(false);

@@ -138,33 +138,39 @@ export async function getReviewById(reviewId: string): Promise<ReviewOut> {
   return r.json();
 }
 
-export async function listMyReviews(opts: {
-  type?: ReviewType;                 // 'reel'|'plain'
-  status?: 'pending'|'approved'|'rejected';
-  onlyWithVideo?: boolean;
-  limit?: number;
-  offset?: number;
-} = {}): Promise<ReviewOut[]> {
-  const query = qs({
-    type: opts.type,
-    status: opts.status ?? 'approved',
-    onlyWithVideo: opts.onlyWithVideo ?? true,
-    limit: opts.limit ?? 40,
-    offset: opts.offset ?? 0,
-  });
-  const r = await fetch(`${API}/reviews/me?${query}`, {
+export async function deleteReview(reviewId: string) {
+  const r = await fetch(`${API}/reviews/${reviewId}`, {
+    method: "DELETE",
     headers: buildHeaders(),
-    credentials: 'omit',
+    credentials: "omit",
   });
-  if (!r.ok) throw new Error(`Failed to load my reviews: ${r.status}`);
-  return r.json();
+  if (!r.ok) throw new Error(`Delete failed: ${r.status}`);
 }
 
-export async function deleteReview(reviewId: string): Promise<void> {
-  const r = await fetch(`${API}/reviews/${reviewId}`, {
-    method: 'DELETE',
-    headers: buildHeaders(),
-    credentials: 'omit',
+// === ВАЖНО: единая функция для «моих роликов» ===
+export async function listMyReels(opts: {
+  limit?: number;
+  offset?: number;
+  status?: "pending" | "approved" | "rejected";
+  type?: Extract<ReviewType, "reel" | "plain">; // по умолчанию "reel"
+  onlyWithVideo?: boolean;                      // клиентская фильтрация
+} = {}): Promise<ReviewOut[]> {
+  const query = qs({
+    limit: opts.limit ?? 50,
+    offset: opts.offset ?? 0,
+    status: opts.status ?? "approved",
+    type: opts.type ?? "reel",
   });
-  if (!r.ok) throw new Error(`Delete review failed: ${r.status}`);
+
+  const r = await fetch(`${API}/reviews/me?${query}`, {
+    headers: buildHeaders(),
+    credentials: "omit",
+  });
+  if (!r.ok) throw new Error(`Failed to load my reels: ${r.status}`);
+
+  const data = (await r.json()) as ReviewOut[];
+  if (opts.onlyWithVideo) {
+    return data.filter((rev) => rev.media?.some((m) => m.kind === "video" && m.url));
+  }
+  return data;
 }

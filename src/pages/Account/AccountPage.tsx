@@ -81,7 +81,7 @@ export default function AccountPage() {
     const { user, loading: authLoading } = useAuth();
 
     const [me, setMe] = useState<Me | null>((user ?? null) as Me | null);
-    const [active, setActive] = useState<TabKey>("profile");
+    const [active, setActive] = useState<TabKey>("videos");
     const [loading, setLoading] = useState(false);
 
     // <<< ждём окончания инициализации auth, прежде чем дёргать /auth/me
@@ -218,7 +218,6 @@ export default function AccountPage() {
                         <div className={styles.card}>
                             <div className={styles.cardHeader}>
                                 <h2 className={styles.titlePage}>My videos</h2>
-                                <p className={styles.muted}>Только прошедшие модерацию ролики</p>
                             </div>
                             <MyVideos />
                         </div>
