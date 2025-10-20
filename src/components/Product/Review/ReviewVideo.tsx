@@ -1,4 +1,3 @@
-// src/components/Product/Review/ReviewVideo.tsx
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Hls from 'hls.js';
 import mux, { type MonitorOptions } from 'mux-embed';
@@ -47,10 +46,11 @@ export const ReviewVideo: React.FC<Props> = ({
   const userMutedRef = useRef(false);
   const activeRef = useRef<boolean>(active);
 
-  // на iOS важно, чтобы muted был уже в первый paint при autoplay
+  // ⚠️ на iOS Safari атрибут muted должен быть уже на DOM в первый paint,
+  // иначе autoplay может запретиться. поэтому начальное состояние считаем синхронно.
   const [isMuted, setIsMuted] = useState<boolean>(() => {
     const global = ReelsAudio.isUnlocked();
-    return !(global || !muted);
+    return !(global || !muted); // если звук не «разблокирован», стартуем в mute
   });
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState<number>(0);
@@ -107,17 +107,19 @@ export const ReviewVideo: React.FC<Props> = ({
       } catch {}
     };
 
-    // iOS inline + атрибуты
+    // === iOS inline + заранее выставляем нужные атрибуты
     try { (video as any).playsInline = true; } catch {}
     try { (video as any).webkitPlaysInline = true; } catch {}
+    // на некоторых версиях iOS важно проставить именно АТРИБУТЫ, не только свойства
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
     if (autoPlay && isMuted) {
+      // для autoplay iOS требует атрибут muted/autoplay на момент воспроизведения
       video.setAttribute('muted', '');
       video.setAttribute('autoplay', '');
     }
 
-    // запрет PiP/Remote Playback
+    // запрет PiP/Remote Playback — best effort
     try { (video as any).disableRemotePlayback = true; } catch {}
     try { (video as any).disablePictureInPicture = true; } catch {}
 
@@ -133,13 +135,14 @@ export const ReviewVideo: React.FC<Props> = ({
           setIsMuted(false);
         }
         video.play().catch(() => {});
-    }};
+      }
+    };
 
     const onEnded = () => {
       window.dispatchEvent(new CustomEvent('reels:ended', { detail: reviewId } as any));
     };
 
-    // attach source
+    // attach source (нативный HLS на iOS)
     if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = hlsUrl;
       video.load();
@@ -180,7 +183,7 @@ export const ReviewVideo: React.FC<Props> = ({
       startMonitor();
     }
 
-    // синхронизация mute с глобальным флагом
+    // синхронизация mute со стором «глобального звука»
     const globalSoundOn = ReelsAudio.isUnlocked();
     video.muted = !(globalSoundOn || !muted);
     if (video.muted) video.setAttribute('muted', ''); else video.removeAttribute('muted');
@@ -190,7 +193,7 @@ export const ReviewVideo: React.FC<Props> = ({
       window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: video } as any));
     };
 
-    // попытка автоплея (с фолбэком в mute / iOS атрибуты)
+    // попытка автоплея с iOS-фолбэком (нужны атрибуты)
     const tryAutoplay = async (withMutedFallback = true) => {
       if (!autoPlay) return;
       try {
@@ -202,6 +205,7 @@ export const ReviewVideo: React.FC<Props> = ({
             video.setAttribute('muted', '');
             setIsMuted(true);
           }
+          // на iOS зачастую требуется иметь именно атрибут autoplay
           if (isIOS) video.setAttribute('autoplay', '');
           await video.play();
         }
@@ -228,8 +232,10 @@ export const ReviewVideo: React.FC<Props> = ({
       } catch {}
     };
 
+    // доп. для iOS: иногда helpful события
     const onCanPlay = () => {
       if (autoPlay && video.paused && isIOS && isMuted) {
+        // ещё одна попытка, когда декодер реально готов
         const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => {});
       }
     };
@@ -332,46 +338,13 @@ export const ReviewVideo: React.FC<Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hlsUrl, reviewId, productId, reviewType, userId, autoPlay, muted]);
 
-  // 🔧 ВАЖНО: при смене active теперь запускаем воспроизведение (с фолбэком в mute на iOS)
+  // Следим за сменой active без пересоздания плеера
   useEffect(() => {
     activeRef.current = active;
     const v = videoRef.current;
     if (!v) return;
-
-    if (!active) {
-      if (!v.paused) v.pause();
-      return;
-    }
-
-    // стал активным
-    if (autoPlay) {
-      // сначала пробуем со звуком, если глобально «разлочено» и пользователь сам не мьютил
-      const tryUnmuted = ReelsAudio.isUnlocked() && !userMutedRef.current;
-      if (tryUnmuted) {
-        v.muted = false;
-        v.removeAttribute('muted');
-        setIsMuted(false);
-        v.setAttribute('autoplay', '');
-        const p = v.play?.();
-        if (p && typeof (p as any).catch === 'function') {
-          (p as Promise<void>).catch(() => {
-            // фолбэк в mute — для iOS политики
-            v.muted = true;
-            v.setAttribute('muted', '');
-            setIsMuted(true);
-            v.play?.();
-          });
-        }
-      } else {
-        // сразу в mute (разрешено автоплеем на iOS)
-        v.muted = true;
-        v.setAttribute('muted', '');
-        setIsMuted(true);
-        v.setAttribute('autoplay', '');
-        const p = v.play?.(); if (p && typeof (p as any).catch === 'function') (p as Promise<void>).catch(() => {});
-      }
-    }
-  }, [active, autoPlay]);
+    if (!active && !v.paused) v.pause();
+  }, [active]);
 
   // Синхронизация muted пропа
   useEffect(() => {
@@ -396,6 +369,7 @@ export const ReviewVideo: React.FC<Props> = ({
   const togglePlay = useCallback(() => {
     const v = videoRef.current;
     if (!v) return;
+    // iOS: делаем действие строго в ответ на жест
     if (v.paused) {
       v.play().then(() => {
         window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: v } as any));
@@ -481,13 +455,15 @@ export const ReviewVideo: React.FC<Props> = ({
         ref={videoRef}
         className={styles.video}
         poster={poster}
+        // ВАЖНО: для iOS проставляем autoplay атрибут, когда проп autoPlay истинен
         autoPlay={autoPlay}
         playsInline
         preload="metadata"
-        muted={isMuted}
+        muted={isMuted} // держим в синке со стейтом и атрибутом
         controls={false}
         controlsList="nodownload noplaybackrate noremoteplayback"
         onClick={onVideoClick}
+        // маленькая подстраховка: первый touch — точно «жест»
         onTouchStart={() => ReelsAudio.unlock()}
       />
 
