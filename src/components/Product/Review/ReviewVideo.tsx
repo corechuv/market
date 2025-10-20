@@ -20,6 +20,15 @@ type Props = {
   active?: boolean;
 };
 
+// детектор iOS (включая iPadOS с десктопным UA)
+const isIOS = (() => {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  const platform = (navigator as any).platform || '';
+  const touchMac = /Mac/.test(platform) && 'ontouchend' in document;
+  return /iP(hone|od|ad)/.test(platform) || /iPhone|iPad|iPod/.test(ua) || touchMac;
+})();
+
 export const ReviewVideo: React.FC<Props> = ({
   hlsUrl,
   posterUrl,
@@ -37,8 +46,13 @@ export const ReviewVideo: React.FC<Props> = ({
   const userMutedRef = useRef(false);
   const activeRef = useRef<boolean>(active);
 
+  // ⚠️ на iOS Safari атрибут muted должен быть уже на DOM в первый paint,
+  // иначе autoplay может запретиться. поэтому начальное состояние считаем синхронно.
+  const [isMuted, setIsMuted] = useState<boolean>(() => {
+    const global = ReelsAudio.isUnlocked();
+    return !(global || !muted); // если звук не «разблокирован», стартуем в mute
+  });
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState<boolean>(!!muted);
   const [duration, setDuration] = useState<number>(0);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [bufferedEnd, setBufferedEnd] = useState<number>(0);
@@ -53,7 +67,6 @@ export const ReviewVideo: React.FC<Props> = ({
     }
   };
 
-  // ---- Init / teardown HLS + mux (НЕ зависит от active)
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -94,11 +107,19 @@ export const ReviewVideo: React.FC<Props> = ({
       } catch {}
     };
 
-    // iOS inline
-    (video as any).playsInline = true;
-    (video as any).webkitPlaysInline = true;
+    // === iOS inline + заранее выставляем нужные атрибуты
+    try { (video as any).playsInline = true; } catch {}
+    try { (video as any).webkitPlaysInline = true; } catch {}
+    // на некоторых версиях iOS важно проставить именно АТРИБУТЫ, не только свойства
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+    if (autoPlay && isMuted) {
+      // для autoplay iOS требует атрибут muted/autoplay на момент воспроизведения
+      video.setAttribute('muted', '');
+      video.setAttribute('autoplay', '');
+    }
 
-    // Запрет PiP и Remote Playback
+    // запрет PiP/Remote Playback — best effort
     try { (video as any).disableRemotePlayback = true; } catch {}
     try { (video as any).disablePictureInPicture = true; } catch {}
 
@@ -110,6 +131,7 @@ export const ReviewVideo: React.FC<Props> = ({
       if (wasPlayingBeforeHide.current && autoPlay) {
         if (ReelsAudio.isUnlocked()) {
           video.muted = false;
+          video.removeAttribute('muted');
           setIsMuted(false);
         }
         video.play().catch(() => {});
@@ -120,7 +142,7 @@ export const ReviewVideo: React.FC<Props> = ({
       window.dispatchEvent(new CustomEvent('reels:ended', { detail: reviewId } as any));
     };
 
-    // Attach source
+    // attach source (нативный HLS на iOS)
     if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = hlsUrl;
       video.load();
@@ -161,17 +183,17 @@ export const ReviewVideo: React.FC<Props> = ({
       startMonitor();
     }
 
-    // ---- Инициализация mute/звук с учётом глобального флага
+    // синхронизация mute со стором «глобального звука»
     const globalSoundOn = ReelsAudio.isUnlocked();
     video.muted = !(globalSoundOn || !muted);
+    if (video.muted) video.setAttribute('muted', ''); else video.removeAttribute('muted');
     setIsMuted(video.muted);
 
-    // Локальная функция: оповещать остальных «кто играет»
     const notifyNowPlaying = () => {
       window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: video } as any));
     };
 
-    // Унифицированная попытка автоплея
+    // попытка автоплея с iOS-фолбэком (нужны атрибуты)
     const tryAutoplay = async (withMutedFallback = true) => {
       if (!autoPlay) return;
       try {
@@ -180,8 +202,11 @@ export const ReviewVideo: React.FC<Props> = ({
         } else {
           if (!video.muted) {
             video.muted = true;
+            video.setAttribute('muted', '');
             setIsMuted(true);
           }
+          // на iOS зачастую требуется иметь именно атрибут autoplay
+          if (isIOS) video.setAttribute('autoplay', '');
           await video.play();
         }
         notifyNowPlaying();
@@ -207,19 +232,26 @@ export const ReviewVideo: React.FC<Props> = ({
       } catch {}
     };
 
-    // Глобальный «включи звук» — реагирует только активная карточка
+    // доп. для iOS: иногда helpful события
+    const onCanPlay = () => {
+      if (autoPlay && video.paused && isIOS && isMuted) {
+        // ещё одна попытка, когда декодер реально готов
+        const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => {});
+      }
+    };
+
     const onGlobalSoundOn = () => {
       const v = videoRef.current;
       if (!v) return;
       if (!activeRef.current) return;
       if (!v.paused && !userMutedRef.current) {
         v.muted = false;
+        v.removeAttribute('muted');
         setIsMuted(false);
         const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => {});
       }
     };
 
-    // Только один плеер воспроизводит
     const onSomeoneElsePlaying = (ev: Event) => {
       const el = (ev as CustomEvent<HTMLVideoElement>).detail;
       if (el && el !== video) {
@@ -227,7 +259,6 @@ export const ReviewVideo: React.FC<Props> = ({
       }
     };
 
-    // Visibility
     const onVisibility = () => {
       if (document.visibilityState === 'hidden') {
         wasPlayingBeforeHide.current = !video.paused;
@@ -236,6 +267,7 @@ export const ReviewVideo: React.FC<Props> = ({
         if (wasPlayingBeforeHide.current && autoPlay) {
           if (ReelsAudio.isUnlocked()) {
             video.muted = false;
+            video.removeAttribute('muted');
             setIsMuted(false);
           }
           const p = video.play?.();
@@ -244,7 +276,7 @@ export const ReviewVideo: React.FC<Props> = ({
       }
     };
 
-    // === Подписки
+    // подписки
     video.addEventListener('ended', onEnded);
     window.addEventListener('pagehide', onPageHide);
     window.addEventListener('pageshow', onPageShow);
@@ -252,6 +284,7 @@ export const ReviewVideo: React.FC<Props> = ({
     video.addEventListener('play', onPlay);
     video.addEventListener('pause', onPause);
     video.addEventListener('loadedmetadata', onLoadedMeta);
+    video.addEventListener('canplay', onCanPlay);
     video.addEventListener('durationchange', onLoadedMeta);
     video.addEventListener('timeupdate', onTimeUpdate);
     video.addEventListener('progress', onProgress);
@@ -259,7 +292,7 @@ export const ReviewVideo: React.FC<Props> = ({
     window.addEventListener('reels:now_playing', onSomeoneElsePlaying as any);
     document.addEventListener('visibilitychange', onVisibility, { passive: true });
 
-    // Media Session (системные кнопки Play/Pause)
+    // Media Session (play/pause)
     if ('mediaSession' in navigator) {
       try {
         const ms: any = (navigator as any).mediaSession;
@@ -280,14 +313,12 @@ export const ReviewVideo: React.FC<Props> = ({
       } catch {}
     }
 
-    // init now
     onLoadedMeta(); onTimeUpdate(); onProgress();
     tryAutoplay().catch(() => {});
 
     return () => {
       clearRetry();
 
-      // === Отписки
       video.removeEventListener('ended', onEnded);
       window.removeEventListener('pagehide', onPageHide);
       window.removeEventListener('pageshow', onPageShow);
@@ -295,6 +326,7 @@ export const ReviewVideo: React.FC<Props> = ({
       video.removeEventListener('play', onPlay);
       video.removeEventListener('pause', onPause);
       video.removeEventListener('loadedmetadata', onLoadedMeta);
+      video.removeEventListener('canplay', onCanPlay);
       video.removeEventListener('durationchange', onLoadedMeta);
       video.removeEventListener('timeupdate', onTimeUpdate);
       video.removeEventListener('progress', onProgress);
@@ -304,7 +336,7 @@ export const ReviewVideo: React.FC<Props> = ({
       destroy();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hlsUrl, reviewId, productId, reviewType, userId, autoPlay, muted]); // <— без active!
+  }, [hlsUrl, reviewId, productId, reviewType, userId, autoPlay, muted]);
 
   // Следим за сменой active без пересоздания плеера
   useEffect(() => {
@@ -320,6 +352,7 @@ export const ReviewVideo: React.FC<Props> = ({
     if (!v) return;
     const globalSoundOn = ReelsAudio.isUnlocked();
     v.muted = globalSoundOn ? false : !!muted;
+    if (v.muted) v.setAttribute('muted', ''); else v.removeAttribute('muted');
     setIsMuted(v.muted);
   }, [muted]);
 
@@ -336,6 +369,7 @@ export const ReviewVideo: React.FC<Props> = ({
   const togglePlay = useCallback(() => {
     const v = videoRef.current;
     if (!v) return;
+    // iOS: делаем действие строго в ответ на жест
     if (v.paused) {
       v.play().then(() => {
         window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: v } as any));
@@ -348,7 +382,9 @@ export const ReviewVideo: React.FC<Props> = ({
   const toggleMute = useCallback(() => {
     const v = videoRef.current;
     if (!v) return;
-    v.muted = !v.muted;
+    const willMute = !v.muted;
+    v.muted = willMute;
+    if (v.muted) v.setAttribute('muted', ''); else v.removeAttribute('muted');
     setIsMuted(v.muted);
     userMutedRef.current = v.muted;
     if (!v.muted) {
@@ -419,12 +455,16 @@ export const ReviewVideo: React.FC<Props> = ({
         ref={videoRef}
         className={styles.video}
         poster={poster}
+        // ВАЖНО: для iOS проставляем autoplay атрибут, когда проп autoPlay истинен
+        autoPlay={autoPlay}
         playsInline
         preload="metadata"
-        muted={isMuted}
+        muted={isMuted} // держим в синке со стейтом и атрибутом
         controls={false}
         controlsList="nodownload noplaybackrate noremoteplayback"
         onClick={onVideoClick}
+        // маленькая подстраховка: первый touch — точно «жест»
+        onTouchStart={() => ReelsAudio.unlock()}
       />
 
       {/* Top-right: mute/unmute */}
