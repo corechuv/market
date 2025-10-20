@@ -17,20 +17,24 @@ export function ReviewVideoResolver(props: {
 }) {
   const [state, setState] = React.useState<MuxResolve>({ status: 'loading' as MuxWaitingStatus });
 
+  const timerRef = React.useRef<number | null>(null);
+
   React.useEffect(() => {
     let cancelled = false;
 
     async function run() {
+      if (cancelled) return;
       setState({ status: 'loading' as MuxWaitingStatus });
       try {
         const res = await resolveMuxUrlMaybe(props.url);
         if (cancelled) return;
-
         if (res.status === 'ready') {
           setState({ status: 'ready', hlsUrl: res.hlsUrl, posterUrl: res.posterUrl });
         } else {
           setState({ status: res.status });
-          if (res.status !== 'errored') setTimeout(run, 2500);
+          if (!cancelled && res.status !== 'errored') {
+            timerRef.current = window.setTimeout(run, 2500);
+          }
         }
       } catch {
         if (!cancelled) setState({ status: 'errored' });
@@ -38,7 +42,7 @@ export function ReviewVideoResolver(props: {
     }
 
     run();
-    return () => { cancelled = true; };
+    return () => { cancelled = true; if (timerRef.current) window.clearTimeout(timerRef.current); };
   }, [props.url]);
 
   if (state.status !== 'ready') {

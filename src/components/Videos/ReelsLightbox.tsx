@@ -163,6 +163,8 @@ export default function ReelsLightbox({
   // клавиши
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
       if (e.key === "Escape") onClose();
       if (e.key === "ArrowDown" || e.key === "PageDown") {
         ensureSoundUnlocked(); // ← важно
@@ -239,6 +241,17 @@ export default function ReelsLightbox({
       mine: !!items[index]?.review.helpfulByMe,
     });
   }, [index, items]);
+
+  React.useEffect(() => {
+    const onEnded = (ev: any) => {
+      if (!cur) return;
+      if (ev?.detail === cur.review.id && hasNext && !busy && !kick) {
+        go(1);
+      }
+    };
+    window.addEventListener('reels:ended', onEnded);
+    return () => window.removeEventListener('reels:ended', onEnded);
+  }, [cur?.review.id, hasNext, busy, kick, go]);
 
   const toggleHelpful = async () => {
     if (!cur) return;
@@ -405,7 +418,10 @@ export default function ReelsLightbox({
         </div>
 
         {/* нижняя панель */}
-        <div className={styles.bar__bottom} onPointerDown={(e) => e.stopPropagation()}>
+        <div className={styles.bar__bottom}
+          onPointerDown={(e) => e.stopPropagation()}
+          onWheel={(e) => e.stopPropagation()}
+        >
           <div className={styles.meta}>
             <div className={styles.info}>
               <div className={styles.rating}>

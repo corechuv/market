@@ -1,3 +1,4 @@
+// src/components/Product/Review/ReviewVideo.tsx
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Hls from 'hls.js';
 import mux, { type MonitorOptions } from 'mux-embed';
@@ -63,11 +64,11 @@ export const ReviewVideo: React.FC<Props> = ({
     const destroy = () => {
       clearRetry();
       if (hlsRef.current) {
-        try { hlsRef.current.destroy(); } catch {}
+        try { hlsRef.current.destroy(); } catch { }
         hlsRef.current = null;
       }
       if (monitoredRef.current) {
-        try { mux.destroyMonitor(video); } catch {}
+        try { mux.destroyMonitor(video); } catch { }
         monitoredRef.current = false;
       }
     };
@@ -91,12 +92,34 @@ export const ReviewVideo: React.FC<Props> = ({
         const opts: MonitorOptions = { debug: false, data: baseData, ...extra } as MonitorOptions;
         mux.monitor(video, opts);
         monitoredRef.current = true;
-      } catch {}
+      } catch { }
     };
 
     // iOS inline
     (video as any).playsInline = true;
     (video as any).webkitPlaysInline = true;
+
+    // Запрет PiP и Remote Playback (делаем через свойства)
+    try { (video as any).disableRemotePlayback = true; } catch { }
+    try { (video as any).disablePictureInPicture = true; } catch { }
+
+    const onPageHide = () => {
+      wasPlayingBeforeHide.current = !video.paused;
+      if (!video.paused) video.pause();
+    };
+    const onPageShow = () => {
+      if (wasPlayingBeforeHide.current && autoPlay) {
+        if (ReelsAudio.isUnlocked()) {
+          video.muted = false;
+          setIsMuted(false);
+        }
+        video.play().catch(() => { });
+      }
+    };
+
+    const onEnded = () => {
+      window.dispatchEvent(new CustomEvent('reels:ended', { detail: reviewId } as any));
+    };
 
     // Attach source
     if (video.canPlayType('application/vnd.apple.mpegurl')) {
@@ -120,6 +143,19 @@ export const ReviewVideo: React.FC<Props> = ({
           player_software_name: 'hls.js',
           player_software_version: Hls.version,
         });
+      });
+      hls.on(Hls.Events.ERROR, (_evt, data) => {
+        if (!data.fatal) return;
+        switch (data.type) {
+          case Hls.ErrorTypes.NETWORK_ERROR:
+            hls.startLoad(); break;
+          case Hls.ErrorTypes.MEDIA_ERROR:
+            hls.recoverMediaError(); break;
+          default:
+            try { hls.destroy(); } catch { }
+            video.src = hlsUrl;
+            try { video.load(); } catch { }
+        }
       });
     } else {
       video.src = hlsUrl;
@@ -155,7 +191,7 @@ export const ReviewVideo: React.FC<Props> = ({
       } catch {
         if (withMutedFallback) {
           retryPlayTimer.current = window.setTimeout(() => {
-            tryAutoplay(false).catch(() => {});
+            tryAutoplay(false).catch(() => { });
           }, 200);
         }
       }
@@ -171,7 +207,7 @@ export const ReviewVideo: React.FC<Props> = ({
         const b = video.buffered;
         const end = b.length ? b.end(b.length - 1) : 0;
         setBufferedEnd(end);
-      } catch {}
+      } catch { }
     };
 
     // Глобальный «включи звук» — реагирует только активная карточка
@@ -182,7 +218,7 @@ export const ReviewVideo: React.FC<Props> = ({
       if (!v.paused && !userMutedRef.current) {
         v.muted = false;
         setIsMuted(false);
-        const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => {});
+        const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
       }
     };
 
@@ -206,7 +242,7 @@ export const ReviewVideo: React.FC<Props> = ({
             setIsMuted(false);
           }
           const p = video.play?.();
-          if (p && typeof p.catch === 'function') p.catch(() => {});
+          if (p && typeof p.catch === 'function') p.catch(() => { });
         }
       }
     };
@@ -221,6 +257,7 @@ export const ReviewVideo: React.FC<Props> = ({
     window.addEventListener('reels:now_playing', onSomeoneElsePlaying as any);
     document.addEventListener('visibilitychange', onVisibility, { passive: true });
 
+
     // Media Session (системные кнопки)
     if ('mediaSession' in navigator) {
       try {
@@ -234,20 +271,24 @@ export const ReviewVideo: React.FC<Props> = ({
         }
         ms.setActionHandler?.('play', () => {
           ReelsAudio.unlock();
-          video.play().catch(() => {});
+          video.play().catch(() => { });
         });
         ms.setActionHandler?.('pause', () => {
           video.pause();
         });
-      } catch {}
+      } catch { }
     }
 
     // init now
     onLoadedMeta(); onTimeUpdate(); onProgress();
-    tryAutoplay().catch(() => {});
+    tryAutoplay().catch(() => { });
 
     return () => {
       clearRetry();
+
+      video.addEventListener('ended', onEnded);
+      window.addEventListener('pagehide', onPageHide);
+      window.addEventListener('pageshow', onPageShow);
       video.removeEventListener('play', onPlay);
       video.removeEventListener('pause', onPause);
       video.removeEventListener('loadedmetadata', onLoadedMeta);
@@ -295,7 +336,7 @@ export const ReviewVideo: React.FC<Props> = ({
     if (v.paused) {
       v.play().then(() => {
         window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: v } as any));
-      }).catch(() => {});
+      }).catch(() => { });
     } else {
       v.pause();
     }
@@ -309,7 +350,7 @@ export const ReviewVideo: React.FC<Props> = ({
     userMutedRef.current = v.muted; // запоминаем явный выбор пользователя
     if (!v.muted) {
       ReelsAudio.unlock();
-      const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => {});
+      const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
     }
   }, []);
 
@@ -419,7 +460,7 @@ export const ReviewVideo: React.FC<Props> = ({
       <div className={styles.bottomBar} role="group" aria-label="Video timeline">
         <div className={styles.timeLeft} aria-label="Current time">{fmt(currentTime)}</div>
 
-        <div className={styles.progressWrap}>
+        <div className={styles.progressWrap} onWheel={(e) => e.stopPropagation()}>
           <div className={styles.track}>
             <div className={styles.buffered} style={{ width: `${bufferedPct}%` }} aria-hidden="true" />
             <div className={styles.played} style={{ width: `${playedPct}%` }} aria-hidden="true" />
@@ -432,6 +473,7 @@ export const ReviewVideo: React.FC<Props> = ({
             value={Math.min(currentTime, duration || 0)}
             onChange={onRangeChange}
             onKeyDown={onRangeKeyDown}
+            onWheel={(e) => e.stopPropagation()}
             className={styles.scrubber}
             aria-label="Seek"
           />
