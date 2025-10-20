@@ -29,12 +29,13 @@ export const ReviewVideo: React.FC<Props> = ({
   userId,
   autoPlay = false,
   muted = false,
-  active = false
+  active = false,
 }) => {
-  const userMutedRef = useRef(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
   const monitoredRef = useRef(false);
+  const userMutedRef = useRef(false);
+  const activeRef = useRef<boolean>(active);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState<boolean>(!!muted);
@@ -52,21 +53,21 @@ export const ReviewVideo: React.FC<Props> = ({
     }
   };
 
-  // ---- Init / teardown HLS + mux
+  // ---- Init / teardown HLS + mux (НЕ зависит от active — чтобы не пересоздавать плеер)
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const envKey = (import.meta.env.VITE_MUX_DATA_ENV_KEY as string) || "";
+    const envKey = (import.meta.env.VITE_MUX_DATA_ENV_KEY as string) || '';
 
     const destroy = () => {
       clearRetry();
       if (hlsRef.current) {
-        try { hlsRef.current.destroy(); } catch { /* noop */ }
+        try { hlsRef.current.destroy(); } catch {}
         hlsRef.current = null;
       }
       if (monitoredRef.current) {
-        try { mux.destroyMonitor(video); } catch { /* noop */ }
+        try { mux.destroyMonitor(video); } catch {}
         monitoredRef.current = false;
       }
     };
@@ -90,7 +91,7 @@ export const ReviewVideo: React.FC<Props> = ({
         const opts: MonitorOptions = { debug: false, data: baseData, ...extra } as MonitorOptions;
         mux.monitor(video, opts);
         monitoredRef.current = true;
-      } catch { /* noop */ }
+      } catch {}
     };
 
     // iOS inline
@@ -109,7 +110,6 @@ export const ReviewVideo: React.FC<Props> = ({
         backBufferLength: 90,
         maxBufferLength: 30,
         capLevelToPlayerSize: true,
-        // autoStartLoad оставляем true, чтобы метаданные подтянулись для длины
       });
       hlsRef.current = hls;
       hls.attachMedia(video);
@@ -131,6 +131,11 @@ export const ReviewVideo: React.FC<Props> = ({
     video.muted = !(globalSoundOn || !muted);
     setIsMuted(video.muted);
 
+    // Локальная функция: оповестить остальных «кто играет»
+    const notifyNowPlaying = () => {
+      window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: video } as any));
+    };
+
     // Унифицированная попытка автоплея
     const tryAutoplay = async (withMutedFallback = true) => {
       if (!autoPlay) return;
@@ -148,20 +153,16 @@ export const ReviewVideo: React.FC<Props> = ({
         }
         notifyNowPlaying();
       } catch {
-        // если даже тихо не получилось — отложим и попробуем чуть позже (канареечный подход)
         if (withMutedFallback) {
           retryPlayTimer.current = window.setTimeout(() => {
-            tryAutoplay(false).catch(() => { });
+            tryAutoplay(false).catch(() => {});
           }, 200);
         }
       }
     };
 
     // listeners
-    const onPlay = () => {
-      setIsPlaying(true);
-      notifyNowPlaying();
-    };
+    const onPlay = () => { setIsPlaying(true); notifyNowPlaying(); };
     const onPause = () => setIsPlaying(false);
     const onLoadedMeta = () => setDuration(Number.isFinite(video.duration) ? video.duration : 0);
     const onTimeUpdate = () => setCurrentTime(video.currentTime);
@@ -170,18 +171,18 @@ export const ReviewVideo: React.FC<Props> = ({
         const b = video.buffered;
         const end = b.length ? b.end(b.length - 1) : 0;
         setBufferedEnd(end);
-      } catch { /* noop */ }
+      } catch {}
     };
 
-    // Глобальный «включи звук»
+    // Глобальный «включи звук» — реагирует только активная карточка
     const onGlobalSoundOn = () => {
       const v = videoRef.current;
       if (!v) return;
-      if (!active) return;              // ⬅️ реагируем только если карточка активна
+      if (!activeRef.current) return;
       if (!v.paused && !userMutedRef.current) {
         v.muted = false;
         setIsMuted(false);
-        const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
+        const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => {});
       }
     };
 
@@ -200,19 +201,14 @@ export const ReviewVideo: React.FC<Props> = ({
         if (!video.paused) video.pause();
       } else {
         if (wasPlayingBeforeHide.current && autoPlay) {
-          // мягко восстановим, учитывая глобальный звук
           if (ReelsAudio.isUnlocked()) {
             video.muted = false;
             setIsMuted(false);
           }
           const p = video.play?.();
-          if (p && typeof p.catch === 'function') p.catch(() => { });
+          if (p && typeof p.catch === 'function') p.catch(() => {});
         }
       }
-    };
-
-    const notifyNowPlaying = () => {
-      window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: video } as any));
     };
 
     video.addEventListener('play', onPlay);
@@ -224,12 +220,11 @@ export const ReviewVideo: React.FC<Props> = ({
     window.addEventListener('reels:sound_on', onGlobalSoundOn);
     window.addEventListener('reels:now_playing', onSomeoneElsePlaying as any);
     document.addEventListener('visibilitychange', onVisibility, { passive: true });
+
     // Media Session (системные кнопки)
     if ('mediaSession' in navigator) {
       try {
         const ms: any = (navigator as any).mediaSession;
-
-        // ✅ без optional chaining после new
         const MediaMetadataCtor = (window as any).MediaMetadata;
         if (typeof MediaMetadataCtor === 'function') {
           ms.metadata = new MediaMetadataCtor({
@@ -237,23 +232,19 @@ export const ReviewVideo: React.FC<Props> = ({
             artist: userId || '',
           });
         }
-
-        // Остальное можно оставить с optional chaining
         ms.setActionHandler?.('play', () => {
           ReelsAudio.unlock();
-          video.play().catch(() => { });
+          video.play().catch(() => {});
         });
         ms.setActionHandler?.('pause', () => {
           video.pause();
         });
-      } catch {
-        // noop
-      }
+      } catch {}
     }
 
     // init now
     onLoadedMeta(); onTimeUpdate(); onProgress();
-    tryAutoplay().catch(() => { });
+    tryAutoplay().catch(() => {});
 
     return () => {
       clearRetry();
@@ -268,7 +259,16 @@ export const ReviewVideo: React.FC<Props> = ({
       document.removeEventListener('visibilitychange', onVisibility);
       destroy();
     };
-  }, [hlsUrl, reviewId, productId, reviewType, userId, autoPlay, muted, active]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hlsUrl, reviewId, productId, reviewType, userId, autoPlay, muted]); // <— без active!
+
+  // Следим за сменой active без пересоздания плеера
+  useEffect(() => {
+    activeRef.current = active;
+    const v = videoRef.current;
+    if (!v) return;
+    if (!active && !v.paused) v.pause();
+  }, [active]);
 
   // Синхронизация, если родитель меняет muted проп
   useEffect(() => {
@@ -295,7 +295,7 @@ export const ReviewVideo: React.FC<Props> = ({
     if (v.paused) {
       v.play().then(() => {
         window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: v } as any));
-      }).catch(() => { });
+      }).catch(() => {});
     } else {
       v.pause();
     }
@@ -306,7 +306,7 @@ export const ReviewVideo: React.FC<Props> = ({
     if (!v) return;
     v.muted = !v.muted;
     setIsMuted(v.muted);
-    userMutedRef.current = v.muted;     // ⬅️ запоминаем явный выбор пользователя
+    userMutedRef.current = v.muted; // запоминаем явный выбор пользователя
     if (!v.muted) {
       ReelsAudio.unlock();
       const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => {});
@@ -383,6 +383,7 @@ export const ReviewVideo: React.FC<Props> = ({
         onClick={onVideoClick}
       />
 
+      {/* Top-right: mute/unmute */}
       <button
         type="button"
         aria-label={isMuted ? 'Turn sound on' : 'Mute sound'}
@@ -393,13 +394,10 @@ export const ReviewVideo: React.FC<Props> = ({
         <span className={styles.visuallyHidden}>
           {isMuted ? 'Sound off' : 'Sound on'}
         </span>
-        {isMuted ? (
-          <VolumeOffIcon className={styles.icon} />
-        ) : (
-          <VolumeOnIcon className={styles.icon} />
-        )}
+        {isMuted ? <VolumeOffIcon className={styles.icon} /> : <VolumeOnIcon className={styles.icon} />}
       </button>
 
+      {/* Center play btn */}
       <button
         type="button"
         aria-label={isPlaying ? 'Pause video' : 'Play video'}
@@ -417,6 +415,7 @@ export const ReviewVideo: React.FC<Props> = ({
         )}
       </button>
 
+      {/* Bottom bar */}
       <div className={styles.bottomBar} role="group" aria-label="Video timeline">
         <div className={styles.timeLeft} aria-label="Current time">{fmt(currentTime)}</div>
 
