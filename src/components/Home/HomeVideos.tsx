@@ -64,23 +64,27 @@ export default function HomeVideos({
 
             {!!items.length && (
                 <>
-                    <div className={clsx(gridStyles.grid, className)}>
+                    <div className={clsx(gridStyles.list__grid, className)}>
                         {items.map((it, i) => (
-                            <button
-                                key={it.review.id}
-                                className={gridStyles.thumb}
-                                onClick={() => { setStartIndex(i); setOpen(true); }}
-                                aria-label={`Open reel by ${it.review.authorName || "anonymous"}`}
-                            >
-                                <div className={gridStyles.thumbInner}>
-                                    {it.poster ? (
-                                        <img src={it.poster} alt="" className={gridStyles.img} loading="lazy" />
-                                    ) : (
-                                        <div className={gridStyles.placeholder}>Processing…</div>
-                                    )}
-                                </div>
-                                <div className={gridStyles.caption}>{it.review.text}</div>
-                            </button>
+                            <div className={gridStyles.list__item}>
+                                <button
+                                    key={it.review.id}
+                                    className={gridStyles.list__btn}
+                                    onClick={() => { setStartIndex(i); setOpen(true); }}
+                                    aria-label={`Open reel by ${it.review.authorName || "anonymous"}`}
+                                >
+                                    <div className={gridStyles.list__preview}>
+                                        {it.poster ? (
+                                            <img src={it.poster} alt="" className={gridStyles["list__preview--img"]} loading="lazy" />
+                                        ) : (
+                                            <div className={gridStyles["list__preview--placeholder"]}>
+                                                Processing…
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className={gridStyles["list__item--caption"]}>{it.review.text}</div>
+                                </button>
+                            </div>
                         ))}
                     </div>
 

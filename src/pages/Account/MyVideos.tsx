@@ -3,7 +3,7 @@ import clsx from "clsx";
 import styles from "../../components/Product/Review/ProductReels.module.scss";
 import CloseIcon from "../../components/Icons/CloseIcon";
 import ReelsLightbox from "../../components/Videos/ReelsLightbox";
-import { listMyReels, deleteReview, posterFromMediaUrl } from "../../services/reviewApi";
+import { listMyReels, posterFromMediaUrl } from "../../services/reviewApi";
 import type { ReviewOut } from "../../types/review/review";
 
 export default function MyVideos() {
@@ -34,16 +34,6 @@ export default function MyVideos() {
 
     React.useEffect(() => { load(); }, [load]);
 
-    const onDelete = async (id: string) => {
-        if (!confirm("Удалить этот ролик?")) return;
-        try {
-            await deleteReview(id);
-            setItems((prev) => prev.filter((r) => r.id !== id));
-        } catch (e: any) {
-            alert(e?.message ?? "Не удалось удалить ролик");
-        }
-    };
-
     if (loading) return <div>Loading my reels…</div>;
     if (error) return <div className={styles.error}>{error}</div>;
     if (!items.length) return <div className={styles.muted}>У вас пока нет видео-отзывов.</div>;
@@ -58,32 +48,25 @@ export default function MyVideos() {
 
     return (
         <>
-            <div className={clsx(styles.grid)}>
+            <div className={clsx(styles.list__grid)}>
                 {lightboxData.map((it, i) => (
-                    <div key={it.review.id}>
-                        <button
-                            className={styles.thumb}
-                            onClick={() => { setStartIndex(i); setOpen(true); }}
-                            aria-label="Открыть ролик"
-                        >
-                            <div className={styles.thumbInner}>
-                                {it.poster ? (
-                                    <img src={it.poster} alt="" className={styles.img} loading="lazy" />
-                                ) : (
-                                    <div className={styles.placeholder}>Processing…</div>
-                                )}
-                            </div>
-                            <div className={styles.caption}>{it.review.text}</div>
-                        </button>
-
-                        <button
-                            className={styles.deleteBtn}
-                            title="Delete video"
-                            aria-label="Delete video"
-                            onClick={() => onDelete(it.review.id)}
-                        >
-                            <CloseIcon />
-                        </button>
+                    <div key={it.review.id} className={styles.list__item}>
+                        <div className={styles.list__watch}>
+                            <button
+                                className={styles.list__btn}
+                                onClick={() => { setStartIndex(i); setOpen(true); }}
+                                aria-label="Открыть ролик"
+                            >
+                                <div className={styles.list__preview}>
+                                    {it.poster ? (
+                                        <img src={it.poster} alt="" className={styles["list__preview--img"]} loading="lazy" />
+                                    ) : (
+                                        <div className={styles["list__preview--placeholder"]}>Processing…</div>
+                                    )}
+                                </div>
+                            </button>
+                        </div>
+                        <div className={styles["list__item--caption"]}>{it.review.text}</div>
                     </div>
                 ))}
             </div>

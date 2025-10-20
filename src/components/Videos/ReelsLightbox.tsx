@@ -1,5 +1,5 @@
 // src/components/ReelsLightbox.tsx
-import React from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import styles from "./ReelsLightbox.module.scss";
 import { type ReviewOut } from "../../types/review/review";
@@ -11,6 +11,10 @@ import StarIcon from "../Icons/StarIcon";
 import ArrowBottomIcon from "../Icons/ArrowBottomIcon";
 import ArrowTopIcon from "../Icons/ArrowTopIcon";
 import LinkIcon from "../Icons/LinkIcon";
+import MoreHorizontalIcon from "../Icons/MoreHorizontalIcon";
+import Modal from "../Modal/Modal";
+import { deleteReview } from "../../services/reviewApi";
+import Button from "../UI/Button";
 
 type Item = {
   review: ReviewOut;
@@ -85,6 +89,9 @@ export default function ReelsLightbox({
 
   const [busy, setBusy] = React.useState(false);
 
+  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
   // направление и флаг активной анимации
   const [dir, setDir] = React.useState<1 | -1 | 0>(0);
   const [kick, setKick] = React.useState(false);
@@ -140,7 +147,7 @@ export default function ReelsLightbox({
     unlockedRef.current = true;
     try {
       localStorage.setItem("reels:sound_on", "1");
-    } catch {}
+    } catch { }
     // синхронно уведомим все плееры
     window.dispatchEvent(new CustomEvent("reels:sound_on"));
   }, []);
@@ -289,6 +296,15 @@ export default function ReelsLightbox({
   if (!cur) return null;
   // позиция трека: по умолчанию центр (-100%), а при анимации уходит к 0% (вверх) или -200% (вниз)
   const trackY = kick ? (dir === -1 ? 0 : -200) : -100;
+
+  const onDelete = async (id: string) => {
+    if (!confirm("Удалить этот ролик?")) return;
+    try {
+      await deleteReview(id);
+    } catch (e: any) {
+      alert(e?.message ?? "Не удалось удалить ролик");
+    }
+  };
 
   return (
     <div
@@ -442,8 +458,25 @@ export default function ReelsLightbox({
             >
               <LinkIcon />
             </button>
+            <button
+              className={clsx(styles.meta__btn)}
+              onClick={onShare}
+              aria-label="Copy link"
+              title="Copy link"
+            >
+              <MoreHorizontalIcon onClick={() => setIsOpen(true)} />
+            </button>
           </div>
         </div>
+
+        <Modal
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          variant="center">
+          <Button variant="link" onClick={() => onDelete(cur.review.id)}>
+            Delete
+          </Button>
+        </Modal>
       </div>
     </div>
   );

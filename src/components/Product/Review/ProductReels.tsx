@@ -50,25 +50,27 @@ export default function ProductReels({ productId, limit = 12, className }: Props
 
   return (
     <>
-      <div className={clsx(styles.grid, className)}>
+      <div className={clsx(styles.list__grid, className)}>
         {lightboxData.map((it, i) => (
-          <button
-            key={it.review.id}
-            className={styles.thumb}
-            onClick={() => { setStartIndex(i); setOpen(true); }}
-            aria-label={`Open reel by ${it.review.authorName || "anonymous"}`}
-          >
-            <div className={styles.thumbInner}>
-              {it.poster ? (
-                <img src={it.poster} alt="" className={styles.img} loading="lazy" />
-              ) : (
-                <div className={styles.placeholder}>Processing…</div>
-              )}
-            </div>
-            <div className={styles.caption}>
-              {it.review.text}
-            </div>
-          </button>
+          <div className={styles.list__item}>
+            <button
+              key={it.review.id}
+              className={styles.list__btn}
+              onClick={() => { setStartIndex(i); setOpen(true); }}
+              aria-label={`Open reel by ${it.review.authorName || "anonymous"}`}
+            >
+              <div className={styles.list__preview}>
+                {it.poster ? (
+                  <img src={it.poster} alt="" className={styles["list__preview--img"]} loading="lazy" />
+                ) : (
+                  <div className={styles["list__preview--placeholder"]}>Processing…</div>
+                )}
+              </div>
+              <div className={styles["list__item--caption"]}>
+                {it.review.text}
+              </div>
+            </button>
+          </div>
         ))}
       </div>
 

@@ -1,32 +1,6 @@
 // src/components/Product/Review/ReviewReels.module.scss
 @use "../../../styles/videos.module.scss";
 
-.thumb {
-    display: flex;
-    flex-direction: column;
-    border: 0;
-    padding: 0;
-    margin: 0;
-    background: none;
-    cursor: pointer;
-    font-family: "Roboto", sans-serif;
-}
-
-.thumbInner {
-    position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #111;
-    aspect-ratio: 8/12;
-}
-
-.img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
 .placeholder {
     width: 100%;
     height: 100%;
