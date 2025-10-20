@@ -17,6 +17,7 @@ type Props = {
   userId?: string | null;
   autoPlay?: boolean;
   muted?: boolean;
+  active?: boolean;
 };
 
 export const ReviewVideo: React.FC<Props> = ({
@@ -28,7 +29,9 @@ export const ReviewVideo: React.FC<Props> = ({
   userId,
   autoPlay = false,
   muted = false,
+  active = false
 }) => {
+  const userMutedRef = useRef(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
   const monitoredRef = useRef(false);
@@ -172,12 +175,14 @@ export const ReviewVideo: React.FC<Props> = ({
 
     // Глобальный «включи звук»
     const onGlobalSoundOn = () => {
-      if (!video) return;
-      // включаем звук и делаем дополнительный play() — критично для Safari/Chrome
-      video.muted = false;
-      setIsMuted(false);
-      const p = video.play?.();
-      if (p && typeof p.catch === 'function') p.catch(() => { });
+      const v = videoRef.current;
+      if (!v) return;
+      if (!active) return;              // ⬅️ реагируем только если карточка активна
+      if (!v.paused && !userMutedRef.current) {
+        v.muted = false;
+        setIsMuted(false);
+        const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
+      }
     };
 
     // Только один плеер воспроизводит
@@ -263,7 +268,7 @@ export const ReviewVideo: React.FC<Props> = ({
       document.removeEventListener('visibilitychange', onVisibility);
       destroy();
     };
-  }, [hlsUrl, reviewId, productId, reviewType, userId, autoPlay, muted]);
+  }, [hlsUrl, reviewId, productId, reviewType, userId, autoPlay, muted, active]);
 
   // Синхронизация, если родитель меняет muted проп
   useEffect(() => {
@@ -301,11 +306,10 @@ export const ReviewVideo: React.FC<Props> = ({
     if (!v) return;
     v.muted = !v.muted;
     setIsMuted(v.muted);
+    userMutedRef.current = v.muted;     // ⬅️ запоминаем явный выбор пользователя
     if (!v.muted) {
-      // Пользователь явно включил звук — запомним и обязательно дернём play()
       ReelsAudio.unlock();
-      const p = v.play?.();
-      if (p && typeof p.catch === 'function') p.catch(() => { });
+      const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => {});
     }
   }, []);
 

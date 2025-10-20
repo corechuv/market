@@ -363,8 +363,8 @@ export default function ReelsLightbox({
                 productId={prevItem.review.productId}
                 reviewType={prevItem.review.type}
                 userId={prevItem.review.authorId}
-                // соседей не автоплеим
                 muted
+                active={false}   // ⬅️ добавили
               />
             )}
           </div>
@@ -379,8 +379,8 @@ export default function ReelsLightbox({
               reviewType={cur.review.type}
               userId={cur.review.authorId}
               autoPlay
-              // текущий — без принудительного mute, дальше плеер сам разрулит
               muted={false}
+              active={true}     // ⬅️ добавили
             />
           </div>
 
@@ -398,13 +398,14 @@ export default function ReelsLightbox({
                 reviewType={nextItem.review.type}
                 userId={nextItem.review.authorId}
                 muted
+                active={false}   // ⬅️ добавили
               />
             )}
           </div>
         </div>
 
         {/* нижняя панель */}
-        <div className={styles.bar__bottom}>
+        <div className={styles.bar__bottom} onPointerDown={(e) => e.stopPropagation()}>
           <div className={styles.meta}>
             <div className={styles.info}>
               <div className={styles.rating}>

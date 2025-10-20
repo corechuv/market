@@ -13,6 +13,7 @@ export function ReviewVideoResolver(props: {
   userId?: string | null;
   autoPlay?: boolean;
   muted?: boolean;
+  active?: boolean;
 }) {
   const [state, setState] = React.useState<MuxResolve>({ status: 'loading' as MuxWaitingStatus });
 
@@ -58,6 +59,7 @@ export function ReviewVideoResolver(props: {
       userId={props.userId}
       autoPlay={props.autoPlay}
       muted={props.muted}
+      active={props.active}
     />
   );
 }

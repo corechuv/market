@@ -66,9 +66,8 @@ export default function HomeVideos({
                 <>
                     <div className={clsx(gridStyles.list__grid, className)}>
                         {items.map((it, i) => (
-                            <div className={gridStyles.list__item}>
+                            <div key={it.review.id} className={gridStyles.list__item}>
                                 <button
-                                    key={it.review.id}
                                     className={gridStyles.list__btn}
                                     onClick={() => { setStartIndex(i); setOpen(true); }}
                                     aria-label={`Open reel by ${it.review.authorName || "anonymous"}`}
