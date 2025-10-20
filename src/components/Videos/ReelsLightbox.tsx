@@ -15,6 +15,7 @@ import MoreHorizontalIcon from "../Icons/MoreHorizontalIcon";
 import Modal from "../Modal/Modal";
 import { deleteReview } from "../../services/reviewApi";
 import Button from "../UI/Button";
+import { ReelsAudio } from "../../utils/reelsAudio";
 
 type Item = {
   review: ReviewOut;
@@ -140,34 +141,9 @@ export default function ReelsLightbox({
   const nextItem = hasNext ? items[index + 1] : null;
 
   // Разовая «разблокировка» звука для всей сессии
-  const unlockedRef = React.useRef(false);
   const ensureSoundUnlocked = React.useCallback(() => {
-    if (unlockedRef.current) return;
-    unlockedRef.current = true;
-    try {
-      localStorage.setItem("reels:sound_on", "1");
-    } catch { }
-    // синхронно уведомим все плееры
-    window.dispatchEvent(new CustomEvent("reels:sound_on"));
+    ReelsAudio.unlock();
   }, []);
-
-  // клавиши
-  React.useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowDown" || e.key === "PageDown") {
-        ensureSoundUnlocked();
-        go(1);
-      }
-      if (e.key === "ArrowUp" || e.key === "PageUp") {
-        ensureSoundUnlocked();
-        go(-1);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [index, hasPrev, hasNext, busy, ensureSoundUnlocked]);
 
   const go = React.useCallback(
     (d: 1 | -1) => {
@@ -184,6 +160,23 @@ export default function ReelsLightbox({
     [busy, kick, hasNext, hasPrev]
   );
 
+  // клавиши
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowDown" || e.key === "PageDown") {
+        ensureSoundUnlocked(); // ← важно
+        go(1);
+      }
+      if (e.key === "ArrowUp" || e.key === "PageUp") {
+        ensureSoundUnlocked();
+        go(-1);
+      }
+    };
+    window.addEventListener("keydown", onKey, { passive: true });
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose, ensureSoundUnlocked, go]);
+
   // окончание анимации
   React.useEffect(() => {
     if (!kick) return;
@@ -196,21 +189,19 @@ export default function ReelsLightbox({
     return () => clearTimeout(t);
   }, [kick, dir, durMs]);
 
-  // колесо
+  // колесо — чуть допуски побольше, чтобы не срабатывать от трекапада
   const wheelLock = React.useRef(0);
   const onWheel = (e: React.WheelEvent) => {
     const now = Date.now();
     if (busy || kick) return;
     if (now - wheelLock.current < 250) return;
+    const d = e.deltaY || (e as any).wheelDelta || 0;
+    if (Math.abs(d) < 12) return;
     wheelLock.current = now;
-    if (e.deltaY > 8) {
-      ensureSoundUnlocked();
-      go(1);
-    }
-    if (e.deltaY < -8) {
-      ensureSoundUnlocked();
-      go(-1);
-    }
+
+    ensureSoundUnlocked();
+    if (d > 0) go(1);
+    else go(-1);
   };
 
   // свайпы

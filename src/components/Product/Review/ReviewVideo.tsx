@@ -1,10 +1,10 @@
-// src/components/Product/Review/ReviewVideo.tsx
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Hls from 'hls.js';
 import mux, { type MonitorOptions } from 'mux-embed';
 import styles from './ReviewVideo.module.scss';
 import VolumeOffIcon from '../../Icons/VolumeOffIcon';
 import VolumeOnIcon from '../../Icons/VolumeOnIcon';
+import { ReelsAudio } from '../../../utils/reelsAudio';
 
 type ReviewType = 'plain' | 'reel';
 
@@ -39,6 +39,16 @@ export const ReviewVideo: React.FC<Props> = ({
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [bufferedEnd, setBufferedEnd] = useState<number>(0);
 
+  const wasPlayingBeforeHide = useRef(false);
+  const retryPlayTimer = useRef<number | null>(null);
+
+  const clearRetry = () => {
+    if (retryPlayTimer.current != null) {
+      window.clearTimeout(retryPlayTimer.current);
+      retryPlayTimer.current = null;
+    }
+  };
+
   // ---- Init / teardown HLS + mux
   useEffect(() => {
     const video = videoRef.current;
@@ -47,6 +57,7 @@ export const ReviewVideo: React.FC<Props> = ({
     const envKey = (import.meta.env.VITE_MUX_DATA_ENV_KEY as string) || "";
 
     const destroy = () => {
+      clearRetry();
       if (hlsRef.current) {
         try { hlsRef.current.destroy(); } catch { /* noop */ }
         hlsRef.current = null;
@@ -79,12 +90,24 @@ export const ReviewVideo: React.FC<Props> = ({
       } catch { /* noop */ }
     };
 
+    // iOS inline
+    (video as any).playsInline = true;
+    (video as any).webkitPlaysInline = true;
+
+    // Attach source
     if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = hlsUrl;
       video.load();
       startMonitor();
     } else if (Hls.isSupported() && /\.m3u8(\?.*)?$/.test(hlsUrl)) {
-      const hls = new Hls({ enableWorker: true });
+      const hls = new Hls({
+        enableWorker: true,
+        lowLatencyMode: false,
+        backBufferLength: 90,
+        maxBufferLength: 30,
+        capLevelToPlayerSize: true,
+        // autoStartLoad оставляем true, чтобы метаданные подтянулись для длины
+      });
       hlsRef.current = hls;
       hls.attachMedia(video);
       hls.on(Hls.Events.MEDIA_ATTACHED, () => {
@@ -100,31 +123,42 @@ export const ReviewVideo: React.FC<Props> = ({
       startMonitor();
     }
 
-    // ---- Инициализация звука c учётом «глобального» флага
-    const globalSoundOn = (() => {
-      try { return localStorage.getItem('reels:sound_on') === '1'; } catch { return false; }
-    })();
-    const wantSound = globalSoundOn || !muted;
-    video.muted = !wantSound;
+    // ---- Инициализация mute/звук с учётом глобального флага
+    const globalSoundOn = ReelsAudio.isUnlocked();
+    video.muted = !(globalSoundOn || !muted);
     setIsMuted(video.muted);
 
-    // Автоплей с фолбэком: если со звуком нельзя, сыграем в mute
-    const tryAutoplay = async () => {
+    // Унифицированная попытка автоплея
+    const tryAutoplay = async (withMutedFallback = true) => {
       if (!autoPlay) return;
       try {
-        await video.play();
-      } catch {
-        if (!video.muted) {
-          video.muted = true;
-          setIsMuted(true);
+        // если глобально звук разблокирован — пытаемся со звуком
+        if (!video.muted && ReelsAudio.isUnlocked()) {
+          await video.play();
+        } else {
+          // иначе — пробуем тихо
+          if (!video.muted) {
+            video.muted = true;
+            setIsMuted(true);
+          }
+          await video.play();
         }
-        try { await video.play(); } catch { /* окончательно сдаёмся */ }
+        notifyNowPlaying();
+      } catch {
+        // если даже тихо не получилось — отложим и попробуем чуть позже (канареечный подход)
+        if (withMutedFallback) {
+          retryPlayTimer.current = window.setTimeout(() => {
+            tryAutoplay(false).catch(() => { });
+          }, 200);
+        }
       }
     };
-    tryAutoplay();
 
-    // listeners for playback/position/buffer
-    const onPlay = () => setIsPlaying(true);
+    // listeners
+    const onPlay = () => {
+      setIsPlaying(true);
+      notifyNowPlaying();
+    };
     const onPause = () => setIsPlaying(false);
     const onLoadedMeta = () => setDuration(Number.isFinite(video.duration) ? video.duration : 0);
     const onTimeUpdate = () => setCurrentTime(video.currentTime);
@@ -136,15 +170,44 @@ export const ReviewVideo: React.FC<Props> = ({
       } catch { /* noop */ }
     };
 
-    // Глобальный «включи звук» — обязательно пытаемся проигрывать в том же callstack
+    // Глобальный «включи звук»
     const onGlobalSoundOn = () => {
-      const v = videoRef.current;
-      if (!v) return;
-      v.muted = false;
+      if (!video) return;
+      // включаем звук и делаем дополнительный play() — критично для Safari/Chrome
+      video.muted = false;
       setIsMuted(false);
-      // Даже если уже «играет», повторный play() нужен для надёжного включения аудио на iOS/Safari/Chrome
-      const p = v.play?.();
-      if (p && typeof p.catch === 'function') p.catch(() => {});
+      const p = video.play?.();
+      if (p && typeof p.catch === 'function') p.catch(() => { });
+    };
+
+    // Только один плеер воспроизводит
+    const onSomeoneElsePlaying = (ev: Event) => {
+      const el = (ev as CustomEvent<HTMLVideoElement>).detail;
+      if (el && el !== video) {
+        if (!video.paused) video.pause();
+      }
+    };
+
+    // Visibility
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        wasPlayingBeforeHide.current = !video.paused;
+        if (!video.paused) video.pause();
+      } else {
+        if (wasPlayingBeforeHide.current && autoPlay) {
+          // мягко восстановим, учитывая глобальный звук
+          if (ReelsAudio.isUnlocked()) {
+            video.muted = false;
+            setIsMuted(false);
+          }
+          const p = video.play?.();
+          if (p && typeof p.catch === 'function') p.catch(() => { });
+        }
+      }
+    };
+
+    const notifyNowPlaying = () => {
+      window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: video } as any));
     };
 
     video.addEventListener('play', onPlay);
@@ -154,11 +217,41 @@ export const ReviewVideo: React.FC<Props> = ({
     video.addEventListener('timeupdate', onTimeUpdate);
     video.addEventListener('progress', onProgress);
     window.addEventListener('reels:sound_on', onGlobalSoundOn);
+    window.addEventListener('reels:now_playing', onSomeoneElsePlaying as any);
+    document.addEventListener('visibilitychange', onVisibility, { passive: true });
+    // Media Session (системные кнопки)
+    if ('mediaSession' in navigator) {
+      try {
+        const ms: any = (navigator as any).mediaSession;
 
-    // init now (in case metadata is already available)
+        // ✅ без optional chaining после new
+        const MediaMetadataCtor = (window as any).MediaMetadata;
+        if (typeof MediaMetadataCtor === 'function') {
+          ms.metadata = new MediaMetadataCtor({
+            title: `Review ${reviewId}`,
+            artist: userId || '',
+          });
+        }
+
+        // Остальное можно оставить с optional chaining
+        ms.setActionHandler?.('play', () => {
+          ReelsAudio.unlock();
+          video.play().catch(() => { });
+        });
+        ms.setActionHandler?.('pause', () => {
+          video.pause();
+        });
+      } catch {
+        // noop
+      }
+    }
+
+    // init now
     onLoadedMeta(); onTimeUpdate(); onProgress();
+    tryAutoplay().catch(() => { });
 
     return () => {
+      clearRetry();
       video.removeEventListener('play', onPlay);
       video.removeEventListener('pause', onPause);
       video.removeEventListener('loadedmetadata', onLoadedMeta);
@@ -166,17 +259,17 @@ export const ReviewVideo: React.FC<Props> = ({
       video.removeEventListener('timeupdate', onTimeUpdate);
       video.removeEventListener('progress', onProgress);
       window.removeEventListener('reels:sound_on', onGlobalSoundOn);
+      window.removeEventListener('reels:now_playing', onSomeoneElsePlaying as any);
+      document.removeEventListener('visibilitychange', onVisibility);
       destroy();
     };
   }, [hlsUrl, reviewId, productId, reviewType, userId, autoPlay, muted]);
 
-  // keep local isMuted in sync if parent changes `muted` prop
+  // Синхронизация, если родитель меняет muted проп
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    const globalSoundOn = (() => {
-      try { return localStorage.getItem('reels:sound_on') === '1'; } catch { return false; }
-    })();
+    const globalSoundOn = ReelsAudio.isUnlocked();
     v.muted = globalSoundOn ? false : !!muted;
     setIsMuted(v.muted);
   }, [muted]);
@@ -187,33 +280,22 @@ export const ReviewVideo: React.FC<Props> = ({
       ? `https://image.mux.com/${hlsUrl.split('/').pop()!.split('.m3u8')[0]}/thumbnail.jpg?time=1`
       : undefined);
 
-  // локальный хелпер: первый клик по плееру тоже «разблокирует» звук
   const ensureSoundUnlockedLocal = useCallback(() => {
-    try {
-      if (localStorage.getItem('reels:sound_on') !== '1') {
-        localStorage.setItem('reels:sound_on', '1');
-        window.dispatchEvent(new CustomEvent('reels:sound_on'));
-      } else {
-        // даже если флаг уже стоял — продублируем событие в рамках жеста
-        window.dispatchEvent(new CustomEvent('reels:sound_on'));
-      }
-    } catch {
-      window.dispatchEvent(new CustomEvent('reels:sound_on'));
-    }
+    ReelsAudio.unlock();
   }, []);
 
-  // ---- Controls: toggle play/pause
   const togglePlay = useCallback(() => {
     const v = videoRef.current;
     if (!v) return;
     if (v.paused) {
-      v.play().catch(() => { });
+      v.play().then(() => {
+        window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: v } as any));
+      }).catch(() => { });
     } else {
       v.pause();
     }
   }, []);
 
-  // ---- Mute/unmute
   const toggleMute = useCallback(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -221,14 +303,12 @@ export const ReviewVideo: React.FC<Props> = ({
     setIsMuted(v.muted);
     if (!v.muted) {
       // Пользователь явно включил звук — запомним и обязательно дернём play()
-      try { localStorage.setItem('reels:sound_on', '1'); } catch {}
+      ReelsAudio.unlock();
       const p = v.play?.();
-      if (p && typeof p.catch === 'function') p.catch(() => {});
-      window.dispatchEvent(new CustomEvent('reels:sound_on'));
+      if (p && typeof p.catch === 'function') p.catch(() => { });
     }
   }, []);
 
-  // keyboard toggle when center button focused
   const onKeyDownBtn = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault();
@@ -237,7 +317,6 @@ export const ReviewVideo: React.FC<Props> = ({
     }
   };
 
-  // seek via slider
   const onSeek = (t: number) => {
     const v = videoRef.current;
     if (!v || !Number.isFinite(duration) || duration <= 0) return;
@@ -267,7 +346,6 @@ export const ReviewVideo: React.FC<Props> = ({
     }
   };
 
-  // optional: clicking on the video surface also toggles
   const onVideoClick = () => {
     ensureSoundUnlockedLocal();
     togglePlay();
@@ -301,7 +379,6 @@ export const ReviewVideo: React.FC<Props> = ({
         onClick={onVideoClick}
       />
 
-      {/* Top-right: mute/unmute */}
       <button
         type="button"
         aria-label={isMuted ? 'Turn sound on' : 'Mute sound'}
@@ -319,7 +396,6 @@ export const ReviewVideo: React.FC<Props> = ({
         )}
       </button>
 
-      {/* Center play button — visible on pause */}
       <button
         type="button"
         aria-label={isPlaying ? 'Pause video' : 'Play video'}
@@ -330,32 +406,21 @@ export const ReviewVideo: React.FC<Props> = ({
         <span className={styles.visuallyHidden}>
           {isPlaying ? 'Pause' : 'Play'}
         </span>
-        {isPlaying ? null : (
+        {!isPlaying && (
           <svg viewBox="0 0 24 24" className={styles.icon} aria-hidden="true">
             <path d="M8 5v14l11-7-11-7z" />
           </svg>
         )}
       </button>
 
-      {/* Bottom bar: progress + time */}
       <div className={styles.bottomBar} role="group" aria-label="Video timeline">
         <div className={styles.timeLeft} aria-label="Current time">{fmt(currentTime)}</div>
 
         <div className={styles.progressWrap}>
           <div className={styles.track}>
-            <div
-              className={styles.buffered}
-              style={{ width: `${bufferedPct}%` }}
-              aria-hidden="true"
-            />
-            <div
-              className={styles.played}
-              style={{ width: `${playedPct}%` }}
-              aria-hidden="true"
-            />
+            <div className={styles.buffered} style={{ width: `${bufferedPct}%` }} aria-hidden="true" />
+            <div className={styles.played} style={{ width: `${playedPct}%` }} aria-hidden="true" />
           </div>
-
-          {/* Invisible but interactive input range over the track */}
           <input
             type="range"
             min={0}

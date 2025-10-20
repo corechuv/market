@@ -52,9 +52,8 @@ export default function ProductReels({ productId, limit = 12, className }: Props
     <>
       <div className={clsx(styles.list__grid, className)}>
         {lightboxData.map((it, i) => (
-          <div className={styles.list__item}>
+          <div key={it.review.id} className={styles.list__item}>
             <button
-              key={it.review.id}
               className={styles.list__btn}
               onClick={() => { setStartIndex(i); setOpen(true); }}
               aria-label={`Open reel by ${it.review.authorName || "anonymous"}`}
