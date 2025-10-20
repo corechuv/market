@@ -459,11 +459,11 @@ export default function ReelsLightbox({
             </button>
             <button
               className={clsx(styles.meta__btn)}
-              onClick={onShare}
-              aria-label="Copy link"
-              title="Copy link"
+              onClick={() => setIsOpen(true)}
+              aria-label="More"
+              title="More"
             >
-              <MoreHorizontalIcon onClick={() => setIsOpen(true)} />
+              <MoreHorizontalIcon />
             </button>
           </div>
         </div>
