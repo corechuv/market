@@ -1,4 +1,3 @@
-// src/components/Product/Review/ReviewVideo.tsx
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Hls from 'hls.js';
 import mux, { type MonitorOptions } from 'mux-embed';
@@ -54,7 +53,7 @@ export const ReviewVideo: React.FC<Props> = ({
     }
   };
 
-  // ---- Init / teardown HLS + mux (НЕ зависит от active — чтобы не пересоздавать плеер)
+  // ---- Init / teardown HLS + mux (НЕ зависит от active)
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -64,11 +63,11 @@ export const ReviewVideo: React.FC<Props> = ({
     const destroy = () => {
       clearRetry();
       if (hlsRef.current) {
-        try { hlsRef.current.destroy(); } catch { }
+        try { hlsRef.current.destroy(); } catch {}
         hlsRef.current = null;
       }
       if (monitoredRef.current) {
-        try { mux.destroyMonitor(video); } catch { }
+        try { mux.destroyMonitor(video); } catch {}
         monitoredRef.current = false;
       }
     };
@@ -92,16 +91,16 @@ export const ReviewVideo: React.FC<Props> = ({
         const opts: MonitorOptions = { debug: false, data: baseData, ...extra } as MonitorOptions;
         mux.monitor(video, opts);
         monitoredRef.current = true;
-      } catch { }
+      } catch {}
     };
 
     // iOS inline
     (video as any).playsInline = true;
     (video as any).webkitPlaysInline = true;
 
-    // Запрет PiP и Remote Playback (делаем через свойства)
-    try { (video as any).disableRemotePlayback = true; } catch { }
-    try { (video as any).disablePictureInPicture = true; } catch { }
+    // Запрет PiP и Remote Playback
+    try { (video as any).disableRemotePlayback = true; } catch {}
+    try { (video as any).disablePictureInPicture = true; } catch {}
 
     const onPageHide = () => {
       wasPlayingBeforeHide.current = !video.paused;
@@ -113,7 +112,7 @@ export const ReviewVideo: React.FC<Props> = ({
           video.muted = false;
           setIsMuted(false);
         }
-        video.play().catch(() => { });
+        video.play().catch(() => {});
       }
     };
 
@@ -152,9 +151,9 @@ export const ReviewVideo: React.FC<Props> = ({
           case Hls.ErrorTypes.MEDIA_ERROR:
             hls.recoverMediaError(); break;
           default:
-            try { hls.destroy(); } catch { }
+            try { hls.destroy(); } catch {}
             video.src = hlsUrl;
-            try { video.load(); } catch { }
+            try { video.load(); } catch {}
         }
       });
     } else {
@@ -167,7 +166,7 @@ export const ReviewVideo: React.FC<Props> = ({
     video.muted = !(globalSoundOn || !muted);
     setIsMuted(video.muted);
 
-    // Локальная функция: оповестить остальных «кто играет»
+    // Локальная функция: оповещать остальных «кто играет»
     const notifyNowPlaying = () => {
       window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: video } as any));
     };
@@ -189,7 +188,7 @@ export const ReviewVideo: React.FC<Props> = ({
       } catch {
         if (withMutedFallback) {
           retryPlayTimer.current = window.setTimeout(() => {
-            tryAutoplay(false).catch(() => { });
+            tryAutoplay(false).catch(() => {});
           }, 200);
         }
       }
@@ -205,7 +204,7 @@ export const ReviewVideo: React.FC<Props> = ({
         const b = video.buffered;
         const end = b.length ? b.end(b.length - 1) : 0;
         setBufferedEnd(end);
-      } catch { }
+      } catch {}
     };
 
     // Глобальный «включи звук» — реагирует только активная карточка
@@ -216,7 +215,7 @@ export const ReviewVideo: React.FC<Props> = ({
       if (!v.paused && !userMutedRef.current) {
         v.muted = false;
         setIsMuted(false);
-        const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
+        const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => {});
       }
     };
 
@@ -240,7 +239,7 @@ export const ReviewVideo: React.FC<Props> = ({
             setIsMuted(false);
           }
           const p = video.play?.();
-          if (p && typeof p.catch === 'function') p.catch(() => { });
+          if (p && typeof p.catch === 'function') p.catch(() => {});
         }
       }
     };
@@ -260,7 +259,7 @@ export const ReviewVideo: React.FC<Props> = ({
     window.addEventListener('reels:now_playing', onSomeoneElsePlaying as any);
     document.addEventListener('visibilitychange', onVisibility, { passive: true });
 
-    // Media Session (системные кнопки)
+    // Media Session (системные кнопки Play/Pause)
     if ('mediaSession' in navigator) {
       try {
         const ms: any = (navigator as any).mediaSession;
@@ -273,17 +272,17 @@ export const ReviewVideo: React.FC<Props> = ({
         }
         ms.setActionHandler?.('play', () => {
           ReelsAudio.unlock();
-          video.play().catch(() => { });
+          video.play().catch(() => {});
         });
         ms.setActionHandler?.('pause', () => {
           video.pause();
         });
-      } catch { }
+      } catch {}
     }
 
     // init now
     onLoadedMeta(); onTimeUpdate(); onProgress();
-    tryAutoplay().catch(() => { });
+    tryAutoplay().catch(() => {});
 
     return () => {
       clearRetry();
@@ -315,7 +314,7 @@ export const ReviewVideo: React.FC<Props> = ({
     if (!active && !v.paused) v.pause();
   }, [active]);
 
-  // Синхронизация, если родитель меняет muted проп
+  // Синхронизация muted пропа
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -340,7 +339,7 @@ export const ReviewVideo: React.FC<Props> = ({
     if (v.paused) {
       v.play().then(() => {
         window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: v } as any));
-      }).catch(() => { });
+      }).catch(() => {});
     } else {
       v.pause();
     }
@@ -351,10 +350,10 @@ export const ReviewVideo: React.FC<Props> = ({
     if (!v) return;
     v.muted = !v.muted;
     setIsMuted(v.muted);
-    userMutedRef.current = v.muted; // запоминаем явный выбор пользователя
+    userMutedRef.current = v.muted;
     if (!v.muted) {
       ReelsAudio.unlock();
-      const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
+      const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => {});
     }
   }, []);
 

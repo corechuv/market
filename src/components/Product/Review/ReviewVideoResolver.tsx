@@ -1,4 +1,3 @@
-// src/components/Product/Review/ReviewVideoResolver.tsx
 import React from 'react';
 import { resolveMuxUrlMaybe, type MuxResolve, type MuxWaitingStatus } from '../../../services/muxApi';
 import { ReviewVideo } from './ReviewVideo';
@@ -16,7 +15,6 @@ export function ReviewVideoResolver(props: {
   active?: boolean;
 }) {
   const [state, setState] = React.useState<MuxResolve>({ status: 'loading' as MuxWaitingStatus });
-
   const timerRef = React.useRef<number | null>(null);
 
   React.useEffect(() => {
