@@ -139,21 +139,32 @@ export async function getReviewById(reviewId: string): Promise<ReviewOut> {
 }
 
 export async function listMyReviews(opts: {
-  type?: ReviewType;
-  status?: 'pending' | 'approved' | 'rejected';
+  type?: ReviewType;                 // 'reel'|'plain'
+  status?: 'pending'|'approved'|'rejected';
+  onlyWithVideo?: boolean;
   limit?: number;
   offset?: number;
 } = {}): Promise<ReviewOut[]> {
   const query = qs({
     type: opts.type,
-    status: opts.status,
-    limit: opts.limit ?? 50,
+    status: opts.status ?? 'approved',
+    onlyWithVideo: opts.onlyWithVideo ?? true,
+    limit: opts.limit ?? 40,
     offset: opts.offset ?? 0,
   });
-  const r = await fetch(`${API}/reviews/my?${query}`, {
+  const r = await fetch(`${API}/reviews/me?${query}`, {
     headers: buildHeaders(),
     credentials: 'omit',
   });
   if (!r.ok) throw new Error(`Failed to load my reviews: ${r.status}`);
   return r.json();
+}
+
+export async function deleteReview(reviewId: string): Promise<void> {
+  const r = await fetch(`${API}/reviews/${reviewId}`, {
+    method: 'DELETE',
+    headers: buildHeaders(),
+    credentials: 'omit',
+  });
+  if (!r.ok) throw new Error(`Delete review failed: ${r.status}`);
 }

@@ -218,10 +218,9 @@ export default function AccountPage() {
                         <div className={styles.card}>
                             <div className={styles.cardHeader}>
                                 <h2 className={styles.titlePage}>My videos</h2>
-                                <p className={styles.muted}>Your reel reviews</p>
+                                <p className={styles.muted}>Только прошедшие модерацию ролики</p>
                             </div>
-                            {/* По умолчанию показываем все статусы; можно сузить до approved: status="approved" */}
-                            <MyVideos limit={100} />
+                            <MyVideos />
                         </div>
                     )}
                     {active === "profile" && (

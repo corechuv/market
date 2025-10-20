@@ -48,6 +48,7 @@ import AddressEditOrAddPage from "./pages/Account/AddressEditOrAddPage";
 import ChangePasswordPage from "./pages/Account/ChangePasswordPage";
 import VerifyEmailPage from "./pages/Account/VerifyEmailPage";
 import ReelsPage from "./pages/ReelsPage";
+import MyVideosPage from "./pages/Account/MyVideosPage";
 
 export default function App() {
 
@@ -65,6 +66,8 @@ export default function App() {
 
             <Route path="/videos" element={<ReelsPage />} />
             <Route path="/videos/:id" element={<ReelsPage />} />
+
+            <Route path="/videos/me" element={<MyVideosPage />} />
 
             <Route path="/account" element={<AccountPage />} />
             <Route path="/account/addresses/new" element={<AddressEditOrAddPage />} />
