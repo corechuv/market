@@ -29,6 +29,7 @@
     margin: 0;
     background: none;
     cursor: pointer;
+    font-family: "Roboto", sans-serif;
 }
 
 .thumbInner {
@@ -73,6 +74,7 @@
     padding: 6px 3px;
     color: var(--text);
     font-size: 16px;
+    font-weight: 500;
     display: flex;
     align-items: center;
     gap: 6px;

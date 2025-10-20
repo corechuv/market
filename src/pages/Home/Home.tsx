@@ -98,6 +98,7 @@ import nvidia_dark from "@/assets/brand_logos/NVIDIA_Logo_white.png"
 
 import hp_light from "@/assets/brand_logos/HP_Logo_color.svg"
 import hp_dark from "@/assets/brand_logos/HP_Logo_color.svg"
+import HomeVideos from "../../components/Home/HomeVideos"
 
 
 const brandLogos = [
@@ -184,6 +185,9 @@ export default function Home() {
                     categories={demo}
                     onSelect={(cat) => console.log("Выбрано:", cat)}
                 />
+
+                {/* === Глобальные трендовые видео-отзывы (до 5 шт.) === */}
+                <HomeVideos limit={4} sort="trending" label="Trending videos" />
 
                 {error ? (
                     <div style={{ padding: 16, color: "var(--danger, #c00)" }}>{error}</div>
