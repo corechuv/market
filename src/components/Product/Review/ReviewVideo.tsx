@@ -176,11 +176,9 @@ export const ReviewVideo: React.FC<Props> = ({
     const tryAutoplay = async (withMutedFallback = true) => {
       if (!autoPlay) return;
       try {
-        // если глобально звук разблокирован — пытаемся со звуком
         if (!video.muted && ReelsAudio.isUnlocked()) {
           await video.play();
         } else {
-          // иначе — пробуем тихо
           if (!video.muted) {
             video.muted = true;
             setIsMuted(true);
@@ -247,6 +245,11 @@ export const ReviewVideo: React.FC<Props> = ({
       }
     };
 
+    // === Подписки
+    video.addEventListener('ended', onEnded);
+    window.addEventListener('pagehide', onPageHide);
+    window.addEventListener('pageshow', onPageShow);
+
     video.addEventListener('play', onPlay);
     video.addEventListener('pause', onPause);
     video.addEventListener('loadedmetadata', onLoadedMeta);
@@ -256,7 +259,6 @@ export const ReviewVideo: React.FC<Props> = ({
     window.addEventListener('reels:sound_on', onGlobalSoundOn);
     window.addEventListener('reels:now_playing', onSomeoneElsePlaying as any);
     document.addEventListener('visibilitychange', onVisibility, { passive: true });
-
 
     // Media Session (системные кнопки)
     if ('mediaSession' in navigator) {
@@ -286,9 +288,11 @@ export const ReviewVideo: React.FC<Props> = ({
     return () => {
       clearRetry();
 
-      video.addEventListener('ended', onEnded);
-      window.addEventListener('pagehide', onPageHide);
-      window.addEventListener('pageshow', onPageShow);
+      // === Отписки
+      video.removeEventListener('ended', onEnded);
+      window.removeEventListener('pagehide', onPageHide);
+      window.removeEventListener('pageshow', onPageShow);
+
       video.removeEventListener('play', onPlay);
       video.removeEventListener('pause', onPause);
       video.removeEventListener('loadedmetadata', onLoadedMeta);
