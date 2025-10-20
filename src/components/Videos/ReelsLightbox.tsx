@@ -89,7 +89,6 @@ export default function ReelsLightbox({
 
   const [busy, setBusy] = React.useState(false);
 
-  const [open, setOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   // направление и флаг активной анимации
