@@ -20,10 +20,12 @@ import {
 import PlusIcon from "../../components/Icons/PlusIcon";
 import CloseIcon from "../../components/Icons/CloseIcon";
 import { EUROPE_COUNTRIES } from "../../utils/country";
+import MyVideos from "./MyVideos";
 
 /* ================= types ================= */
-type TabKey = "profile" | "addresses" | "orders" | "settings";
+type TabKey = "videos" | "profile" | "addresses" | "orders" | "settings";
 const tabs: TabItem<TabKey>[] = [
+    { key: "videos", label: "Videos" },
     { key: "profile", label: "Profile" },
     { key: "addresses", label: "Addresses" },
     { key: "orders", label: "Orders" },
@@ -212,6 +214,16 @@ export default function AccountPage() {
             <div className={styles.layout}>
                 <section className={styles.content}>
                     <Tabs<TabKey> items={tabs} activeKey={active} onChange={setActive} ariaLabel="Account sections" />
+                    {active === "videos" && (
+                        <div className={styles.card}>
+                            <div className={styles.cardHeader}>
+                                <h2 className={styles.titlePage}>My videos</h2>
+                                <p className={styles.muted}>Your reel reviews</p>
+                            </div>
+                            {/* По умолчанию показываем все статусы; можно сузить до approved: status="approved" */}
+                            <MyVideos limit={100} />
+                        </div>
+                    )}
                     {active === "profile" && (
                         <ProfileForm
                             me={me}

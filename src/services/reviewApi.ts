@@ -137,3 +137,23 @@ export async function getReviewById(reviewId: string): Promise<ReviewOut> {
   if (!r.ok) throw new Error(`Review not found: ${r.status}`);
   return r.json();
 }
+
+export async function listMyReviews(opts: {
+  type?: ReviewType;
+  status?: 'pending' | 'approved' | 'rejected';
+  limit?: number;
+  offset?: number;
+} = {}): Promise<ReviewOut[]> {
+  const query = qs({
+    type: opts.type,
+    status: opts.status,
+    limit: opts.limit ?? 50,
+    offset: opts.offset ?? 0,
+  });
+  const r = await fetch(`${API}/reviews/my?${query}`, {
+    headers: buildHeaders(),
+    credentials: 'omit',
+  });
+  if (!r.ok) throw new Error(`Failed to load my reviews: ${r.status}`);
+  return r.json();
+}
