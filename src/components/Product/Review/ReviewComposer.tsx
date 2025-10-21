@@ -287,143 +287,145 @@ export default function ReviewComposer({ productId }: Props) {
                 </div>
             )}
 
-            {/* Экран выбора типа */}
-            {mode === "choose" ? (
-                <div className={styles.typePicker}>
-                    <div className={styles.typeGrid}>
-                        <button
-                            type="button"
-                            className={styles.typeCard}
-                            onClick={() => setMode("plain")}
-                            disabled={busy}
-                        >
-                            <div className={styles.typeIcon} aria-hidden></div>
-                            <div className={styles.typeTitle}>Plain</div>
-                            <div className={styles.typeHint}></div>
-                        </button>
-                        <button
-                            type="button"
-                            className={styles.typeCard}
-                            onClick={() => setMode("reel")}
-                            disabled={busy}
-                        >
-                            <div className={styles.typeIcon} aria-hidden></div>
-                            <div className={styles.typeTitle}>Video</div>
-                            <div className={styles.typeHint}></div>
-                        </button>
+            <div className={styles.layout__main}>
+                {/* Экран выбора типа */}
+                {mode === "choose" ? (
+                    <div className={styles.typePicker}>
+                        <div className={styles.typeGrid}>
+                            <button
+                                type="button"
+                                className={styles.typeCard}
+                                onClick={() => setMode("plain")}
+                                disabled={busy}
+                            >
+                                <div className={styles.typeIcon} aria-hidden></div>
+                                <div className={styles.typeTitle}>Plain</div>
+                                <div className={styles.typeHint}></div>
+                            </button>
+                            <button
+                                type="button"
+                                className={styles.typeCard}
+                                onClick={() => setMode("reel")}
+                                disabled={busy}
+                            >
+                                <div className={styles.typeIcon} aria-hidden></div>
+                                <div className={styles.typeTitle}>Video</div>
+                                <div className={styles.typeHint}></div>
+                            </button>
+                        </div>
                     </div>
-                </div>
-            ) : mode === "reel" ? (
-                <div className={styles.reelLayout}>
-                    {/* ЛЕВО: кликабельная drop-зона с превью 9:16, h<=368px */}
-                    <div
-                        className={`${styles.previewWrap} ${dragActive ? styles.isDragActive : ""
-                            }`}
-                        role="button"
-                        tabIndex={0}
-                        aria-label={
-                            file
-                                ? "Видео выбрано — кликните, чтобы заменить"
-                                : "Загрузить видео — кликните или перетащите файл"
-                        }
-                        onClick={pickFromDialog}
-                        onKeyDown={onPreviewKeyDown}
-                        onDragOver={onDragOver}
-                        onDragEnter={onDragOver}
-                        onDragLeave={onDragLeave}
-                        onDrop={onDrop}
-                    >
-                        {previewUrl ? (
-                            <video
-                                className={styles.previewVideo}
-                                src={previewUrl}
-                                muted
-                                playsInline
-                                autoPlay
-                                loop
-                                preload="metadata"
+                ) : mode === "reel" ? (
+                    <div className={styles.layout__grid}>
+                        {/* ЛЕВО: кликабельная drop-зона с превью 9:16, h<=368px */}
+                        <div
+                            className={`${styles.previewWrap} ${dragActive ? styles.isDragActive : ""
+                                }`}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={
+                                file
+                                    ? "Видео выбрано — кликните, чтобы заменить"
+                                    : "Загрузить видео — кликните или перетащите файл"
+                            }
+                            onClick={pickFromDialog}
+                            onKeyDown={onPreviewKeyDown}
+                            onDragOver={onDragOver}
+                            onDragEnter={onDragOver}
+                            onDragLeave={onDragLeave}
+                            onDrop={onDrop}
+                        >
+                            {previewUrl ? (
+                                <video
+                                    className={styles.previewVideo}
+                                    src={previewUrl}
+                                    muted
+                                    playsInline
+                                    autoPlay
+                                    loop
+                                    preload="metadata"
+                                />
+                            ) : (
+                                <div className={styles.previewPlaceholder}>
+                                    <div className={styles.previewHintTitle}>Загрузить видео</div>
+                                    <div className={styles.previewHintSub}>
+                                        Кликните или перетащите сюда • 9:16
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* скрытый input для выбора файла по клику */}
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="video/*"
+                                onChange={onPick}
+                                className={styles.srOnly}
+                                tabIndex={-1}
+                                disabled={busy}
                             />
-                        ) : (
-                            <div className={styles.previewPlaceholder}>
-                                <div className={styles.previewHintTitle}>Загрузить видео</div>
-                                <div className={styles.previewHintSub}>
-                                    Кликните или перетащите сюда • 9:16
+                        </div>
+
+                        {/* ПРАВО: текст и остальное */}
+                        <div className={styles.reelRight}>
+                            {Controls}
+
+                            {progress > 0 && (
+                                <div className={styles.progress}>
+                                    Uploading: {progress}%
+                                    <div className={styles.progressTrack}>
+                                        <div
+                                            className={styles.progressBar}
+                                            style={{ width: `${progress}%` }}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {/* скрытый input для выбора файла по клику */}
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="video/*"
-                            onChange={onPick}
-                            className={styles.srOnly}
-                            tabIndex={-1}
-                            disabled={busy}
-                        />
-                    </div>
+                            <Button
+                                variant="primary"
+                                size="small"
+                                onClick={onSubmit}
+                                disabled={busy || !file}
+                            >
+                                {busy ? "Saving…" : "Publish"}
+                            </Button>
 
-                    {/* ПРАВО: текст и остальное */}
-                    <div className={styles.reelRight}>
-                        {Controls}
-
-                        {progress > 0 && (
-                            <div className={styles.progress}>
-                                Uploading: {progress}%
-                                <div className={styles.progressTrack}>
-                                    <div
-                                        className={styles.progressBar}
-                                        style={{ width: `${progress}%` }}
-                                    />
+                            {msg && (
+                                <div
+                                    className={`${styles.msg} ${msg.startsWith("Не удалось") ? styles.msgError : ""
+                                        }`}
+                                >
+                                    {msg}
                                 </div>
-                            </div>
-                        )}
-
-                        <Button
-                            variant="primary"
-                            size="small"
-                            onClick={onSubmit}
-                            disabled={busy || !file}
-                        >
-                            {busy ? "Saving…" : "Publish"}
-                        </Button>
-
-                        {msg && (
-                            <div
-                                className={`${styles.msg} ${msg.startsWith("Не удалось") ? styles.msgError : ""
-                                    }`}
-                            >
-                                {msg}
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
-                </div>
-            ) : (
-                // mode === "plain"
-                <div className={styles.section}>
-                    <div className={styles.section__fields}>
-                        {Controls}
-                        <Button
-                            variant="primary"
-                            size="small"
-                            onClick={onSubmit}
-                            disabled={busy}
-                            className={styles.btn}
-                        >
-                            {busy ? "Saving…" : "Publish"}
-                        </Button>
-                        {msg && (
-                            <div
-                                className={`${styles.msg} ${msg.startsWith("Не удалось") ? styles.msgError : ""
-                                    }`}
+                ) : (
+                    // mode === "plain"
+                    <>
+                        <div className={styles.layout__fields}>
+                            {Controls}
+                            <Button
+                                variant="primary"
+                                size="small"
+                                onClick={onSubmit}
+                                disabled={busy}
+                                className={styles.btn}
                             >
-                                {msg}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
+                                {busy ? "Saving…" : "Publish"}
+                            </Button>
+                            {msg && (
+                                <div
+                                    className={`${styles.msg} ${msg.startsWith("Не удалось") ? styles.msgError : ""
+                                        }`}
+                                >
+                                    {msg}
+                                </div>
+                            )}
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
     );
 }

@@ -357,16 +357,6 @@
   }
 }
 
-/* --- Компоновка для видео-отзыва: превью слева, контент справа --- */
-.reelLayout {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  /* слева узкая колонка превью */
-  gap: 10px;
-  align-items: start;
-  padding: 6px;
-}
-
 /* Кликабельная drop-зона с превью 9:16, h<=438px */
 .previewWrap {
   position: relative;
@@ -433,28 +423,29 @@
   border: 0;
 }
 
-/* Адаптив: на очень узких экранах можно стэковать,
-   но по умолчанию превью остаётся слева */
-@media (max-width: 520px) {
-  .reelLayout {
-    grid-template-columns: 1fr;
-  }
-
-  .previewWrap {
-    width: 100%;
-    height: auto;
-    /* высота из ширины + aspect-ratio */
-    max-height: 368px;
-    /* перестраховка */
-  }
-}
 
 .btn {
   width: 100%;
 }
 
-.section {
-  padding: 6px;
+.layout {
+
+  &__grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px;
+    align-items: start;
+
+    @media (max-width: 520px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__main {
+    display: grid;
+    gap: 10px;
+    padding: 6px;
+  }
 
   &__fields {
     display: flex;
