@@ -218,7 +218,11 @@ export const ReviewVideo: React.FC<Props> = ({
     setIsMuted(video.muted);
 
     const notifyNowPlaying = () => {
-      window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: video } as any));
+      // объявляем «я играю» только для активной карточки
+      if (!activeRef.current) return;
+      const v = videoRef.current;
+      if (!v) return;
+      window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: v } as any));
     };
 
     // попытка автоплея с iOS-фолбэком (нужны атрибуты)
@@ -278,10 +282,13 @@ export const ReviewVideo: React.FC<Props> = ({
     };
 
     const onSomeoneElsePlaying = (ev: Event) => {
+      const v = videoRef.current;
+      if (!v) return;
       const el = (ev as CustomEvent<HTMLVideoElement>).detail;
-      if (el && el !== video) {
-        if (!video.paused) video.pause();
-      }
+      if (!el || el === v) return;
+
+      // Пауза — только если эта карточка НЕ активна.
+      if (!activeRef.current && !v.paused) v.pause();
     };
 
     const onVisibility = () => {
