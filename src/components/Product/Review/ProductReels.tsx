@@ -6,6 +6,7 @@ import { posterFromMediaUrl } from "../../../services/reviewApi";
 import type { ReviewOut } from "../../../types/review/review";
 import styles from "./ProductReels.module.scss";
 import ReelsLightbox from "../../Videos/ReelsLightbox";
+import Preloader from "../../UI/Preloader/Preloader";
 
 type Props = {
   productId: string;
@@ -30,7 +31,7 @@ export default function ProductReels({ productId, limit = 12, className }: Props
         const res = await listProductReviews(productId, { type: "reel", limit, offset: 0 });
         if (!cancelled) setItems(res);
       } catch (e: any) {
-        if (!cancelled) setError(e?.message ?? "Failed to load reels");
+        if (!cancelled) setError(e?.message ?? "Failed to load videos");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -38,9 +39,9 @@ export default function ProductReels({ productId, limit = 12, className }: Props
     return () => { cancelled = true; };
   }, [productId, limit]);
 
-  if (loading) return <div>Loading reels…</div>;
-  if (error) return <div>Failed to load reels: {error}</div>;
-  if (!items.length) return <div>No reels yet.</div>;
+  if (loading) return <div>Loading videos…</div>;
+  if (error) return <div>Failed to load videos: {error}</div>;
+  if (!items.length) return <div>No videos yet.</div>;
 
   const lightboxData = items.map(r => {
     const v = r.media.find(m => m.kind === "video");
@@ -62,7 +63,9 @@ export default function ProductReels({ productId, limit = 12, className }: Props
                 {it.poster ? (
                   <img src={it.poster} alt="" className={styles["list__preview--img"]} loading="lazy" />
                 ) : (
-                  <div className={styles["list__preview--placeholder"]}>Processing…</div>
+                  <div className={styles["list__preview--placeholder"]}>
+                    <Preloader sweepDeg={240} label="Processing.." />
+                  </div>
                 )}
               </div>
               <div className={styles["list__item--caption"]}>

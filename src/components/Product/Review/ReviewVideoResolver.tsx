@@ -1,6 +1,7 @@
 import React from 'react';
 import { resolveMuxUrlMaybe, type MuxResolve, type MuxWaitingStatus } from '../../../services/muxApi';
 import { ReviewVideo } from './ReviewVideo';
+import Preloader from '../../UI/Preloader/Preloader';
 type ReviewType = 'plain' | 'reel';
 
 export function ReviewVideoResolver(props: {
@@ -46,7 +47,7 @@ export function ReviewVideoResolver(props: {
   if (state.status !== 'ready') {
     return (
       <div style={{ aspectRatio: '9/16', display: 'grid', placeItems: 'center', background: '#111', color: '#aaa', borderRadius: 8 }}>
-        {state.status === 'errored' ? 'Video error' : 'Processing video…'}
+        {state.status === 'errored' ? 'Video error' : <Preloader overlay sweepDeg={240} label="Processing..." />}
       </div>
     );
   }

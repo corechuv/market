@@ -43,20 +43,13 @@
 
   width: 54px;
   height: 54px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.16);
+  background: transparent;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  transition: opacity 160ms ease, transform 160ms ease, background 160ms ease;
   z-index: 2;
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.24);
-    transform: translate(-50%, -50%) scale(1.04);
-  }
 }
 
 .hidden {

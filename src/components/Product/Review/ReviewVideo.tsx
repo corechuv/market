@@ -76,11 +76,11 @@ export const ReviewVideo: React.FC<Props> = ({
     const destroy = () => {
       clearRetry();
       if (hlsRef.current) {
-        try { hlsRef.current.destroy(); } catch {}
+        try { hlsRef.current.destroy(); } catch { }
         hlsRef.current = null;
       }
       if (monitoredRef.current) {
-        try { mux.destroyMonitor(video); } catch {}
+        try { mux.destroyMonitor(video); } catch { }
         monitoredRef.current = false;
       }
     };
@@ -104,12 +104,12 @@ export const ReviewVideo: React.FC<Props> = ({
         const opts: MonitorOptions = { debug: false, data: baseData, ...extra } as MonitorOptions;
         mux.monitor(video, opts);
         monitoredRef.current = true;
-      } catch {}
+      } catch { }
     };
 
     // === iOS inline + заранее выставляем нужные атрибуты
-    try { (video as any).playsInline = true; } catch {}
-    try { (video as any).webkitPlaysInline = true; } catch {}
+    try { (video as any).playsInline = true; } catch { }
+    try { (video as any).webkitPlaysInline = true; } catch { }
     // на некоторых версиях iOS важно проставить именно АТРИБУТЫ, не только свойства
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
@@ -120,8 +120,8 @@ export const ReviewVideo: React.FC<Props> = ({
     }
 
     // запрет PiP/Remote Playback — best effort
-    try { (video as any).disableRemotePlayback = true; } catch {}
-    try { (video as any).disablePictureInPicture = true; } catch {}
+    try { (video as any).disableRemotePlayback = true; } catch { }
+    try { (video as any).disablePictureInPicture = true; } catch { }
 
     const onPageHide = () => {
       wasPlayingBeforeHide.current = !video.paused;
@@ -134,7 +134,7 @@ export const ReviewVideo: React.FC<Props> = ({
           video.removeAttribute('muted');
           setIsMuted(false);
         }
-        video.play().catch(() => {});
+        video.play().catch(() => { });
       }
     };
 
@@ -173,9 +173,9 @@ export const ReviewVideo: React.FC<Props> = ({
           case Hls.ErrorTypes.MEDIA_ERROR:
             hls.recoverMediaError(); break;
           default:
-            try { hls.destroy(); } catch {}
+            try { hls.destroy(); } catch { }
             video.src = hlsUrl;
-            try { video.load(); } catch {}
+            try { video.load(); } catch { }
         }
       });
     } else {
@@ -213,7 +213,7 @@ export const ReviewVideo: React.FC<Props> = ({
       } catch {
         if (withMutedFallback) {
           retryPlayTimer.current = window.setTimeout(() => {
-            tryAutoplay(false).catch(() => {});
+            tryAutoplay(false).catch(() => { });
           }, 200);
         }
       }
@@ -229,14 +229,14 @@ export const ReviewVideo: React.FC<Props> = ({
         const b = video.buffered;
         const end = b.length ? b.end(b.length - 1) : 0;
         setBufferedEnd(end);
-      } catch {}
+      } catch { }
     };
 
     // доп. для iOS: иногда helpful события
     const onCanPlay = () => {
       if (autoPlay && video.paused && isIOS && isMuted) {
         // ещё одна попытка, когда декодер реально готов
-        const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => {});
+        const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
       }
     };
 
@@ -248,7 +248,7 @@ export const ReviewVideo: React.FC<Props> = ({
         v.muted = false;
         v.removeAttribute('muted');
         setIsMuted(false);
-        const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => {});
+        const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
       }
     };
 
@@ -271,7 +271,7 @@ export const ReviewVideo: React.FC<Props> = ({
             setIsMuted(false);
           }
           const p = video.play?.();
-          if (p && typeof p.catch === 'function') p.catch(() => {});
+          if (p && typeof p.catch === 'function') p.catch(() => { });
         }
       }
     };
@@ -305,16 +305,16 @@ export const ReviewVideo: React.FC<Props> = ({
         }
         ms.setActionHandler?.('play', () => {
           ReelsAudio.unlock();
-          video.play().catch(() => {});
+          video.play().catch(() => { });
         });
         ms.setActionHandler?.('pause', () => {
           video.pause();
         });
-      } catch {}
+      } catch { }
     }
 
     onLoadedMeta(); onTimeUpdate(); onProgress();
-    tryAutoplay().catch(() => {});
+    tryAutoplay().catch(() => { });
 
     return () => {
       clearRetry();
@@ -373,7 +373,7 @@ export const ReviewVideo: React.FC<Props> = ({
     if (v.paused) {
       v.play().then(() => {
         window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: v } as any));
-      }).catch(() => {});
+      }).catch(() => { });
     } else {
       v.pause();
     }
@@ -389,7 +389,7 @@ export const ReviewVideo: React.FC<Props> = ({
     userMutedRef.current = v.muted;
     if (!v.muted) {
       ReelsAudio.unlock();
-      const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => {});
+      const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
     }
   }, []);
 
@@ -493,8 +493,13 @@ export const ReviewVideo: React.FC<Props> = ({
           {isPlaying ? 'Pause' : 'Play'}
         </span>
         {!isPlaying && (
-          <svg viewBox="0 0 24 24" className={styles.icon} aria-hidden="true">
-            <path d="M8 5v14l11-7-11-7z" />
+          <svg width="54" height="54" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title" shape-rendering="geometricPrecision">
+            <title id="title">Play</title>
+            <path
+              d="M22 20.5 Q22 18 24.1 19.35 L33.9 25.65 Q36 27 33.9 28.35 L24.1 34.65 Q22 36 22 33.5 Z"
+              fill="white"
+              fill-opacity="0.92"
+              transform="translate(27 27) scale(2.4) translate(-27 -27)" />
           </svg>
         )}
       </button>

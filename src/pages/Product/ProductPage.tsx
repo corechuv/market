@@ -120,6 +120,7 @@ export default function ProductPage() {
   );
 
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpenUpload, setIsOpenUpload] = React.useState(false);
 
   // sticky CTA visibility
   const actionsRef = React.useRef<HTMLDivElement | null>(null);
@@ -414,8 +415,12 @@ export default function ProductPage() {
           <div className={cls.section}>
             <h3 className={cls.section__title}>Recent customer reviews</h3>
             <div className={cls.section__content}>
-              <ReviewComposer productId={product.id} />
-              <ProductPlainReviews productId={product.id} limit={5} />
+              <div className={cls.reviews}>
+                <div>
+                  <Button onClick={() => setIsOpenUpload(true)}>Add review</Button>
+                </div>
+                <ProductPlainReviews productId={product.id} limit={5} />
+              </div>
             </div>
           </div>
 
@@ -455,6 +460,18 @@ export default function ProductPage() {
         <div className={cls.reviewsContent}>
           <ReviewForm />
           <ReviewList reviews={reviews} className={cls.reviewList} />
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={isOpenUpload}
+        onClose={() => setIsOpenUpload(false)}
+        variant="center"
+        header="New review"
+        headerBorder={false}
+      >
+        <div className={cls.reviewsContent}>
+          <ReviewComposer productId={product.id} />
         </div>
       </Modal>
     </div>

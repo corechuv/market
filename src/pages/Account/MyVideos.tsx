@@ -34,7 +34,7 @@ export default function MyVideos() {
 
     React.useEffect(() => { load(); }, [load]);
 
-    if (loading) return <div>Loading my reels…</div>;
+    if (loading) return <div>Loading my videos…</div>;
     if (error) return <div className={styles.error}>{error}</div>;
     if (!items.length) return <div className={styles.muted}>У вас пока нет видео-отзывов.</div>;
 
