@@ -383,16 +383,14 @@ export default function ProductPage() {
 
           {/* === Plain Reviews (server) — превью === */}
           <div className={cls.section}>
-            <h3 className={cls.section__title}>Recent customer reviews</h3>
+            <h3 className={cls.section__title}>Reviews</h3>
             <div className={cls.section__content}>
               <div className={cls.reviews}>
                 <div className={cls.rating}>
                   {RatingBadgeCustom}
-                </div>
-                <div style={{ width: "100%", display: "flex", flexDirection: "column"}}>
                   <Button size="small" onClick={() => setIsOpenUpload(true)}>Add review</Button>
-                  <ProductPlainReviews productId={product.id} limit={5} />
                 </div>
+                <ProductPlainReviews productId={product.id} limit={5} />
               </div>
             </div>
           </div>
