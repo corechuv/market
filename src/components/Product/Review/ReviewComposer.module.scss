@@ -170,7 +170,7 @@
   font-weight: 500;
   line-height: 1;
   user-select: none;
-  background: color-mix(in srgb, transparent 65%, transparent);
+  background-color: var(--bg);
   /* мягкий фон */
   color: var(--muted);
   cursor: pointer;
