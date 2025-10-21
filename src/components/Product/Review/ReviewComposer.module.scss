@@ -45,8 +45,20 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 8px 12px;
 }
 
+.topbarSpacer {
+  margin-left: auto; /* всё, что после — вправо */
+}
+
+.topbarAction {
+  /* при необходимости подправьте отступы/высоту */
+}
+
+.backBtn {
+  /* ваш существующий стиль */
+}
 .backBtn {
   border: none;
   background: none;
