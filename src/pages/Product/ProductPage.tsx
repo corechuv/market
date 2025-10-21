@@ -17,7 +17,6 @@ import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import DeliveryBadge from "../../components/Product/DeliveryBadge";
 import SpecTable from "../../components/Product/SpecTable";
 import VariantPicker from "../../components/Product/Details/VariantPicker";
-import Stars from "../../components/Product/Stars";
 import ProductDatasheet from "../../components/Product/Details/ProductDatasheet";
 import EnergyLabel from "../../components/Product/Details/EnergyLabel";
 import { useCart } from "../../context/CartContext";
@@ -242,12 +241,11 @@ export default function ProductPage() {
   const ratingValue = reviewAvg !== null ? Math.round(reviewAvg * 10) / 10 : null;
 
   const RatingBadge = (
-    <div className={cls.productMeta__rating}>
-      <Stars size={18} value={ratingValue ?? 0} />
-      <span className={cls.productMeta__ratingValue}>
+    <div className={cls.rating__capture}>
+      <span className={cls["rating__value--small"]}>
         {ratingValue !== null ? ratingValue.toFixed(1) : "—"}
       </span>
-      <span className={cls.productMeta__ratingCount}>({reviewCount})</span>
+      <span className={cls["rating__count--small"]}>({reviewCount})</span>
     </div>
   );
 

@@ -5,6 +5,12 @@
     align-items: center;
     gap: 16px;
 
+    &__capture {
+        display: flex;
+        align-items: start;
+        gap: 6px;
+    }
+
     &__box {
         display: grid;
         grid-template-columns: auto 1fr;
@@ -26,8 +32,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 16px;
-            font-weight: 300;
+            font-size: 15px;
+            font-weight: 400;
             width: 32px;
             height: 32px;
             border-radius: 50%;
@@ -37,5 +43,9 @@
 
     &__count {
         font-size: 16px;
+
+        &--small {
+            font-size: 15px;
+        }
     }
 }
