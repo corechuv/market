@@ -468,9 +468,9 @@
       .previewWrap {
         width: 100%;
         height: auto;
-        /* высота из ширины + aspect-ratio */
         max-height: 368px;
-        /* перестраховка */
+        max-width: 247px;
+        margin: 0 auto;
       }
     }
   }
