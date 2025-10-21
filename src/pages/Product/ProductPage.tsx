@@ -275,7 +275,7 @@ export default function ProductPage() {
 
               <div className={cls.productMeta}>
                 {RatingBadge}
-                <div className={cls.productMeta__articleNumber}>Art.-Nr. {articleNumber}</div>
+                <div className={cls.productMeta__articleNumber}>Art.-Nr.: {articleNumber}</div>
               </div>
 
               <div className={cls.productPrice}>
