@@ -325,15 +325,13 @@ export default function ReviewComposer({
               canPublish,
             })
           ) : (
-            <Button
-              variant="primary"
-              size="small"
+            <button
               onClick={onTopbarPublishClick}
               disabled={!canPublish}
               className={styles.topbarAction}
             >
               {busy ? "Saving…" : "Publish"}
-            </Button>
+            </button>
           )}
         </div>
       )}
