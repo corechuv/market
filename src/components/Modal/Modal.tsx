@@ -19,12 +19,15 @@ export interface ModalProps {
   header?: React.ReactNode;
   /** Классы для .modalBody */
   bodyClassName?: string;
+  bodyStyles?: boolean;
   /** Классы для .modalHeader */
   headerClassName?: string;
   /** Доп. классы для корневого .modalContent */
   className?: string;
   headerBorder?: boolean; // optional, if true adds border to header
   sideWidth?: string | number;
+  tab?: boolean;
+  tabContent?: React.ReactNode;
 }
 
 export default function Modal({
@@ -33,11 +36,14 @@ export default function Modal({
   onClose,
   variant = 'center',
   header,
+  bodyStyles = false,
   bodyClassName = '',
   headerClassName = '',
   className = '',
   headerBorder = true,
   sideWidth = '360px',
+  tab = false,
+  tabContent
 }: ModalProps) {
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -94,6 +100,10 @@ export default function Modal({
     borderBottom: headerBorder ? '1px dashed transparent' : '1px dashed transparent',
   };
 
+  const modalBodyStyle: React.CSSProperties = {
+    padding: bodyStyles ? "0" : "20px",
+  };
+
 
   return createPortal(
     <div className={`${cls.modalOverlay} ${cls[variant]}`}
@@ -133,8 +143,10 @@ export default function Modal({
             </button>
           </div>
         )}
-
-        <div className={`${cls.modalBody} ${bodyClassName}`}>
+        {tab && (
+          <>{tabContent}</>
+        )}
+        <div className={`${cls.modalBody} ${bodyClassName}`} style={modalBodyStyle}>
           <div className={cls.modalScroll}>{children}</div>
         </div>
       </div>

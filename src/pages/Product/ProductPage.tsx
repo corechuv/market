@@ -467,12 +467,10 @@ export default function ProductPage() {
         isOpen={isOpenUpload}
         onClose={() => setIsOpenUpload(false)}
         variant="center"
-        header="New review"
         headerBorder={false}
+        bodyStyles={true}
       >
-        <div className={cls.reviewsContent}>
-          <ReviewComposer productId={product.id} />
-        </div>
+        <ReviewComposer productId={product.id} />
       </Modal>
     </div>
   );

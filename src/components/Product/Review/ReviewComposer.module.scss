@@ -1,4 +1,5 @@
-// src/components/Product/Review/ReviewComposer.module.scss
+/* src/components/Product/Review/ReviewComposer.module.scss */
+
 /*
   — Нормальные, аккуратные стили для ReviewComposer
   — Локальные переменные темы; адаптация к тёмной теме
@@ -16,21 +17,19 @@
   --rc-muted: #777;
   --rc-border: #e9e9ec;
   --rc-track: #eee;
-  --rc-ring: #2563eb33; /* полупрозрачное синее */
-  --rc-primary: #2563eb; /* кнопка/акцент */
+  --rc-ring: #2563eb33;
+  /* полупрозрачное синее */
+  --rc-primary: #2563eb;
+  /* кнопка/акцент */
   --rc-primary-pressed: #1e40af;
   --rc-success: #16a34a;
   --rc-danger: #c1121f;
-
-  display: grid;
-  gap: var(--rc-gap);
 }
 
 @media (prefers-color-scheme: dark) {
   .root {
     --rc-bg: #111417;
     --rc-text: #e9eef3;
-    --rc-muted: #9aa5b1;
     --rc-border: #232a31;
     --rc-track: #1f242a;
     --rc-ring: #60a5fa33;
@@ -41,20 +40,172 @@
   }
 }
 
+/* --- Верхняя панель (назад) --- */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.backBtn {
+  border: none;
+  background: none;
+  padding: 0;
+  border-radius: 50%;
+  height: 32px;
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 10;
+
+  /* хук под стили кнопки, если понадобится */
+  svg {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* --- Экран выбора типа --- */
+.typePicker {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  min-height: 220px;
+}
+
+.typeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(160px, 1fr));
+  gap: 16px;
+  width: min(560px, 100%);
+}
+
+.typeCard {
+  appearance: none;
+  border: 1px dashed var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 18px;
+  display: grid;
+  font-family: "Roboto", sans-serif;
+  place-items: center;
+  gap: 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform .06s linear, box-shadow .15s ease, border-color .15s ease, background-color .15s ease;
+}
+
+.typeCard:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.typeIcon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.typeTitle {
+  font-weight: 500;
+  font-size: 18px;
+}
+
+.typeHint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
 /* --- Верхняя панель управления --- */
 .controls {
   display: flex;
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
+  width: 100%;
 }
-.controls label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+
+/* --- Цифровой рейтинг 1–5: круглые кнопки без бордера --- */
+.ratingWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 320px;
+  min-width: 240px;
+}
+
+.ratingLabel {
+  font-weight: 400;
   font-size: 14px;
-  color: var(--rc-text);
+  margin: 0 3px;
 }
+
+.rating {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  width: 100%;
+  justify-items: center;
+  /* чтобы кружки не растягивались на всю колонку */
+  margin-bottom: 20px;
+}
+
+.ratingItem {
+  appearance: none;
+  border: none;
+  /* без бордера */
+  border-radius: 999px;
+  /* круг */
+  width: 100%;
+  max-width: 56px;
+  /* ограничиваем, чтобы на широких экранах кружки не становились гигантскими */
+  min-width: 40px;
+  /* удобная зона клика */
+  aspect-ratio: 1 / 1;
+  /* держим круг */
+  padding: 0;
+  display: grid;
+  place-items: center;
+  font: inherit;
+  font-weight: 500;
+  line-height: 1;
+  user-select: none;
+  background: color-mix(in srgb, transparent 65%, transparent);
+  /* мягкий фон */
+  color: var(--muted);
+  cursor: pointer;
+  transition: transform .02s linear,
+    background-color .15s ease,
+    color .15s ease,
+    box-shadow .15s ease;
+}
+
+.ratingItem:hover {
+  
+}
+
+.ratingItem:active {
+  transform: translateY(1px);
+}
+
+.ratingItem:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--rc-ring);
+  /* отчётливый focus без бордера */
+}
+
+.isActive {
+  background: black;
+  /* активный — заливка акцентом */
+  color: #fff;
+  /* контрастный текст */
+}
+
+.ratingItem[disabled] {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
 
 /* --- Бэйслайны для полей ввода --- */
 .input,
@@ -76,13 +227,15 @@
 
 /* Размеры и исключения */
 .number {
-  width: 60px; /* как в исходнике */
+  width: 60px;
+  /* историческое, сейчас не используется, можно удалить позже */
   text-align: center;
 }
 
 .textarea {
   resize: vertical;
-  min-height: 84px; /* rows={3} ≈ */
+  min-height: 84px;
+  /* rows={3} ≈ */
 }
 
 /* Фокусы/hover/disabled */
@@ -122,6 +275,7 @@
 .fileInput {
   padding: 6px 10px;
 }
+
 .fileInput::-webkit-file-upload-button,
 .fileInput::file-selector-button {
   margin-right: 10px;
@@ -134,10 +288,12 @@
   cursor: pointer;
   transition: background-color .15s ease, border-color .15s ease, transform .02s linear;
 }
+
 .fileInput::-webkit-file-upload-button:hover,
 .fileInput::file-selector-button:hover {
   border-color: var(--rc-primary);
 }
+
 .fileInput::-webkit-file-upload-button:active,
 .fileInput::file-selector-button:active {
   transform: translateY(1px);
@@ -147,6 +303,7 @@
 .progress {
   font-size: 12px;
 }
+
 .progressTrack {
   height: 6px;
   background: var(--rc-track);
@@ -154,10 +311,12 @@
   overflow: hidden;
   margin-top: 4px;
 }
+
 .progressBar {
   height: 100%;
   background: var(--rc-success);
-  width: 0%; /* ширина выставляется inline-стилем */
+  width: 0%;
+  /* ширина выставляется inline-стилем */
   transition: width .2s ease;
 }
 
@@ -166,16 +325,24 @@
   font-size: 12px;
   color: #333;
 }
+
 .msgError {
   color: var(--rc-danger);
 }
 
 /* Небольшая адаптивность */
+@media (max-width: 640px) {
+  .typeGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 480px) {
   .root {
     --rc-pad: 10px;
     --rc-radius: 10px;
   }
+
   .controls {
     gap: 8px;
   }
@@ -183,13 +350,15 @@
 
 /* Предпочтение по снижению анимаций */
 @media (prefers-reduced-motion: reduce) {
+
   .button,
   .progressBar,
   .input,
   .select,
   .textarea,
   .fileInput,
-  .number {
+  .number,
+  .typeCard {
     transition: none;
   }
 }
@@ -197,22 +366,24 @@
 /* --- Компоновка для видео-отзыва: превью слева, контент справа --- */
 .reelLayout {
   display: grid;
-  grid-template-columns: auto 1fr; /* слева узкая колонка превью */
-  gap: 16px;
+  grid-template-columns: auto 1fr;
+  /* слева узкая колонка превью */
+  gap: 0;
   align-items: start;
 }
 
-/* Кликабельная drop-зона с превью 9:16, h<=368px */
+/* Кликабельная drop-зона с превью 9:16, h<=438px */
 .previewWrap {
   position: relative;
-  border-radius: 14px;
+  border-radius: 10px;
   overflow: hidden;
   background: black;
   cursor: pointer;
   user-select: none;
+  margin: 6px;
 
-  /* размер: держим 9:16, по высоте не больше 368px */
-  height: min(338px, 40vh);
+  /* размер: держим 9:16, по высоте не больше 438px */
+  height: min(438px, 50vh);
   aspect-ratio: 9 / 16;
 
   display: grid;
@@ -237,11 +408,13 @@
   color: var(--rc-muted);
   padding: 12px;
 }
+
 .previewHintTitle {
   font-size: 14px;
   font-weight: 600;
   color: var(--rc-text);
 }
+
 .previewHintSub {
   font-size: 12px;
   margin-top: 4px;
@@ -250,6 +423,7 @@
 .reelRight {
   display: grid;
   gap: 10px;
+  padding: 20px;
 }
 
 /* Скрытый, но доступный инпут */
@@ -271,9 +445,12 @@
   .reelLayout {
     grid-template-columns: 1fr;
   }
+
   .previewWrap {
     width: 100%;
-    height: auto;      /* высота из ширины + aspect-ratio */
-    max-height: 368px; /* перестраховка */
+    height: auto;
+    /* высота из ширины + aspect-ratio */
+    max-height: 368px;
+    /* перестраховка */
   }
 }
