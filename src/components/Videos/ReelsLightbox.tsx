@@ -17,11 +17,7 @@ import { deleteReview } from "../../services/reviewApi";
 import Button from "../UI/Button";
 import { ReelsAudio } from "../../utils/reelsAudio";
 
-type Item = {
-  review: ReviewOut;
-  url: string;
-  poster?: string;
-};
+type Item = { review: ReviewOut; url: string; poster?: string; };
 
 type Props = {
   items: Item[];
@@ -30,14 +26,11 @@ type Props = {
   onIndexChange?: (i: number) => void;
 };
 
-// скорость «скролла» трека — пикселей в секунду
 const SPEED_PX_PER_SEC = 1400;
-const UNMUTE_EVENT = 'reels:unmute_now';
 
 function useBodyScrollLock(active: boolean) {
   React.useEffect(() => {
     if (!active) return;
-
     const body = document.body;
     const docEl = document.documentElement;
     const scrollY = window.scrollY;
@@ -50,7 +43,6 @@ function useBodyScrollLock(active: boolean) {
       overflow: body.style.overflow,
       paddingRight: body.style.paddingRight,
     };
-
     const sbw = window.innerWidth - docEl.clientWidth;
     if (sbw > 0) body.style.paddingRight = `${sbw}px`;
 
@@ -74,6 +66,18 @@ function useBodyScrollLock(active: boolean) {
   }, [active]);
 }
 
+// утилита: запустить текущий ролик со звуком (в рамках ЖЕСТА)
+function playUnmutedById(id?: string) {
+  if (!id) return;
+  const map = (window as any).__reelsPlayers as Map<string, HTMLVideoElement> | undefined;
+  const v = map?.get(id);
+  if (!v) return;
+  try {
+    v.muted = false; v.removeAttribute('muted');
+    const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => {});
+  } catch {}
+}
+
 export default function ReelsLightbox({
   items,
   startIndex = 0,
@@ -86,7 +90,6 @@ export default function ReelsLightbox({
 
   const [busy, setBusy] = React.useState(false);
   const [isOpen, setIsOpen] = useState(false);
-
   const [dir, setDir] = React.useState<1 | -1 | 0>(0);
   const [kick, setKick] = React.useState(false);
 
@@ -102,7 +105,6 @@ export default function ReelsLightbox({
       setDurMs(ms);
     }
   }, []);
-
   React.useLayoutEffect(recalcDuration, [recalcDuration, index]);
 
   React.useEffect(() => {
@@ -130,17 +132,11 @@ export default function ReelsLightbox({
     ReelsAudio.unlock();
   }, []);
 
-  // диспатчим «жест» анмьюта + идентификатор текущего ролика
-  const unmuteCurrentNow = React.useCallback((id: string) => {
-    window.dispatchEvent(new CustomEvent(UNMUTE_EVENT, { detail: { reviewId: id } }));
-  }, []);
-
   const go = React.useCallback((d: 1 | -1) => {
     if (busy || kick) return;
     if (d === 1 && !hasNext) return;
     if (d === -1 && !hasPrev) return;
-    setBusy(true);
-    setDir(d);
+    setBusy(true); setDir(d);
     requestAnimationFrame(() => requestAnimationFrame(() => setKick(true)));
   }, [busy, kick, hasNext, hasPrev]);
 
@@ -150,42 +146,24 @@ export default function ReelsLightbox({
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
       if (e.key === "Escape") onClose();
-      if (e.key === "ArrowDown" || e.key === "PageDown") {
-        ensureSoundUnlocked();
-        unmuteCurrentNow(items[index]?.review.id);
-        go(1);
-      }
-      if (e.key === "ArrowUp" || e.key === "PageUp") {
-        ensureSoundUnlocked();
-        unmuteCurrentNow(items[index]?.review.id);
-        go(-1);
-      }
+      if (e.key === "ArrowDown" || e.key === "PageDown") { ensureSoundUnlocked(); playUnmutedById(items[index]?.review.id); go(1); }
+      if (e.key === "ArrowUp" || e.key === "PageUp") { ensureSoundUnlocked(); playUnmutedById(items[index]?.review.id); go(-1); }
     };
     window.addEventListener("keydown", onKey, { passive: true });
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose, ensureSoundUnlocked, unmuteCurrentNow, go, items, index]);
+  }, [onClose, ensureSoundUnlocked, go, items, index]);
 
-  // окончание анимации — переключаем индекс
+  // завершение анимации
   React.useEffect(() => {
     if (!kick) return;
     const t = setTimeout(() => {
-      const next = (prev: number) => prev + dir;
-      setIndex(next);
-      setKick(false);
-      setDir(0);
-      setBusy(false);
-      // после переключения — если звук разблокирован, попросим активное видео анмьютнуться
-      const newIdx = index + dir;
-      const nextId = items[newIdx]?.review.id;
-      if (nextId && ReelsAudio.isUnlocked()) {
-        // не нужно быть в окне жеста: после первого явного жеста Safari обычно разрешает звук
-        setTimeout(() => unmuteCurrentNow(nextId), 0);
-      }
+      setIndex((i) => i + dir);
+      setKick(false); setDir(0); setBusy(false);
     }, durMs);
     return () => clearTimeout(t);
-  }, [kick, dir, durMs, index, items, unmuteCurrentNow]);
+  }, [kick, dir, durMs]);
 
-  // колесо
+  // колесо/трекпад
   const wheelLock = React.useRef(0);
   const onWheel = (e: React.WheelEvent) => {
     const now = Date.now();
@@ -195,29 +173,19 @@ export default function ReelsLightbox({
     if (Math.abs(d) < 12) return;
     wheelLock.current = now;
     ensureSoundUnlocked();
-    unmuteCurrentNow(items[index]?.review.id);
+    playUnmutedById(items[index]?.review.id);
     if (d > 0) go(1); else go(-1);
   };
 
   // свайпы
   const touchStartY = React.useRef<number | null>(null);
-  const onTouchStart = (e: React.TouchEvent) => {
-    touchStartY.current = e.touches[0].clientY;
-  };
+  const onTouchStart = (e: React.TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
   const onTouchEnd = (e: React.TouchEvent) => {
     if (busy || kick) return;
-    const s = touchStartY.current;
-    if (s == null) return;
+    const s = touchStartY.current; if (s == null) return;
     const dy = e.changedTouches[0].clientY - s;
-    if (dy < -40) {
-      ensureSoundUnlocked();
-      unmuteCurrentNow(items[index]?.review.id);
-      go(1);
-    } else if (dy > 40) {
-      ensureSoundUnlocked();
-      unmuteCurrentNow(items[index]?.review.id);
-      go(-1);
-    }
+    if (dy < -40) { ensureSoundUnlocked(); playUnmutedById(items[index]?.review.id); go(1); }
+    else if (dy > 40) { ensureSoundUnlocked(); playUnmutedById(items[index]?.review.id); go(-1); }
     touchStartY.current = null;
   };
 
@@ -226,7 +194,6 @@ export default function ReelsLightbox({
     count: cur?.review.helpfulCount ?? 0,
     mine: !!cur?.review.helpfulByMe,
   });
-
   React.useEffect(() => {
     setHelpful({
       count: items[index]?.review.helpfulCount ?? 0,
@@ -240,11 +207,10 @@ export default function ReelsLightbox({
       setBusy(true);
       const res = await setReviewHelpful(cur.review.id, !helpful.mine);
       setHelpful({ count: res.helpfulCount, mine: res.helpful });
-    } catch { /* noop */ }
-    finally { setBusy(false); }
+    } catch {} finally { setBusy(false); }
   };
 
-  // ===== SHARE =====
+  // SHARE
   const [, setCopied] = React.useState(false);
   const onShare = async () => {
     if (!cur) return;
@@ -255,12 +221,10 @@ export default function ReelsLightbox({
     const text = (cur.review.text && cur.review.text.trim()) || "Посмотри этот отзыв";
     const navAny = navigator as any;
     try {
-      if (navAny.share) {
-        await navAny.share({ title, text, url });
-      } else if (navigator.clipboard && "writeText" in navigator.clipboard) {
+      if (navAny.share) await navAny.share({ title, text, url });
+      else if (navigator.clipboard && "writeText" in navigator.clipboard) {
         await navigator.clipboard.writeText(url);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1600);
+        setCopied(true); setTimeout(() => setCopied(false), 1600);
       } else {
         window.prompt("Скопируйте ссылку:", url);
       }
@@ -272,11 +236,7 @@ export default function ReelsLightbox({
 
   const onDelete = async (id: string) => {
     if (!confirm("Удалить этот ролик?")) return;
-    try {
-      await deleteReview(id);
-    } catch (e: any) {
-      alert(e?.message ?? "Не удалось удалить ролик");
-    }
+    try { await deleteReview(id); } catch (e: any) { alert(e?.message ?? "Не удалось удалить ролик"); }
   };
 
   return (
@@ -285,13 +245,9 @@ export default function ReelsLightbox({
       role="dialog"
       aria-modal="true"
       onWheel={onWheel}
-      onPointerDown={() => { ensureSoundUnlocked(); unmuteCurrentNow(cur.review.id); }} // ← ЖЕСТ: сразу просим анмьют
+      onPointerDown={() => { ensureSoundUnlocked(); playUnmutedById(cur.review.id); }} // ← первый тап включает звук текущего видео
     >
-      <button
-        className={styles.backdrop}
-        aria-label="Close"
-        onClick={onClose}
-      />
+      <button className={styles.backdrop} aria-label="Close" onClick={onClose} />
       <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
         <CloseIcon />
       </button>
@@ -300,7 +256,7 @@ export default function ReelsLightbox({
       <div className={styles.navV}>
         <button
           className={styles.navBtn}
-          onClick={() => { ensureSoundUnlocked(); unmuteCurrentNow(cur.review.id); go(-1); }}
+          onClick={() => { ensureSoundUnlocked(); playUnmutedById(cur.review.id); go(-1); }}
           disabled={!hasPrev || busy}
           aria-label="Previous (Up)"
         >
@@ -308,7 +264,7 @@ export default function ReelsLightbox({
         </button>
         <button
           className={styles.navBtn}
-          onClick={() => { ensureSoundUnlocked(); unmuteCurrentNow(cur.review.id); go(1); }}
+          onClick={() => { ensureSoundUnlocked(); playUnmutedById(cur.review.id); go(1); }}
           disabled={!hasNext || busy}
           aria-label="Next (Down)"
         >
@@ -324,10 +280,7 @@ export default function ReelsLightbox({
         style={{ ["--dur" as any]: `${durMs}ms` }}
       >
         {/* СЦЕНА */}
-        <div
-          className={clsx(styles.scene, kick && styles.isAnimating)}
-          style={{ transform: `translateY(${trackY}%)` }}
-        >
+        <div className={clsx(styles.scene, kick && styles.isAnimating)} style={{ transform: `translateY(${trackY}%)` }}>
           {/* prev */}
           <div className={clsx(styles.panel, !hasPrev && styles.ghost)} aria-hidden={!hasPrev}>
             {prevItem && (
@@ -344,10 +297,10 @@ export default function ReelsLightbox({
             )}
           </div>
 
-          {/* current */}
+          {/* current — ВАЖНО: БЕЗ key, чтобы <video> НЕ пересоздавался */}
           <div className={styles.panel}>
             <ReviewVideoResolver
-              key={`cur-${cur.review.id}`}
+              /* key убрали намеренно */
               url={cur.url}
               reviewId={cur.review.id}
               productId={cur.review.productId}
@@ -377,10 +330,7 @@ export default function ReelsLightbox({
         </div>
 
         {/* нижняя панель */}
-        <div className={styles.bar__bottom}
-          onPointerDown={(e) => e.stopPropagation()}
-          onWheel={(e) => e.stopPropagation()}
-        >
+        <div className={styles.bar__bottom} onPointerDown={(e) => e.stopPropagation()} onWheel={(e) => e.stopPropagation()}>
           <div className={styles.meta}>
             <div className={styles.info}>
               <div className={styles.rating}>
@@ -389,9 +339,7 @@ export default function ReelsLightbox({
               </div>
             </div>
             <div>
-              <strong className={styles.author}>
-                {cur.review.authorName || "Аноним"}
-              </strong>
+              <strong className={styles.author}>{cur.review.authorName || "Аноним"}</strong>
               <p className={styles.text}>{cur.review.text || ""}</p>
               {cur.review.verified && <span style={{ display: "none" }}>✅ verified</span>}
             </div>
@@ -417,9 +365,7 @@ export default function ReelsLightbox({
         </div>
 
         <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} variant="center">
-          <Button variant="link" onClick={() => onDelete(cur.review.id)}>
-            Delete
-          </Button>
+          <Button variant="link" onClick={() => onDelete(cur.review.id)}>Delete</Button>
         </Modal>
       </div>
     </div>

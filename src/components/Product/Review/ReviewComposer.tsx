@@ -130,10 +130,11 @@ export default function ReviewComposer({ productId }: Props) {
                         className={styles.select}
                     >
                         <option value="plain">plain</option>
-                        <option value="reel">reel</option>
+                        <option value="reel">video</option>
                     </select>
                 </label>
-
+            </div>
+            <div className={styles.controls}>
                 <label>
                     Оценка:&nbsp;
                     <input
@@ -159,28 +160,30 @@ export default function ReviewComposer({ productId }: Props) {
                 rows={3}
             />
 
-            {type === "reel" && (
-                <div className={styles.reel}>
-                    <input
-                        type="file"
-                        accept="video/*"
-                        onChange={onPick}
-                        disabled={busy}
-                        className={styles.fileInput}
-                    />
-                    {progress > 0 && (
-                        <div className={styles.progress}>
-                            Uploading: {progress}%
-                            <div className={styles.progressTrack}>
-                                <div
-                                    className={styles.progressBar}
-                                    style={{ width: `${progress}%` }}
-                                />
+            {
+                type === "reel" && (
+                    <div className={styles.reel}>
+                        <input
+                            type="file"
+                            accept="video/*"
+                            onChange={onPick}
+                            disabled={busy}
+                            className={styles.fileInput}
+                        />
+                        {progress > 0 && (
+                            <div className={styles.progress}>
+                                Uploading: {progress}%
+                                <div className={styles.progressTrack}>
+                                    <div
+                                        className={styles.progressBar}
+                                        style={{ width: `${progress}%` }}
+                                    />
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </div>
-            )}
+                        )}
+                    </div>
+                )
+            }
 
             <Button
                 variant="primary"
@@ -189,14 +192,16 @@ export default function ReviewComposer({ productId }: Props) {
                 disabled={busy || (type === "reel" && !file)}
                 className={styles.button}
             >
-                {busy ? "Сохраняем…" : type === "plain" ? "Опубликовать отзыв" : "Загрузить видео и опубликовать"}
+                {busy ? "Сохраняем…" : type === "plain" ? "Publish" : "Publish"}
             </Button>
 
-            {msg && (
-                <div className={`${styles.msg} ${msg.startsWith("Не удалось") ? styles.msgError : ""}`}>
-                    {msg}
-                </div>
-            )}
-        </div>
+            {
+                msg && (
+                    <div className={`${styles.msg} ${msg.startsWith("Не удалось") ? styles.msgError : ""}`}>
+                        {msg}
+                    </div>
+                )
+            }
+        </div >
     );
 }
