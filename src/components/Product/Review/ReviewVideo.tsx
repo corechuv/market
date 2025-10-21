@@ -1,3 +1,4 @@
+// ReviewVideo.tsx
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Hls from 'hls.js';
 import mux, { type MonitorOptions } from 'mux-embed';
@@ -18,6 +19,8 @@ type Props = {
   autoPlay?: boolean;
   muted?: boolean;
   active?: boolean;
+  /** NEW: зациклить ролик (по умолчанию true) */
+  loop?: boolean;
 };
 
 // детектор iOS (включая iPadOS с десктопным UA)
@@ -39,18 +42,19 @@ export const ReviewVideo: React.FC<Props> = ({
   autoPlay = false,
   muted = false,
   active = false,
+  loop = true,                // NEW: default loop ON
 }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
   const monitoredRef = useRef(false);
   const userMutedRef = useRef(false);
   const activeRef = useRef<boolean>(active);
+  const loopRef = useRef<boolean>(loop);      // NEW
 
-  // ⚠️ на iOS Safari атрибут muted должен быть уже на DOM в первый paint,
-  // иначе autoplay может запретиться. поэтому начальное состояние считаем синхронно.
+  // ⚠️ на iOS Safari атрибут muted должен быть уже на DOM в первый paint
   const [isMuted, setIsMuted] = useState<boolean>(() => {
     const global = ReelsAudio.isUnlocked();
-    return !(global || !muted); // если звук не «разблокирован», стартуем в mute
+    return !(global || !muted);
   });
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState<number>(0);
@@ -66,6 +70,17 @@ export const ReviewVideo: React.FC<Props> = ({
       retryPlayTimer.current = null;
     }
   };
+
+  // держим актуальный loop в ref и на DOM-атрибуте
+  useEffect(() => {
+    loopRef.current = loop;
+    const v = videoRef.current;
+    if (v) {
+      v.loop = loop;
+      if (loop) v.setAttribute('loop', '');
+      else v.removeAttribute('loop');
+    }
+  }, [loop]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -110,11 +125,9 @@ export const ReviewVideo: React.FC<Props> = ({
     // === iOS inline + заранее выставляем нужные атрибуты
     try { (video as any).playsInline = true; } catch { }
     try { (video as any).webkitPlaysInline = true; } catch { }
-    // на некоторых версиях iOS важно проставить именно АТРИБУТЫ, не только свойства
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
     if (autoPlay && isMuted) {
-      // для autoplay iOS требует атрибут muted/autoplay на момент воспроизведения
       video.setAttribute('muted', '');
       video.setAttribute('autoplay', '');
     }
@@ -122,6 +135,10 @@ export const ReviewVideo: React.FC<Props> = ({
     // запрет PiP/Remote Playback — best effort
     try { (video as any).disableRemotePlayback = true; } catch { }
     try { (video as any).disablePictureInPicture = true; } catch { }
+
+    // NEW: включаем loop на DOM прямо при инициализации
+    video.loop = loopRef.current;
+    if (video.loop) video.setAttribute('loop', '');
 
     const onPageHide = () => {
       wasPlayingBeforeHide.current = !video.paused;
@@ -138,7 +155,18 @@ export const ReviewVideo: React.FC<Props> = ({
       }
     };
 
+    // NEW: безопасный перезапуск, если вдруг loop не сработал нативно (MSE/HLS.js)
     const onEnded = () => {
+      if (loopRef.current) {
+        try {
+          // минимальный сдвиг может помогать отдельным браузерам
+          video.currentTime = 0;
+          const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
+        } catch { /* noop */ }
+        // ВАЖНО: не шлём "reels:ended", чтобы lightbox не листал дальше
+        return;
+      }
+      // если когда-то выключим loop — оставим событие для внешних сценариев
       window.dispatchEvent(new CustomEvent('reels:ended', { detail: reviewId } as any));
     };
 
@@ -205,7 +233,6 @@ export const ReviewVideo: React.FC<Props> = ({
             video.setAttribute('muted', '');
             setIsMuted(true);
           }
-          // на iOS зачастую требуется иметь именно атрибут autoplay
           if (isIOS) video.setAttribute('autoplay', '');
           await video.play();
         }
@@ -232,10 +259,8 @@ export const ReviewVideo: React.FC<Props> = ({
       } catch { }
     };
 
-    // доп. для iOS: иногда helpful события
     const onCanPlay = () => {
       if (autoPlay && video.paused && isIOS && isMuted) {
-        // ещё одна попытка, когда декодер реально готов
         const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
       }
     };
@@ -277,7 +302,7 @@ export const ReviewVideo: React.FC<Props> = ({
     };
 
     // подписки
-    video.addEventListener('ended', onEnded);
+    video.addEventListener('ended', onEnded);     // NEW
     window.addEventListener('pagehide', onPageHide);
     window.addEventListener('pageshow', onPageShow);
 
@@ -319,7 +344,7 @@ export const ReviewVideo: React.FC<Props> = ({
     return () => {
       clearRetry();
 
-      video.removeEventListener('ended', onEnded);
+      video.removeEventListener('ended', onEnded);   // NEW
       window.removeEventListener('pagehide', onPageHide);
       window.removeEventListener('pageshow', onPageShow);
 
@@ -369,7 +394,6 @@ export const ReviewVideo: React.FC<Props> = ({
   const togglePlay = useCallback(() => {
     const v = videoRef.current;
     if (!v) return;
-    // iOS: делаем действие строго в ответ на жест
     if (v.paused) {
       v.play().then(() => {
         window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: v } as any));
@@ -401,10 +425,14 @@ export const ReviewVideo: React.FC<Props> = ({
     }
   };
 
+  const [durationState, setDurationState] = useState<number | null>(null);
+  useEffect(() => setDurationState(duration || 0), [duration]);
+
   const onSeek = (t: number) => {
     const v = videoRef.current;
-    if (!v || !Number.isFinite(duration) || duration <= 0) return;
-    v.currentTime = Math.min(Math.max(0, t), duration);
+    const d = durationState ?? 0;
+    if (!v || !Number.isFinite(d) || d <= 0) return;
+    v.currentTime = Math.min(Math.max(0, t), d);
     setCurrentTime(v.currentTime);
   };
 
@@ -426,7 +454,7 @@ export const ReviewVideo: React.FC<Props> = ({
       onSeek(0);
     } else if (e.key === 'End') {
       e.preventDefault();
-      onSeek(duration);
+      onSeek(durationState || 0);
     }
   };
 
@@ -435,8 +463,8 @@ export const ReviewVideo: React.FC<Props> = ({
     togglePlay();
   };
 
-  const playedPct = duration > 0 ? (currentTime / duration) * 100 : 0;
-  const bufferedPct = duration > 0 ? (Math.min(bufferedEnd, duration) / duration) * 100 : 0;
+  const playedPct = (durationState || 0) > 0 ? (currentTime / (durationState || 1)) * 100 : 0;
+  const bufferedPct = (durationState || 0) > 0 ? (Math.min(bufferedEnd, durationState || 0) / (durationState || 1)) * 100 : 0;
 
   const fmt = (sec: number) => {
     if (!Number.isFinite(sec)) return '0:00';
@@ -455,16 +483,16 @@ export const ReviewVideo: React.FC<Props> = ({
         ref={videoRef}
         className={styles.video}
         poster={poster}
-        // ВАЖНО: для iOS проставляем autoplay атрибут, когда проп autoPlay истинен
         autoPlay={autoPlay}
         playsInline
         preload="metadata"
-        muted={isMuted} // держим в синке со стейтом и атрибутом
+        muted={isMuted}
         controls={false}
         controlsList="nodownload noplaybackrate noremoteplayback"
         onClick={onVideoClick}
-        // маленькая подстраховка: первый touch — точно «жест»
         onTouchStart={() => ReelsAudio.unlock()}
+        // NEW: даём браузеру шанс зациклить нативно
+        loop={loop}
       />
 
       {/* Top-right: mute/unmute */}
@@ -498,7 +526,7 @@ export const ReviewVideo: React.FC<Props> = ({
             <path
               d="M22 20.5 Q22 18 24.1 19.35 L33.9 25.65 Q36 27 33.9 28.35 L24.1 34.65 Q22 36 22 33.5 Z"
               fill="white"
-              fill-opacity="0.92"
+              fillOpacity="0.92"
               transform="translate(27 27) scale(2.4) translate(-27 -27)" />
           </svg>
         )}
@@ -516,9 +544,9 @@ export const ReviewVideo: React.FC<Props> = ({
           <input
             type="range"
             min={0}
-            max={Math.max(0, duration)}
+            max={Math.max(0, durationState || 0)}
             step={0.01}
-            value={Math.min(currentTime, duration || 0)}
+            value={Math.min(currentTime, durationState || 0)}
             onChange={onRangeChange}
             onKeyDown={onRangeKeyDown}
             onWheel={(e) => e.stopPropagation()}
@@ -528,7 +556,7 @@ export const ReviewVideo: React.FC<Props> = ({
         </div>
 
         <div className={styles.timeRight} aria-label="Duration">
-          {duration ? fmt(duration) : '0:00'}
+          {durationState ? fmt(durationState) : '0:00'}
         </div>
       </div>
     </div>

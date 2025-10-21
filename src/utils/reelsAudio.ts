@@ -1,3 +1,4 @@
+// src/utils/reelsAudio.ts
 class ReelsAudioGate {
   private unlocked = false;
   private ac: AudioContext | null = null;

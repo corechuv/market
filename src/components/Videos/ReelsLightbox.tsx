@@ -242,6 +242,7 @@ export default function ReelsLightbox({
     });
   }, [index, items]);
 
+  /*
   React.useEffect(() => {
     const onEnded = (ev: any) => {
       if (!cur) return;
@@ -252,6 +253,7 @@ export default function ReelsLightbox({
     window.addEventListener('reels:ended', onEnded);
     return () => window.removeEventListener('reels:ended', onEnded);
   }, [cur?.review.id, hasNext, busy, kick, go]);
+  */
 
   const toggleHelpful = async () => {
     if (!cur) return;
