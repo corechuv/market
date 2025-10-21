@@ -383,14 +383,6 @@ export default function ProductPage() {
             </div>
           </div>
 
-          {/* === Video Reels (server) === */}
-          <div className={cls.section}>
-            <h3 className={cls.section__title}>Review videos</h3>
-            <div className={cls.section__content}>
-              <ProductReels productId={product.id} limit={4} />
-            </div>
-          </div>
-
           {/* === Plain Reviews (server) — превью === */}
           <div className={cls.section}>
             <h3 className={cls.section__title}>Recent customer reviews</h3>
@@ -404,6 +396,14 @@ export default function ProductPage() {
                   <ProductPlainReviews productId={product.id} limit={5} />
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* === Video Reels (server) === */}
+          <div className={cls.section}>
+            <h3 className={cls.section__title}>Review videos</h3>
+            <div className={cls.section__content}>
+              <ProductReels productId={product.id} limit={4} />
             </div>
           </div>
 
