@@ -193,3 +193,87 @@
     transition: none;
   }
 }
+
+/* --- Компоновка для видео-отзыва: превью слева, контент справа --- */
+.reelLayout {
+  display: grid;
+  grid-template-columns: auto 1fr; /* слева узкая колонка превью */
+  gap: 16px;
+  align-items: start;
+}
+
+/* Кликабельная drop-зона с превью 9:16, h<=368px */
+.previewWrap {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: black;
+  cursor: pointer;
+  user-select: none;
+
+  /* размер: держим 9:16, по высоте не больше 368px */
+  height: min(338px, 40vh);
+  aspect-ratio: 9 / 16;
+
+  display: grid;
+  place-items: center;
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.isDragActive {
+  border-color: var(--rc-primary);
+  background: color-mix(in srgb, var(--rc-primary) 10%, var(--rc-track));
+  box-shadow: 0 0 0 4px var(--rc-ring);
+}
+
+.previewVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.previewPlaceholder {
+  text-align: center;
+  color: var(--rc-muted);
+  padding: 12px;
+}
+.previewHintTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--rc-text);
+}
+.previewHintSub {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.reelRight {
+  display: grid;
+  gap: 10px;
+}
+
+/* Скрытый, но доступный инпут */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Адаптив: на очень узких экранах можно стэковать,
+   но по умолчанию превью остаётся слева */
+@media (max-width: 520px) {
+  .reelLayout {
+    grid-template-columns: 1fr;
+  }
+  .previewWrap {
+    width: 100%;
+    height: auto;      /* высота из ширины + aspect-ratio */
+    max-height: 368px; /* перестраховка */
+  }
+}
