@@ -22,7 +22,7 @@ type Props = {
   loop?: boolean;
 };
 
-// === детект платформы ===
+// детект платформ
 const isIOS = (() => {
   if (typeof navigator === 'undefined') return false;
   const ua = navigator.userAgent || '';
@@ -30,16 +30,9 @@ const isIOS = (() => {
   const touchMac = /Mac/.test(platform) && 'ontouchend' in document;
   return /iP(hone|od|ad)/.test(platform) || /iPhone|iPad|iPod/.test(ua) || touchMac;
 })();
-const isAndroid = (() => {
-  if (typeof navigator === 'undefined') return false;
-  const ua = navigator.userAgent || '';
-  return /Android/i.test(ua);
-})();
 
 declare global {
-  interface Window {
-    __reelsPlayers?: Map<string, HTMLVideoElement>;
-  }
+  interface Window { __reelsPlayers?: Map<string, HTMLVideoElement>; }
 }
 
 export const ReviewVideo: React.FC<Props> = ({
@@ -61,6 +54,7 @@ export const ReviewVideo: React.FC<Props> = ({
   const activeRef = useRef<boolean>(active);
   const prevIdRef = useRef<string | null>(null);
 
+  // iOS требует muted на DOM уже к первому paint
   const [isMuted, setIsMuted] = useState<boolean>(() => {
     const global = ReelsAudio.isUnlocked();
     return !(global || !muted);
@@ -72,48 +66,35 @@ export const ReviewVideo: React.FC<Props> = ({
 
   const wasPlayingBeforeHide = useRef(false);
   const retryPlayTimer = useRef<number | null>(null);
+  const clearRetry = () => { if (retryPlayTimer.current != null) { window.clearTimeout(retryPlayTimer.current); retryPlayTimer.current = null; } };
 
-  const clearRetry = () => {
-    if (retryPlayTimer.current != null) {
-      window.clearTimeout(retryPlayTimer.current);
-      retryPlayTimer.current = null;
-    }
-  };
-
-  // регистрируем/обновляем глобальную карту плееров
+  // регистрируем этот <video> в глобальной карте, чтобы Lightbox мог управлять
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     if (!window.__reelsPlayers) window.__reelsPlayers = new Map();
-    // если id меняется — уберём старый
     if (prevIdRef.current && prevIdRef.current !== reviewId) {
       window.__reelsPlayers.delete(prevIdRef.current);
     }
     window.__reelsPlayers.set(reviewId, v);
     prevIdRef.current = reviewId;
-    return () => {
-      window.__reelsPlayers?.delete(reviewId);
-    };
+    return () => { window.__reelsPlayers?.delete(reviewId); };
   }, [reviewId]);
 
-  // держим active-флаг
+  // активность
   useEffect(() => {
     activeRef.current = active;
     const v = videoRef.current;
     if (!v) return;
     if (!active && !v.paused) v.pause();
     if (active && ReelsAudio.isUnlocked() && !userMutedRef.current) {
-      // при активации — включим звук и попробуем играть
       try {
-        v.muted = false;
-        v.removeAttribute('muted');
-        setIsMuted(false);
+        v.muted = false; v.removeAttribute('muted'); setIsMuted(false);
         const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => {});
       } catch {}
     }
   }, [active]);
 
-  // основной эффект инициализации источника
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -147,7 +128,7 @@ export const ReviewVideo: React.FC<Props> = ({
       } catch {}
     };
 
-    // inline атрибуты (важно для iOS)
+    // inline для iOS
     try { (video as any).playsInline = true; } catch {}
     try { (video as any).webkitPlaysInline = true; } catch {}
     video.setAttribute('playsinline', '');
@@ -171,9 +152,11 @@ export const ReviewVideo: React.FC<Props> = ({
       window.dispatchEvent(new CustomEvent('reels:ended', { detail: reviewId } as any));
     };
 
-    // присоединяем источник
+    // подключаем источник
     if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = hlsUrl; video.load(); startMonitor();
+      video.src = hlsUrl;
+      video.load();
+      startMonitor();
     } else if (Hls.isSupported() && /\.m3u8(\?.*)?$/.test(hlsUrl)) {
       const hls = new Hls({
         enableWorker: true, lowLatencyMode: false,
@@ -183,7 +166,11 @@ export const ReviewVideo: React.FC<Props> = ({
       hls.attachMedia(video);
       hls.on(Hls.Events.MEDIA_ATTACHED, () => {
         hls.loadSource(hlsUrl);
-        startMonitor({ hlsjs: hls, player_software_name: 'hls.js', player_software_version: Hls.version });
+        startMonitor({
+          hlsjs: hls,
+          player_software_name: 'hls.js',
+          player_software_version: Hls.version,
+        });
       });
       hls.on(Hls.Events.ERROR, (_evt, data) => {
         if (!data.fatal) return;
@@ -192,19 +179,19 @@ export const ReviewVideo: React.FC<Props> = ({
           case Hls.ErrorTypes.MEDIA_ERROR: hls.recoverMediaError(); break;
           default:
             try { hls.destroy(); } catch {}
-            video.src = hlsUrl; try { video.load(); } catch {}
+            video.src = hlsUrl;
+            try { video.load(); } catch {}
         }
       });
     } else {
-      video.src = hlsUrl; startMonitor();
+      video.src = hlsUrl;
+      startMonitor();
     }
 
-    // первоначальный muted
+    // первоначальный mute с учётом глобального unlock
     const globalSoundOn = ReelsAudio.isUnlocked();
-    // 👉 На мобилках форсим mute ТОЛЬКО пока звук не «разблокирован» жестом
-    const mustForceMuted = (isIOS || isAndroid) && autoPlay && !globalSoundOn;
-    video.muted = mustForceMuted ? true : !(globalSoundOn || !muted);
-    if (video.muted) video.setAttribute('muted', ''); else video.removeAttribute('muted');
+    video.muted = !(globalSoundOn || !muted);
+    if (video.muted) video.setAttribute('muted',''); else video.removeAttribute('muted');
     setIsMuted(video.muted);
 
     const notifyNowPlaying = () => {
@@ -221,10 +208,10 @@ export const ReviewVideo: React.FC<Props> = ({
           if (!video.muted) { video.muted = true; video.setAttribute('muted',''); setIsMuted(true); }
           if (isIOS) video.setAttribute('autoplay', '');
           await video.play();
-          // если звук уже «разблокирован» глобально — сразу снимаем mute на этом же элементе
-          if (ReelsAudio.isUnlocked() && !userMutedRef.current) {
-            video.muted = false; video.removeAttribute('muted'); setIsMuted(false);
-          }
+        }
+        // если уже «разблокирован» глобально и пользователь сам не мутил — снимем mute
+        if (ReelsAudio.isUnlocked() && !userMutedRef.current) {
+          video.muted = false; video.removeAttribute('muted'); setIsMuted(false);
         }
         notifyNowPlaying();
       } catch {
@@ -235,10 +222,10 @@ export const ReviewVideo: React.FC<Props> = ({
       }
     };
 
+    // listeners
     const onPlay = () => {
       setIsPlaying(true);
       notifyNowPlaying();
-      // если глобальный звук «разблокирован» и пользователь сам не мутил — включим звук
       if (ReelsAudio.isUnlocked() && !userMutedRef.current) {
         try { video.muted = false; video.removeAttribute('muted'); setIsMuted(false); } catch {}
       }
@@ -260,20 +247,15 @@ export const ReviewVideo: React.FC<Props> = ({
     };
     const onGlobalSoundOn = () => {
       if (!activeRef.current) return;
-      // после первого жеста на странице — можно снимать mute автоматически
       if (!userMutedRef.current) {
         video.muted = false; video.removeAttribute('muted'); setIsMuted(false);
         const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => {});
       }
     };
-
     const onSomeoneElsePlaying = (ev: Event) => {
       const el = (ev as CustomEvent<HTMLVideoElement>).detail;
-      if (el && el !== video) {
-        if (!video.paused) video.pause();
-      }
+      if (el && el !== video) { if (!video.paused) video.pause(); }
     };
-
     const onVisibility = () => {
       if (document.visibilityState === 'hidden') {
         wasPlayingBeforeHide.current = !video.paused;
@@ -316,7 +298,6 @@ export const ReviewVideo: React.FC<Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hlsUrl, reviewId, productId, reviewType, userId, autoPlay, muted, loop]);
 
-  // постер
   const poster =
     posterUrl ||
     (hlsUrl.startsWith('https://stream.mux.com/') && hlsUrl.includes('.m3u8')
@@ -329,7 +310,9 @@ export const ReviewVideo: React.FC<Props> = ({
       v.play().then(() => {
         window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: v } as any));
       }).catch(() => {});
-    } else v.pause();
+    } else {
+      v.pause();
+    }
   }, []);
 
   const toggleMute = useCallback(() => {
@@ -361,7 +344,7 @@ export const ReviewVideo: React.FC<Props> = ({
   };
 
   const onRangeKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const step = 5;
+    const step = 5; // seconds
     if (e.key === 'ArrowLeft') { e.preventDefault(); onSeek(currentTime - step); }
     else if (e.key === 'ArrowRight') { e.preventDefault(); onSeek(currentTime + step); }
     else if (e.key === 'Home') { e.preventDefault(); onSeek(0); }
@@ -370,7 +353,6 @@ export const ReviewVideo: React.FC<Props> = ({
 
   const onVideoClick = () => {
     ReelsAudio.unlock();
-    // прямой жест по видео — снимем mute и запустим
     const v = videoRef.current;
     if (v) { v.muted = false; v.removeAttribute('muted'); setIsMuted(false); }
     togglePlay();
@@ -439,8 +421,10 @@ export const ReviewVideo: React.FC<Props> = ({
         {!isPlaying && (
           <svg width="54" height="54" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title" shapeRendering="geometricPrecision">
             <title id="title">Play</title>
-            <path d="M22 20.5 Q22 18 24.1 19.35 L33.9 25.65 Q36 27 33.9 28.35 L24.1 34.65 Q22 36 22 33.5 Z"
-              fill="white" fillOpacity="0.92"
+            <path
+              d="M22 20.5 Q22 18 24.1 19.35 L33.9 25.65 Q36 27 33.9 28.35 L24.1 34.65 Q22 36 22 33.5 Z"
+              fill="white"
+              fillOpacity="0.92"
               transform="translate(27 27) scale(2.4) translate(-27 -27)" />
           </svg>
         )}
