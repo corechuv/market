@@ -1,30 +1,78 @@
 // ============================
 // Modal.tsx
 // ============================
-import React, { useEffect, useRef } from 'react';
+import React, { useRef, useLayoutEffect } from 'react'; // ← useLayoutEffect
 import cls from './Modal.module.scss';
 import CloseIcon from '../Icons/CloseIcon';
 import { createPortal } from 'react-dom';
 
+// --- Глобальный, безопасный для нескольких модалок скролл-лок ---
+let __lockCount = 0;
+let __restore: null | (() => void) = null;
+
+function lockBodyScroll() {
+  if (typeof window === 'undefined') return () => {};
+  const html = document.documentElement;
+  const body = document.body;
+
+  if (__lockCount === 0) {
+    const scrollY =
+      window.scrollY || document.documentElement.scrollTop || 0;
+    const scrollbarW = window.innerWidth - html.clientWidth;
+
+    const prev = {
+      htmlOverflow: html.style.overflow,
+      bodyPosition: body.style.position,
+      bodyTop: body.style.top,
+      bodyWidth: body.style.width,
+      bodyPaddingRight: body.style.paddingRight,
+      scrollY,
+    };
+
+    // Блокируем фон без «просачиваний» на iOS
+    html.style.overflow = 'hidden';
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+
+    // Компенсация исчезнувшего скроллбара
+    if (scrollbarW > 0) {
+      const currentPadding =
+        parseFloat(getComputedStyle(body).paddingRight || '0') || 0;
+      body.style.paddingRight = `${currentPadding + scrollbarW}px`;
+    }
+
+    __restore = () => {
+      html.style.overflow = prev.htmlOverflow;
+      body.style.position = prev.bodyPosition;
+      body.style.top = prev.bodyTop;
+      body.style.width = prev.bodyWidth;
+      body.style.paddingRight = prev.bodyPaddingRight;
+      window.scrollTo(0, prev.scrollY);
+      __restore = null;
+    };
+  }
+
+  __lockCount++;
+  return () => {
+    __lockCount--;
+    if (__lockCount <= 0 && __restore) {
+      __restore();
+    }
+  };
+}
+
 export interface ModalProps {
-  /** Контент модального окна */
   children: React.ReactNode;
-  /** Открыта ли модаль */
   isOpen: boolean;
-  /** Обработчик закрытия */
   onClose: () => void;
-  /** Вариант расположения */
   variant?: 'center' | 'left' | 'right';
-  /** Шапка модали: строка или React‑узел */
   header?: React.ReactNode;
-  /** Классы для .modalBody */
   bodyClassName?: string;
   bodyStyles?: boolean;
-  /** Классы для .modalHeader */
   headerClassName?: string;
-  /** Доп. классы для корневого .modalContent */
   className?: string;
-  headerBorder?: boolean; // optional, if true adds border to header
+  headerBorder?: boolean;
   sideWidth?: string | number;
   tab?: boolean;
   tabContent?: React.ReactNode;
@@ -47,13 +95,12 @@ export default function Modal({
 }: ModalProps) {
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Side-effects: scroll‑lock + focus‑trap
-  useEffect(() => {
+  // Скролл-лок + фокус-трап
+  useLayoutEffect(() => {
     if (!isOpen) return;
-    const prevActive = document.activeElement as HTMLElement | null;
 
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const prevActive = document.activeElement as HTMLElement | null;
+    const unlock = lockBodyScroll();
 
     contentRef.current?.focus();
 
@@ -78,9 +125,10 @@ export default function Modal({
     };
 
     document.addEventListener('keydown', handleKeyDown);
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = prevOverflow;
+      unlock();              // ← корректно возвращаем скролл
       prevActive?.focus();
     };
   }, [isOpen, onClose]);
@@ -104,17 +152,16 @@ export default function Modal({
     padding: bodyStyles ? "0" : "20px",
   };
 
-
   return createPortal(
-    <div className={`${cls.modalOverlay} ${cls[variant]}`}
-      // клик по фону: закрываем МОДАЛКУ и НЕ пускаем событие наружу
+    <div
+      className={`${cls.modalOverlay} ${cls[variant]}`}
       onClick={(e) => {
         e.stopPropagation();
         onClose();
       }}
-      // подстраховка: режем всплытие максимально рано
       onMouseDownCapture={(e) => e.stopPropagation()}
-      role="presentation">
+      role="presentation"
+    >
       <div
         className={`${cls.modalContent} ${cls[variant]} ${className}`}
         style={modalContentStyle}
@@ -122,9 +169,7 @@ export default function Modal({
         aria-modal="true"
         ref={contentRef}
         tabIndex={-1}
-        // клики внутри — не наружу
         onClick={(e) => e.stopPropagation()}
-        // и на mousedown тоже режем
         onMouseDownCapture={(e) => e.stopPropagation()}
       >
         {header && (
@@ -135,7 +180,7 @@ export default function Modal({
               aria-label="Close modal"
               type="button"
               onClick={(e) => {
-                e.stopPropagation();   // чтобы клик по крестику не всплывал
+                e.stopPropagation();
                 onClose();
               }}
             >
@@ -143,9 +188,7 @@ export default function Modal({
             </button>
           </div>
         )}
-        {tab && (
-          <>{tabContent}</>
-        )}
+        {tab && <>{tabContent}</>}
         <div className={`${cls.modalBody} ${bodyClassName}`} style={modalBodyStyle}>
           <div className={cls.modalScroll}>{children}</div>
         </div>
