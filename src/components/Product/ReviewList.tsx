@@ -54,8 +54,10 @@ export interface ReviewListProps {
   ariaLabel?: string;
 }
 
-/** Clamp rating to [0, 5] and floor to integer for solid stars */
-const clampRating = (r: number) => Math.max(0, Math.min(5, Math.floor(r ?? 0)));
+const capRating = (r: number) => Math.max(0, Math.min(5, Number.isFinite(r as number) ? (r as number) : 0));
+
+const formatRatingNumber = (r: number) =>
+  new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 1 }).format(r);
 
 /**
  * ReviewList – shows a list of customer reviews.
@@ -102,76 +104,63 @@ const ReviewList: React.FC<ReviewListProps> = ({
           photos,
           helpfulCount,
         }) => {
-          const safeRating = clampRating(rating);
+          const cappedRating = capRating(rating);
           const dateObj = new Date(date);
           const name = reviewerName?.trim() || t.anonymous;
 
           return (
             <li key={id} className={cls.reviewList__item}>
-              <div
-                className={cls.reviewRating}
-                role="img"
-                aria-label={t.ratingLabel(safeRating)}
-              >
-                {Array.from({ length: 5 }, (_, i) => {
-                  const filled = i < safeRating;
-                  return (
-                    <svg
-                      key={i}
-                      className={filled ? cx(cls.star, cls.starFilled) : cls.star}
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <path d="M12 .587l3.668 7.431 8.2 1.193-5.934 5.787 1.399 8.153L12 18.896l-7.333 3.855 1.399-8.153L.132 9.211l8.2-1.193z" />
-                    </svg>
-                  );
-                })}
+              <div className={cls.rating}>
+                <span className={cls["rating__value--small"]} aria-hidden="true" aria-label={t.ratingLabel(cappedRating)}>
+                  {formatRatingNumber(cappedRating)}
+                </span>
               </div>
-
-              <header className={cls.reviewHeader}>
-                <span className={cls.reviewerName}>{name}</span>
-
-                {showVerifiedBadge && verified && (
-                  <span
-                    className={cls.verifiedBadge}
-                    title={t.verified}
-                    aria-label={t.verified}
-                  >
-                    ✅
+              <div className={cls["reviewList__item--section"]}>
+                <header className={cls.reviewHeader}>
+                  <span className={cls.reviewerName}>
+                    {name}
+                    {showVerifiedBadge && verified && (
+                      <span
+                        className={cls.verifiedBadge}
+                        title={t.verified}
+                        aria-label={t.verified}
+                      >
+                        ✅
+                      </span>
+                    )}
                   </span>
+                  <time
+                    className={cls.reviewDate}
+                    dateTime={dateObj.toISOString()}
+                    title={dateObj.toLocaleString()}
+                  >
+                    {t.formatDate(dateObj)}
+                  </time>
+                </header>
+
+                {comment && <p className={cls.reviewText}>{comment}</p>}
+
+                {!!photos?.length && (
+                  <div className={cls.photoGrid} role="list">
+                    {photos.map((src, idx) => (
+                      <img
+                        key={idx}
+                        src={src}
+                        alt=""
+                        loading="lazy"
+                        className={cls.photoGrid__img}
+                        role="listitem"
+                      />
+                    ))}
+                  </div>
                 )}
 
-                <time
-                  className={cls.reviewDate}
-                  dateTime={dateObj.toISOString()}
-                  title={dateObj.toLocaleString()}
-                >
-                  {t.formatDate(dateObj)}
-                </time>
-              </header>
-
-              {comment && <p className={cls.reviewText}>{comment}</p>}
-
-              {!!photos?.length && (
-                <div className={cls.photoGrid} role="list">
-                  {photos.map((src, idx) => (
-                    <img
-                      key={idx}
-                      src={src}
-                      alt=""
-                      loading="lazy"
-                      className={cls.photoGrid__img}
-                      role="listitem"
-                    />
-                  ))}
-                </div>
-              )}
-
-              <footer className={cls.reviewFooter} style={{display: "none"}}>
-                {typeof helpfulCount === "number" && (
-                  <span className={cls.helpful}>{t.helpful(helpfulCount)}</span>
-                )}
-              </footer>
+                <footer className={cls.reviewFooter} style={{ display: "none" }}>
+                  {typeof helpfulCount === "number" && (
+                    <span className={cls.helpful}>{t.helpful(helpfulCount)}</span>
+                  )}
+                </footer>
+              </div>
             </li>
           );
         }

@@ -2,19 +2,17 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getProductById, getMoreProducts } from "../../services/productService";
-import { getReviewsById, getReviewSummaryById } from "../../services/reviewService";
 import { getBreadcrumbs } from "../../services/categoryService";
 import { buildSpecs, getInitialVariant } from "../../specs/builders";
 import { parseMoney } from "../../types/helpers/parseMoney";
 import type { Product, ProductVariant } from "../../types/product";
+import { listProductReviews } from "../../services/reviewApi";
 
 import cls from "./ProductPage.module.scss";
 
 import ProductImages from "../../components/Product/ProductImages";
 import Button from "../../components/UI/Button";
 import Modal from "../../components/Modal/Modal";
-import ReviewList from "../../components/Product/ReviewList";
-import ReviewForm from "../../components/Product/ReviewForm";
 import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import DeliveryBadge from "../../components/Product/DeliveryBadge";
 import SpecTable from "../../components/Product/SpecTable";
@@ -22,7 +20,6 @@ import VariantPicker from "../../components/Product/Details/VariantPicker";
 import Stars from "../../components/Product/Stars";
 import ProductDatasheet from "../../components/Product/Details/ProductDatasheet";
 import EnergyLabel from "../../components/Product/Details/EnergyLabel";
-import ReviewsHistogram from "../../components/Product/Details/ReviewsHistogram";
 import { useCart } from "../../context/CartContext";
 import { toCartLine } from "../../services/cartAdapter";
 import ProductCarouselRich from "../../components/Product/ProductCarouselRich";
@@ -87,7 +84,7 @@ export default function ProductPage() {
           availableOnly: true,
           shuffle: true,
           fillFromAllIfShort: true,
-          // categoryId: product.categoryId, // при желании можно зафиксировать
+          // categoryId: product.categoryId,
         });
         if (!cancelled) setMoreProducts(res);
       } catch {
@@ -100,29 +97,10 @@ export default function ProductPage() {
     };
   }, [product?.id]);
 
-  // --- отзывы (синхронный мок/сервис) ---
-  const reviews = React.useMemo(
-    () => (productId ? getReviewsById(String(productId)) : []),
-    [productId]
-  );
-
-  const reviewSummary = React.useMemo(
-    () =>
-      productId
-        ? getReviewSummaryById(String(productId))
-        : { avg: 0, count: 0, histogram: [0, 0, 0, 0, 0] },
-    [productId]
-  );
-
-  const histogramData = React.useMemo(
-    () => reviewSummary.histogram.map((count: number, i: number) => ({ rating: i + 1, count })),
-    [reviewSummary.histogram]
-  );
-
-  const [isOpen, setIsOpen] = React.useState(false);
+  // --- модалка отзыва ---
   const [isOpenUpload, setIsOpenUpload] = React.useState(false);
 
-  // sticky CTA visibility
+  // --- sticky CTA visibility ---
   const actionsRef = React.useRef<HTMLDivElement | null>(null);
   const [showStickyCta, setShowStickyCta] = React.useState(false);
   React.useEffect(() => {
@@ -136,12 +114,67 @@ export default function ProductPage() {
     return () => io.disconnect();
   }, []);
 
+  // --- корзина ---
   const { add } = useCart();
   const handleAddToCart = React.useCallback(() => {
     if (!product) return;
     const line = toCartLine(product, variant, 1);
     add(line);
   }, [product, variant, add]);
+
+  // --- агрегаты отзывов (средняя оценка + количество всех типов) ---
+  // ВАЖНО: эти хуки объявлены выше любых ранних return!
+  const [reviewAvg, setReviewAvg] = React.useState<number | null>(null);
+  const [reviewCount, setReviewCount] = React.useState<number>(0);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    async function run() {
+      if (!product?.id) {
+        setReviewAvg(null);
+        setReviewCount(0);
+        return;
+      }
+
+      const LIMIT = 200;
+      let offset = 0;
+      let sum = 0;
+      let cnt = 0;
+
+      try {
+        while (true) {
+          // без type — получим plain + reel
+          const page = await listProductReviews(product.id, { limit: LIMIT, offset });
+          if (cancelled) return;
+          if (!page.length) break;
+
+          for (const r of page) {
+            if (typeof r.rating === "number") {
+              sum += r.rating;
+              cnt += 1;
+            }
+          }
+
+          if (page.length < LIMIT) break;
+          offset += page.length;
+        }
+
+        if (!cancelled) {
+          setReviewCount(cnt);
+          setReviewAvg(cnt ? sum / cnt : 0);
+        }
+      } catch {
+        if (!cancelled) {
+          setReviewCount(0);
+          setReviewAvg(0);
+        }
+      }
+    }
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [product?.id]);
 
   // --- загрузочные состояния (после объявления всех хуков!) ---
   if (loading) {
@@ -182,6 +215,7 @@ export default function ProductPage() {
     }
     return merged;
   })();
+
   const price = variant?.price ?? product.price;
   const compareAt = variant?.compareAtPrice;
   const available = (variant?.available ?? product.available) ?? false;
@@ -205,6 +239,27 @@ export default function ProductPage() {
   const energyClass = variant?.energyClassUrl ?? product.energyClassUrl;
   const datasheetUrl = variant?.datasheetPdfUrl ?? product.datasheetPdfUrl;
 
+  const ratingValue = reviewAvg !== null ? Math.round(reviewAvg * 10) / 10 : null;
+
+  const RatingBadge = (
+    <div className={cls.productMeta__rating}>
+      <Stars size={18} value={ratingValue ?? 0} />
+      <span className={cls.productMeta__ratingValue}>
+        {ratingValue !== null ? ratingValue.toFixed(1) : "—"}
+      </span>
+      <span className={cls.productMeta__ratingCount}>({reviewCount})</span>
+    </div>
+  );
+
+  const RatingBadgeCustom = (
+    <div className={cls.rating__box}>
+      <div className={cls.rating__value}>
+        {ratingValue !== null ? ratingValue.toFixed(1) : "—"}
+      </div>
+      <span className={cls.rating__count}>({reviewCount})</span>
+    </div>
+  );
+
   return (
     <div className="container">
       <div className={cls.product}>
@@ -219,23 +274,7 @@ export default function ProductPage() {
               <h1 className={cls.productName}>{product.name}</h1>
 
               <div className={cls.productMeta}>
-                <div className={cls.productMeta__rating}>
-                  {reviewSummary.count > 0 ? (
-                    <>
-                      <Stars size={18} value={reviewSummary.avg} />
-                      <span className={cls.productMeta__ratingValue}>
-                        {reviewSummary.avg.toFixed(1)}
-                      </span>
-                      <span className={cls.productMeta__ratingCount}>({reviewSummary.count})</span>
-                    </>
-                  ) : (
-                    <>
-                      <Stars size={18} value={0} />
-                      <span className={cls.productMeta__ratingValue}>0.0</span>
-                      <span className={cls.productMeta__ratingCount}>(0)</span>
-                    </>
-                  )}
-                </div>
+                {RatingBadge}
                 <div className={cls.productMeta__articleNumber}>Art.-Nr. {articleNumber}</div>
               </div>
 
@@ -344,65 +383,6 @@ export default function ProductPage() {
             </div>
           </div>
 
-          <div className={cls.section}>
-            <h3 className={cls.section__title}>Reviews</h3>
-            <div className={cls.section__content}>
-              <div className={cls.reviewsHeader}>
-                {reviewSummary.count > 0 ? (
-                  <>
-                    <div className={cls.reviewCount}>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 10,
-                          justifyContent: "left",
-                        }}
-                      >
-                        {reviewSummary.avg.toFixed(1)}{" "}
-                        <span className={cls.reviewCountText}>({reviewSummary.count})</span>
-                      </div>
-                    </div>
-                    <ReviewsHistogram
-                      data={histogramData}
-                      sort="desc"
-                      locale="de-DE"
-                      ratingLabel={(r) => `${r}`}
-                    />
-                    <div className={cls.reviewActions}>
-                      <Button
-                        className={cls.openReviewButton}
-                        onClick={() => setIsOpen(true)}
-                        size="small"
-                      >
-                        Open Reviews
-                      </Button>
-                    </div>
-                  </>
-                ) : (
-                  <div className={cls.reviewCount}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        justifyContent: "left",
-                      }}
-                    >
-                      0.0 <span className={cls.reviewCountText}>(0)</span>
-                    </div>
-                    <ReviewsHistogram
-                      data={histogramData}
-                      sort="desc"
-                      locale="de-DE"
-                      ratingLabel={(r) => `${r}`}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
           {/* === Video Reels (server) === */}
           <div className={cls.section}>
             <h3 className={cls.section__title}>Review videos</h3>
@@ -416,10 +396,13 @@ export default function ProductPage() {
             <h3 className={cls.section__title}>Recent customer reviews</h3>
             <div className={cls.section__content}>
               <div className={cls.reviews}>
-                <div>
-                  <Button onClick={() => setIsOpenUpload(true)}>Add review</Button>
+                <div className={cls.rating}>
+                  {RatingBadgeCustom}
                 </div>
-                <ProductPlainReviews productId={product.id} limit={5} />
+                <div style={{ width: "100%", display: "flex", flexDirection: "column"}}>
+                  <Button size="small" onClick={() => setIsOpenUpload(true)}>Add review</Button>
+                  <ProductPlainReviews productId={product.id} limit={5} />
+                </div>
               </div>
             </div>
           </div>
@@ -449,19 +432,6 @@ export default function ProductPage() {
           </Button>
         </div>
       )}
-
-      <Modal
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        variant="right"
-        header="Reviews"
-        headerBorder={false}
-      >
-        <div className={cls.reviewsContent}>
-          <ReviewForm />
-          <ReviewList reviews={reviews} className={cls.reviewList} />
-        </div>
-      </Modal>
 
       <Modal
         isOpen={isOpenUpload}

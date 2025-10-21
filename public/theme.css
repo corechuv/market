@@ -138,6 +138,10 @@ body[data-theme='light'] {
 
   --bg-order-more: #f0f0f0;
 
+
+
+  --bg-rating-value: #0000000d;
+
   color-scheme: light;
 }
 
@@ -275,6 +279,9 @@ body[data-theme='dark'] {
   /* End Select UI */
 
   --bg-order-more: #000000;
+  
+
+  --bg-rating-value: #00000029;
 
 
   color-scheme: dark;
