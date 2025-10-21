@@ -385,9 +385,8 @@ export default function ReviewComposer({ productId }: Props) {
                             size="small"
                             onClick={onSubmit}
                             disabled={busy || !file}
-                            className={styles.button}
                         >
-                            {busy ? "Сохраняем…" : "Publish"}
+                            {busy ? "Saving…" : "Publish"}
                         </Button>
 
                         {msg && (
@@ -402,26 +401,28 @@ export default function ReviewComposer({ productId }: Props) {
                 </div>
             ) : (
                 // mode === "plain"
-                <>
-                    {Controls}
-                    <Button
-                        variant="primary"
-                        size="small"
-                        onClick={onSubmit}
-                        disabled={busy}
-                        className={styles.button}
-                    >
-                        {busy ? "Сохраняем…" : "Publish"}
-                    </Button>
-                    {msg && (
-                        <div
-                            className={`${styles.msg} ${msg.startsWith("Не удалось") ? styles.msgError : ""
-                                }`}
+                <div className={styles.section}>
+                    <div className={styles.section__fields}>
+                        {Controls}
+                        <Button
+                            variant="primary"
+                            size="small"
+                            onClick={onSubmit}
+                            disabled={busy}
+                            className={styles.btn}
                         >
-                            {msg}
-                        </div>
-                    )}
-                </>
+                            {busy ? "Saving…" : "Publish"}
+                        </Button>
+                        {msg && (
+                            <div
+                                className={`${styles.msg} ${msg.startsWith("Не удалось") ? styles.msgError : ""
+                                    }`}
+                            >
+                                {msg}
+                            </div>
+                        )}
+                    </div>
+                </div>
             )}
         </div>
     );
