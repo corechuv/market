@@ -12,9 +12,9 @@
     &__item {
         display: flex;
         flex-direction: row;
-        gap: 16px;
+        gap: 0.8rem;
         border-bottom: 1px dashed var(--border);
-        padding: 1.5rem 1rem;
+        padding: 1.2rem 0.8rem;
 
         &--section {
             display: flex;
@@ -32,11 +32,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.15rem;
+    margin-bottom: 0.10rem;
 }
 
 .reviewerName {
-    font-weight: 400;
+    font-weight: 500;
     font-size: 16px;
 }
 
@@ -68,7 +68,7 @@
 
 .reviewText {
     font-size: 0.875rem;
-    font-weight: 300;
+    font-weight: 400;
     line-height: 1.5;
     margin: 0;
 }
