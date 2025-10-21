@@ -180,3 +180,21 @@ $anim-time: 0.3s;
     transform: translateX(0);
   }
 }
+
+
+@media (max-width: 520px) {
+  .modalContent {
+    transition: transform $anim-time ease, opacity $anim-time ease;
+
+    /* ===== Центр ===== */
+    &.center {
+      box-sizing: border-box;
+      width: fit-content;
+      width: 100%;
+      height: 100%;
+      max-width: 100vw;
+      max-height: 100dvh;
+      border-radius: 0;
+    }
+  }
+}

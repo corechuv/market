@@ -49,7 +49,8 @@
 }
 
 .topbarSpacer {
-  margin-left: auto; /* всё, что после — вправо */
+  margin-left: auto;
+  /* всё, что после — вправо */
 }
 
 .topbarAction {
@@ -66,6 +67,7 @@
 .backBtn {
   /* ваш существующий стиль */
 }
+
 .backBtn {
   border: none;
   background: none;
@@ -86,6 +88,10 @@
   place-items: center;
   padding: 24px;
   min-height: 220px;
+
+  @media (max-width: 520px) {
+    min-height: calc(100dvh - 14px);
+  }
 }
 
 .typeGrid {
