@@ -140,7 +140,7 @@ body[data-theme='light'] {
 
 
 
-  --bg-rating-value: #0000000d;
+  --bg-rating-value: #aaad7629;
 
   color-scheme: light;
 }
@@ -281,7 +281,7 @@ body[data-theme='dark'] {
   --bg-order-more: #000000;
   
 
-  --bg-rating-value: #00000029;
+  --bg-rating-value: #fdffd629;
 
 
   color-scheme: dark;
