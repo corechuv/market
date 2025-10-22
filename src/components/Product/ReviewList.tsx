@@ -112,7 +112,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
             <li key={id} className={cls.reviewList__item}>
               <div className={cls.rating}>
                 <span className={cls["rating__value--small"]} aria-hidden="true" aria-label={t.ratingLabel(cappedRating)}>
-                  {formatRatingNumber(cappedRating)}
+                  {formatRatingNumber(cappedRating)}/5
                 </span>
               </div>
               <div className={cls["reviewList__item--section"]}>

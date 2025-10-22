@@ -17,25 +17,27 @@
     }
 
     &__value {
+        position: relative;
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 48px;
-        font-weight: 300;
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
+        font-size: 54px;
+        font-weight: 400;
+        height: 80px;
+        border-radius: 14px;
+        padding: 0 13px;
         background-color: var(--bg-rating-value);
 
         &--small {
+            position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 15px;
             font-weight: 400;
-            width: 32px;
             height: 32px;
-            border-radius: 50%;
+            border-radius: 5px;
+            padding: 0 8px;
             background-color: var(--bg-rating-value);
         }
     }
