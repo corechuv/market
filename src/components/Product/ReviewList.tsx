@@ -120,13 +120,25 @@ const ReviewList: React.FC<ReviewListProps> = ({
                   <span className={cls.reviewerName}>
                     {name}
                     {showVerifiedBadge && verified && (
-                      <span
-                        className={cls.verifiedBadge}
-                        title={t.verified}
-                        aria-label={t.verified}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        width="20"
+                        height="20"
+                        role="img"
+                        aria-label="Заказ успешно оформлен"
+                        style={{ "--w": 1.5, color: "#16a34a" } as React.CSSProperties}
                       >
-                        ✅
-                      </span>
+                        <circle cx="12" cy="12" r="10" fill="#16a34a" stroke="currentColor" strokeWidth={1.5 as unknown as number} opacity="0.15" />
+                        <path
+                          d="M7 12.5l3 3L17 9"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={1.5 as unknown as number}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
                     )}
                   </span>
                   <time
