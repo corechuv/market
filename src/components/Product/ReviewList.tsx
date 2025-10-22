@@ -138,7 +138,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
                   </time>
                 </header>
 
-                {comment && <p className={cls.reviewText}>{comment}</p>}
+                {comment && <div className={cls.reviewText}>{comment}</div>}
 
                 {!!photos?.length && (
                   <div className={cls.photoGrid} role="list">

@@ -26,6 +26,7 @@ import ProductCarouselRich from "../../components/Product/ProductCarouselRich";
 import ProductReels from "../../components/Product/Review/ProductReels";
 import ProductPlainReviews from "../../components/Product/Review/ProductPlainReviews";
 import ReviewComposer from "../../components/Product/Review/ReviewComposer";
+import StarIcon from "../../components/Icons/StarIcon";
 
 export default function ProductPage() {
   const nav = useNavigate();
@@ -252,7 +253,7 @@ export default function ProductPage() {
   const RatingBadgeCustom = (
     <div className={cls.rating__box}>
       <div className={cls.rating__value}>
-        {ratingValue !== null ? ratingValue.toFixed(1) : "—"}/5
+        {ratingValue !== null ? ratingValue.toFixed(1) : "—"}
       </div>
       <span className={cls.rating__count}>({reviewCount})</span>
     </div>
@@ -388,7 +389,7 @@ export default function ProductPage() {
               <div className={cls.reviews}>
                 <div className={cls.rating}>
                   {RatingBadgeCustom}
-                  <Button size="small" onClick={() => setIsOpenUpload(true)}>Add review</Button>
+                  <Button variant="secondary" size="small" onClick={() => setIsOpenUpload(true)}>Add review</Button>
                 </div>
                 <ProductPlainReviews productId={product.id} limit={5} />
               </div>
