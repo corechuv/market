@@ -26,7 +26,6 @@ import ProductCarouselRich from "../../components/Product/ProductCarouselRich";
 import ProductReels from "../../components/Product/Review/ProductReels";
 import ProductPlainReviews from "../../components/Product/Review/ProductPlainReviews";
 import ReviewComposer from "../../components/Product/Review/ReviewComposer";
-import StarIcon from "../../components/Icons/StarIcon";
 
 export default function ProductPage() {
   const nav = useNavigate();
