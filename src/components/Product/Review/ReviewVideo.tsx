@@ -42,8 +42,6 @@ const FORCE_MUTED_AUTOPLAY = isIOS || isAndroid;
 // синхронный «мостик жеста» из Lightbox → плеер (в рамках жеста)
 const UNMUTE_EVENT = 'reels:unmute_now';
 
-const allowAudibleOnMobileRef = useRef(false);
-
 export const ReviewVideo: React.FC<Props> = ({
   hlsUrl,
   posterUrl,
@@ -56,6 +54,8 @@ export const ReviewVideo: React.FC<Props> = ({
   active = false,
   loop = true,
 }) => {
+
+  const allowAudibleOnMobileRef = useRef(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
   const monitoredRef = useRef(false);
