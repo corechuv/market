@@ -130,7 +130,7 @@ export default function ReelsLightbox({
     };
   }, [recalcDuration]);
 
-  // индекс панели, которая становится активной в рамках текущего жеста
+  // какая панель становится активной в рамках текущего жеста
   const [preActiveIndex, setPreActiveIndex] = React.useState<number | null>(null);
 
   const hasPrev = index > 0;
@@ -153,10 +153,10 @@ export default function ReelsLightbox({
 
     const target = index + d;
 
-    // делаем целевую панель активной ДО анимации
+    // целевую панель делаем активной ДО анимации
     setPreActiveIndex(target);
 
-    // в рамках одного жеста — разблокируем звук и анмьютим цель
+    // этот же жест разблокирует звук и анмьютит целевой ролик
     ensureSoundUnlocked();
     const nextId = items[target]?.review.id;
     if (nextId) unmuteById(nextId);
@@ -283,7 +283,7 @@ export default function ReelsLightbox({
     if (!cur) return;
     const origin = window.location.origin;
     const query = window.location.search || "";
-       const url = `${origin}/videos/${cur.review.id}${query}`;
+    const url = `${origin}/videos/${cur.review.id}${query}`;
     const title = cur.review.authorName ? `${cur.review.authorName} — видео-отзыв` : "Видео-отзыв";
     const text = (cur.review.text && cur.review.text.trim()) || "Посмотри этот отзыв";
     const navAny = navigator as any;
@@ -318,7 +318,7 @@ export default function ReelsLightbox({
       role="dialog"
       aria-modal="true"
       onWheel={onWheel}
-      onPointerDown={() => { ensureSoundUnlocked(); }}
+      onPointerDown={() => { ReelsAudio.unlock(); }} // не мешаем свайпу, просто анлок
     >
       <button
         className={styles.backdrop}
@@ -332,7 +332,7 @@ export default function ReelsLightbox({
       <div className={styles.navV}>
         <button
           className={styles.navBtn}
-          onPointerDown={() => { ensureSoundUnlocked(); go(-1); }}
+          onClick={() => { ReelsAudio.unlock(); go(-1); }}
           disabled={!hasPrev || busy}
           aria-label="Previous (Up)"
         >
@@ -340,7 +340,7 @@ export default function ReelsLightbox({
         </button>
         <button
           className={styles.navBtn}
-          onPointerDown={() => { ensureSoundUnlocked(); go(1); }}
+          onClick={() => { ReelsAudio.unlock(); go(1); }}
           disabled={!hasNext || busy}
           aria-label="Next (Down)"
         >
@@ -373,6 +373,7 @@ export default function ReelsLightbox({
                 productId={prevItem.review.productId}
                 reviewType={prevItem.review.type}
                 userId={prevItem.review.authorId}
+                // целевая панель — активна, автоплей и без mute; остальные — mute
                 muted={preActiveIndex !== index - 1}
                 autoPlay={preActiveIndex === index - 1}
                 active={preActiveIndex === index - 1}
