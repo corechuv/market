@@ -28,7 +28,8 @@ const isIOS = (() => {
   if (typeof navigator === 'undefined') return false;
   const ua = navigator.userAgent || '';
   const platform = (navigator as any).platform || '';
-  const touchMac = /Mac/.test(platform) && 'ontouchend' in document;
+  const hasDoc = typeof document !== 'undefined';
+  const touchMac = /Mac/.test(platform) && (hasDoc ? ('ontouchend' in document) : false);
   return /iP(hone|od|ad)/.test(platform) || /iPhone|iPad|iPod/.test(ua) || touchMac;
 })();
 const isAndroid = (() => {
@@ -73,16 +74,16 @@ export const ReviewVideo: React.FC<Props> = ({
   const wasPlayingBeforeHide = useRef(false);
   const retryPlayTimer = useRef<number | null>(null);
 
-  const clearRetry = () => {
+  const clearRetry = useCallback(() => {
     if (retryPlayTimer.current != null) {
       window.clearTimeout(retryPlayTimer.current);
       retryPlayTimer.current = null;
     }
-  };
+  }, []);
 
-  const emit = (name: string, detail?: any) => {
-    try { window.dispatchEvent(new CustomEvent(name, { detail })); } catch { }
-  };
+  const emit = useCallback((name: string, detail?: any) => {
+    try { window.dispatchEvent(new CustomEvent(name, { detail })); } catch { /* noop */ }
+  }, []);
 
   // держим loop в актуальном состоянии
   useEffect(() => {
@@ -95,6 +96,39 @@ export const ReviewVideo: React.FC<Props> = ({
     }
   }, [loop]);
 
+  // Универсальный безопасный запуск воспроизведения (вынесено на верхний уровень — это было источником ошибки)
+  const playSafely = useCallback(async (preferAudible: boolean) => {
+    const v = videoRef.current;
+    if (!v) return;
+
+    // На мобилках всегда стартуем muted — гарантированно разрешено
+    if (FORCE_MUTED_AUTOPLAY) {
+      if (!v.muted) {
+        v.muted = true; v.setAttribute('muted', ''); setIsMuted(true);
+      }
+      try { await v.play(); } catch { /* noop */ }
+      return;
+    }
+
+    // Desktop: если звук разблокирован и пользователь не глушил — пробуем сразу со звуком
+    if (preferAudible && ReelsAudio.isUnlocked() && !userMutedRef.current) {
+      try {
+        v.muted = false; v.removeAttribute('muted'); setIsMuted(false);
+        await v.play();
+        return;
+      } catch {
+        // fallback ниже
+      }
+    }
+
+    // Fallback: muted autoplay
+    if (!v.muted) {
+      v.muted = true; v.setAttribute('muted', ''); setIsMuted(true);
+    }
+    try { await v.play(); } catch { /* noop */ }
+  }, []);
+
+  // Инициализация источника, мониторинг, события плеера
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -104,11 +138,11 @@ export const ReviewVideo: React.FC<Props> = ({
     const destroy = () => {
       clearRetry();
       if (hlsRef.current) {
-        try { hlsRef.current.destroy(); } catch { }
+        try { hlsRef.current.destroy(); } catch { /* noop */ }
         hlsRef.current = null;
       }
       if (monitoredRef.current) {
-        try { mux.destroyMonitor(video); } catch { }
+        try { mux.destroyMonitor(video); } catch { /* noop */ }
         monitoredRef.current = false;
       }
     };
@@ -132,12 +166,12 @@ export const ReviewVideo: React.FC<Props> = ({
         const opts: MonitorOptions = { debug: false, data: baseData, ...extra } as MonitorOptions;
         mux.monitor(video, opts);
         monitoredRef.current = true;
-      } catch { }
+      } catch { /* noop */ }
     };
 
     // iOS inline + нужные атрибуты заранее
-    try { (video as any).playsInline = true; } catch { }
-    try { (video as any).webkitPlaysInline = true; } catch { }
+    try { (video as any).playsInline = true; } catch { /* noop */ }
+    try { (video as any).webkitPlaysInline = true; } catch { /* noop */ }
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
     if (autoPlay && isMuted) {
@@ -146,8 +180,8 @@ export const ReviewVideo: React.FC<Props> = ({
     }
 
     // запрет PiP/Remote Playback — best effort
-    try { (video as any).disableRemotePlayback = true; } catch { }
-    try { (video as any).disablePictureInPicture = true; } catch { }
+    try { (video as any).disableRemotePlayback = true; } catch { /* noop */ }
+    try { (video as any).disablePictureInPicture = true; } catch { /* noop */ }
 
     // loop сразу на DOM
     video.loop = loopRef.current;
@@ -164,7 +198,7 @@ export const ReviewVideo: React.FC<Props> = ({
           video.removeAttribute('muted');
           setIsMuted(false);
         }
-        video.play().catch(() => { });
+        video.play().catch(() => { /* noop */ });
       }
     };
 
@@ -173,8 +207,8 @@ export const ReviewVideo: React.FC<Props> = ({
       if (loopRef.current) {
         try {
           video.currentTime = 0;
-          const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
-        } catch { }
+          const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { /* noop */ });
+        } catch { /* noop */ }
         return; // не шлём reels:ended
       }
       window.dispatchEvent(new CustomEvent('reels:ended', { detail: reviewId }));
@@ -216,9 +250,9 @@ export const ReviewVideo: React.FC<Props> = ({
           case Hls.ErrorTypes.MEDIA_ERROR:
             hls.recoverMediaError(); break;
           default:
-            try { hls.destroy(); } catch { }
+            try { hls.destroy(); } catch { /* noop */ }
             video.src = hlsUrl;
-            try { video.load(); } catch { }
+            try { video.load(); } catch { /* noop */ }
         }
       });
     } else {
@@ -239,7 +273,7 @@ export const ReviewVideo: React.FC<Props> = ({
       window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: v } as any));
     };
 
-    // Автоплей
+    // Автоплей (первичная попытка)
     const tryAutoplay = async (withMutedFallback = true) => {
       if (!autoPlay) return;
       try {
@@ -273,7 +307,7 @@ export const ReviewVideo: React.FC<Props> = ({
             setIsMuted(true);
           }
           retryPlayTimer.current = window.setTimeout(() => {
-            tryAutoplay(false).catch(() => { });
+            tryAutoplay(false).catch(() => { /* noop */ });
           }, 50);
         }
       }
@@ -291,7 +325,7 @@ export const ReviewVideo: React.FC<Props> = ({
           video.muted = false;
           video.removeAttribute('muted');
           setIsMuted(false);
-        } catch { }
+        } catch { /* noop */ }
       }
     };
 
@@ -303,12 +337,12 @@ export const ReviewVideo: React.FC<Props> = ({
         const b = video.buffered;
         const end = b.length ? b.end(b.length - 1) : 0;
         setBufferedEnd(end);
-      } catch { }
+      } catch { /* noop */ }
     };
 
     const onCanPlay = () => {
       if (autoPlay && video.paused && isIOS && isMuted) {
-        const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
+        const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { /* noop */ });
       }
     };
 
@@ -321,7 +355,7 @@ export const ReviewVideo: React.FC<Props> = ({
         v.muted = false;
         v.removeAttribute('muted');
         setIsMuted(false);
-        const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
+        const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { /* noop */ });
       }
     };
 
@@ -345,7 +379,7 @@ export const ReviewVideo: React.FC<Props> = ({
             setIsMuted(false);
           }
           const p = video.play?.();
-          if (p && typeof p.catch === 'function') p.catch(() => { });
+          if (p && typeof p.catch === 'function') p.catch(() => { /* noop */ });
         }
       }
     };
@@ -359,8 +393,8 @@ export const ReviewVideo: React.FC<Props> = ({
         video.muted = false;
         video.removeAttribute('muted');
         setIsMuted(false);
-        const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
-      } catch { }
+        const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { /* noop */ });
+      } catch { /* noop */ }
     };
 
     // подписки
@@ -381,7 +415,8 @@ export const ReviewVideo: React.FC<Props> = ({
     document.addEventListener('visibilitychange', onVisibility, { passive: true });
 
     onLoadedMeta(); onTimeUpdate(); onProgress();
-    tryAutoplay().catch(() => { });
+    // первичная попытка автоплея при инициализации
+    tryAutoplay().catch(() => { /* noop */ });
 
     return () => {
       clearRetry();
@@ -403,7 +438,7 @@ export const ReviewVideo: React.FC<Props> = ({
       destroy();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hlsUrl, reviewId, productId, reviewType, userId, autoPlay, muted]);
+  }, [hlsUrl, reviewId, productId, reviewType, userId, isMuted, muted, autoPlay]);
 
   // Следим за сменой active без пересоздания плеера
   useEffect(() => {
@@ -412,6 +447,20 @@ export const ReviewVideo: React.FC<Props> = ({
     if (!v) return;
     if (!active && !v.paused) v.pause();
   }, [active]);
+
+  // При изменении active/autoPlay — инициируем воспроизведение «безопасно»
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (active) {
+      if (autoPlay) {
+        // На десктопе попытаемся сразу со звуком, если это уже разрешено
+        playSafely(true).catch(() => { /* noop */ });
+      }
+    } else {
+      if (!v.paused) v.pause();
+    }
+  }, [active, autoPlay, playSafely]);
 
   // Синхронизация muted пропа (с учётом моб. автоплея)
   useEffect(() => {
@@ -441,7 +490,7 @@ export const ReviewVideo: React.FC<Props> = ({
     if (v.paused) {
       v.play().then(() => {
         window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: v } as any));
-      }).catch(() => { });
+      }).catch(() => { /* noop */ });
     } else {
       v.pause();
     }
@@ -457,19 +506,10 @@ export const ReviewVideo: React.FC<Props> = ({
     userMutedRef.current = v.muted;
     if (!v.muted) {
       ReelsAudio.unlock();
-      const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
+      const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { /* noop */ });
     }
     emit(v.muted ? 'reels:mute' : 'reels:unmute', { reviewId });
-  }, []);
-
-  const onKeyDownBtn = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key === ' ' || e.key === 'Enter') {
-      e.preventDefault();
-      ensureSoundUnlockedLocal();
-      window.dispatchEvent(new CustomEvent(UNMUTE_EVENT, { detail: { reviewId } }));
-      togglePlay();
-    }
-  };
+  }, [emit, reviewId]);
 
   const [durationState, setDurationState] = useState<number | null>(null);
   useEffect(() => setDurationState(duration || 0), [duration]);
@@ -524,7 +564,7 @@ export const ReviewVideo: React.FC<Props> = ({
         poster={poster}
         autoPlay={autoPlay}
         playsInline
-        preload={active ? "auto" : "metadata"}   // было "metadata"
+        preload={active ? 'auto' : 'metadata'}
         muted={isMuted}
         controls={false}
         controlsList="nodownload noplaybackrate noremoteplayback"
@@ -553,7 +593,6 @@ export const ReviewVideo: React.FC<Props> = ({
         aria-label={isPlaying ? 'Pause video' : 'Play video'}
         className={`${styles.centerBtn} ${isPlaying ? styles.hidden : ''}`}
         onClick={() => { ReelsAudio.unlock(); window.dispatchEvent(new CustomEvent(UNMUTE_EVENT, { detail: { reviewId } })); togglePlay(); }}
-        onKeyDown={onKeyDownBtn}
       >
         <span className={styles.visuallyHidden}>
           {isPlaying ? 'Pause' : 'Play'}

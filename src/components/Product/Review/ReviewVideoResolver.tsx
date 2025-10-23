@@ -1,7 +1,9 @@
+// ReviewVideoResolver.tsx
 import React from 'react';
 import { resolveMuxUrlMaybe, type MuxResolve, type MuxWaitingStatus } from '../../../services/muxApi';
 import { ReviewVideo } from './ReviewVideo';
 import Preloader from '../../UI/Preloader/Preloader';
+
 type ReviewType = 'plain' | 'reel';
 
 export function ReviewVideoResolver(props: {

@@ -1,9 +1,10 @@
+// ReelsLightbox.tsx
 import React, { useState } from "react";
 import clsx from "clsx";
 import styles from "./ReelsLightbox.module.scss";
 import { type ReviewOut } from "../../types/review/review";
 import { ReviewVideoResolver } from "../Product/Review/ReviewVideoResolver";
-import { setReviewHelpful } from "../../services/reviewApi";
+import { setReviewHelpful, deleteReview } from "../../services/reviewApi";
 import CloseIcon from "../Icons/CloseIcon";
 import HeartIcon from "../Icons/HeartIcon";
 import StarIcon from "../Icons/StarIcon";
@@ -12,7 +13,6 @@ import ArrowTopIcon from "../Icons/ArrowTopIcon";
 import LinkIcon from "../Icons/LinkIcon";
 import MoreHorizontalIcon from "../Icons/MoreHorizontalIcon";
 import Modal from "../Modal/Modal";
-import { deleteReview } from "../../services/reviewApi";
 import Button from "../UI/Button";
 import { ReelsAudio } from "../../utils/reelsAudio";
 
@@ -193,7 +193,6 @@ export default function ReelsLightbox({
       const newIdx = index + dir;
       const nextId = items[newIdx]?.review.id;
       if (nextId && ReelsAudio.isUnlocked()) {
-        // не нужно быть в окне жеста: после первого явного жеста Safari обычно разрешает звук
         setTimeout(() => unmuteCurrentNow(nextId), 0);
       }
     }, durMs);
@@ -233,7 +232,7 @@ export default function ReelsLightbox({
     if (ptr.current) return;
     ptr.current = { id: e.pointerId, y0: e.clientY, y: e.clientY, moved: false };
     const el = e.target as Element | null;
-    try { el?.setPointerCapture?.(e.pointerId); } catch { }
+    try { (el as any)?.setPointerCapture?.(e.pointerId); } catch { /* noop */ }
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -302,7 +301,7 @@ export default function ReelsLightbox({
       } else {
         window.prompt("Скопируйте ссылку:", url);
       }
-    } catch { }
+    } catch { /* noop */ }
   };
 
   if (!cur) return null;
@@ -361,7 +360,6 @@ export default function ReelsLightbox({
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        // pointer-cancel без возврата значения
         onPointerCancel={() => { ptr.current = null; }}
         style={{ ["--dur" as any]: `${durMs}ms` }}
       >
@@ -374,7 +372,7 @@ export default function ReelsLightbox({
           <div className={clsx(styles.panel, !hasPrev && styles.ghost)} aria-hidden={!hasPrev}>
             {prevItem && (
               <ReviewVideoResolver
-                key={`prev-${prevItem.review.id}`}
+                key={prevItem.review.id}
                 url={prevItem.url}
                 reviewId={prevItem.review.id}
                 productId={prevItem.review.productId}
@@ -389,7 +387,7 @@ export default function ReelsLightbox({
           {/* current */}
           <div className={styles.panel}>
             <ReviewVideoResolver
-              key={`cur-${cur.review.id}`}
+              key={cur.review.id}
               url={cur.url}
               reviewId={cur.review.id}
               productId={cur.review.productId}
@@ -405,7 +403,7 @@ export default function ReelsLightbox({
           <div className={clsx(styles.panel, !hasNext && styles.ghost)} aria-hidden={!hasNext}>
             {nextItem && (
               <ReviewVideoResolver
-                key={`next-${nextItem.review.id}`}
+                key={nextItem.review.id}
                 url={nextItem.url}
                 reviewId={nextItem.review.id}
                 productId={nextItem.review.productId}
