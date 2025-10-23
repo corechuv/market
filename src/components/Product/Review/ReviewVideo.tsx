@@ -134,11 +134,13 @@ export const ReviewVideo: React.FC<Props> = ({
     try { (video as any).webkitPlaysInline = true; } catch { }
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
-    if (autoPlay && (FORCE_MUTED_AUTOPLAY || isMuted)) {
-      video.setAttribute('muted', '');
+    if (autoPlay) {
       video.setAttribute('autoplay', '');
+      // на мобилке добавляем muted только если звук НЕ разблокирован
+      if (FORCE_MUTED_AUTOPLAY && !ReelsAudio.isUnlocked()) {
+        video.setAttribute('muted', '');
+      }
     }
-
     // запрет PiP/remote
     try { (video as any).disableRemotePlayback = true; } catch { }
     try { (video as any).disablePictureInPicture = true; } catch { }
@@ -341,15 +343,29 @@ export const ReviewVideo: React.FC<Props> = ({
 
   // активность карточки
   useEffect(() => {
-    activeRef.current = active;
     const v = videoRef.current;
     if (!v) return;
+    activeRef.current = active;
+
     if (active) {
-      if (autoPlay) playSafely().catch(() => { });
+      if (autoPlay) {
+        playSafely().catch(() => { });
+      }
+      // если звук уже разблокирован и юзер сам не мьютил — снимем mute
+      if (ReelsAudio.isUnlocked() && !userMutedRef.current && v.muted) {
+        try {
+          v.muted = false;
+          v.removeAttribute('muted');
+          setIsMuted(false);
+          // на всякий случай дёрнем play (некоторые WebKit требуют этого после смены mute)
+          const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
+        } catch { }
+      }
     } else {
       if (!v.paused) v.pause();
     }
   }, [active, autoPlay, playSafely]);
+
 
   // синхронизация mute (отдельный маленький эффект — без пересоздания источника)
   useEffect(() => {
