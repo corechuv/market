@@ -36,37 +36,6 @@ export const account: Account = {
       country: "Германия",
     },
   ],
-  /*
-  orders: [
-    {
-      id: uid(),
-      number: "MP-2025-000123",
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
-      deliveredAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1).toISOString(),
-      status: "delivered",
-      // сводка:
-      subtotal: 12990,
-      shippingCents: 0,
-      discountCents: 0,
-      vatCents: 2075, // пример, не принципиально
-      total: 12990,
-      shippingMethod: "Standard Versand",
-      promoCode: null,
-      currencyCode: "EUR",
-      payment: {
-        method: { type: "card", brand: "visa", last4: "4242", holder: "Alex Müller" },
-        amountCents: 12990,
-        currency: "EUR",
-        paidAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2 + 10 * 60 * 1000).toISOString(),
-        transactionId: `demo_${uid()}`
-      },
-      items: [
-        { sku: "SKU-1001", name: "Kopfhörer Pro", qty: 1, price: 9990 },
-        { sku: "SKU-2001", name: "Hülle", qty: 1, price: 3000 },
-      ],
-      // deliveryAddressId оставляем пустым — модалка сападёт на адрес по умолчанию
-    },
-  ],*/
   returns: [],
   settings: {
     emailNotifications: true,
