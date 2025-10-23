@@ -134,6 +134,7 @@ export default function ReelsLightbox({
     };
   }, [recalcDuration]);
 
+  const [preActiveIndex, setPreActiveIndex] = React.useState<number | null>(null);
   const hasPrev = index > 0;
   const hasNext = index < items.length - 1;
   const prevItem = hasPrev ? items[index - 1] : null;
@@ -153,6 +154,11 @@ export default function ReelsLightbox({
     if (busy || kick) return;
     if (d === 1 && !hasNext) return;
     if (d === -1 && !hasPrev) return;
+    const target = index + d;
+    setPreActiveIndex(target);           // делаем целевую панель active уже СЕЙЧАС
+    ensureSoundUnlocked();               // разблокируем звук (жест есть)
+    const nextId = items[target]?.review.id;
+    if (nextId) unmuteCurrentNow(nextId); // ← анмьютим следующий ролик в ТОМ ЖЕ ЖЕСТЕ
     setBusy(true);
     setDir(d);
     requestAnimationFrame(() => requestAnimationFrame(() => setKick(true)));
@@ -189,6 +195,7 @@ export default function ReelsLightbox({
       setKick(false);
       setDir(0);
       setBusy(false);
+      setPreActiveIndex(null);
       // после переключения — если звук разблокирован, попросим активное видео анмьютнуться
       const newIdx = index + dir;
       const nextId = items[newIdx]?.review.id;
@@ -379,7 +386,7 @@ export default function ReelsLightbox({
                 reviewType={prevItem.review.type}
                 userId={prevItem.review.authorId}
                 muted
-                active={false}
+                active={preActiveIndex === index - 1}
               />
             )}
           </div>
@@ -395,7 +402,7 @@ export default function ReelsLightbox({
               userId={cur.review.authorId}
               autoPlay
               muted={false}
-              active={true}
+              active={preActiveIndex === null}
             />
           </div>
 
@@ -410,7 +417,7 @@ export default function ReelsLightbox({
                 reviewType={nextItem.review.type}
                 userId={nextItem.review.authorId}
                 muted
-                active={false}
+                active={preActiveIndex === index + 1}
               />
             )}
           </div>

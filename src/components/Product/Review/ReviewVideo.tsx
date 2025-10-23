@@ -350,7 +350,6 @@ export const ReviewVideo: React.FC<Props> = ({
       const v = videoRef.current;
       if (!v) return;
       if (!activeRef.current) return;
-      if (FORCE_MUTED_AUTOPLAY) return; // мобилки: не авто-анмьютим без явного жеста
       if (!v.paused && !userMutedRef.current) {
         v.muted = false;
         v.removeAttribute('muted');
