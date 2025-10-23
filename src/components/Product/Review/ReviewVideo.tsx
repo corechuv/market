@@ -491,7 +491,7 @@ export const ReviewVideo: React.FC<Props> = ({
         poster={poster}
         autoPlay={autoPlay}
         playsInline
-        preload="auto"
+        preload={active ? 'auto' : 'metadata'}
         muted={isMuted}
         controls={false}
         controlsList="nodownload noplaybackrate noremoteplayback"
