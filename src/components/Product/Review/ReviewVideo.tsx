@@ -103,9 +103,17 @@ export const ReviewVideo: React.FC<Props> = ({
     const v = videoRef.current;
     if (!v || !activeRef.current) return;
 
-    // мобилки — стартуем в mute всегда
-    if (FORCE_MUTED_AUTOPLAY && !v.muted) {
-      v.muted = true; v.setAttribute('muted', ''); setIsMuted(true);
+    // решаем, надо ли стартовать в mute
+    const shouldStartMuted =
+      FORCE_MUTED_AUTOPLAY
+      || userMutedRef.current
+      || !!muted
+      || !ReelsAudio.isUnlocked();
+
+    if (v.muted !== shouldStartMuted) {
+      v.muted = shouldStartMuted;
+      if (v.muted) v.setAttribute('muted', ''); else v.removeAttribute('muted');
+      setIsMuted(v.muted);
     }
 
     clearRetry();
@@ -115,25 +123,27 @@ export const ReviewVideo: React.FC<Props> = ({
       if (!activeRef.current) return;
       attempts++;
 
-      // Иногда Safari зовёт play слишком рано — подстрахуемся
-      if (v.readyState < 2) { try { v.load(); } catch {/* noop */} }
+      // Иногда Safari зовёт play слишком рано — подстрахуемся, но не спамим load()
+      if (v.readyState === 0) { try { v.load(); } catch {/* noop */} }
 
       const p = v.play();
       if (p && typeof p.catch === 'function') {
         p.catch((err: any) => {
-          // Safari любит AbortError/NotAllowedError — подождём чуть-чуть и повторим
+          // Если отказ по политике автоплея — на следующей попытке уже muted
+          if (err && (err.name === 'NotAllowedError' || err.name === 'AbortError')) {
+            if (!v.muted) { v.muted = true; v.setAttribute('muted', ''); setIsMuted(true); }
+          }
           if (attempts < 6) {
-            const delay = 80 * attempts; // 80,160,240,320,400,480
+            const delay = 100 * attempts; // 100,200,300,400,500,600
             retryPlayTimer.current = window.setTimeout(tryPlay, delay);
           }
-          // полезно видеть, что именно пошло не так
           try { console.debug('[ReviewVideo] play() failed', err?.name || err); } catch {}
         });
       }
     };
 
     tryPlay();
-  }, [clearRetry]);
+  }, [clearRetry, muted]);
 
   // === Инициализация источника и событий ===
   // ВАЖНО: не включаем сюда isMuted/muted -> иначе при клике по звуку пересоздастся плеер и скинет таймлайн в 0
@@ -150,10 +160,8 @@ export const ReviewVideo: React.FC<Props> = ({
     video.setAttribute('webkit-playsinline', '');
     if (autoPlay) {
       video.setAttribute('autoplay', '');
-      // на мобилке добавляем muted только если звук НЕ разблокирован
-      if (FORCE_MUTED_AUTOPLAY && !ReelsAudio.isUnlocked()) {
-        video.setAttribute('muted', '');
-      }
+      // для надёжности ставим атрибут muted при автоплее на всех платформах
+      video.setAttribute('muted', '');
     }
     // запрет PiP/remote
     try { (video as any).disableRemotePlayback = true; } catch { }
@@ -237,11 +245,7 @@ export const ReviewVideo: React.FC<Props> = ({
 
     // первичная установка mute на основании глобального флага
     const globalSoundOn = ReelsAudio.isUnlocked();
-    video.muted = !(globalSoundOn || !muted);
-    // форсим mute для автоплея на мобилке ТОЛЬКО пока звук ещё не разблокирован
-    if (FORCE_MUTED_AUTOPLAY && autoPlay && !globalSoundOn) {
-      video.muted = true;
-    }
+    video.muted = !(globalSoundOn || !muted) || FORCE_MUTED_AUTOPLAY; // безопаснее стартуем мутно на мобилках
     if (video.muted) video.setAttribute('muted', ''); else video.removeAttribute('muted');
     setIsMuted(video.muted);
 
