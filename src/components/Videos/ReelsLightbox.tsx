@@ -90,7 +90,9 @@ export default function ReelsLightbox({
   React.useEffect(() => {
     ReelsAudio.armGlobalUnlock();
     window.dispatchEvent(new CustomEvent('reels:open'));
-    return () => window.dispatchEvent(new CustomEvent('reels:close'));
+    return () => {
+      window.dispatchEvent(new CustomEvent('reels:close'));
+    };
   }, []);
 
   const [busy, setBusy] = React.useState(false);
@@ -114,15 +116,17 @@ export default function ReelsLightbox({
 
   React.useLayoutEffect(recalcDuration, [recalcDuration, index]);
 
+  // ResizeObserver c локальной ссылкой на элемент
   React.useEffect(() => {
-    if (!shellRef.current) return;
+    const el = shellRef.current;
+    if (!el) return;
     const onWinResize = () => recalcDuration();
     window.addEventListener("resize", onWinResize);
-    let ro: any = null;
-    const RO = (window as any).ResizeObserver as any;
+    let ro: ResizeObserver | null = null;
+    const RO = (window as any).ResizeObserver as typeof ResizeObserver | undefined;
     if (RO) {
       ro = new RO(() => recalcDuration());
-      ro.observe(shellRef.current);
+      ro.observe(el);
     }
     return () => {
       window.removeEventListener("resize", onWinResize);
@@ -144,6 +148,7 @@ export default function ReelsLightbox({
     window.dispatchEvent(new CustomEvent(UNMUTE_EVENT, { detail: { reviewId: id } }));
   }, []);
 
+  // go — добавили index в зависимости
   const go = React.useCallback((d: 1 | -1) => {
     if (busy || kick) return;
     if (d === 1 && !hasNext) return;
@@ -152,7 +157,7 @@ export default function ReelsLightbox({
     setDir(d);
     requestAnimationFrame(() => requestAnimationFrame(() => setKick(true)));
     window.dispatchEvent(new CustomEvent('reels:nav', { detail: { dir: d, from: index, to: index + d } }));
-  }, [busy, kick, hasNext, hasPrev]);
+  }, [busy, kick, hasNext, hasPrev, index]);
 
   // клавиатура
   React.useEffect(() => {
@@ -222,12 +227,13 @@ export default function ReelsLightbox({
   // state для pointer-свайпа
   const ptr = React.useRef<{ id: number; y0: number; y: number; moved: boolean } | null>(null);
 
+  // pointer-свайпы — setPointerCapture безопасно
   const onPointerDown = (e: React.PointerEvent) => {
     if (busy || kick) return;
-    // только один основной указатель
     if (ptr.current) return;
     ptr.current = { id: e.pointerId, y0: e.clientY, y: e.clientY, moved: false };
-    try { (e.target as Element).setPointerCapture(e.pointerId); } catch { }
+    const el = e.target as Element | null;
+    try { el?.setPointerCapture?.(e.pointerId); } catch { }
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -355,7 +361,8 @@ export default function ReelsLightbox({
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        onPointerCancel={() => (ptr.current = null)}
+        // pointer-cancel без возврата значения
+        onPointerCancel={() => { ptr.current = null; }}
         style={{ ["--dur" as any]: `${durMs}ms` }}
       >
         {/* СЦЕНА */}

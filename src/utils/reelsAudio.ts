@@ -4,29 +4,32 @@ class ReelsAudioGate {
   private ac: AudioContext | null = null;
 
   constructor() {
-    try { this.unlocked = localStorage.getItem('reels:sound_on') === '1'; } catch {}
-    // синхронизация между вкладками
+    try { this.unlocked = localStorage.getItem('reels:sound_on') === '1'; } catch { }
     window.addEventListener('storage', (e) => {
       if (e.key === 'reels:sound_on') {
         this.unlocked = e.newValue === '1';
         this.broadcast();
       }
     });
-    // вернулись на вкладку — убедимся, что контекст живой
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && this.unlocked) this.resumeContext();
-    }, { passive: true });
+    document.addEventListener(
+      'visibilitychange',
+      () => {
+        if (document.visibilityState === 'visible' && this.unlocked) this.resumeContext();
+      },
+      { passive: true }
+    );
   }
 
   private resumeContext() {
     try {
       const AC: any = (window as any).AudioContext || (window as any).webkitAudioContext;
       if (!AC) return;
-      this.ac = this.ac || new AC();
-      if (this.ac.state !== 'running') {
-        this.ac.resume().catch(() => {});
+      const ac: AudioContext = this.ac ?? new AC();
+      this.ac = ac;
+      if (ac.state !== 'running') {
+        ac.resume().catch(() => { });
       }
-    } catch {}
+    } catch { }
   }
 
   unlock = () => {
@@ -34,29 +37,34 @@ class ReelsAudioGate {
     try {
       const AC: any = (window as any).AudioContext || (window as any).webkitAudioContext;
       if (AC) {
-        this.ac = this.ac || new AC();
-        if (this.ac.state === 'suspended') this.ac.resume().catch(() => {});
-        const src = this.ac.createBufferSource();
-        src.buffer = this.ac.createBuffer(1, 1, 22050);
-        src.connect(this.ac.destination);
+        const ac: AudioContext = this.ac ?? new AC();
+        this.ac = ac;
+        if (ac.state === 'suspended') ac.resume().catch(() => { });
+        const src = ac.createBufferSource();
+        src.buffer = ac.createBuffer(1, 1, 22050);
+        src.connect(ac.destination);
         src.start(0);
       }
-    } catch {}
+    } catch { }
     this.unlocked = true;
-    try { localStorage.setItem('reels:sound_on', '1'); } catch {}
+    try { localStorage.setItem('reels:sound_on', '1'); } catch { }
     this.broadcast();
   };
 
-  // Один раз «вооружаем» глобальный анлок на первый жест пользователя
+  // «вооружаем» глобальный анлок один раз
   armGlobalUnlock = () => {
+    let onKey: ((e: KeyboardEvent) => void) | null = null;
+
     const doUnlock = () => {
       this.unlock();
       document.removeEventListener('pointerdown', doUnlock, true);
-      document.removeEventListener('keydown', onKey, true);
+      if (onKey) document.removeEventListener('keydown', onKey, true);
     };
-    const onKey = (e: KeyboardEvent) => {
+
+    onKey = (e: KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === ' ') doUnlock();
     };
+
     document.addEventListener('pointerdown', doUnlock, { once: true, capture: true });
     document.addEventListener('keydown', onKey, { capture: true });
   };
