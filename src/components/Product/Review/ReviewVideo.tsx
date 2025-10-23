@@ -1,4 +1,4 @@
-// ReviewVideo.tsx
+// src/components/Product/Review/ReviewVideo.tsx
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Hls from 'hls.js';
 import mux, { type MonitorOptions } from 'mux-embed';
@@ -54,7 +54,6 @@ export const ReviewVideo: React.FC<Props> = ({
   active = false,
   loop = true,
 }) => {
-
   const allowAudibleOnMobileRef = useRef(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
@@ -63,11 +62,13 @@ export const ReviewVideo: React.FC<Props> = ({
   const activeRef = useRef<boolean>(active);
   const loopRef = useRef<boolean>(loop);
 
-  // iOS требует muted на DOM уже к первому paint
+  // FIX 1: начальный mute должен учитывать мобилки + автоплей (атрибут должен быть на DOM до первого paint)
   const [isMuted, setIsMuted] = useState<boolean>(() => {
     const global = ReelsAudio.isUnlocked();
+    if (FORCE_MUTED_AUTOPLAY && autoPlay) return true; // мобильный безопасный автоплей
     return !(global || !muted);
   });
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState<number>(0);
   const [currentTime, setCurrentTime] = useState<number>(0);
@@ -98,16 +99,14 @@ export const ReviewVideo: React.FC<Props> = ({
     }
   }, [loop]);
 
-  // Универсальный безопасный запуск воспроизведения (вынесено на верхний уровень — это было источником ошибки)
+  // FIX 2: безопасный запуск — не пытаться, если карточка не активна
   const playSafely = useCallback(async (preferAudible: boolean) => {
     const v = videoRef.current;
-    if (!v) return;
+    if (!v || !activeRef.current) return;
 
     // На мобилках всегда стартуем muted — гарантированно разрешено
     if (FORCE_MUTED_AUTOPLAY) {
-      if (!v.muted) {
-        v.muted = true; v.setAttribute('muted', ''); setIsMuted(true);
-      }
+      if (!v.muted) { v.muted = true; v.setAttribute('muted', ''); setIsMuted(true); }
       try { await v.play(); } catch { /* noop */ }
       return;
     }
@@ -118,15 +117,11 @@ export const ReviewVideo: React.FC<Props> = ({
         v.muted = false; v.removeAttribute('muted'); setIsMuted(false);
         await v.play();
         return;
-      } catch {
-        // fallback ниже
-      }
+      } catch { /* fallback ниже */ }
     }
 
     // Fallback: muted autoplay
-    if (!v.muted) {
-      v.muted = true; v.setAttribute('muted', ''); setIsMuted(true);
-    }
+    if (!v.muted) { v.muted = true; v.setAttribute('muted', ''); setIsMuted(true); }
     try { await v.play(); } catch { /* noop */ }
   }, []);
 
@@ -135,7 +130,7 @@ export const ReviewVideo: React.FC<Props> = ({
     const video = videoRef.current;
     if (!video) return;
 
-    const envKey = (import.meta.env.VITE_MUX_DATA_ENV_KEY as string) || '';
+    const envKey = (import.meta as any).env?.VITE_MUX_DATA_ENV_KEY as string || '';
 
     const destroy = () => {
       clearRetry();
@@ -171,12 +166,18 @@ export const ReviewVideo: React.FC<Props> = ({
       } catch { /* noop */ }
     };
 
-    // iOS inline + нужные атрибуты заранее
+    // FIX 3: критичные атрибуты для автоплея ДО назначения src/hls и ДО первого кадра
     try { (video as any).playsInline = true; } catch { /* noop */ }
     try { (video as any).webkitPlaysInline = true; } catch { /* noop */ }
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
-    if (autoPlay && isMuted) {
+
+    if (FORCE_MUTED_AUTOPLAY && autoPlay) {
+      video.muted = true;
+      video.setAttribute('muted', '');
+      video.setAttribute('autoplay', '');
+      setIsMuted(true);
+    } else if (autoPlay && isMuted) {
       video.setAttribute('muted', '');
       video.setAttribute('autoplay', '');
     }
@@ -193,12 +194,12 @@ export const ReviewVideo: React.FC<Props> = ({
       wasPlayingBeforeHide.current = !video.paused;
       if (!video.paused) video.pause();
     };
+
     const onPageShow = () => {
-      if (wasPlayingBeforeHide.current && autoPlay) {
-        if (!FORCE_MUTED_AUTOPLAY && ReelsAudio.isUnlocked()) {
-          video.muted = false;
-          video.removeAttribute('muted');
-          setIsMuted(false);
+      // FIX 6: возобновляем только активный
+      if (wasPlayingBeforeHide.current && autoPlay && activeRef.current) {
+        if (!FORCE_MUTED_AUTOPLAY && ReelsAudio.isUnlocked() && !userMutedRef.current) {
+          video.muted = false; video.removeAttribute('muted'); setIsMuted(false);
         }
         video.play().catch(() => { /* noop */ });
       }
@@ -265,6 +266,10 @@ export const ReviewVideo: React.FC<Props> = ({
     // mute по стору «глобального звука»
     const globalSoundOn = ReelsAudio.isUnlocked();
     video.muted = !(globalSoundOn || !muted);
+    if (FORCE_MUTED_AUTOPLAY && autoPlay) {
+      // на мобилках держим mute несмотря на глобальный флаг до явного жеста:
+      video.muted = true;
+    }
     if (video.muted) video.setAttribute('muted', ''); else video.removeAttribute('muted');
     setIsMuted(video.muted);
 
@@ -275,16 +280,12 @@ export const ReviewVideo: React.FC<Props> = ({
       window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: v } as any));
     };
 
-    // Автоплей (первичная попытка)
+    // Автоплей (первичная попытка) — FIX 4: только если активен
     const tryAutoplay = async (withMutedFallback = true) => {
-      if (!autoPlay) return;
+      if (!autoPlay || !activeRef.current) return;
       try {
         if (FORCE_MUTED_AUTOPLAY) {
-          if (!video.muted) {
-            video.muted = true;
-            video.setAttribute('muted', '');
-            setIsMuted(true);
-          }
+          if (!video.muted) { video.muted = true; video.setAttribute('muted', ''); setIsMuted(true); }
           if (isIOS) video.setAttribute('autoplay', '');
           await video.play();
           notifyNowPlaying();
@@ -293,21 +294,13 @@ export const ReviewVideo: React.FC<Props> = ({
         if (!video.muted && ReelsAudio.isUnlocked()) {
           await video.play();
         } else {
-          if (!video.muted) {
-            video.muted = true;
-            video.setAttribute('muted', '');
-            setIsMuted(true);
-          }
+          if (!video.muted) { video.muted = true; video.setAttribute('muted', ''); setIsMuted(true); }
           await video.play();
         }
         notifyNowPlaying();
       } catch {
         if (withMutedFallback) {
-          if (!video.muted) {
-            video.muted = true;
-            video.setAttribute('muted', '');
-            setIsMuted(true);
-          }
+          if (!video.muted) { video.muted = true; video.setAttribute('muted', ''); setIsMuted(true); }
           retryPlayTimer.current = window.setTimeout(() => {
             tryAutoplay(false).catch(() => { /* noop */ });
           }, 50);
@@ -321,11 +314,11 @@ export const ReviewVideo: React.FC<Props> = ({
       notifyNowPlaying();
       emit('reels:play', { reviewId });
 
-      // 👇 добавь защиту на мобилки: не авто-отключаем mute из onPlay
+      // FIX 5: не авто-анмьютим на мобилках и без явного жеста
       if (FORCE_MUTED_AUTOPLAY) return;
+      if (!activeRef.current) return;
 
-      // Если звук уже «разблокирован» и пользователь не мутил вручную — снимаем mute.
-      if (activeRef.current && !userMutedRef.current && ReelsAudio.isUnlocked()) {
+      if (!userMutedRef.current && ReelsAudio.isUnlocked()) {
         try {
           video.muted = false;
           video.removeAttribute('muted');
@@ -346,7 +339,8 @@ export const ReviewVideo: React.FC<Props> = ({
     };
 
     const onCanPlay = () => {
-      if (autoPlay && video.paused && isIOS && isMuted) {
+      // FIX 7: автоплей на iOS — только для активной карточки
+      if (autoPlay && activeRef.current && video.paused && isIOS && isMuted) {
         const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { /* noop */ });
       }
     };
@@ -377,8 +371,9 @@ export const ReviewVideo: React.FC<Props> = ({
         wasPlayingBeforeHide.current = !video.paused;
         if (!video.paused) video.pause();
       } else {
-        if (wasPlayingBeforeHide.current && autoPlay) {
-          if (!FORCE_MUTED_AUTOPLAY && ReelsAudio.isUnlocked()) {
+        // FIX 6 (часть 2): возобновляем только активный
+        if (wasPlayingBeforeHide.current && autoPlay && activeRef.current) {
+          if (!FORCE_MUTED_AUTOPLAY && ReelsAudio.isUnlocked() && !userMutedRef.current) {
             video.muted = false;
             video.removeAttribute('muted');
             setIsMuted(false);
@@ -389,12 +384,12 @@ export const ReviewVideo: React.FC<Props> = ({
       }
     };
 
-    // в onUnmuteNow (слушатель UNMUTE_EVENT)
+    // ручной анмьют по глобальному событию
     const onUnmuteNow = (ev: Event) => {
       const detail = (ev as CustomEvent<any>).detail || {};
       if (detail.reviewId && detail.reviewId !== reviewId) return;
       if (!activeRef.current) return;
-      allowAudibleOnMobileRef.current = true; // 👈 разрешаем звук на мобилке
+      allowAudibleOnMobileRef.current = true;
       try {
         video.muted = false;
         video.removeAttribute('muted');
@@ -421,8 +416,11 @@ export const ReviewVideo: React.FC<Props> = ({
     document.addEventListener('visibilitychange', onVisibility, { passive: true });
 
     onLoadedMeta(); onTimeUpdate(); onProgress();
-    // первичная попытка автоплея при инициализации
-    tryAutoplay().catch(() => { /* noop */ });
+
+    // FIX 8: первичный автоплей только для активной карточки
+    if (activeRef.current && autoPlay) {
+      tryAutoplay().catch(() => { /* noop */ });
+    }
 
     return () => {
       clearRetry();
@@ -454,14 +452,16 @@ export const ReviewVideo: React.FC<Props> = ({
     if (!active && !v.paused) v.pause();
   }, [active]);
 
-  // При изменении active/autoPlay — инициируем воспроизведение «безопасно»
+  // FIX 9: при изменении active/autoPlay — инициируем воспроизведение «правильно»
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
+    activeRef.current = active;
+
     if (active) {
       if (autoPlay) {
-        // На десктопе попытаемся сразу со звуком, если это уже разрешено
-        playSafely(true).catch(() => { /* noop */ });
+        // На десктопе — пробуем со звуком только если уже есть жест
+        playSafely(!FORCE_MUTED_AUTOPLAY && ReelsAudio.isUnlocked()).catch(() => { /* noop */ });
       }
     } else {
       if (!v.paused) v.pause();
@@ -472,15 +472,9 @@ export const ReviewVideo: React.FC<Props> = ({
   useEffect(() => {
     const v = videoRef.current; if (!v) return;
 
-    // Мобилки: держим mute только пока не было явного жеста на звук
     const forceMutedForMobileAutoplay =
       FORCE_MUTED_AUTOPLAY && autoPlay && !allowAudibleOnMobileRef.current;
 
-    // Приоритеты:
-    // 1) если нужно форсить mute для автоплея на мобилке — мьютим
-    // 2) если пользователь сам мутил — уважаем
-    // 3) если глобальный звук не разблокирован — ориентируемся на проп muted
-    // 4) иначе — звук включён
     const targetMuted = forceMutedForMobileAutoplay
       ? true
       : userMutedRef.current
@@ -525,7 +519,7 @@ export const ReviewVideo: React.FC<Props> = ({
     setIsMuted(v.muted);
     userMutedRef.current = v.muted;
     if (!v.muted) {
-      allowAudibleOnMobileRef.current = true; // 👈
+      allowAudibleOnMobileRef.current = true;
       ReelsAudio.unlock();
       const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
     }
@@ -564,6 +558,15 @@ export const ReviewVideo: React.FC<Props> = ({
     togglePlay();
   };
 
+  // FIX 10: контейнер «вооружает» глобальный звук и сразу анмьютит активный ролик
+  const handlePointerDown = useCallback(() => {
+    ReelsAudio.unlock();
+    if (activeRef.current) {
+      allowAudibleOnMobileRef.current = true;
+      window.dispatchEvent(new CustomEvent(UNMUTE_EVENT, { detail: { reviewId } }));
+    }
+  }, [reviewId]);
+
   const playedPct = (durationState || 0) > 0 ? (currentTime / (durationState || 1)) * 100 : 0;
   const bufferedPct = (durationState || 0) > 0 ? (Math.min(bufferedEnd, durationState || 0) / (durationState || 1)) * 100 : 0;
 
@@ -579,7 +582,7 @@ export const ReviewVideo: React.FC<Props> = ({
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} onPointerDownCapture={handlePointerDown}>
       <video
         ref={videoRef}
         className={styles.video}
