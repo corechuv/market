@@ -1,14 +1,12 @@
 // src/components/Product/ProductCarouselRish.tsx
-import React, { useRef, useCallback, useMemo } from "react";
+import React, { useRef, useCallback } from "react";
 import cls from "./ProductCarousel.module.scss";
 
 import type { Product, ProductVariant } from "../../types/product";
 import { parseMoney } from "../../types/helpers/parseMoney";
 import { getInitialVariant } from "../../specs/builders";
-import { getReviewSummaryMap } from "../../services/reviewService";
 
 import EnergyLabel from "./Details/EnergyLabel";
-import Stars from "./Stars";
 
 import ChevronRightIcon from "../Icons/ChevronLeftIcon";
 import ChevronLeftIcon from "../Icons/ChevronRightIcon";
@@ -95,9 +93,6 @@ const ProductCarouselRich: React.FC<ProductCarouselRichProps> = ({
         [visibleItems]
     );
 
-    // карта суммарных рейтингов: { [productId]: { avg, count } }
-    const reviewSummaryMap = useMemo(() => getReviewSummaryMap(), []);
-
     return (
         <div className={cls.listContainer}>
             {label ? <h2 className={cls.title}>{label}</h2> : null}
@@ -111,7 +106,6 @@ const ProductCarouselRich: React.FC<ProductCarouselRichProps> = ({
                     <div className={cls.track} role="list">
                         {products.map((product) => {
                             const c = computeProductComputed(product);
-                            const rs = reviewSummaryMap[product.id];
 
                             const href =
                                 itemLinkBuilder?.(product) ?? (undefined as string | undefined);
@@ -148,22 +142,6 @@ const ProductCarouselRich: React.FC<ProductCarouselRichProps> = ({
                                         <h2 className={cls.productName} title={product.name}>
                                             {product.name}
                                         </h2>
-
-                                        <div className={cls.productMeta__rating}>
-                                            {rs?.count ? (
-                                                <>
-                                                    <Stars size={14} value={rs.avg} />
-                                                    <span className={cls.productMeta__ratingValue}>{rs.avg.toFixed(1)}</span>
-                                                    <span className={cls.productMeta__ratingCount}>({rs.count})</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Stars size={14} value={0} />
-                                                    <span className={cls.productMeta__ratingValue}>0.0</span>
-                                                    <span className={cls.productMeta__ratingCount}>(0)</span>
-                                                </>
-                                            )}
-                                        </div>
 
                                         <div className={cls.price}>
                                             {c.discountPercent && c.compareAt ? (
