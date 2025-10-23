@@ -315,8 +315,7 @@ export const ReviewVideo: React.FC<Props> = ({
       window.removeEventListener('pagehide', onPageHide);
       window.removeEventListener('pageshow', onPageShow);
       document.removeEventListener('visibilitychange', onVisibility);
-      if (hlsRef.current) { try { hlsRef.current.destroy(); } catch { } hlsRef.current = null; }
-      if (monitoredRef.current) { try { mux.destroyMonitor(video); } catch { } monitoredRef.current = false; }
+      destroy();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hlsUrl, reviewId, productId, reviewType, userId, isMuted, muted, autoPlay]);
