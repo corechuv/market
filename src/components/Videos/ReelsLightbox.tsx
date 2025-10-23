@@ -385,7 +385,8 @@ export default function ReelsLightbox({
                 productId={prevItem.review.productId}
                 reviewType={prevItem.review.type}
                 userId={prevItem.review.authorId}
-                muted
+                muted={preActiveIndex !== index - 1}
+                autoPlay={preActiveIndex === index - 1}
                 active={preActiveIndex === index - 1}
               />
             )}
@@ -400,8 +401,8 @@ export default function ReelsLightbox({
               productId={cur.review.productId}
               reviewType={cur.review.type}
               userId={cur.review.authorId}
-              autoPlay
-              muted={false}
+              autoPlay={preActiveIndex === null}
+              muted={preActiveIndex !== null}   // если идёт переход — текущий сразу в mute
               active={preActiveIndex === null}
             />
           </div>
@@ -416,7 +417,8 @@ export default function ReelsLightbox({
                 productId={nextItem.review.productId}
                 reviewType={nextItem.review.type}
                 userId={nextItem.review.authorId}
-                muted
+                muted={preActiveIndex !== index + 1}
+                autoPlay={preActiveIndex === index + 1}
                 active={preActiveIndex === index + 1}
               />
             )}
