@@ -80,8 +80,18 @@ export default function ReelsLightbox({
   onIndexChange,
 }: Props) {
   useBodyScrollLock(true);
+
   const [index, setIndex] = React.useState(startIndex);
-  React.useEffect(() => { onIndexChange?.(index); }, [index, onIndexChange]);
+  React.useEffect(() => {
+    onIndexChange?.(index);
+    window.dispatchEvent(new CustomEvent('reels:index', { detail: { index, id: items[index]?.review.id } }));
+  }, [index, onIndexChange, items]);
+
+  React.useEffect(() => {
+    ReelsAudio.armGlobalUnlock();
+    window.dispatchEvent(new CustomEvent('reels:open'));
+    return () => window.dispatchEvent(new CustomEvent('reels:close'));
+  }, []);
 
   const [busy, setBusy] = React.useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -141,6 +151,7 @@ export default function ReelsLightbox({
     setBusy(true);
     setDir(d);
     requestAnimationFrame(() => requestAnimationFrame(() => setKick(true)));
+    window.dispatchEvent(new CustomEvent('reels:nav', { detail: { dir: d, from: index, to: index + d } }));
   }, [busy, kick, hasNext, hasPrev]);
 
   // клавиатура
@@ -185,29 +196,52 @@ export default function ReelsLightbox({
   }, [kick, dir, durMs, index, items, unmuteCurrentNow]);
 
   // колесо
-  const wheelLock = React.useRef(0);
+  const wheelAgg = React.useRef({ sum: 0, lastTs: 0 });
   const onWheel = (e: React.WheelEvent) => {
-    const now = Date.now();
     if (busy || kick) return;
-    if (now - wheelLock.current < 250) return;
-    const d = e.deltaY || (e as any).wheelDelta || 0;
-    if (Math.abs(d) < 12) return;
-    wheelLock.current = now;
-    ensureSoundUnlocked();
-    unmuteCurrentNow(items[index]?.review.id);
-    if (d > 0) go(1); else go(-1);
+    const now = performance.now();
+    const h = shellRef.current?.clientHeight || window.innerHeight || 800;
+
+    let dy = e.deltaY;
+    if (e.deltaMode === 1) dy *= 16;        // lines → px
+    else if (e.deltaMode === 2) dy *= h;    // pages → px
+
+    if (now - wheelAgg.current.lastTs > 220) wheelAgg.current.sum = 0;
+    wheelAgg.current.lastTs = now;
+    wheelAgg.current.sum += dy;
+
+    const TH = Math.max(60, Math.round(h * 0.06));
+    if (Math.abs(wheelAgg.current.sum) >= TH) {
+      ensureSoundUnlocked();
+      unmuteCurrentNow(items[index]?.review.id);
+      go(wheelAgg.current.sum > 0 ? 1 : -1);
+      wheelAgg.current.sum = 0;
+    }
   };
 
-  // свайпы
-  const touchStartY = React.useRef<number | null>(null);
-  const onTouchStart = (e: React.TouchEvent) => {
-    touchStartY.current = e.touches[0].clientY;
-  };
-  const onTouchEnd = (e: React.TouchEvent) => {
+  // state для pointer-свайпа
+  const ptr = React.useRef<{ id: number; y0: number; y: number; moved: boolean } | null>(null);
+
+  const onPointerDown = (e: React.PointerEvent) => {
     if (busy || kick) return;
-    const s = touchStartY.current;
-    if (s == null) return;
-    const dy = e.changedTouches[0].clientY - s;
+    // только один основной указатель
+    if (ptr.current) return;
+    ptr.current = { id: e.pointerId, y0: e.clientY, y: e.clientY, moved: false };
+    try { (e.target as Element).setPointerCapture(e.pointerId); } catch { }
+  };
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!ptr.current || e.pointerId !== ptr.current.id) return;
+    ptr.current.y = e.clientY;
+    if (Math.abs(ptr.current.y - ptr.current.y0) > 6) ptr.current.moved = true;
+  };
+
+  const onPointerUp = (e: React.PointerEvent) => {
+    const st = ptr.current;
+    if (!st || e.pointerId !== st.id) { ptr.current = null; return; }
+    const dy = st.y - st.y0;
+    ptr.current = null;
+    if (busy || kick) return;
     if (dy < -40) {
       ensureSoundUnlocked();
       unmuteCurrentNow(items[index]?.review.id);
@@ -217,7 +251,6 @@ export default function ReelsLightbox({
       unmuteCurrentNow(items[index]?.review.id);
       go(-1);
     }
-    touchStartY.current = null;
   };
 
   // helpful
@@ -263,7 +296,7 @@ export default function ReelsLightbox({
       } else {
         window.prompt("Скопируйте ссылку:", url);
       }
-    } catch {}
+    } catch { }
   };
 
   if (!cur) return null;
@@ -318,8 +351,11 @@ export default function ReelsLightbox({
       <div
         className={styles.shell}
         ref={shellRef}
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
+        onWheel={onWheel}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={() => (ptr.current = null)}
         style={{ ["--dur" as any]: `${durMs}ms` }}
       >
         {/* СЦЕНА */}

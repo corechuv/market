@@ -80,6 +80,10 @@ export const ReviewVideo: React.FC<Props> = ({
     }
   };
 
+  const emit = (name: string, detail?: any) => {
+    try { window.dispatchEvent(new CustomEvent(name, { detail })); } catch { }
+  };
+
   // держим loop в актуальном состоянии
   useEffect(() => {
     loopRef.current = loop;
@@ -170,10 +174,11 @@ export const ReviewVideo: React.FC<Props> = ({
         try {
           video.currentTime = 0;
           const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
-        } catch {}
+        } catch { }
         return; // не шлём reels:ended
       }
-      window.dispatchEvent(new CustomEvent('reels:ended', { detail: reviewId } as any));
+      window.dispatchEvent(new CustomEvent('reels:ended', { detail: reviewId }));
+      emit('reels:ended', { reviewId });
     };
 
     // Подключаем источник
@@ -186,8 +191,12 @@ export const ReviewVideo: React.FC<Props> = ({
         enableWorker: true,
         lowLatencyMode: false,
         backBufferLength: 90,
-        maxBufferLength: 30,
+        maxBufferLength: 20,
+        maxMaxBufferLength: 60,
+        startPosition: 0,
         capLevelToPlayerSize: true,
+        fragLoadingRetryDelay: 500,
+        manifestLoadingTimeOut: 20000,
       });
       hlsRef.current = hls;
       hls.attachMedia(video);
@@ -274,6 +283,7 @@ export const ReviewVideo: React.FC<Props> = ({
     const onPlay = () => {
       setIsPlaying(true);
       notifyNowPlaying();
+      emit('reels:play', { reviewId });
 
       // Если звук уже «разблокирован» и пользователь не мутил вручную — снимаем mute.
       if (activeRef.current && !userMutedRef.current && ReelsAudio.isUnlocked()) {
@@ -281,11 +291,11 @@ export const ReviewVideo: React.FC<Props> = ({
           video.muted = false;
           video.removeAttribute('muted');
           setIsMuted(false);
-        } catch {}
+        } catch { }
       }
     };
 
-    const onPause = () => setIsPlaying(false);
+    const onPause = () => { setIsPlaying(false); emit('reels:pause', { reviewId }); };
     const onLoadedMeta = () => setDuration(Number.isFinite(video.duration) ? video.duration : 0);
     const onTimeUpdate = () => setCurrentTime(video.currentTime);
     const onProgress = () => {
@@ -350,7 +360,7 @@ export const ReviewVideo: React.FC<Props> = ({
         video.removeAttribute('muted');
         setIsMuted(false);
         const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
-      } catch {}
+      } catch { }
     };
 
     // подписки
@@ -449,6 +459,7 @@ export const ReviewVideo: React.FC<Props> = ({
       ReelsAudio.unlock();
       const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
     }
+    emit(v.muted ? 'reels:mute' : 'reels:unmute', { reviewId });
   }, []);
 
   const onKeyDownBtn = (e: React.KeyboardEvent<HTMLButtonElement>) => {
@@ -469,6 +480,7 @@ export const ReviewVideo: React.FC<Props> = ({
     if (!v || !Number.isFinite(d) || d <= 0) return;
     v.currentTime = Math.min(Math.max(0, t), d);
     setCurrentTime(v.currentTime);
+    emit('reels:seek', { reviewId, time: v?.currentTime ?? 0 });
   };
 
   const onRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -512,7 +524,7 @@ export const ReviewVideo: React.FC<Props> = ({
         poster={poster}
         autoPlay={autoPlay}
         playsInline
-        preload="metadata"
+        preload={active ? "auto" : "metadata"}   // было "metadata"
         muted={isMuted}
         controls={false}
         controlsList="nodownload noplaybackrate noremoteplayback"
