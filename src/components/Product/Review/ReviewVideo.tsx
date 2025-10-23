@@ -107,8 +107,6 @@ export const ReviewVideo: React.FC<Props> = ({
         v.muted = false;
         v.removeAttribute('muted');
         setIsMuted(false);
-        // На WebKit иногда нужно повторить play сразу после смены mute
-        const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
       } catch { /* noop */ }
     };
 
