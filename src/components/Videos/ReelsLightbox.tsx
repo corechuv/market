@@ -28,7 +28,6 @@ type Props = {
   onIndexChange?: (i: number) => void;
 };
 
-// скорость «скролла» трека — пикселей в секунду
 const SPEED_PX_PER_SEC = 1400;
 
 function useBodyScrollLock(active: boolean) {
@@ -114,7 +113,6 @@ export default function ReelsLightbox({
 
   React.useLayoutEffect(recalcDuration, [recalcDuration, index]);
 
-  // ResizeObserver c локальной ссылкой на элемент
   React.useEffect(() => {
     const el = shellRef.current;
     if (!el) return;
@@ -132,7 +130,7 @@ export default function ReelsLightbox({
     };
   }, [recalcDuration]);
 
-  // индекс панели, которая будет следующей «активной» в рамках жеста
+  // индекс панели, которая становится активной в рамках текущего жеста
   const [preActiveIndex, setPreActiveIndex] = React.useState<number | null>(null);
 
   const hasPrev = index > 0;
@@ -144,12 +142,10 @@ export default function ReelsLightbox({
     ReelsAudio.unlock();
   }, []);
 
-  // адресно анмьютим цель свайпа по reviewId (в рамках жеста)
   const unmuteById = React.useCallback((id: string) => {
     window.dispatchEvent(new CustomEvent('reels:unmute_now', { detail: { reviewId: id } }));
   }, []);
 
-  // запуск перехода
   const go = React.useCallback((d: 1 | -1) => {
     if (busy || kick) return;
     if (d === 1 && !hasNext) return;
@@ -157,10 +153,10 @@ export default function ReelsLightbox({
 
     const target = index + d;
 
-    // ВАЖНО: активируем целевую панель прямо сейчас (до анимации)
+    // делаем целевую панель активной ДО анимации
     setPreActiveIndex(target);
 
-    // В рамках ЭТОГО ЖЕ ЖЕСТА разблокируем звук и анмьютим целевой ролик
+    // в рамках одного жеста — разблокируем звук и анмьютим цель
     ensureSoundUnlocked();
     const nextId = items[target]?.review.id;
     if (nextId) unmuteById(nextId);
@@ -190,7 +186,7 @@ export default function ReelsLightbox({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose, ensureSoundUnlocked, go]);
 
-  // окончание анимации — переключаем индекс
+  // окончание анимации — фиксируем индекс
   React.useEffect(() => {
     if (!kick) return;
     const t = setTimeout(() => {
@@ -199,7 +195,6 @@ export default function ReelsLightbox({
       setDir(0);
       setBusy(false);
       setPreActiveIndex(null);
-      // больше ничего не анмьютим здесь — всё произошло внутри жеста в go()
     }, durMs);
     return () => clearTimeout(t);
   }, [kick, dir, durMs]);
@@ -212,8 +207,8 @@ export default function ReelsLightbox({
     const h = shellRef.current?.clientHeight || window.innerHeight || 800;
 
     let dy = e.deltaY;
-    if (e.deltaMode === 1) dy *= 16;        // lines → px
-    else if (e.deltaMode === 2) dy *= h;    // pages → px
+    if (e.deltaMode === 1) dy *= 16;
+    else if (e.deltaMode === 2) dy *= h;
 
     if (now - wheelAgg.current.lastTs > 220) wheelAgg.current.sum = 0;
     wheelAgg.current.lastTs = now;
@@ -227,10 +222,9 @@ export default function ReelsLightbox({
     }
   };
 
-  // state для pointer-свайпа
+  // свайп
   const ptr = React.useRef<{ id: number; y0: number; y: number; moved: boolean } | null>(null);
 
-  // pointer-свайпы — setPointerCapture безопасно
   const onPointerDown = (e: React.PointerEvent) => {
     if (busy || kick) return;
     if (ptr.current) return;
@@ -289,7 +283,7 @@ export default function ReelsLightbox({
     if (!cur) return;
     const origin = window.location.origin;
     const query = window.location.search || "";
-    const url = `${origin}/videos/${cur.review.id}${query}`;
+       const url = `${origin}/videos/${cur.review.id}${query}`;
     const title = cur.review.authorName ? `${cur.review.authorName} — видео-отзыв` : "Видео-отзыв";
     const text = (cur.review.text && cur.review.text.trim()) || "Посмотри этот отзыв";
     const navAny = navigator as any;
@@ -324,7 +318,7 @@ export default function ReelsLightbox({
       role="dialog"
       aria-modal="true"
       onWheel={onWheel}
-      onPointerDown={() => { ensureSoundUnlocked(); }} // больше не шлём анмьют для текущего
+      onPointerDown={() => { ensureSoundUnlocked(); }}
     >
       <button
         className={styles.backdrop}
@@ -335,11 +329,10 @@ export default function ReelsLightbox({
         <CloseIcon />
       </button>
 
-      {/* стрелки */}
       <div className={styles.navV}>
         <button
           className={styles.navBtn}
-          onClick={() => { ensureSoundUnlocked(); go(-1); }}
+          onPointerDown={() => { ensureSoundUnlocked(); go(-1); }}
           disabled={!hasPrev || busy}
           aria-label="Previous (Up)"
         >
@@ -347,7 +340,7 @@ export default function ReelsLightbox({
         </button>
         <button
           className={styles.navBtn}
-          onClick={() => { ensureSoundUnlocked(); go(1); }}
+          onPointerDown={() => { ensureSoundUnlocked(); go(1); }}
           disabled={!hasNext || busy}
           aria-label="Next (Down)"
         >
@@ -380,7 +373,6 @@ export default function ReelsLightbox({
                 productId={prevItem.review.productId}
                 reviewType={prevItem.review.type}
                 userId={prevItem.review.authorId}
-                // целевая панель — активная, автостарт и без mute; остальные — mute
                 muted={preActiveIndex !== index - 1}
                 autoPlay={preActiveIndex === index - 1}
                 active={preActiveIndex === index - 1}
@@ -397,8 +389,6 @@ export default function ReelsLightbox({
               productId={cur.review.productId}
               reviewType={cur.review.type}
               userId={cur.review.authorId}
-              // если нет перехода — это активная панель с автостартом и звуком;
-              // если переход есть — текущую глушим (чтобы не было двойного звука)
               autoPlay={preActiveIndex === null}
               muted={preActiveIndex !== null}
               active={preActiveIndex === null}
