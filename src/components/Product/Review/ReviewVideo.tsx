@@ -351,13 +351,12 @@ export const ReviewVideo: React.FC<Props> = ({
       if (autoPlay) {
         playSafely().catch(() => { });
       }
-      // если звук уже разблокирован и юзер сам не мьютил — снимем mute
-      if (ReelsAudio.isUnlocked() && !userMutedRef.current && v.muted) {
+      // Десктоп — можно авто-снимать mute; мобильные — нельзя (иначе сорвётся автоплей)
+      if (!FORCE_MUTED_AUTOPLAY && ReelsAudio.isUnlocked() && !userMutedRef.current && v.muted) {
         try {
           v.muted = false;
           v.removeAttribute('muted');
           setIsMuted(false);
-          // на всякий случай дёрнем play (некоторые WebKit требуют этого после смены mute)
           const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
         } catch { }
       }
@@ -372,20 +371,27 @@ export const ReviewVideo: React.FC<Props> = ({
     const v = videoRef.current;
     if (!v) return;
 
-    // Не форсить mute на мобилках после первого «разблокирования»
+    // Мобилки: при автоплее держим mute, пока НЕ было жеста по ЭТОМУ видео.
     const forceMobileMuted =
-      FORCE_MUTED_AUTOPLAY && autoPlay && !ReelsAudio.isUnlocked();
+      FORCE_MUTED_AUTOPLAY && autoPlay && !allowAudibleOnMobileRef.current;
 
-    const targetMuted = forceMobileMuted
-      ? true
-      : userMutedRef.current
-        ? true
-        : (!ReelsAudio.isUnlocked() ? !!muted : false);
+    let targetMuted: boolean;
+    if (FORCE_MUTED_AUTOPLAY) {
+      // На мобилках: либо пользователь сам замьютил, либо мы в режиме автоплея без локального жеста.
+      targetMuted = userMutedRef.current || forceMobileMuted;
+    } else {
+      // Десктоп: прежняя логика
+      targetMuted = userMutedRef.current ? true : (!ReelsAudio.isUnlocked() ? !!muted : false);
+    }
 
     if (v.muted !== targetMuted) {
       v.muted = targetMuted;
       if (v.muted) v.setAttribute('muted', ''); else v.removeAttribute('muted');
       setIsMuted(v.muted);
+      // На некоторых WebKit требуется повторный play после смены mute
+      if (!v.paused && !v.muted) {
+        const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
+      }
     }
   }, [muted, autoPlay]);
 
