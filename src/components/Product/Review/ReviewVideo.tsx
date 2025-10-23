@@ -42,6 +42,8 @@ const FORCE_MUTED_AUTOPLAY = isIOS || isAndroid;
 // синхронный «мостик жеста» из Lightbox → плеер (в рамках жеста)
 const UNMUTE_EVENT = 'reels:unmute_now';
 
+const allowAudibleOnMobileRef = useRef(false);
+
 export const ReviewVideo: React.FC<Props> = ({
   hlsUrl,
   posterUrl,
@@ -319,6 +321,9 @@ export const ReviewVideo: React.FC<Props> = ({
       notifyNowPlaying();
       emit('reels:play', { reviewId });
 
+      // 👇 добавь защиту на мобилки: не авто-отключаем mute из onPlay
+      if (FORCE_MUTED_AUTOPLAY) return;
+
       // Если звук уже «разблокирован» и пользователь не мутил вручную — снимаем mute.
       if (activeRef.current && !userMutedRef.current && ReelsAudio.isUnlocked()) {
         try {
@@ -384,17 +389,18 @@ export const ReviewVideo: React.FC<Props> = ({
       }
     };
 
-    // ГЛАВНОЕ: синхронный анмьют по жесту (из Lightbox)
+    // в onUnmuteNow (слушатель UNMUTE_EVENT)
     const onUnmuteNow = (ev: Event) => {
       const detail = (ev as CustomEvent<any>).detail || {};
       if (detail.reviewId && detail.reviewId !== reviewId) return;
       if (!activeRef.current) return;
+      allowAudibleOnMobileRef.current = true; // 👈 разрешаем звук на мобилке
       try {
         video.muted = false;
         video.removeAttribute('muted');
         setIsMuted(false);
-        const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { /* noop */ });
-      } catch { /* noop */ }
+        const p = video.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
+      } catch { }
     };
 
     // подписки
@@ -464,14 +470,28 @@ export const ReviewVideo: React.FC<Props> = ({
 
   // Синхронизация muted пропа (с учётом моб. автоплея)
   useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    const globalSoundOn = ReelsAudio.isUnlocked();
-    const forceMutedForMobileAutoplay = FORCE_MUTED_AUTOPLAY && autoPlay;
-    const targetMuted = forceMutedForMobileAutoplay ? true : (globalSoundOn ? false : !!muted);
-    v.muted = targetMuted;
-    if (v.muted) v.setAttribute('muted', ''); else v.removeAttribute('muted');
-    setIsMuted(v.muted);
+    const v = videoRef.current; if (!v) return;
+
+    // Мобилки: держим mute только пока не было явного жеста на звук
+    const forceMutedForMobileAutoplay =
+      FORCE_MUTED_AUTOPLAY && autoPlay && !allowAudibleOnMobileRef.current;
+
+    // Приоритеты:
+    // 1) если нужно форсить mute для автоплея на мобилке — мьютим
+    // 2) если пользователь сам мутил — уважаем
+    // 3) если глобальный звук не разблокирован — ориентируемся на проп muted
+    // 4) иначе — звук включён
+    const targetMuted = forceMutedForMobileAutoplay
+      ? true
+      : userMutedRef.current
+        ? true
+        : (!ReelsAudio.isUnlocked() ? !!muted : false);
+
+    if (v.muted !== targetMuted) {
+      v.muted = targetMuted;
+      if (v.muted) v.setAttribute('muted', ''); else v.removeAttribute('muted');
+      setIsMuted(v.muted);
+    }
   }, [muted, autoPlay]);
 
   const poster =
@@ -496,17 +516,18 @@ export const ReviewVideo: React.FC<Props> = ({
     }
   }, []);
 
+  // в toggleMute — когда включаем звук руками
   const toggleMute = useCallback(() => {
-    const v = videoRef.current;
-    if (!v) return;
+    const v = videoRef.current; if (!v) return;
     const willMute = !v.muted;
     v.muted = willMute;
     if (v.muted) v.setAttribute('muted', ''); else v.removeAttribute('muted');
     setIsMuted(v.muted);
     userMutedRef.current = v.muted;
     if (!v.muted) {
+      allowAudibleOnMobileRef.current = true; // 👈
       ReelsAudio.unlock();
-      const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { /* noop */ });
+      const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
     }
     emit(v.muted ? 'reels:mute' : 'reels:unmute', { reviewId });
   }, [emit, reviewId]);
@@ -537,6 +558,7 @@ export const ReviewVideo: React.FC<Props> = ({
   };
 
   const onVideoClick = () => {
+    allowAudibleOnMobileRef.current = true;
     ensureSoundUnlockedLocal();
     window.dispatchEvent(new CustomEvent(UNMUTE_EVENT, { detail: { reviewId } }));
     togglePlay();
