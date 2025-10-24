@@ -128,15 +128,9 @@ export default function ReelsLightbox({
 
   const stopAnim = React.useCallback(() => setAnim((a) => ({ ...a, running: false })), []);
 
-  // вычислим «какой ролик активен» при drag: кто крупнее — тот и active/autoPlay
-  const p = dragPct / 100; // нормализация [-1..1]
-  const currentDominant = Math.abs(p) < 0.5;
-  const goingNext = p < -0.1;
-  const goingPrev = p > 0.1;
-
-  // wheel навигация — порог в % от высоты
+  // нормализованное смещение
+  const p = dragPct / 100; // [-1..1]
   const [busy, setBusy] = useState(false);
-
   const [isOpen, setIsOpen] = React.useState(false);
 
   const ensureSoundUnlocked = React.useCallback(() => {
@@ -257,7 +251,7 @@ export default function ReelsLightbox({
     };
     try {
       (e.currentTarget as any).setPointerCapture?.(e.pointerId);
-    } catch { }
+    } catch {}
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -365,17 +359,19 @@ export default function ReelsLightbox({
   if (!cur) return null;
 
   // финальный translateY сцены:
-  // - база: -100% (текущий по центру)
-  // - drag: добавляем dragPct
-  // - anim.running: игнорируем dragPct и доводим до anim.toPct
   const sceneTranslatePct = anim.running ? -100 + anim.toPct : -100 + dragPct;
 
-  // какие панели «активны» сейчас
-  const activeCur = anim.running
-    ? anim.toPct === 0
-    : currentDominant || (!hasPrev && !hasNext);
-  const activeNext = anim.running ? anim.toPct === -100 : goingNext && !!hasNext;
-  const activePrev = anim.running ? anim.toPct === 100 : goingPrev && !!hasPrev;
+  // === ВАЖНО: управление активностью/автоплеем ===
+  // Во время drag/анимации — активен ТОЛЬКО текущий (он продолжает играть).
+  // Соседи можно слегка «подогреть» (preload) без автоплея и строгоMuted.
+  const isDragging = dragRef.current.active && !anim.running;
+
+  // слабый сигнал на предпрогрев соседей во время drag в их сторону
+  const preloadNext = isDragging && p < -0.1 && !!hasNext;
+  const preloadPrev = isDragging && p >  0.1 && !!hasPrev;
+
+  // текущий держим активным всегда
+  const activeCur = true;
 
   return (
     <div
@@ -453,9 +449,9 @@ export default function ReelsLightbox({
                 productId={prevItem.review.productId}
                 reviewType={prevItem.review.type}
                 userId={prevItem.review.authorId}
-                autoPlay={activePrev}
-                muted={!activePrev}
-                active={activePrev}
+                autoPlay={false}           // ← не автоплеим соседа НИКОГДА
+                muted={true}               // ← сосед всегда немой
+                active={!!preloadPrev}     // ← только для preload (можно и false)
               />
             )}
           </div>
@@ -469,9 +465,9 @@ export default function ReelsLightbox({
               productId={cur.review.productId}
               reviewType={cur.review.type}
               userId={cur.review.authorId}
-              autoPlay={activeCur}
-              muted={!activeCur}
-              active={activeCur}
+              autoPlay={true}             // ← текущий всегда может играть
+              muted={false}               // ← ReviewVideo сам обеспечит mute по политике автоплея
+              active={activeCur}          // ← всегда true: не паузим во время drag/анимации
             />
           </div>
 
@@ -485,9 +481,9 @@ export default function ReelsLightbox({
                 productId={nextItem.review.productId}
                 reviewType={nextItem.review.type}
                 userId={nextItem.review.authorId}
-                autoPlay={activeNext}
-                muted={!activeNext}
-                active={activeNext}
+                autoPlay={false}           // ← запрещаем автоплей соседу
+                muted={true}
+                active={!!preloadNext}     // ← только preload при реальном drag вниз
               />
             )}
           </div>
@@ -550,7 +546,6 @@ export default function ReelsLightbox({
             className={styles.actionBtn}
             onClick={(e) => {
               e.stopPropagation();
-              // откроем модал ниже
               setIsOpen(true);
             }}
             aria-label="Ещё"
