@@ -136,10 +136,12 @@ export const ReviewVideo: React.FC<Props> = ({
     video.setAttribute('webkit-playsinline', '');
     if (autoPlay) {
       video.setAttribute('autoplay', '');
-      // на мобилке добавляем muted только если звук НЕ разблокирован
-      if (FORCE_MUTED_AUTOPLAY && !ReelsAudio.isUnlocked()) {
-        video.setAttribute('muted', '');
-      }
+    }
+    // ✅ На мобильных ВСЕГДА держим muted для автоплея
+    if (FORCE_MUTED_AUTOPLAY && autoPlay) {
+      video.muted = true;
+      video.setAttribute('muted', '');
+      setIsMuted(true);
     }
     // запрет PiP/remote
     try { (video as any).disableRemotePlayback = true; } catch { }
@@ -223,10 +225,11 @@ export const ReviewVideo: React.FC<Props> = ({
 
     // первичная установка mute на основании глобального флага
     const globalSoundOn = ReelsAudio.isUnlocked();
-    video.muted = !(globalSoundOn || !muted);
-    // форсим mute для автоплея на мобилке ТОЛЬКО пока звук ещё не разблокирован
-    if (FORCE_MUTED_AUTOPLAY && autoPlay && !globalSoundOn) {
+    if (FORCE_MUTED_AUTOPLAY && autoPlay) {
+      // ✅ Мобилки + автоплей — ВСЕГДА muted. Размьютим только по жесту на самом видео.
       video.muted = true;
+    } else {
+      video.muted = !(globalSoundOn || !muted);
     }
     if (video.muted) video.setAttribute('muted', ''); else video.removeAttribute('muted');
     setIsMuted(video.muted);
