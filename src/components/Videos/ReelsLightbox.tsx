@@ -11,8 +11,8 @@ import ArrowBottomIcon from "../Icons/ArrowBottomIcon";
 import ArrowTopIcon from "../Icons/ArrowTopIcon";
 import LinkIcon from "../Icons/LinkIcon";
 import MoreHorizontalIcon from "../Icons/MoreHorizontalIcon";
-//import Modal from "../Modal/Modal";
-//import Button from "../UI/Button";
+import Modal from "../Modal/Modal";
+import Button from "../UI/Button";
 import { ReelsAudio } from "../../utils/reelsAudio";
 
 type Item = {
@@ -137,6 +137,8 @@ export default function ReelsLightbox({
   // wheel навигация — порог в % от высоты
   const [busy, setBusy] = useState(false);
 
+  const [isOpen, setIsOpen] = React.useState(false);
+
   const ensureSoundUnlocked = React.useCallback(() => {
     ReelsAudio.unlock();
   }, []);
@@ -255,7 +257,7 @@ export default function ReelsLightbox({
     };
     try {
       (e.currentTarget as any).setPointerCapture?.(e.pointerId);
-    } catch {}
+    } catch { }
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -284,9 +286,6 @@ export default function ReelsLightbox({
     dragRef.current.id = null;
 
     if (busy || anim.running) return;
-
-    const el = shellRef.current;
-    const h = el?.clientHeight || window.innerHeight || 1;
 
     // решение: если ушли дальше 22% экрана — переключаемся, иначе — отскакиваем
     const threshold = 22;
@@ -552,7 +551,7 @@ export default function ReelsLightbox({
             onClick={(e) => {
               e.stopPropagation();
               // откроем модал ниже
-              // setIsOpen(true);
+              setIsOpen(true);
             }}
             aria-label="Ещё"
             title="Ещё"
@@ -560,13 +559,12 @@ export default function ReelsLightbox({
             <MoreHorizontalIcon />
           </button>
         </div>
-  {/*
+
         <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} variant="center">
           <Button variant="link" onClick={() => onDelete(cur.review.id)}>
             Delete
           </Button>
         </Modal>
-      */}
       </div>
     </div>
   );
