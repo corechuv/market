@@ -95,25 +95,6 @@ export const ReviewVideo: React.FC<Props> = ({
     }
   }, [loop]);
 
-  useEffect(() => {
-    const onUnmuteNow = (ev: Event) => {
-      const { reviewId: target } = (ev as CustomEvent<{ reviewId: string }>).detail || {};
-      if (target !== reviewId) return;
-
-      allowAudibleOnMobileRef.current = true; // ← теперь локально разрешаем звук на мобилке
-      const v = videoRef.current; if (!v) return;
-
-      try {
-        v.muted = false;
-        v.removeAttribute('muted');
-        setIsMuted(false);
-      } catch { /* noop */ }
-    };
-
-    window.addEventListener('reels:unmute_now', onUnmuteNow as any);
-    return () => window.removeEventListener('reels:unmute_now', onUnmuteNow as any);
-  }, [reviewId]);
-
   // Безопасный запуск активного видео
   const playSafely = useCallback(async () => {
     const v = videoRef.current;
@@ -121,11 +102,6 @@ export const ReviewVideo: React.FC<Props> = ({
 
     // мобилки — всегда muted на старте
     if (FORCE_MUTED_AUTOPLAY) {
-      // если есть локальный жест — можно пробовать со звуком
-      if (allowAudibleOnMobileRef.current && !userMutedRef.current) {
-        try { v.muted = false; v.removeAttribute('muted'); setIsMuted(false); await v.play(); return; } catch { }
-      }
-      // иначе — гарантированно muted
       if (!v.muted) { v.muted = true; v.setAttribute('muted', ''); setIsMuted(true); }
       try { await v.play(); } catch { }
       return;

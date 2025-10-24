@@ -58,7 +58,7 @@ $bp-lg: 1024px;
 
 .track {
   display: flex;
-  gap: 1.8rem;
+  gap: 14px;
   scroll-snap-type: x mandatory;
 }
 
@@ -146,7 +146,7 @@ $bp-lg: 1024px;
 }
 
 .productDetails {
-  padding: 12px 4px;
+  padding: 6px 3px;
 }
 
 .productName {
@@ -337,6 +337,8 @@ $bp-lg: 1024px;
 .imageWrap {
   position: relative;
   display: flex;
+  border-radius: 14px;
+  overflow: hidden;
 }
 
 .imagePlaceholder {
