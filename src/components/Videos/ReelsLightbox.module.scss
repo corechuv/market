@@ -1,174 +1,230 @@
-// src/components/ReelsLightbox.module.scss
 @use "../../styles/videos.module.scss";
-.overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    display: grid;
-    padding-top: 60px;
-    padding-bottom: 60px;
-    place-items: center;
 
-    @media screen and (max-width: 768px) {
-        padding: 0;
-    }
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  padding-top: 60px;
+  padding-bottom: 60px;
+  place-items: center;
+
+  @media screen and (max-width: 768px) {
+    padding: 0;
+  }
 }
 
 .backdrop {
-    position: absolute;
-    inset: 0;
-    background: var(--bg);
-    border: 0;
-    padding: 0;
-    margin: 0;
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  border: 0;
+  padding: 0;
+  margin: 0;
 }
 
 .shell {
-    position: relative;
-    height: 100%;
-    aspect-ratio: 9/16;
-    background: #000;
-    overflow: hidden;
-    border-radius: 12px;
-    box-shadow: 0 10px 50px #131313;
+  position: relative;
+  height: 100%;
+  aspect-ratio: 9/16;
+  background: #000;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 10px 50px #131313;
+  touch-action: none; /* управляем вертикальным свайпом сами */
 
-    @media screen and (max-width: 768px) {
-        border-radius: 0;
-    }
+  @media screen and (max-width: 768px) {
+    border-radius: 0;
+  }
 }
 
-/* СЦЕНА: три ряда по 100% высоты, трек двигается целиком */
+/* Трек из трёх панелей. Изначально центр (-100%). */
 .scene {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    grid-template-rows: 100% 100% 100%;
-    will-change: transform;
-    transition: none;
-    /* <— по умолчанию БЕЗ анимации */
-    transform: translateY(-100%);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: 100% 100% 100%;
+  will-change: transform;
+  transform: translateY(-100%);
 }
 
+/* Когда идёт анимация доведения, включаем transition; иначе — instant (для drag) */
+.noAnim {
+  transition: none;
+}
 .isAnimating {
-    transition: transform var(--dur, 260ms) cubic-bezier(.22, .61, .36, 1);
-    /* <— только во время слайда */
+  transition: transform var(--dur, 260ms) cubic-bezier(.22,.61,.36,1);
 }
 
 .panel {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: grid;
-    place-items: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
 }
 
-.ghost {
-    visibility: hidden;
-    /* на краях пустую панель не показываем */
-}
+.ghost { visibility: hidden; }
 
+/* Вертикальные стрелки — только на десктопе */
 .navV {
-    position: absolute;
-    right: 0;
-    padding: 16px;
-    top: 50%;
-    transform: translate(0, -50%);
-    display: grid;
-    gap: 6px;
-    z-index: 3;
+  position: absolute;
+  right: 0;
+  padding: 16px;
+  top: 50%;
+  transform: translate(0, -50%);
+  display: grid;
+  gap: 6px;
+  z-index: 3;
 
-    @media screen and (max-width: 768px) {
-        display: none;
-    }
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
 }
 
 .navBtn {
-    background: rgba(0, 0, 0, 0.07);
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    padding: 0;
-    cursor: pointer;
+  background: rgba(0, 0, 0, 0.07);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  cursor: pointer;
 
-    svg {
-        width: 28px;
-        height: 28px;
-    }
+  svg { width: 28px; height: 28px; }
 }
 
 .navBtn:disabled {
-    opacity: .4;
-    cursor: default;
-}
-
-
-.author {
-    display: flex;
-    font-size: 16px;
-    font-weight: 500;
-}
-
-.text {
-    font-size: 16px;
-    font-weight: 400;
-    margin: 0;
-    color: #c6c6c6;
-}
-
-.info {
-    display: flex;
-}
-
-.rating {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    background: #00000024;
-    backdrop-filter: blur(2px);
-    padding: 2px 8px;
-    border-radius: 16px;
-
-    svg {
-        width: 12px;
-    }
+  opacity: .4;
+  cursor: default;
 }
 
 .closeBtn {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 16px;
-    background-color: none;
-    border: none;
-    display: flex;
-    background-color: transparent;
-    color: var(--text);
-    cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 16px;
+  background-color: transparent;
+  border: none;
+  display: flex;
+  color: var(--text);
+  cursor: pointer;
+  z-index: 4;
 
-    svg {
-        width: 28px;
-        height: 28px;
-    }
+  svg { width: 28px; height: 28px; }
 
-    @media screen and (max-width: 768px) {
-        display: none;
-    }
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
+}
+
+/* Нижняя панель с метаданными (оставляем минимальную, как у Reels) */
+.bar__bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16px 12px 20px;
+  display: grid;
+  gap: 10px;
+  z-index: 3;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.55),
+    rgba(0,0,0,0.0)
+  );
+
+  @media (min-width: 769px) {
+    padding-right: 68px; /* чтобы не наезжать на actions справа */
+  }
+}
+
+.meta {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.author {
+  display: flex;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.text {
+  font-size: 16px;
+  font-weight: 400;
+  margin: 4px 0 0 0;
+  color: #c6c6c6;
+}
+
+.info { display: flex; }
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #00000024;
+  backdrop-filter: blur(2px);
+  padding: 4px 10px;
+  border-radius: 16px;
+
+  svg { width: 12px; }
 }
 
 .count {
-    display: block;
-    font-size: 16px;
-    font-weight: 400;
+  display: block;
+  font-size: 16px;
+  font-weight: 400;
+  color: #fff;
+}
+
+/* Вертикальные TikTok-подобные действия — показываем на мобилках постоянно, на десктопе можно скрывать/навести */
+.actions {
+  position: absolute;
+  right: 8px;
+  bottom: 90px;
+  display: grid;
+  gap: 10px;
+  z-index: 3;
+
+  @media (min-width: 769px) {
+    right: 16px;
+    bottom: 110px;
+  }
+}
+
+.actionBtn {
+  background: rgba(0, 0, 0, 0.07);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+
+  svg { width: 26px; height: 26px; }
+}
+
+.actionActive { background: rgba(255, 0, 0, 0.18); }
+
+.actionCount {
+  display: block;
+  margin-top: 4px;
+  text-align: center;
+  font-size: 12px;
+  color: #fff;
 }
 
 /* уважим системные настройки — отключим анимацию при reduced motion */
 @media (prefers-reduced-motion: reduce) {
-    .scene {
-        transition: none !important;
-    }
+  .scene { transition: none !important; }
 }

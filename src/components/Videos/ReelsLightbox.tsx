@@ -1,4 +1,3 @@
-// ReelsLightbox.tsx
 import React, { useState } from "react";
 import clsx from "clsx";
 import styles from "./ReelsLightbox.module.scss";
@@ -12,8 +11,8 @@ import ArrowBottomIcon from "../Icons/ArrowBottomIcon";
 import ArrowTopIcon from "../Icons/ArrowTopIcon";
 import LinkIcon from "../Icons/LinkIcon";
 import MoreHorizontalIcon from "../Icons/MoreHorizontalIcon";
-import Modal from "../Modal/Modal";
-import Button from "../UI/Button";
+//import Modal from "../Modal/Modal";
+//import Button from "../UI/Button";
 import { ReelsAudio } from "../../utils/reelsAudio";
 
 type Item = {
@@ -29,9 +28,11 @@ type Props = {
   onIndexChange?: (i: number) => void;
 };
 
-// скорость «скролла» трека — пикселей в секунду
+// базовая скорость «доводящей» анимации (px/сек)
 const SPEED_PX_PER_SEC = 1400;
-const UNMUTE_EVENT = 'reels:unmute_now';
+const MIN_ANIM_MS = 140;
+const MAX_ANIM_MS = 420;
+const UNMUTE_EVENT = "reels:unmute_now";
 
 function useBodyScrollLock(active: boolean) {
   React.useEffect(() => {
@@ -73,6 +74,9 @@ function useBodyScrollLock(active: boolean) {
   }, [active]);
 }
 
+// «резинка» на краях (когда тянуть некуда)
+const rubber = (v: number, coef = 0.35) => v * coef;
+
 export default function ReelsLightbox({
   items,
   startIndex = 0,
@@ -84,131 +88,97 @@ export default function ReelsLightbox({
   const [index, setIndex] = React.useState(startIndex);
   React.useEffect(() => {
     onIndexChange?.(index);
-    window.dispatchEvent(new CustomEvent('reels:index', { detail: { index, id: items[index]?.review.id } }));
+    window.dispatchEvent(
+      new CustomEvent("reels:index", { detail: { index, id: items[index]?.review.id } })
+    );
   }, [index, onIndexChange, items]);
 
   React.useEffect(() => {
     ReelsAudio.armGlobalUnlock();
-    window.dispatchEvent(new CustomEvent('reels:open'));
+    window.dispatchEvent(new CustomEvent("reels:open"));
     return () => {
-      window.dispatchEvent(new CustomEvent('reels:close'));
+      window.dispatchEvent(new CustomEvent("reels:close"));
     };
   }, []);
 
-  const [busy, setBusy] = React.useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-
-  const [dir, setDir] = React.useState<1 | -1 | 0>(0);
-  const [kick, setKick] = React.useState(false);
-
-  const cur = items[index];
-
-  const shellRef = React.useRef<HTMLDivElement | null>(null);
-  const [durMs, setDurMs] = React.useState(260);
-
-  const recalcDuration = React.useCallback(() => {
-    const h = shellRef.current?.clientHeight ?? 0;
-    if (h > 0) {
-      const ms = Math.max(30, Math.round((h / SPEED_PX_PER_SEC) * 1000));
-      setDurMs(ms);
-    }
-  }, []);
-
-  React.useLayoutEffect(recalcDuration, [recalcDuration, index]);
-
-  // ResizeObserver c локальной ссылкой на элемент
-  React.useEffect(() => {
-    const el = shellRef.current;
-    if (!el) return;
-    const onWinResize = () => recalcDuration();
-    window.addEventListener("resize", onWinResize);
-    let ro: ResizeObserver | null = null;
-    const RO = (window as any).ResizeObserver as typeof ResizeObserver | undefined;
-    if (RO) {
-      ro = new RO(() => recalcDuration());
-      ro.observe(el);
-    }
-    return () => {
-      window.removeEventListener("resize", onWinResize);
-      if (ro) ro.disconnect();
-    };
-  }, [recalcDuration]);
-
+  // текущее состояние соседей
   const hasPrev = index > 0;
   const hasNext = index < items.length - 1;
   const prevItem = hasPrev ? items[index - 1] : null;
+  const cur = items[index];
   const nextItem = hasNext ? items[index + 1] : null;
+
+  // ===== свайп/drag =====
+  const shellRef = React.useRef<HTMLDivElement | null>(null);
+  const [dragPct, setDragPct] = useState(0); // смещение сцены в %, где 0 — центр (-100%), +100 — prev (0%), -100 — next (-200%)
+  const dragRef = React.useRef<{
+    active: boolean;
+    id: number | null;
+    y0: number;
+    y: number;
+    lastTs: number;
+  }>({ active: false, id: null, y0: 0, y: 0, lastTs: 0 });
+
+  // анимация доведения
+  const [anim, setAnim] = useState<{ running: boolean; toPct: number; ms: number }>({
+    running: false,
+    toPct: 0,
+    ms: 260,
+  });
+
+  const stopAnim = React.useCallback(() => setAnim((a) => ({ ...a, running: false })), []);
+
+  // вычислим «какой ролик активен» при drag: кто крупнее — тот и active/autoPlay
+  const p = dragPct / 100; // нормализация [-1..1]
+  const currentDominant = Math.abs(p) < 0.5;
+  const goingNext = p < -0.1;
+  const goingPrev = p > 0.1;
+
+  // wheel навигация — порог в % от высоты
+  const [busy, setBusy] = useState(false);
 
   const ensureSoundUnlocked = React.useCallback(() => {
     ReelsAudio.unlock();
   }, []);
 
-  // диспатчим «жест» анмьюта + идентификатор текущего ролика
   const unmuteCurrentNow = React.useCallback((id: string) => {
     window.dispatchEvent(new CustomEvent(UNMUTE_EVENT, { detail: { reviewId: id } }));
   }, []);
 
-  // go — добавили index в зависимости
-  const go = React.useCallback((d: 1 | -1) => {
-    if (busy || kick) return;
-    if (d === 1 && !hasNext) return;
-    if (d === -1 && !hasPrev) return;
-    setBusy(true);
-    setDir(d);
-    requestAnimationFrame(() => requestAnimationFrame(() => setKick(true)));
-    window.dispatchEvent(new CustomEvent('reels:nav', { detail: { dir: d, from: index, to: index + d } }));
-  }, [busy, kick, hasNext, hasPrev, index]);
-
-  // клавиатура
+  // клавиатура (десктоп)
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
-      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
       if (e.key === "Escape") onClose();
       if (e.key === "ArrowDown" || e.key === "PageDown") {
+        if (!hasNext || busy) return;
         ensureSoundUnlocked();
         unmuteCurrentNow(items[index]?.review.id);
-        go(1);
+        // мгновенный переход вниз (без drag)
+        snapTo(-100);
       }
       if (e.key === "ArrowUp" || e.key === "PageUp") {
+        if (!hasPrev || busy) return;
         ensureSoundUnlocked();
         unmuteCurrentNow(items[index]?.review.id);
-        go(-1);
+        snapTo(100);
       }
     };
     window.addEventListener("keydown", onKey, { passive: true });
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose, ensureSoundUnlocked, unmuteCurrentNow, go, items, index]);
+  }, [onClose, ensureSoundUnlocked, unmuteCurrentNow, hasNext, hasPrev, busy, index, items]);
 
-  // окончание анимации — переключаем индекс
-  React.useEffect(() => {
-    if (!kick) return;
-    const t = setTimeout(() => {
-      const next = (prev: number) => prev + dir;
-      setIndex(next);
-      setKick(false);
-      setDir(0);
-      setBusy(false);
-      // после переключения — если звук разблокирован, попросим активное видео анмьютнуться
-      const newIdx = index + dir;
-      const nextId = items[newIdx]?.review.id;
-      if (nextId && ReelsAudio.isUnlocked()) {
-        setTimeout(() => unmuteCurrentNow(nextId), 0);
-      }
-    }, durMs);
-    return () => clearTimeout(t);
-  }, [kick, dir, durMs, index, items, unmuteCurrentNow]);
-
-  // колесо
+  // колесо — аккумулируем
   const wheelAgg = React.useRef({ sum: 0, lastTs: 0 });
   const onWheel = (e: React.WheelEvent) => {
-    if (busy || kick) return;
+    if (busy || anim.running || dragRef.current.active) return;
     const now = performance.now();
     const h = shellRef.current?.clientHeight || window.innerHeight || 800;
 
     let dy = e.deltaY;
-    if (e.deltaMode === 1) dy *= 16;        // lines → px
-    else if (e.deltaMode === 2) dy *= h;    // pages → px
+    if (e.deltaMode === 1) dy *= 16; // lines → px
+    else if (e.deltaMode === 2) dy *= h; // pages → px
 
     if (now - wheelAgg.current.lastTs > 220) wheelAgg.current.sum = 0;
     wheelAgg.current.lastTs = now;
@@ -218,47 +188,120 @@ export default function ReelsLightbox({
     if (Math.abs(wheelAgg.current.sum) >= TH) {
       ensureSoundUnlocked();
       unmuteCurrentNow(items[index]?.review.id);
-      go(wheelAgg.current.sum > 0 ? 1 : -1);
+      if (wheelAgg.current.sum > 0 && hasNext) snapTo(-100);
+      else if (wheelAgg.current.sum < 0 && hasPrev) snapTo(100);
       wheelAgg.current.sum = 0;
     }
   };
 
-  // state для pointer-свайпа
-  const ptr = React.useRef<{ id: number; y0: number; y: number; moved: boolean } | null>(null);
+  // helper: запустить доводящую анимацию к целевому смещению (+/-100% или 0)
+  function animateTo(toPct: number, onDone?: () => void) {
+    const el = shellRef.current;
+    const h = el?.clientHeight || window.innerHeight || 800;
+    const fromPct = dragPct;
+    const distPx = (Math.abs(toPct - fromPct) / 100) * h;
+    const ms = Math.max(
+      MIN_ANIM_MS,
+      Math.min(MAX_ANIM_MS, Math.round((distPx / SPEED_PX_PER_SEC) * 1000))
+    );
 
-  // pointer-свайпы — setPointerCapture безопасно
+    setAnim({ running: true, toPct, ms });
+    // по окончании — скорректируем index/состояние
+    window.setTimeout(() => {
+      stopAnim();
+      if (toPct === -100) {
+        // вниз -> next
+        setIndex((i) => Math.min(items.length - 1, i + 1));
+        setDragPct(0);
+      } else if (toPct === 100) {
+        // вверх -> prev
+        setIndex((i) => Math.max(0, i - 1));
+        setDragPct(0);
+      } else {
+        // вернулись в центр
+        setDragPct(0);
+      }
+      // маленькая задержка — анмьют активного, если звук уже «разлочен»
+      const newIdx =
+        toPct === -100 ? index + 1 : toPct === 100 ? index - 1 : index;
+      const nextId = items[newIdx]?.review.id;
+      if (nextId && ReelsAudio.isUnlocked()) {
+        setTimeout(() => unmuteCurrentNow(nextId), 0);
+      }
+      onDone?.();
+      setBusy(false);
+    }, ms);
+  }
+
+  // быстрый «щелчок» к соседу без drag (используется колесом/клавой)
+  function snapTo(toPct: -100 | 0 | 100) {
+    if (busy) return;
+    setBusy(true);
+    animateTo(toPct);
+  }
+
+  // ====== pointer-свайп (drag) ======
   const onPointerDown = (e: React.PointerEvent) => {
-    if (busy || kick) return;
-    if (ptr.current) return;
-    ptr.current = { id: e.pointerId, y0: e.clientY, y: e.clientY, moved: false };
-    const el = e.target as Element | null;
-    try { (el as any)?.setPointerCapture?.(e.pointerId); } catch { /* noop */ }
+    if (busy || anim.running) return;
+    ensureSoundUnlocked();
+    if (cur) unmuteCurrentNow(cur.review.id);
+
+    dragRef.current = {
+      active: true,
+      id: e.pointerId,
+      y0: e.clientY,
+      y: e.clientY,
+      lastTs: performance.now(),
+    };
+    try {
+      (e.currentTarget as any).setPointerCapture?.(e.pointerId);
+    } catch {}
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
-    if (!ptr.current || e.pointerId !== ptr.current.id) return;
-    ptr.current.y = e.clientY;
-    if (Math.abs(ptr.current.y - ptr.current.y0) > 6) ptr.current.moved = true;
+    const st = dragRef.current;
+    if (!st.active || e.pointerId !== st.id) return;
+    st.y = e.clientY;
+    st.lastTs = performance.now();
+
+    const el = shellRef.current;
+    const h = el?.clientHeight || window.innerHeight || 1;
+    let deltaY = st.y - st.y0;
+
+    // резинка на краях
+    if ((deltaY < 0 && !hasNext) || (deltaY > 0 && !hasPrev)) {
+      deltaY = rubber(deltaY);
+    }
+
+    const pct = (deltaY / h) * 100; // [-100..100]
+    setDragPct(Math.max(-120, Math.min(120, pct)));
   };
 
-  const onPointerUp = (e: React.PointerEvent) => {
-    const st = ptr.current;
-    if (!st || e.pointerId !== st.id) { ptr.current = null; return; }
-    const dy = st.y - st.y0;
-    ptr.current = null;
-    if (busy || kick) return;
-    if (dy < -40) {
-      ensureSoundUnlocked();
-      unmuteCurrentNow(items[index]?.review.id);
-      go(1);
-    } else if (dy > 40) {
-      ensureSoundUnlocked();
-      unmuteCurrentNow(items[index]?.review.id);
-      go(-1);
+  const onPointerEnd = (e: React.PointerEvent) => {
+    const st = dragRef.current;
+    if (!st.active || e.pointerId !== st.id) return;
+    dragRef.current.active = false;
+    dragRef.current.id = null;
+
+    if (busy || anim.running) return;
+
+    const el = shellRef.current;
+    const h = el?.clientHeight || window.innerHeight || 1;
+
+    // решение: если ушли дальше 22% экрана — переключаемся, иначе — отскакиваем
+    const threshold = 22;
+    if (dragPct <= -threshold && hasNext) {
+      setBusy(true);
+      animateTo(-100);
+    } else if (dragPct >= threshold && hasPrev) {
+      setBusy(true);
+      animateTo(100);
+    } else {
+      animateTo(0);
     }
   };
 
-  // helpful
+  // ===== helpful / share / more =====
   const [helpful, setHelpful] = React.useState<{ count: number; mine: boolean }>({
     count: cur?.review.helpfulCount ?? 0,
     mine: !!cur?.review.helpfulByMe,
@@ -277,19 +320,24 @@ export default function ReelsLightbox({
       setBusy(true);
       const res = await setReviewHelpful(cur.review.id, !helpful.mine);
       setHelpful({ count: res.helpfulCount, mine: res.helpful });
-    } catch { /* noop */ }
-    finally { setBusy(false); }
+    } catch {
+      /* noop */
+    } finally {
+      setBusy(false);
+    }
   };
 
-  // ===== SHARE =====
   const [, setCopied] = React.useState(false);
   const onShare = async () => {
     if (!cur) return;
     const origin = window.location.origin;
     const query = window.location.search || "";
     const url = `${origin}/videos/${cur.review.id}${query}`;
-    const title = cur.review.authorName ? `${cur.review.authorName} — видео-отзыв` : "Видео-отзыв";
-    const text = (cur.review.text && cur.review.text.trim()) || "Посмотри этот отзыв";
+    const title = cur.review.authorName
+      ? `${cur.review.authorName} — видео-отзыв`
+      : "Видео-отзыв";
+    const text =
+      (cur.review.text && cur.review.text.trim()) || "Посмотри этот отзыв";
     const navAny = navigator as any;
     try {
       if (navAny.share) {
@@ -301,11 +349,10 @@ export default function ReelsLightbox({
       } else {
         window.prompt("Скопируйте ссылку:", url);
       }
-    } catch { /* noop */ }
+    } catch {
+      /* noop */
+    }
   };
-
-  if (!cur) return null;
-  const trackY = kick ? (dir === -1 ? 0 : -200) : -100;
 
   const onDelete = async (id: string) => {
     if (!confirm("Удалить этот ролик?")) return;
@@ -316,37 +363,59 @@ export default function ReelsLightbox({
     }
   };
 
+  if (!cur) return null;
+
+  // финальный translateY сцены:
+  // - база: -100% (текущий по центру)
+  // - drag: добавляем dragPct
+  // - anim.running: игнорируем dragPct и доводим до anim.toPct
+  const sceneTranslatePct = anim.running ? -100 + anim.toPct : -100 + dragPct;
+
+  // какие панели «активны» сейчас
+  const activeCur = anim.running
+    ? anim.toPct === 0
+    : currentDominant || (!hasPrev && !hasNext);
+  const activeNext = anim.running ? anim.toPct === -100 : goingNext && !!hasNext;
+  const activePrev = anim.running ? anim.toPct === 100 : goingPrev && !!hasPrev;
+
   return (
     <div
       className={styles.overlay}
       role="dialog"
       aria-modal="true"
       onWheel={onWheel}
-      onPointerDown={() => { ensureSoundUnlocked(); unmuteCurrentNow(cur.review.id); }} // ← ЖЕСТ: сразу просим анмьют
+      onPointerDown={() => {
+        ensureSoundUnlocked();
+        if (cur) unmuteCurrentNow(cur.review.id);
+      }}
     >
-      <button
-        className={styles.backdrop}
-        aria-label="Close"
-        onClick={onClose}
-      />
+      <button className={styles.backdrop} aria-label="Close" onClick={onClose} />
       <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
         <CloseIcon />
       </button>
 
-      {/* стрелки */}
+      {/* стрелки (desktop) */}
       <div className={styles.navV}>
         <button
           className={styles.navBtn}
-          onClick={() => { ensureSoundUnlocked(); unmuteCurrentNow(cur.review.id); go(-1); }}
-          disabled={!hasPrev || busy}
+          onClick={() => {
+            ensureSoundUnlocked();
+            if (cur) unmuteCurrentNow(cur.review.id);
+            if (hasPrev) snapTo(100);
+          }}
+          disabled={!hasPrev || busy || anim.running}
           aria-label="Previous (Up)"
         >
           <ArrowTopIcon />
         </button>
         <button
           className={styles.navBtn}
-          onClick={() => { ensureSoundUnlocked(); unmuteCurrentNow(cur.review.id); go(1); }}
-          disabled={!hasNext || busy}
+          onClick={() => {
+            ensureSoundUnlocked();
+            if (cur) unmuteCurrentNow(cur.review.id);
+            if (hasNext) snapTo(-100);
+          }}
+          disabled={!hasNext || busy || anim.running}
           aria-label="Next (Down)"
         >
           <ArrowBottomIcon />
@@ -359,14 +428,21 @@ export default function ReelsLightbox({
         onWheel={onWheel}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={() => { ptr.current = null; }}
-        style={{ ["--dur" as any]: `${durMs}ms` }}
+        onPointerUp={onPointerEnd}
+        onPointerCancel={onPointerEnd}
+        style={
+          anim.running
+            ? ({ ["--dur" as any]: `${anim.ms}ms` } as React.CSSProperties)
+            : undefined
+        }
       >
-        {/* СЦЕНА */}
+        {/* СЦЕНА: трек из трёх панелей, тянем весь трек */}
         <div
-          className={clsx(styles.scene, kick && styles.isAnimating)}
-          style={{ transform: `translateY(${trackY}%)` }}
+          className={clsx(
+            styles.scene,
+            anim.running ? styles.isAnimating : styles.noAnim
+          )}
+          style={{ transform: `translateY(${sceneTranslatePct}%)` }}
         >
           {/* prev */}
           <div className={clsx(styles.panel, !hasPrev && styles.ghost)} aria-hidden={!hasPrev}>
@@ -378,8 +454,9 @@ export default function ReelsLightbox({
                 productId={prevItem.review.productId}
                 reviewType={prevItem.review.type}
                 userId={prevItem.review.authorId}
-                muted
-                active={false}
+                autoPlay={activePrev}
+                muted={!activePrev}
+                active={activePrev}
               />
             )}
           </div>
@@ -393,9 +470,9 @@ export default function ReelsLightbox({
               productId={cur.review.productId}
               reviewType={cur.review.type}
               userId={cur.review.authorId}
-              autoPlay
-              muted={false}
-              active={true}
+              autoPlay={activeCur}
+              muted={!activeCur}
+              active={activeCur}
             />
           </div>
 
@@ -409,15 +486,17 @@ export default function ReelsLightbox({
                 productId={nextItem.review.productId}
                 reviewType={nextItem.review.type}
                 userId={nextItem.review.authorId}
-                muted
-                active={false}
+                autoPlay={activeNext}
+                muted={!activeNext}
+                active={activeNext}
               />
             )}
           </div>
         </div>
 
-        {/* нижняя панель */}
-        <div className={styles.bar__bottom}
+        {/* Нижняя инфо-панель (подписи) */}
+        <div
+          className={styles.bar__bottom}
           onPointerDown={(e) => e.stopPropagation()}
           onWheel={(e) => e.stopPropagation()}
         >
@@ -433,34 +512,61 @@ export default function ReelsLightbox({
                 {cur.review.authorName || "Аноним"}
               </strong>
               <p className={styles.text}>{cur.review.text || ""}</p>
-              {cur.review.verified && <span style={{ display: "none" }}>✅ verified</span>}
+              {cur.review.verified && (
+                <span style={{ display: "none" }}>✅ verified</span>
+              )}
             </div>
-          </div>
-          <div className={styles.meta}>
-            <button
-              className={clsx(styles.meta__btn, helpful.mine && styles.meta__btnActive)}
-              onClick={toggleHelpful}
-              disabled={busy}
-              aria-pressed={helpful.mine}
-              aria-label={helpful.mine ? "Убрать отметку полезно" : "Отметить как полезный"}
-            >
-              <HeartIcon fill="white" />
-              <span className={styles.count}>{helpful.count}</span>
-            </button>
-            <button className={clsx(styles.meta__btn)} onClick={onShare} aria-label="Copy link" title="Copy link">
-              <LinkIcon />
-            </button>
-            <button className={clsx(styles.meta__btn)} onClick={() => setIsOpen(true)} aria-label="More" title="More">
-              <MoreHorizontalIcon />
-            </button>
           </div>
         </div>
 
+        {/* Вертикальные action-кнопки как в TikTok (мобилки) */}
+        <div className={styles.actions} aria-label="Actions">
+          <button
+            className={clsx(styles.actionBtn, helpful.mine && styles.actionActive)}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleHelpful();
+            }}
+            aria-pressed={helpful.mine}
+            aria-label={helpful.mine ? "Убрать отметку полезно" : "Отметить как полезный"}
+            disabled={busy}
+          >
+            <HeartIcon fill="white" />
+            <span className={styles.actionCount}>{helpful.count}</span>
+          </button>
+
+          <button
+            className={styles.actionBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              onShare();
+            }}
+            aria-label="Поделиться"
+            title="Поделиться"
+          >
+            <LinkIcon />
+          </button>
+
+          <button
+            className={styles.actionBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              // откроем модал ниже
+              // setIsOpen(true);
+            }}
+            aria-label="Ещё"
+            title="Ещё"
+          >
+            <MoreHorizontalIcon />
+          </button>
+        </div>
+  {/*
         <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} variant="center">
           <Button variant="link" onClick={() => onDelete(cur.review.id)}>
             Delete
           </Button>
         </Modal>
+      */}
       </div>
     </div>
   );
