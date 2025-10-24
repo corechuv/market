@@ -121,6 +121,31 @@ export const ReviewVideo: React.FC<Props> = ({
     try { await v.play(); } catch { }
   }, [muted]);
 
+  useEffect(() => {
+    const onGesturePlay = (ev: Event) => {
+      const id = (ev as CustomEvent<{ reviewId: string }>).detail?.reviewId;
+      if (id !== reviewId) return;
+      const v = videoRef.current;
+      if (!v) return;
+
+      // На мобилке всегда глухо при автозапуске
+      v.muted = true;
+      v.setAttribute('muted', '');
+      setIsMuted(true);
+
+      // ВАЖНО: вызов в том же тикe жеста — браузер засчитает как user-gesture
+      try {
+        const p = v.play();
+        if (p && typeof p.catch === 'function') {
+          p.catch(() => { /* молча */ });
+        }
+      } catch { }
+    };
+
+    window.addEventListener('reels:gesture_play', onGesturePlay);
+    return () => window.removeEventListener('reels:gesture_play', onGesturePlay);
+  }, [reviewId]);
+
   // === Инициализация источника и событий ===
   // ВАЖНО: не включаем сюда isMuted/muted -> иначе при клике по звуку пересоздастся плеер и скинет таймлайн в 0
   useEffect(() => {

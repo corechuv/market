@@ -251,7 +251,7 @@ export default function ReelsLightbox({
     };
     try {
       (e.currentTarget as any).setPointerCapture?.(e.pointerId);
-    } catch {}
+    } catch { }
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -284,9 +284,20 @@ export default function ReelsLightbox({
     // решение: если ушли дальше 22% экрана — переключаемся, иначе — отскакиваем
     const threshold = 22;
     if (dragPct <= -threshold && hasNext) {
+      // 👇 ключевой момент: синхронный вызов в рамках жеста
+      try {
+        window.dispatchEvent(
+          new CustomEvent('reels:gesture_play', { detail: { reviewId: items[index + 1].review.id } })
+        );
+      } catch { }
       setBusy(true);
       animateTo(-100);
     } else if (dragPct >= threshold && hasPrev) {
+      try {
+        window.dispatchEvent(
+          new CustomEvent('reels:gesture_play', { detail: { reviewId: items[index - 1].review.id } })
+        );
+      } catch { }
       setBusy(true);
       animateTo(100);
     } else {
@@ -367,8 +378,9 @@ export default function ReelsLightbox({
   const isDragging = dragRef.current.active && !anim.running;
 
   // слабый сигнал на предпрогрев соседей во время drag в их сторону
-  const preloadNext = isDragging && p < -0.1 && !!hasNext;
-  const preloadPrev = isDragging && p >  0.1 && !!hasPrev;
+  // раньше начинаем прогрев, чтобы успеть навесить src/HLS
+  const preloadNext = isDragging && p < -0.04 && !!hasNext;
+  const preloadPrev = isDragging && p > 0.04 && !!hasPrev;
 
   // текущий держим активным всегда
   const activeCur = true;
