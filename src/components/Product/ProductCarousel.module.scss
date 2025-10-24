@@ -1,6 +1,5 @@
-/* ------------------------------------------------------------------
-   ProductCarousel.module.scss
-   ------------------------------------------------------------------ */
+// ProductCarousel.module.scss
+@use "../../styles/default.module.scss";
 :root {
   --available-color: #4caf50;
   --not-available-color: #cb1762;
@@ -58,7 +57,7 @@ $bp-lg: 1024px;
 
 .track {
   display: flex;
-  gap: 14px;
+  gap: var(--gap);
   scroll-snap-type: x mandatory;
 }
 
