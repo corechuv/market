@@ -45,7 +45,7 @@ export function ReviewVideoResolver(props: {
     return () => { cancelled = true; if (timerRef.current) window.clearTimeout(timerRef.current); };
   }, [props.url]);
 
-  // 👉 сообщаем Lightbox: для reviewId готов hlsUrl
+  // сообщаем Lightbox — для reviewId готов hlsUrl
   React.useEffect(() => {
     if ((state as any).hlsUrl) {
       try {

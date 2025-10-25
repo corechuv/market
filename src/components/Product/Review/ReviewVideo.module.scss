@@ -12,6 +12,8 @@
   object-fit: cover;
   background: #000;
   touch-action: pan-y;
+  will-change: transform;
+  /* сглаживает перескоки при translate контейнера */
 }
 
 /* Top-right sound button */
@@ -77,11 +79,9 @@
   gap: 12px;
 
   padding: 0;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.55),
-    rgba(0, 0, 0, 0.0)
-  );
+  background: linear-gradient(to top,
+      rgba(0, 0, 0, 0.55),
+      rgba(0, 0, 0, 0.0));
   z-index: 2;
   user-select: none;
 }
@@ -131,7 +131,8 @@
 /* Invisible input that handles all pointer/keyboard interactions */
 .scrubber {
   position: absolute;
-  inset: -6px 0; /* a bit larger for easier hit area */
+  inset: -6px 0;
+  /* a bit larger for easier hit area */
   width: 100%;
   height: calc(100% + 12px);
   appearance: none;
@@ -142,14 +143,26 @@
   opacity: 0;
 
   /* Remove default styling safely */
-  &::-webkit-slider-runnable-track { background: transparent; }
-  &::-moz-range-track { background: transparent; }
+  &::-webkit-slider-runnable-track {
+    background: transparent;
+  }
+
+  &::-moz-range-track {
+    background: transparent;
+  }
+
   &::-webkit-slider-thumb {
     appearance: none;
-    width: 0; height: 0; /* fully invisible but keeps events */
+    width: 0;
+    height: 0;
+    /* fully invisible but keeps events */
   }
+
   &::-moz-range-thumb {
-    width: 0; height: 0; border: none; background: transparent;
+    width: 0;
+    height: 0;
+    border: none;
+    background: transparent;
   }
 }
 
