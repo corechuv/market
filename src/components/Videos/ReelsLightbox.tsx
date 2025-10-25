@@ -33,6 +33,9 @@ const SPEED_PX_PER_SEC = 1400;
 const MIN_ANIM_MS = 140;
 const MAX_ANIM_MS = 420;
 const UNMUTE_EVENT = "reels:unmute_now";
+const isMobileUA =
+  typeof navigator !== "undefined" &&
+  /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "");
 
 function useBodyScrollLock(active: boolean) {
   React.useEffect(() => {
@@ -101,6 +104,17 @@ export default function ReelsLightbox({
     };
   }, []);
 
+  // карта готовых hlsUrl по reviewId (получаем из Resolver)
+  const hlsMapRef = React.useRef(new Map<string, string>());
+  React.useEffect(() => {
+    const onResolved = (ev: Event) => {
+      const { reviewId, hlsUrl } = (ev as CustomEvent<{ reviewId: string; hlsUrl: string }>).detail || {};
+      if (reviewId && hlsUrl) hlsMapRef.current.set(reviewId, hlsUrl);
+    };
+    window.addEventListener("reels:resolved", onResolved as any);
+    return () => window.removeEventListener("reels:resolved", onResolved as any);
+  }, []);
+
   // текущее состояние соседей
   const hasPrev = index > 0;
   const hasNext = index < items.length - 1;
@@ -150,14 +164,13 @@ export default function ReelsLightbox({
       if (e.key === "ArrowDown" || e.key === "PageDown") {
         if (!hasNext || busy) return;
         ensureSoundUnlocked();
-        unmuteCurrentNow(items[index]?.review.id);
-        // мгновенный переход вниз (без drag)
+        if (!isMobileUA && items[index]) unmuteCurrentNow(items[index].review.id);
         snapTo(-100);
       }
       if (e.key === "ArrowUp" || e.key === "PageUp") {
         if (!hasPrev || busy) return;
         ensureSoundUnlocked();
-        unmuteCurrentNow(items[index]?.review.id);
+        if (!isMobileUA && items[index]) unmuteCurrentNow(items[index].review.id);
         snapTo(100);
       }
     };
@@ -165,7 +178,7 @@ export default function ReelsLightbox({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose, ensureSoundUnlocked, unmuteCurrentNow, hasNext, hasPrev, busy, index, items]);
 
-  // колесо — аккумулируем
+  // колесо — аккумулируем (размьютим так только на десктопе)
   const wheelAgg = React.useRef({ sum: 0, lastTs: 0 });
   const onWheel = (e: React.WheelEvent) => {
     if (busy || anim.running || dragRef.current.active) return;
@@ -183,7 +196,7 @@ export default function ReelsLightbox({
     const TH = Math.max(60, Math.round(h * 0.06));
     if (Math.abs(wheelAgg.current.sum) >= TH) {
       ensureSoundUnlocked();
-      unmuteCurrentNow(items[index]?.review.id);
+      if (!isMobileUA && items[index]) unmuteCurrentNow(items[index].review.id);
       if (wheelAgg.current.sum > 0 && hasNext) snapTo(-100);
       else if (wheelAgg.current.sum < 0 && hasPrev) snapTo(100);
       wheelAgg.current.sum = 0;
@@ -217,11 +230,11 @@ export default function ReelsLightbox({
         // вернулись в центр
         setDragPct(0);
       }
-      // маленькая задержка — анмьют активного, если звук уже «разлочен»
+      // маленькая задержка — анмьют активного, если звук уже «разлочен» (только десктоп)
       const newIdx =
         toPct === -100 ? index + 1 : toPct === 100 ? index - 1 : index;
       const nextId = items[newIdx]?.review.id;
-      if (nextId && ReelsAudio.isUnlocked()) {
+      if (nextId && ReelsAudio.isUnlocked() && !isMobileUA) {
         setTimeout(() => unmuteCurrentNow(nextId), 0);
       }
       onDone?.();
@@ -240,7 +253,8 @@ export default function ReelsLightbox({
   const onPointerDown = (e: React.PointerEvent) => {
     if (busy || anim.running) return;
     ensureSoundUnlocked();
-    if (cur) unmuteCurrentNow(cur.review.id);
+    // размьют текущий «по жесту» — только для десктопа
+    if (cur && !isMobileUA) unmuteCurrentNow(cur.review.id);
 
     dragRef.current = {
       active: true,
@@ -251,7 +265,7 @@ export default function ReelsLightbox({
     };
     try {
       (e.currentTarget as any).setPointerCapture?.(e.pointerId);
-    } catch { }
+    } catch {}
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -283,10 +297,30 @@ export default function ReelsLightbox({
 
     // решение: если ушли дальше 22% экрана — переключаемся, иначе — отскакиваем
     const threshold = 22;
+
+    // Мобильная «магия»: прямо в этом же жесте пробуем запустить следующее/предыдущее со звуком
+    const trySwapAndPlay = (targetReviewId: string | undefined) => {
+      if (!isMobileUA || !targetReviewId) return;
+      const hls = hlsMapRef.current.get(targetReviewId);
+      if (!hls) return;
+      ReelsAudio.unlock();
+      try {
+        window.dispatchEvent(
+          new CustomEvent("reels:swap_src_and_play", {
+            detail: { hlsUrl: hls, unmute: true },
+          })
+        );
+      } catch {}
+    };
+
     if (dragPct <= -threshold && hasNext) {
+      // вниз -> next
+      trySwapAndPlay(items[index + 1]?.review.id);
       setBusy(true);
       animateTo(-100);
     } else if (dragPct >= threshold && hasPrev) {
+      // вверх -> prev
+      trySwapAndPlay(items[index - 1]?.review.id);
       setBusy(true);
       animateTo(100);
     } else {
@@ -367,7 +401,6 @@ export default function ReelsLightbox({
   const isDragging = dragRef.current.active && !anim.running;
 
   // слабый сигнал на предпрогрев соседей во время drag в их сторону
-  // раньше начинаем прогрев, чтобы успеть навесить src/HLS
   const preloadNext = isDragging && p < -0.01 && !!hasNext;
   const preloadPrev = isDragging && p > 0.01 && !!hasPrev;
 
@@ -382,7 +415,7 @@ export default function ReelsLightbox({
       onWheel={onWheel}
       onPointerDown={() => {
         ensureSoundUnlocked();
-        if (cur) unmuteCurrentNow(cur.review.id);
+        if (cur && !isMobileUA) unmuteCurrentNow(cur.review.id);
       }}
     >
       <button className={styles.backdrop} aria-label="Close" onClick={onClose} />
@@ -396,7 +429,7 @@ export default function ReelsLightbox({
           className={styles.navBtn}
           onClick={() => {
             ensureSoundUnlocked();
-            if (cur) unmuteCurrentNow(cur.review.id);
+            if (cur && !isMobileUA) unmuteCurrentNow(cur.review.id);
             if (hasPrev) snapTo(100);
           }}
           disabled={!hasPrev || busy || anim.running}
@@ -408,7 +441,7 @@ export default function ReelsLightbox({
           className={styles.navBtn}
           onClick={() => {
             ensureSoundUnlocked();
-            if (cur) unmuteCurrentNow(cur.review.id);
+            if (cur && !isMobileUA) unmuteCurrentNow(cur.review.id);
             if (hasNext) snapTo(-100);
           }}
           disabled={!hasNext || busy || anim.running}
@@ -450,9 +483,9 @@ export default function ReelsLightbox({
                 productId={prevItem.review.productId}
                 reviewType={prevItem.review.type}
                 userId={prevItem.review.authorId}
-                autoPlay={false}           // ← не автоплеим соседа НИКОГДА
-                muted={true}               // ← сосед всегда немой
-                active={!!preloadPrev}     // ← только для preload (можно и false)
+                autoPlay={false}
+                muted={true}
+                active={!!preloadPrev}
               />
             )}
           </div>
@@ -460,15 +493,15 @@ export default function ReelsLightbox({
           {/* current */}
           <div className={styles.panel}>
             <ReviewVideoResolver
-              key={cur.review.id}
+              /* ВАЖНО: без key — не размонтируем DOM <video> */
               url={cur.url}
               reviewId={cur.review.id}
               productId={cur.review.productId}
               reviewType={cur.review.type}
               userId={cur.review.authorId}
-              autoPlay={true}             // ← текущий всегда может играть
-              muted={false}               // ← ReviewVideo сам обеспечит mute по политике автоплея
-              active={activeCur}          // ← всегда true: не паузим во время drag/анимации
+              autoPlay={true}
+              muted={false}
+              active={activeCur}
             />
           </div>
 
@@ -482,9 +515,9 @@ export default function ReelsLightbox({
                 productId={nextItem.review.productId}
                 reviewType={nextItem.review.type}
                 userId={nextItem.review.authorId}
-                autoPlay={false}           // ← запрещаем автоплей соседу
+                autoPlay={false}
                 muted={true}
-                active={!!preloadNext}     // ← только preload при реальном drag вниз
+                active={!!preloadNext}
               />
             )}
           </div>
@@ -515,7 +548,7 @@ export default function ReelsLightbox({
           </div>
         </div>
 
-        {/* Вертикальные action-кнопки как в TikTok (мобилки) */}
+        {/* Вертикальные action-кнопки */}
         <div className={styles.actions} aria-label="Actions">
           <button
             className={clsx(styles.actionBtn, helpful.mine && styles.actionActive)}

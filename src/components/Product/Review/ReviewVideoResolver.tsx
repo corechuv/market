@@ -1,4 +1,3 @@
-// src/components/Product/Review/ReviewVideoResolver.tsx
 import React from 'react';
 import { resolveMuxUrlMaybe, type MuxResolve, type MuxWaitingStatus } from '../../../services/muxApi';
 import { ReviewVideo } from './ReviewVideo';
@@ -45,6 +44,17 @@ export function ReviewVideoResolver(props: {
     run();
     return () => { cancelled = true; if (timerRef.current) window.clearTimeout(timerRef.current); };
   }, [props.url]);
+
+  // 👉 сообщаем Lightbox: для reviewId готов hlsUrl
+  React.useEffect(() => {
+    if ((state as any).hlsUrl) {
+      try {
+        window.dispatchEvent(new CustomEvent('reels:resolved', {
+          detail: { reviewId: props.reviewId, hlsUrl: (state as any).hlsUrl }
+        }));
+      } catch {}
+    }
+  }, [(state as any).hlsUrl, props.reviewId]);
 
   if (state.status !== 'ready') {
     return (
