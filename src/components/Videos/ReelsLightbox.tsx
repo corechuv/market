@@ -251,6 +251,7 @@ export default function ReelsLightbox({
 
   // ====== pointer-свайп (drag) ======
   const onPointerDown = (e: React.PointerEvent) => {
+    window.dispatchEvent(new CustomEvent('reels:gesture_begin')); // ← отметка начала жеста
     if (busy || anim.running) return;
     ensureSoundUnlocked();
     // размьют текущий «по жесту» — только для десктопа

@@ -54,6 +54,7 @@ export const ReviewVideo: React.FC<Props> = ({
   const userMutedRef = useRef(false);
   const activeRef = useRef<boolean>(active);
   const loopRef = useRef<boolean>(loop);
+  const lastUrlRef = useRef<string | null>(null);
 
   // 👇 даём возможность мобильному ролику «разрешить» звук после жеста
   const allowAudibleOnMobileRef = useRef(false);
@@ -82,6 +83,16 @@ export const ReviewVideo: React.FC<Props> = ({
 
   const emit = useCallback((name: string, detail?: any) => {
     try { window.dispatchEvent(new CustomEvent(name, { detail })); } catch { /* noop */ }
+  }, []);
+
+  // Разрешаем звук в рамках жеста (если Lightbox пошлёт событие)
+  useEffect(() => {
+    const onGestureBegin = () => {
+      ReelsAudio.unlock();
+      allowAudibleOnMobileRef.current = true; // этот жест дал право на звук
+    };
+    window.addEventListener('reels:gesture_begin', onGestureBegin as any, { passive: true });
+    return () => window.removeEventListener('reels:gesture_begin', onGestureBegin as any);
   }, []);
 
   // поддерживаем loop
@@ -151,9 +162,9 @@ export const ReviewVideo: React.FC<Props> = ({
     video.loop = loopRef.current;
     if (video.loop) video.setAttribute('loop', '');
 
-    // Подключаем источник + мониторинг
+    // Подключаем мониторинг (один раз)
     const startMonitor = (extra?: Partial<MonitorOptions>) => {
-      if (!envKey) return;
+      if (!envKey || monitoredRef.current) return;
       try {
         mux.monitor(video, {
           debug: false,
@@ -175,52 +186,75 @@ export const ReviewVideo: React.FC<Props> = ({
       } catch { }
     };
 
-    if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = hlsUrl;
-      video.load();
-      startMonitor();
-    } else if (Hls.isSupported() && /\.m3u8(\?.*)?$/.test(hlsUrl)) {
-      const hls = new Hls({
-        enableWorker: true,
-        lowLatencyMode: false,
-        backBufferLength: 90,
-        maxBufferLength: 20,
-        maxMaxBufferLength: 60,
-        startPosition: 0,
-        capLevelToPlayerSize: true,
-        fragLoadingRetryDelay: 500,
-        manifestLoadingTimeOut: 20000,
-      });
-      hlsRef.current = hls;
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-        hls.loadSource(hlsUrl);
-        startMonitor({
-          hlsjs: hls,
-          player_software_name: 'hls.js',
-          player_software_version: Hls.version,
+    const norm = (s: string) => (s || '').split('#')[0].split('?')[0];
+    const sameUrl = norm(lastUrlRef.current || '') === norm(hlsUrl);
+
+    // Источник
+    if (!sameUrl) {
+      // Новой источник
+      if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = hlsUrl;
+        try { video.load(); } catch {}
+        startMonitor();
+      } else if (Hls.isSupported() && /\.m3u8(\?.*)?$/.test(hlsUrl)) {
+        // (пере)создание hls.js пайплайна
+        if (hlsRef.current) {
+          try { hlsRef.current.destroy(); } catch {}
+          hlsRef.current = null;
+        }
+        const hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: false,
+          backBufferLength: 90,
+          maxBufferLength: 20,
+          maxMaxBufferLength: 60,
+          startPosition: 0,
+          capLevelToPlayerSize: true,
+          fragLoadingRetryDelay: 500,
+          manifestLoadingTimeOut: 20000,
         });
-      });
-      // ⬇ гарантия старта после готовности манифеста
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        if (activeRef.current && autoPlay) {
-          playSafely().catch(() => { });
-        }
-      });
-      hls.on(Hls.Events.ERROR, (_evt, data) => {
-        if (!data.fatal) return;
-        switch (data.type) {
-          case Hls.ErrorTypes.NETWORK_ERROR: hls.startLoad(); break;
-          case Hls.ErrorTypes.MEDIA_ERROR: hls.recoverMediaError(); break;
-          default:
-            try { hls.destroy(); } catch { }
-            video.src = hlsUrl;
-            try { video.load(); } catch { }
-        }
-      });
+        hlsRef.current = hls;
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+          hls.loadSource(hlsUrl);
+          startMonitor({
+            hlsjs: hls,
+            player_software_name: 'hls.js',
+            player_software_version: Hls.version,
+          });
+        });
+        // ⬇ гарантия старта после готовности манифеста
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          if (activeRef.current && autoPlay) {
+            playSafely().catch(() => { });
+          }
+        });
+        hls.on(Hls.Events.ERROR, (_evt, data) => {
+          if (!data.fatal) return;
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR: hls.startLoad(); break;
+            case Hls.ErrorTypes.MEDIA_ERROR: hls.recoverMediaError(); break;
+            default:
+              try { hls.destroy(); } catch { }
+              hlsRef.current = null;
+              video.src = hlsUrl;
+              try { video.load(); } catch { }
+          }
+        });
+      } else {
+        // mp4/прочее
+        video.src = hlsUrl;
+        startMonitor();
+      }
+
+      lastUrlRef.current = hlsUrl;
     } else {
-      video.src = hlsUrl;
-      startMonitor();
+      // Тот же URL — не трогаем пайплайн (чтобы не словить ремьют)
+      // Только синхронизируем loop и при необходимости добиваем play
+      try { video.loop = loopRef.current; } catch {}
+      if (activeRef.current && autoPlay && video.paused) {
+        playSafely().catch(() => {});
+      }
     }
 
     // первичная установка mute на основании глобального флага
@@ -244,7 +278,7 @@ export const ReviewVideo: React.FC<Props> = ({
 
       // ⛔️ На мобилках не пытаемся программно снимать mute — ломает автоплей
       if (
-        ! (isIOS || isAndroid) &&
+        !(isIOS || isAndroid) &&
         activeRef.current &&
         !userMutedRef.current &&
         ReelsAudio.isUnlocked() &&
@@ -353,7 +387,7 @@ export const ReviewVideo: React.FC<Props> = ({
 
     if (active) {
       // сообщим наверх текущий <video>, чтобы Lightbox мог получить ref
-      try { window.dispatchEvent(new CustomEvent('reels:current_video_ref', { detail: v })); } catch {}
+      try { window.dispatchEvent(new CustomEvent('reels:current_video_ref', { detail: v })); } catch { }
       if (autoPlay) {
         playSafely().catch(() => { });
       }
@@ -398,42 +432,53 @@ export const ReviewVideo: React.FC<Props> = ({
     }
   }, [muted, autoPlay]);
 
-  // ===== мгновенная смена источника + старт в том же жесте (для мобилок) =====
-  const swapAndPlay = useCallback(async (nextUrl: string, wantUnmute: boolean) => {
+  // Синхронная подмена src + play в рамках жеста (если нужно использовать из Lightbox)
+  const swapAndPlay = useCallback((nextUrl: string, wantUnmute: boolean) => {
     const v = videoRef.current; if (!v) return;
+
+    // 1) Снимаем/ставим mute ДО play
+    if (wantUnmute) {
+      v.muted = false;
+      v.removeAttribute('muted');
+      setIsMuted(false);
+      allowAudibleOnMobileRef.current = true;
+    } else {
+      v.muted = true;
+      v.setAttribute('muted', '');
+      setIsMuted(true);
+    }
+
+    // 2) Подмена источника без await
     try {
-      if (hlsRef.current && /\.m3u8(\?.*)?$/.test(nextUrl)) {
-        // hls.js: подменяем source
+      if (hlsRef.current && /\.m3u8(\?.*)?$/i.test(nextUrl)) {
         hlsRef.current.loadSource(nextUrl);
       } else {
-        // native HLS / MP4
         v.src = nextUrl;
-        try { v.load(); } catch {}
+        try { v.load(); } catch { }
       }
-      if (wantUnmute) {
-        v.muted = false; v.removeAttribute('muted'); setIsMuted(false);
-        allowAudibleOnMobileRef.current = true;
-      } else {
-        v.muted = true; v.setAttribute('muted',''); setIsMuted(true);
-      }
-      await v.play();
-    } catch {
-      // мягкий фолбэк: тихий автоплей без срыва
+      lastUrlRef.current = nextUrl;
+    } catch { }
+
+    // 3) Немедленный play в том же call stack
+    const p = v.play?.();
+    if (p && typeof p.catch === 'function') p.catch(() => {
+      // если со звуком не дали — тихий фолбэк
       try {
-        v.muted = true; v.setAttribute('muted',''); setIsMuted(true);
-        await v.play();
-      } catch {}
-    }
+        v.muted = true; v.setAttribute('muted', ''); setIsMuted(true);
+        const p2 = v.play?.(); if (p2 && (p2 as any).catch) (p2 as any).catch(() => { });
+      } catch { }
+    });
   }, []);
 
+  // Необязательная интеграция события из Lightbox (если будете триггерить напрямую)
   useEffect(() => {
     const onSwap = (ev: Event) => {
-      const { hlsUrl, unmute } = (ev as CustomEvent<{ hlsUrl: string; unmute?: boolean }>).detail || {};
-      if (!hlsUrl) return;
-      if (!activeRef.current) return; // управляем только активным
+      const { hlsUrl, unmute } =
+        (ev as CustomEvent<{ hlsUrl: string; unmute?: boolean }>).detail || {};
+      if (!hlsUrl || !activeRef.current) return;
       ReelsAudio.unlock();
-      allowAudibleOnMobileRef.current = allowAudibleOnMobileRef.current || !!unmute;
-      swapAndPlay(hlsUrl, !!unmute).catch(() => {});
+      if (unmute) allowAudibleOnMobileRef.current = true;
+      swapAndPlay(hlsUrl, !!unmute);
     };
     window.addEventListener('reels:swap_src_and_play', onSwap as any);
     return () => window.removeEventListener('reels:swap_src_and_play', onSwap as any);
