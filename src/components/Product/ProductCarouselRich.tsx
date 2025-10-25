@@ -10,6 +10,8 @@ import EnergyLabel from "./Details/EnergyLabel";
 
 import ChevronRightIcon from "../Icons/ChevronLeftIcon";
 import ChevronLeftIcon from "../Icons/ChevronRightIcon";
+import AmbientImage from "./AmbientImage";
+
 
 export interface ProductCarouselRichProps {
     products: Product[];
@@ -112,18 +114,7 @@ const ProductCarouselRich: React.FC<ProductCarouselRichProps> = ({
 
                             const cardInner = (
                                 <>
-                                    <div className={cls.imageWrap}>
-                                        {c.imageSrc ? (
-                                            <img
-                                                src={c.imageSrc}
-                                                alt={product.name}
-                                                loading="lazy"
-                                                className={cls.productImage}
-                                            />
-                                        ) : (
-                                            <div className={cls.imagePlaceholder} />
-                                        )}
-
+                                    <AmbientImage src={c.imageSrc} alt={product.name}>
                                         {(c.energyClassArrow || c.energyClass) && (
                                             <div className={cls.meta__energyClass}>
                                                 {c.energyClassArrow && c.energyClass && (
@@ -136,7 +127,7 @@ const ProductCarouselRich: React.FC<ProductCarouselRichProps> = ({
                                                 )}
                                             </div>
                                         )}
-                                    </div>
+                                    </AmbientImage>
 
                                     <div className={cls.productDetails}>
                                         <h2 className={cls.productName} title={product.name}>
