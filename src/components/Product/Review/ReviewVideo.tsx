@@ -36,10 +36,6 @@ const isAndroid = (() => {
 })();
 const FORCE_MUTED_AUTOPLAY = isIOS || isAndroid;
 
-// события для синхронного анмьюта/жеста
-const UNMUTE_EVENT = 'reels:unmute_now';
-const GESTURE_EVENT = 'reels:gesture_begin';
-
 export const ReviewVideo: React.FC<Props> = ({
   hlsUrl,
   posterUrl,
@@ -60,10 +56,10 @@ export const ReviewVideo: React.FC<Props> = ({
   const loopRef = useRef<boolean>(loop);
   const lastUrlRef = useRef<string | null>(null);
 
-  // жёсткое разрешение звука на мобилке после жеста
+  // 👇 даём возможность мобильному ролику «разрешить» звук после жеста
   const allowAudibleOnMobileRef = useRef(false);
 
-  // начальный mute
+  // ВАЖНО: для мобилок при автоплее mute должен быть на DOM до первого paint
   const [isMuted, setIsMuted] = useState<boolean>(() => {
     const global = ReelsAudio.isUnlocked();
     if (FORCE_MUTED_AUTOPLAY && autoPlay) return true;
@@ -76,19 +72,27 @@ export const ReviewVideo: React.FC<Props> = ({
   const [bufferedEnd, setBufferedEnd] = useState<number>(0);
 
   const wasPlayingBeforeHide = useRef(false);
+  const retryPlayTimer = useRef<number | null>(null);
+
+  const clearRetry = useCallback(() => {
+    if (retryPlayTimer.current != null) {
+      window.clearTimeout(retryPlayTimer.current);
+      retryPlayTimer.current = null;
+    }
+  }, []);
 
   const emit = useCallback((name: string, detail?: any) => {
     try { window.dispatchEvent(new CustomEvent(name, { detail })); } catch { /* noop */ }
   }, []);
 
-  // глобальный жест (из Lightbox)
+  // Разрешаем звук в рамках жеста (если Lightbox пошлёт событие)
   useEffect(() => {
     const onGestureBegin = () => {
       ReelsAudio.unlock();
-      allowAudibleOnMobileRef.current = true;
+      allowAudibleOnMobileRef.current = true; // этот жест дал право на звук
     };
-    window.addEventListener(GESTURE_EVENT, onGestureBegin as any, { passive: true });
-    return () => window.removeEventListener(GESTURE_EVENT, onGestureBegin as any);
+    window.addEventListener('reels:gesture_begin', onGestureBegin as any, { passive: true });
+    return () => window.removeEventListener('reels:gesture_begin', onGestureBegin as any);
   }, []);
 
   // поддерживаем loop
@@ -102,49 +106,63 @@ export const ReviewVideo: React.FC<Props> = ({
     }
   }, [loop]);
 
-  // безопасный запуск активного
+  // Безопасный запуск активного видео
   const playSafely = useCallback(async () => {
     const v = videoRef.current;
     if (!v || !activeRef.current) return;
 
+    // мобилки — всегда muted на старте
     if (FORCE_MUTED_AUTOPLAY) {
       if (!v.muted) { v.muted = true; v.setAttribute('muted', ''); setIsMuted(true); }
       try { await v.play(); } catch { }
       return;
     }
 
+    // десктоп — если звук уже «разблокирован» и пользователь не мутил — можно со звуком
     if (ReelsAudio.isUnlocked() && !userMutedRef.current && !muted) {
       try {
         v.muted = false; v.removeAttribute('muted'); setIsMuted(false);
         await v.play();
         return;
-      } catch { /* fallthrough */ }
+      } catch { }
     }
 
+    // иначе — muted
     if (!v.muted) { v.muted = true; v.setAttribute('muted', ''); setIsMuted(true); }
     try { await v.play(); } catch { }
   }, [muted]);
 
-  // init источника + события
+  // === Инициализация источника и событий ===
+  // ВАЖНО: не включаем сюда isMuted/muted -> иначе при клике по звуку пересоздастся плеер и скинет таймлайн в 0
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const envKey = (import.meta as any).env?.VITE_MUX_DATA_ENV_KEY as string || '';
 
-    // playsinline ДО src
+    // playsinline/attrs ДО назначения src
     try { (video as any).playsInline = true; } catch { }
     try { (video as any).webkitPlaysInline = true; } catch { }
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
-    if (autoPlay) video.setAttribute('autoplay', '');
-    if (FORCE_MUTED_AUTOPLAY && autoPlay) { video.muted = true; video.setAttribute('muted', ''); setIsMuted(true); }
+    if (autoPlay) {
+      video.setAttribute('autoplay', '');
+    }
+    // ✅ На мобильных ВСЕГДА держим muted для автоплея
+    if (FORCE_MUTED_AUTOPLAY && autoPlay) {
+      video.muted = true;
+      video.setAttribute('muted', '');
+      setIsMuted(true);
+    }
+    // запрет PiP/remote
     try { (video as any).disableRemotePlayback = true; } catch { }
     try { (video as any).disablePictureInPicture = true; } catch { }
 
+    // loop на DOM
     video.loop = loopRef.current;
     if (video.loop) video.setAttribute('loop', '');
 
+    // Подключаем мониторинг (один раз)
     const startMonitor = (extra?: Partial<MonitorOptions>) => {
       if (!envKey || monitoredRef.current) return;
       try {
@@ -171,13 +189,19 @@ export const ReviewVideo: React.FC<Props> = ({
     const norm = (s: string) => (s || '').split('#')[0].split('?')[0];
     const sameUrl = norm(lastUrlRef.current || '') === norm(hlsUrl);
 
+    // Источник
     if (!sameUrl) {
+      // Новой источник
       if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = hlsUrl;
         try { video.load(); } catch {}
         startMonitor();
       } else if (Hls.isSupported() && /\.m3u8(\?.*)?$/.test(hlsUrl)) {
-        if (hlsRef.current) { try { hlsRef.current.destroy(); } catch {} hlsRef.current = null; }
+        // (пере)создание hls.js пайплайна
+        if (hlsRef.current) {
+          try { hlsRef.current.destroy(); } catch {}
+          hlsRef.current = null;
+        }
         const hls = new Hls({
           enableWorker: true,
           lowLatencyMode: false,
@@ -199,8 +223,11 @@ export const ReviewVideo: React.FC<Props> = ({
             player_software_version: Hls.version,
           });
         });
+        // ⬇ гарантия старта после готовности манифеста
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          if (activeRef.current && autoPlay) playSafely().catch(() => {});
+          if (activeRef.current && autoPlay) {
+            playSafely().catch(() => { });
+          }
         });
         hls.on(Hls.Events.ERROR, (_evt, data) => {
           if (!data.fatal) return;
@@ -215,21 +242,33 @@ export const ReviewVideo: React.FC<Props> = ({
           }
         });
       } else {
+        // mp4/прочее
         video.src = hlsUrl;
         startMonitor();
       }
+
       lastUrlRef.current = hlsUrl;
     } else {
+      // Тот же URL — не трогаем пайплайн (чтобы не словить ремьют)
+      // Только синхронизируем loop и при необходимости добиваем play
       try { video.loop = loopRef.current; } catch {}
-      if (activeRef.current && autoPlay && video.paused) playSafely().catch(() => {});
+      if (activeRef.current && autoPlay && video.paused) {
+        playSafely().catch(() => {});
+      }
     }
 
-    // первичный mute
+    // первичная установка mute на основании глобального флага
     const globalSoundOn = ReelsAudio.isUnlocked();
-    video.muted = FORCE_MUTED_AUTOPLAY && autoPlay ? true : !(globalSoundOn || !muted);
+    if (FORCE_MUTED_AUTOPLAY && autoPlay) {
+      // ✅ Мобилки + автоплей — ВСЕГДА muted. Размьютим только по жесту на самом видео.
+      video.muted = true;
+    } else {
+      video.muted = !(globalSoundOn || !muted);
+    }
     if (video.muted) video.setAttribute('muted', ''); else video.removeAttribute('muted');
     setIsMuted(video.muted);
 
+    // === события ===
     const onPlay = () => {
       setIsPlaying(true);
       if (activeRef.current) {
@@ -237,8 +276,14 @@ export const ReviewVideo: React.FC<Props> = ({
       }
       emit('reels:play', { reviewId });
 
-      // десктоп — можно авто-снимать mute
-      if (!(isIOS || isAndroid) && activeRef.current && !userMutedRef.current && ReelsAudio.isUnlocked() && video.muted) {
+      // ⛔️ На мобилках не пытаемся программно снимать mute — ломает автоплей
+      if (
+        !(isIOS || isAndroid) &&
+        activeRef.current &&
+        !userMutedRef.current &&
+        ReelsAudio.isUnlocked() &&
+        video.muted
+      ) {
         try {
           video.muted = false;
           video.removeAttribute('muted');
@@ -250,7 +295,7 @@ export const ReviewVideo: React.FC<Props> = ({
     const onPause = () => { setIsPlaying(false); emit('reels:pause', { reviewId }); };
     const onEnded = () => {
       if (loopRef.current) {
-        try { video.currentTime = 0; video.play?.().catch(() => {}); } catch {}
+        try { video.currentTime = 0; video.play?.().catch(() => { }); } catch { }
         return;
       }
       window.dispatchEvent(new CustomEvent('reels:ended', { detail: reviewId }));
@@ -265,8 +310,11 @@ export const ReviewVideo: React.FC<Props> = ({
         setBufferedEnd(end);
       } catch { }
     };
+    // доп. страховка: когда можно играть — пробуем
     const onCanPlay = () => {
-      if (activeRef.current && autoPlay && video.paused) playSafely().catch(() => {});
+      if (activeRef.current && autoPlay && video.paused) {
+        playSafely().catch(() => { });
+      }
     };
 
     const onSomeoneElsePlaying = (ev: Event) => {
@@ -280,29 +328,17 @@ export const ReviewVideo: React.FC<Props> = ({
       if (!video.paused) video.pause();
     };
     const onPageShow = () => {
-      if (wasPlayingBeforeHide.current && autoPlay && activeRef.current) video.play().catch(() => {});
+      if (wasPlayingBeforeHide.current && autoPlay && activeRef.current) {
+        video.play().catch(() => { });
+      }
     };
     const onVisibility = () => {
       if (document.visibilityState === 'hidden') {
         wasPlayingBeforeHide.current = !video.paused;
         if (!video.paused) video.pause();
       } else if (wasPlayingBeforeHide.current && autoPlay && activeRef.current) {
-        video.play?.().catch(() => {});
+        video.play?.().catch(() => { });
       }
-    };
-
-    // ⬅️ новый: реакция на «размьютни сейчас» (для десктоп-навигации)
-    const onUnmuteNow = (ev: Event) => {
-      const id = (ev as CustomEvent<{ reviewId: string }>).detail?.reviewId;
-      if (id !== reviewId) return;
-      ReelsAudio.unlock();
-      allowAudibleOnMobileRef.current = true;
-      try {
-        video.muted = false;
-        video.removeAttribute('muted');
-        setIsMuted(false);
-        const p = video.play?.(); if (p && (p as any).catch) (p as any).catch(() => {});
-      } catch {}
     };
 
     video.addEventListener('play', onPlay);
@@ -317,11 +353,14 @@ export const ReviewVideo: React.FC<Props> = ({
     window.addEventListener('pagehide', onPageHide);
     window.addEventListener('pageshow', onPageShow);
     document.addEventListener('visibilitychange', onVisibility, { passive: true });
-    window.addEventListener(UNMUTE_EVENT, onUnmuteNow as any);
 
-    if (activeRef.current && autoPlay) playSafely().catch(() => {});
+    // автоплей только если карточка активна
+    if (activeRef.current && autoPlay) {
+      playSafely().catch(() => { });
+    }
 
     return () => {
+      clearRetry();
       video.removeEventListener('play', onPlay);
       video.removeEventListener('pause', onPause);
       video.removeEventListener('ended', onEnded);
@@ -334,55 +373,134 @@ export const ReviewVideo: React.FC<Props> = ({
       window.removeEventListener('pagehide', onPageHide);
       window.removeEventListener('pageshow', onPageShow);
       document.removeEventListener('visibilitychange', onVisibility);
-      window.removeEventListener(UNMUTE_EVENT, onUnmuteNow as any);
-      if (hlsRef.current) { try { hlsRef.current.destroy(); } catch {} hlsRef.current = null; }
-      if (monitoredRef.current) { try { mux.destroyMonitor(video); } catch {} monitoredRef.current = false; }
+      if (hlsRef.current) { try { hlsRef.current.destroy(); } catch { } hlsRef.current = null; }
+      if (monitoredRef.current) { try { mux.destroyMonitor(video); } catch { } monitoredRef.current = false; }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hlsUrl, reviewId, productId, reviewType, userId, autoPlay]); // без isMuted/muted
+  }, [hlsUrl, reviewId, productId, reviewType, userId, autoPlay]); // <= НЕТ isMuted/ muted
 
   // активность карточки
   useEffect(() => {
-    const v = videoRef.current; if (!v) return;
+    const v = videoRef.current;
+    if (!v) return;
     activeRef.current = active;
 
     if (active) {
-      try { window.dispatchEvent(new CustomEvent('reels:current_video_ref', { detail: v })); } catch {}
-      if (autoPlay) playSafely().catch(() => {});
+      // сообщим наверх текущий <video>, чтобы Lightbox мог получить ref
+      try { window.dispatchEvent(new CustomEvent('reels:current_video_ref', { detail: v })); } catch { }
+      if (autoPlay) {
+        playSafely().catch(() => { });
+      }
+      // Десктоп — можно авто-снимать mute; мобильные — нельзя
       if (!FORCE_MUTED_AUTOPLAY && ReelsAudio.isUnlocked() && !userMutedRef.current && v.muted) {
-        try { v.muted = false; v.removeAttribute('muted'); setIsMuted(false); v.play?.().catch(() => {}); } catch {}
+        try {
+          v.muted = false;
+          v.removeAttribute('muted');
+          setIsMuted(false);
+          const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
+        } catch { }
       }
     } else {
       if (!v.paused) v.pause();
     }
   }, [active, autoPlay, playSafely]);
 
-  // синхронизация mute
+  // синхронизация mute (отдельный маленький эффект — без пересоздания источника)
   useEffect(() => {
-    const v = videoRef.current; if (!v) return;
-    const forceMobileMuted = FORCE_MUTED_AUTOPLAY && autoPlay && !allowAudibleOnMobileRef.current;
+    const v = videoRef.current;
+    if (!v) return;
 
-    const targetMuted = FORCE_MUTED_AUTOPLAY
-      ? (userMutedRef.current || forceMobileMuted)
-      : (userMutedRef.current ? true : (!ReelsAudio.isUnlocked() ? !!muted : false));
+    // Мобилки: при автоплее держим mute, пока НЕ было жеста по ЭТОМУ видео.
+    const forceMobileMuted =
+      FORCE_MUTED_AUTOPLAY && autoPlay && !allowAudibleOnMobileRef.current;
+
+    let targetMuted: boolean;
+    if (FORCE_MUTED_AUTOPLAY) {
+      targetMuted = userMutedRef.current || forceMobileMuted;
+    } else {
+      targetMuted = userMutedRef.current ? true : (!ReelsAudio.isUnlocked() ? !!muted : false);
+    }
 
     if (v.muted !== targetMuted) {
       v.muted = targetMuted;
       if (v.muted) v.setAttribute('muted', ''); else v.removeAttribute('muted');
       setIsMuted(v.muted);
-      if (!v.paused && !v.muted) { const p = v.play?.(); if (p && (p as any).catch) (p as any).catch(() => {}); }
+      // На некоторых WebKit требуется повторный play после смены mute
+      if (!v.paused && !v.muted) {
+        const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
+      }
     }
   }, [muted, autoPlay]);
 
-  // управление
-  const togglePlay = useCallback(() => {
+  // Синхронная подмена src + play в рамках жеста (если нужно использовать из Lightbox)
+  const swapAndPlay = useCallback((nextUrl: string, wantUnmute: boolean) => {
     const v = videoRef.current; if (!v) return;
-    if (v.paused) {
-      ReelsAudio.unlock();
+
+    // 1) Снимаем/ставим mute ДО play
+    if (wantUnmute) {
+      v.muted = false;
+      v.removeAttribute('muted');
+      setIsMuted(false);
       allowAudibleOnMobileRef.current = true;
+    } else {
+      v.muted = true;
+      v.setAttribute('muted', '');
+      setIsMuted(true);
+    }
+
+    // 2) Подмена источника без await
+    try {
+      if (hlsRef.current && /\.m3u8(\?.*)?$/i.test(nextUrl)) {
+        hlsRef.current.loadSource(nextUrl);
+      } else {
+        v.src = nextUrl;
+        try { v.load(); } catch { }
+      }
+      lastUrlRef.current = nextUrl;
+    } catch { }
+
+    // 3) Немедленный play в том же call stack
+    const p = v.play?.();
+    if (p && typeof p.catch === 'function') p.catch(() => {
+      // если со звуком не дали — тихий фолбэк
+      try {
+        v.muted = true; v.setAttribute('muted', ''); setIsMuted(true);
+        const p2 = v.play?.(); if (p2 && (p2 as any).catch) (p2 as any).catch(() => { });
+      } catch { }
+    });
+  }, []);
+
+  // Необязательная интеграция события из Lightbox (если будете триггерить напрямую)
+  useEffect(() => {
+    const onSwap = (ev: Event) => {
+      const { hlsUrl, unmute } =
+        (ev as CustomEvent<{ hlsUrl: string; unmute?: boolean }>).detail || {};
+      if (!hlsUrl || !activeRef.current) return;
+      ReelsAudio.unlock();
+      if (unmute) allowAudibleOnMobileRef.current = true;
+      swapAndPlay(hlsUrl, !!unmute);
+    };
+    window.addEventListener('reels:swap_src_and_play', onSwap as any);
+    return () => window.removeEventListener('reels:swap_src_and_play', onSwap as any);
+  }, [swapAndPlay]);
+
+  const poster =
+    posterUrl ||
+    (hlsUrl.startsWith('https://stream.mux.com/') && hlsUrl.includes('.m3u8')
+      ? `https://image.mux.com/${hlsUrl.split('/').pop()!.split('.m3u8')[0]}/thumbnail.jpg?time=1`
+      : undefined);
+
+  // === управление пользователем (клики/тапы) ===
+  const togglePlay = useCallback(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) {
+      // прямой клик: это пользовательский жест
+      ReelsAudio.unlock();
+      allowAudibleOnMobileRef.current = true; // мобилке разрешаем звук после жеста
       v.play().then(() => {
         window.dispatchEvent(new CustomEvent('reels:now_playing', { detail: v } as any));
-      }).catch(() => {});
+      }).catch(() => { });
     } else {
       v.pause();
     }
@@ -391,15 +509,26 @@ export const ReviewVideo: React.FC<Props> = ({
   const toggleMute = useCallback(() => {
     const v = videoRef.current; if (!v) return;
     const willMute = !v.muted;
-    if (!willMute) { ReelsAudio.unlock(); allowAudibleOnMobileRef.current = true; }
+
+    if (!willMute) {
+      // включаем звук: это жест
+      ReelsAudio.unlock();
+      allowAudibleOnMobileRef.current = true; // больше не ремьютим автоплеем на мобилке
+    }
+
     v.muted = willMute;
     if (v.muted) v.setAttribute('muted', ''); else v.removeAttribute('muted');
     setIsMuted(v.muted);
     userMutedRef.current = v.muted;
-    if (!v.muted) v.play?.().catch(() => {});
+
+    if (!v.muted) {
+      v.play?.().catch(() => { });
+    }
+
     emit(v.muted ? 'reels:mute' : 'reels:unmute', { reviewId });
   }, [emit, reviewId]);
 
+  // таймлайн
   const [durationState, setDurationState] = useState<number | null>(null);
   useEffect(() => setDurationState(duration || 0), [duration]);
 
@@ -425,7 +554,9 @@ export const ReviewVideo: React.FC<Props> = ({
     else if (e.key === 'End') { e.preventDefault(); onSeek(durationState || 0); }
   };
 
-  const onVideoClick = () => { togglePlay(); };
+  const onVideoClick = () => {
+    togglePlay();
+  };
 
   const playedPct = (durationState || 0) > 0 ? (currentTime / (durationState || 1)) * 100 : 0;
   const bufferedPct = (durationState || 0) > 0 ? (Math.min(bufferedEnd, durationState || 0) / (durationState || 1)) * 100 : 0;
@@ -440,12 +571,6 @@ export const ReviewVideo: React.FC<Props> = ({
     const sss = String(ss).padStart(2, '0');
     return h > 0 ? `${h}:${mm}:${sss}` : `${mm}:${sss}`;
   };
-
-  const poster =
-    posterUrl ||
-    (hlsUrl.startsWith('https://stream.mux.com/') && hlsUrl.includes('.m3u8')
-      ? `https://image.mux.com/${hlsUrl.split('/').pop()!.split('.m3u8')[0]}/thumbnail.jpg?time=1`
-      : undefined);
 
   return (
     <div className={styles.container}>
@@ -482,7 +607,7 @@ export const ReviewVideo: React.FC<Props> = ({
         type="button"
         aria-label={isPlaying ? 'Pause video' : 'Play video'}
         className={`${styles.centerBtn} ${isPlaying ? styles.hidden : ''}`}
-        onClick={onVideoClick}
+        onClick={togglePlay}
       >
         <span className={styles.visuallyHidden}>
           {isPlaying ? 'Pause' : 'Play'}

@@ -33,8 +33,6 @@ const SPEED_PX_PER_SEC = 1400;
 const MIN_ANIM_MS = 140;
 const MAX_ANIM_MS = 420;
 const UNMUTE_EVENT = "reels:unmute_now";
-const GESTURE_EVENT = "reels:gesture_begin";
-
 const isMobileUA =
   typeof navigator !== "undefined" &&
   /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "");
@@ -126,7 +124,7 @@ export default function ReelsLightbox({
 
   // ===== свайп/drag =====
   const shellRef = React.useRef<HTMLDivElement | null>(null);
-  const [dragPct, setDragPct] = useState(0);
+  const [dragPct, setDragPct] = useState(0); // смещение сцены в %, где 0 — центр (-100%), +100 — prev (0%), -100 — next (-200%)
   const dragRef = React.useRef<{
     active: boolean;
     id: number | null;
@@ -153,7 +151,7 @@ export default function ReelsLightbox({
     ReelsAudio.unlock();
   }, []);
 
-  const unmuteNow = React.useCallback((id: string) => {
+  const unmuteCurrentNow = React.useCallback((id: string) => {
     window.dispatchEvent(new CustomEvent(UNMUTE_EVENT, { detail: { reviewId: id } }));
   }, []);
 
@@ -166,21 +164,21 @@ export default function ReelsLightbox({
       if (e.key === "ArrowDown" || e.key === "PageDown") {
         if (!hasNext || busy) return;
         ensureSoundUnlocked();
-        if (!isMobileUA && items[index]) unmuteNow(items[index].review.id);
+        if (!isMobileUA && items[index]) unmuteCurrentNow(items[index].review.id);
         snapTo(-100);
       }
       if (e.key === "ArrowUp" || e.key === "PageUp") {
         if (!hasPrev || busy) return;
         ensureSoundUnlocked();
-        if (!isMobileUA && items[index]) unmuteNow(items[index].review.id);
+        if (!isMobileUA && items[index]) unmuteCurrentNow(items[index].review.id);
         snapTo(100);
       }
     };
     window.addEventListener("keydown", onKey, { passive: true });
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose, ensureSoundUnlocked, unmuteNow, hasNext, hasPrev, busy, index, items]);
+  }, [onClose, ensureSoundUnlocked, unmuteCurrentNow, hasNext, hasPrev, busy, index, items]);
 
-  // колесо (десктоп)
+  // колесо — аккумулируем (размьютим так только на десктопе)
   const wheelAgg = React.useRef({ sum: 0, lastTs: 0 });
   const onWheel = (e: React.WheelEvent) => {
     if (busy || anim.running || dragRef.current.active) return;
@@ -188,8 +186,8 @@ export default function ReelsLightbox({
     const h = shellRef.current?.clientHeight || window.innerHeight || 800;
 
     let dy = e.deltaY;
-    if (e.deltaMode === 1) dy *= 16;
-    else if (e.deltaMode === 2) dy *= h;
+    if (e.deltaMode === 1) dy *= 16; // lines → px
+    else if (e.deltaMode === 2) dy *= h; // pages → px
 
     if (now - wheelAgg.current.lastTs > 220) wheelAgg.current.sum = 0;
     wheelAgg.current.lastTs = now;
@@ -198,44 +196,53 @@ export default function ReelsLightbox({
     const TH = Math.max(60, Math.round(h * 0.06));
     if (Math.abs(wheelAgg.current.sum) >= TH) {
       ensureSoundUnlocked();
-      if (!isMobileUA && items[index]) unmuteNow(items[index].review.id);
+      if (!isMobileUA && items[index]) unmuteCurrentNow(items[index].review.id);
       if (wheelAgg.current.sum > 0 && hasNext) snapTo(-100);
       else if (wheelAgg.current.sum < 0 && hasPrev) snapTo(100);
       wheelAgg.current.sum = 0;
     }
   };
 
-  // helper: доводящая анимация
+  // helper: запустить доводящую анимацию к целевому смещению (+/-100% или 0)
   function animateTo(toPct: number, onDone?: () => void) {
     const el = shellRef.current;
     const h = el?.clientHeight || window.innerHeight || 800;
     const fromPct = dragPct;
     const distPx = (Math.abs(toPct - fromPct) / 100) * h;
-    const ms = Math.max(MIN_ANIM_MS, Math.min(MAX_ANIM_MS, Math.round((distPx / SPEED_PX_PER_SEC) * 1000)));
+    const ms = Math.max(
+      MIN_ANIM_MS,
+      Math.min(MAX_ANIM_MS, Math.round((distPx / SPEED_PX_PER_SEC) * 1000))
+    );
 
     setAnim({ running: true, toPct, ms });
+    // по окончании — скорректируем index/состояние
     window.setTimeout(() => {
       stopAnim();
       if (toPct === -100) {
+        // вниз -> next
         setIndex((i) => Math.min(items.length - 1, i + 1));
         setDragPct(0);
       } else if (toPct === 100) {
+        // вверх -> prev
         setIndex((i) => Math.max(0, i - 1));
         setDragPct(0);
       } else {
+        // вернулись в центр
         setDragPct(0);
       }
-      // анмьют целевого уже после смены (десктоп)
-      const newIdx = toPct === -100 ? index + 1 : toPct === 100 ? index - 1 : index;
+      // маленькая задержка — анмьют активного, если звук уже «разлочен» (только десктоп)
+      const newIdx =
+        toPct === -100 ? index + 1 : toPct === 100 ? index - 1 : index;
       const nextId = items[newIdx]?.review.id;
       if (nextId && ReelsAudio.isUnlocked() && !isMobileUA) {
-        setTimeout(() => unmuteNow(nextId), 0);
+        setTimeout(() => unmuteCurrentNow(nextId), 0);
       }
       onDone?.();
       setBusy(false);
     }, ms);
   }
 
+  // быстрый «щелчок» к соседу без drag (используется колесом/клавой)
   function snapTo(toPct: -100 | 0 | 100) {
     if (busy) return;
     setBusy(true);
@@ -244,10 +251,11 @@ export default function ReelsLightbox({
 
   // ====== pointer-свайп (drag) ======
   const onPointerDown = (e: React.PointerEvent) => {
-    try { window.dispatchEvent(new CustomEvent(GESTURE_EVENT)); } catch {}
+    window.dispatchEvent(new CustomEvent('reels:gesture_begin')); // ← отметка начала жеста
     if (busy || anim.running) return;
     ensureSoundUnlocked();
-    if (cur && !isMobileUA) unmuteNow(cur.review.id);
+    // размьют текущий «по жесту» — только для десктопа
+    if (cur && !isMobileUA) unmuteCurrentNow(cur.review.id);
 
     dragRef.current = {
       active: true,
@@ -256,7 +264,9 @@ export default function ReelsLightbox({
       y: e.clientY,
       lastTs: performance.now(),
     };
-    try { (e.currentTarget as any).setPointerCapture?.(e.pointerId); } catch {}
+    try {
+      (e.currentTarget as any).setPointerCapture?.(e.pointerId);
+    } catch {}
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -269,11 +279,12 @@ export default function ReelsLightbox({
     const h = el?.clientHeight || window.innerHeight || 1;
     let deltaY = st.y - st.y0;
 
+    // резинка на краях
     if ((deltaY < 0 && !hasNext) || (deltaY > 0 && !hasPrev)) {
       deltaY = rubber(deltaY);
     }
 
-    const pct = (deltaY / h) * 100;
+    const pct = (deltaY / h) * 100; // [-100..100]
     setDragPct(Math.max(-120, Math.min(120, pct)));
   };
 
@@ -285,26 +296,31 @@ export default function ReelsLightbox({
 
     if (busy || anim.running) return;
 
+    // решение: если ушли дальше 22% экрана — переключаемся, иначе — отскакиваем
     const threshold = 22;
 
-    // мобильный fast-swap в рамках жеста
+    // Мобильная «магия»: прямо в этом же жесте пробуем запустить следующее/предыдущее со звуком
     const trySwapAndPlay = (targetReviewId: string | undefined) => {
       if (!isMobileUA || !targetReviewId) return;
       const hls = hlsMapRef.current.get(targetReviewId);
       if (!hls) return;
       ReelsAudio.unlock();
       try {
-        window.dispatchEvent(new CustomEvent("reels:swap_src_and_play", { detail: { hlsUrl: hls, unmute: true } }));
+        window.dispatchEvent(
+          new CustomEvent("reels:swap_src_and_play", {
+            detail: { hlsUrl: hls, unmute: true },
+          })
+        );
       } catch {}
     };
 
     if (dragPct <= -threshold && hasNext) {
-      try { window.dispatchEvent(new CustomEvent(GESTURE_EVENT)); } catch {}
+      // вниз -> next
       trySwapAndPlay(items[index + 1]?.review.id);
       setBusy(true);
       animateTo(-100);
     } else if (dragPct >= threshold && hasPrev) {
-      try { window.dispatchEvent(new CustomEvent(GESTURE_EVENT)); } catch {}
+      // вверх -> prev
       trySwapAndPlay(items[index - 1]?.review.id);
       setBusy(true);
       animateTo(100);
@@ -332,7 +348,11 @@ export default function ReelsLightbox({
       setBusy(true);
       const res = await setReviewHelpful(cur.review.id, !helpful.mine);
       setHelpful({ count: res.helpfulCount, mine: res.helpful });
-    } catch { } finally { setBusy(false); }
+    } catch {
+      /* noop */
+    } finally {
+      setBusy(false);
+    }
   };
 
   const [, setCopied] = React.useState(false);
@@ -341,24 +361,34 @@ export default function ReelsLightbox({
     const origin = window.location.origin;
     const query = window.location.search || "";
     const url = `${origin}/videos/${cur.review.id}${query}`;
-    const title = cur.review.authorName ? `${cur.review.authorName} — видео-отзыв` : "Видео-отзыв";
-    const text = (cur.review.text && cur.review.text.trim()) || "Посмотри этот отзыв";
+    const title = cur.review.authorName
+      ? `${cur.review.authorName} — видео-отзыв`
+      : "Видео-отзыв";
+    const text =
+      (cur.review.text && cur.review.text.trim()) || "Посмотри этот отзыв";
     const navAny = navigator as any;
     try {
-      if (navAny.share) await navAny.share({ title, text, url });
-      else if (navigator.clipboard && "writeText" in navigator.clipboard) {
+      if (navAny.share) {
+        await navAny.share({ title, text, url });
+      } else if (navigator.clipboard && "writeText" in navigator.clipboard) {
         await navigator.clipboard.writeText(url);
-        setCopied(true); setTimeout(() => setCopied(false), 1600);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1600);
       } else {
         window.prompt("Скопируйте ссылку:", url);
       }
-    } catch { }
+    } catch {
+      /* noop */
+    }
   };
 
   const onDelete = async (id: string) => {
     if (!confirm("Удалить этот ролик?")) return;
-    try { await deleteReview(id); }
-    catch (e: any) { alert(e?.message ?? "Не удалось удалить ролик"); }
+    try {
+      await deleteReview(id);
+    } catch (e: any) {
+      alert(e?.message ?? "Не удалось удалить ролик");
+    }
   };
 
   if (!cur) return null;
@@ -366,10 +396,16 @@ export default function ReelsLightbox({
   // финальный translateY сцены:
   const sceneTranslatePct = anim.running ? -100 + anim.toPct : -100 + dragPct;
 
-  // активность/прелоад
+  // === ВАЖНО: управление активностью/автоплеем ===
+  // Во время drag/анимации — активен ТОЛЬКО текущий (он продолжает играть).
+  // Соседи можно слегка «подогреть» (preload) без автоплея и строгоMuted.
   const isDragging = dragRef.current.active && !anim.running;
+
+  // слабый сигнал на предпрогрев соседей во время drag в их сторону
   const preloadNext = isDragging && p < -0.01 && !!hasNext;
   const preloadPrev = isDragging && p > 0.01 && !!hasPrev;
+
+  // текущий держим активным всегда
   const activeCur = true;
 
   return (
@@ -379,9 +415,8 @@ export default function ReelsLightbox({
       aria-modal="true"
       onWheel={onWheel}
       onPointerDown={() => {
-        try { window.dispatchEvent(new CustomEvent(GESTURE_EVENT)); } catch {}
         ensureSoundUnlocked();
-        if (cur && !isMobileUA) unmuteNow(cur.review.id);
+        if (cur && !isMobileUA) unmuteCurrentNow(cur.review.id);
       }}
     >
       <button className={styles.backdrop} aria-label="Close" onClick={onClose} />
@@ -395,7 +430,7 @@ export default function ReelsLightbox({
           className={styles.navBtn}
           onClick={() => {
             ensureSoundUnlocked();
-            if (cur && !isMobileUA) unmuteNow(cur.review.id);
+            if (cur && !isMobileUA) unmuteCurrentNow(cur.review.id);
             if (hasPrev) snapTo(100);
           }}
           disabled={!hasPrev || busy || anim.running}
@@ -407,7 +442,7 @@ export default function ReelsLightbox({
           className={styles.navBtn}
           onClick={() => {
             ensureSoundUnlocked();
-            if (cur && !isMobileUA) unmuteNow(cur.review.id);
+            if (cur && !isMobileUA) unmuteCurrentNow(cur.review.id);
             if (hasNext) snapTo(-100);
           }}
           disabled={!hasNext || busy || anim.running}
@@ -425,11 +460,18 @@ export default function ReelsLightbox({
         onPointerMove={onPointerMove}
         onPointerUp={onPointerEnd}
         onPointerCancel={onPointerEnd}
-        style={anim.running ? ({ ["--dur" as any]: `${anim.ms}ms` } as React.CSSProperties) : undefined}
+        style={
+          anim.running
+            ? ({ ["--dur" as any]: `${anim.ms}ms` } as React.CSSProperties)
+            : undefined
+        }
       >
-        {/* СЦЕНА */}
+        {/* СЦЕНА: трек из трёх панелей, тянем весь трек */}
         <div
-          className={clsx(styles.scene, anim.running ? styles.isAnimating : styles.noAnim)}
+          className={clsx(
+            styles.scene,
+            anim.running ? styles.isAnimating : styles.noAnim
+          )}
           style={{ transform: `translateY(${sceneTranslatePct}%)` }}
         >
           {/* prev */}
@@ -449,9 +491,10 @@ export default function ReelsLightbox({
             )}
           </div>
 
-          {/* current (без key — сохраняем DOM <video>) */}
+          {/* current */}
           <div className={styles.panel}>
             <ReviewVideoResolver
+              /* ВАЖНО: без key — не размонтируем DOM <video> */
               url={cur.url}
               reviewId={cur.review.id}
               productId={cur.review.productId}
@@ -481,7 +524,7 @@ export default function ReelsLightbox({
           </div>
         </div>
 
-        {/* Нижняя инфо-панель */}
+        {/* Нижняя инфо-панель (подписи) */}
         <div
           className={styles.bar__bottom}
           onPointerDown={(e) => e.stopPropagation()}
@@ -499,16 +542,21 @@ export default function ReelsLightbox({
                 {cur.review.authorName || "Аноним"}
               </strong>
               <p className={styles.text}>{cur.review.text || ""}</p>
-              {cur.review.verified && <span style={{ display: "none" }}>✅ verified</span>}
+              {cur.review.verified && (
+                <span style={{ display: "none" }}>✅ verified</span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Actions */}
+        {/* Вертикальные action-кнопки */}
         <div className={styles.actions} aria-label="Actions">
           <button
             className={clsx(styles.actionBtn, helpful.mine && styles.actionActive)}
-            onClick={(e) => { e.stopPropagation(); toggleHelpful(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleHelpful();
+            }}
             aria-pressed={helpful.mine}
             aria-label={helpful.mine ? "Убрать отметку полезно" : "Отметить как полезный"}
             disabled={busy}
@@ -519,7 +567,10 @@ export default function ReelsLightbox({
 
           <button
             className={styles.actionBtn}
-            onClick={(e) => { e.stopPropagation(); onShare(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onShare();
+            }}
             aria-label="Поделиться"
             title="Поделиться"
           >
@@ -528,7 +579,10 @@ export default function ReelsLightbox({
 
           <button
             className={styles.actionBtn}
-            onClick={(e) => { e.stopPropagation(); setIsOpen(true); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen(true);
+            }}
             aria-label="Ещё"
             title="Ещё"
           >
