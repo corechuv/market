@@ -12,7 +12,7 @@ interface AccordionProps {
     defaultOpen?: boolean;
 }
 
-const Accordion: React.FC<AccordionProps> = ({ title, children, margin = true, defaultOpen = false }) => {
+const Accordion: React.FC<AccordionProps> = ({ title, children, margin = false, defaultOpen = false }) => {
     const [open, setOpen] = useState(defaultOpen);
 
     const contentStyle: React.CSSProperties = {
