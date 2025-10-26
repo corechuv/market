@@ -74,11 +74,11 @@ const demoImages = [
 ];
 
 const demo = [
-    { id: "1", title: "IPhone", color: "#EC4899", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
-    { id: "2", title: "CPU", color: "#22D3EE", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
-    { id: "3", title: "GPU", color: "#10B981", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
-    { id: "4", title: "MacBook", color: "#F59E0B", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
-    { id: "5", title: "Case", color: "#8B5CF6", image: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg" },
+    { id: "1", title: "IPhone", color: "#000000", image: "/preview_categries.png" },
+    { id: "2", title: "CPU", color: "#000000", image: "/preview_categries.png" },
+    { id: "3", title: "GPU", color: "#000000", image: "/preview_categries.png" },
+    { id: "4", title: "MacBook", color: "#000000", image: "/preview_categries.png" },
+    { id: "5", title: "Case", color: "#000000", image: "/preview_categries.png" },
 ];
 
 import apple_light from "@/assets/brand_logos/Apple_Logo_black.png"
