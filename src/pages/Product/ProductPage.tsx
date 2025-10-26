@@ -26,6 +26,7 @@ import ProductCarouselRich from "../../components/Product/ProductCarouselRich";
 import ProductReels from "../../components/Product/Review/ProductReels";
 import ProductPlainReviews from "../../components/Product/Review/ProductPlainReviews";
 import ReviewComposer from "../../components/Product/Review/ReviewComposer";
+import RatingBadge from "../../components/Rating/RatingBadge";
 
 export default function ProductPage() {
   const nav = useNavigate();
@@ -240,24 +241,6 @@ export default function ProductPage() {
 
   const ratingValue = reviewAvg !== null ? Math.round(reviewAvg * 10) / 10 : null;
 
-  const RatingBadge = (
-    <div className={cls.rating__capture}>
-      <span className={cls["rating__value--small"]}>
-        {ratingValue !== null ? ratingValue.toFixed(1) : "—"}/5
-      </span>
-      <span className={cls["rating__count--small"]}>({reviewCount})</span>
-    </div>
-  );
-
-  const RatingBadgeCustom = (
-    <div className={cls.rating__box}>
-      <div className={cls.rating__value}>
-        {ratingValue !== null ? ratingValue.toFixed(1) : "—"}
-      </div>
-      <span className={cls.rating__count}>({reviewCount})</span>
-    </div>
-  );
-
   return (
     <div className="container">
       <div className={cls.product}>
@@ -272,7 +255,7 @@ export default function ProductPage() {
               <h1 className={cls.productName}>{product.name}</h1>
 
               <div className={cls.productMeta}>
-                {RatingBadge}
+                <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
                 <div className={cls.productMeta__articleNumber}>Art.-Nr.: {articleNumber}</div>
               </div>
 
@@ -387,7 +370,7 @@ export default function ProductPage() {
             <div className={cls.section__content}>
               <div className={cls.reviews}>
                 <div className={cls.rating}>
-                  {RatingBadgeCustom}
+                  <RatingBadge size="default" ratingValue={ratingValue} reviewCount={reviewCount} />
                   <Button variant="secondary" size="small" onClick={() => setIsOpenUpload(true)}>Add review</Button>
                 </div>
                 <ProductPlainReviews productId={product.id} limit={5} />

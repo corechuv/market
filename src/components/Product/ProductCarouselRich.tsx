@@ -157,11 +157,6 @@ const ProductCarouselRich: React.FC<ProductCarouselRichProps> = ({
                                             <span className={cls.productPrice}>{c.price}</span>
                                         </div>
 
-                                        <div className={cls.product__infoBelow}>
-                                            <span className={cls.productVat}>inkl. MwSt.</span>&nbsp;
-                                            <span className={cls.productDelivery}>versandkostenfrei</span>
-                                        </div>
-
                                         <div className={cls.available}>
                                             <span
                                                 className={

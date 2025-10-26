@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import Accordion from "../../components/Product/Accordion";
 import CheckboxGroup from "../../components/Product/CheckboxGroup";
 import PriceRangeDual from "../../components/Product/PriceRangeDual";
-import Stars from "../../components/Product/Stars";
 import Button from "../UI/Button";
 import cls from "./SidebarItems.module.scss";
 
@@ -13,6 +12,7 @@ import {
     getBreadcrumbs,
     getChildren,
 } from "../../services/categoryService";
+import RatingBadge from "../Rating/RatingBadge";
 
 type SortOption = { value: string; label: string };
 type Option = { value: string; label: string };
@@ -163,7 +163,7 @@ const SidebarItems: React.FC<SidebarItemsProps> = ({
                     onChange={(vals) => console.log("Selected:", vals)}
                     direction="vertical"
                     contentRenderer={(option) =>
-                        option.value === "6" ? null : <Stars size={16} value={Number(option.value)} />
+                        option.value === "6" ? null : <RatingBadge ratingValue={Number(option.value)} count={false} reviewCount={0} />
                     }
                 />
             </Accordion>

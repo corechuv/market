@@ -3,6 +3,7 @@
 
 import React from "react";
 import cls from "./ReviewList.module.scss";
+import RatingBadge from "../Rating/RatingBadge";
 
 /** Simple utility to join class names without pulling in an external library */
 const cx = (...classes: (string | false | null | undefined)[]) =>
@@ -56,9 +57,6 @@ export interface ReviewListProps {
 
 const capRating = (r: number) => Math.max(0, Math.min(5, Number.isFinite(r as number) ? (r as number) : 0));
 
-const formatRatingNumber = (r: number) =>
-  new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 1 }).format(r);
-
 /**
  * ReviewList – shows a list of customer reviews.
  *
@@ -110,11 +108,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
 
           return (
             <li key={id} className={cls.reviewList__item}>
-              <div className={cls.rating}>
-                <span className={cls["rating__value--small"]} aria-hidden="true" aria-label={t.ratingLabel(cappedRating)}>
-                  {formatRatingNumber(cappedRating)}/5
-                </span>
-              </div>
+              <RatingBadge ratingValue={cappedRating} count={false} reviewCount={cappedRating} />
               <div className={cls["reviewList__item--section"]}>
                 <header className={cls.reviewHeader}>
                   <span className={cls.reviewerName}>

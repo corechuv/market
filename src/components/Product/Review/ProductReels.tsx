@@ -7,6 +7,7 @@ import type { ReviewOut } from "../../../types/review/review";
 import styles from "./ProductReels.module.scss";
 import ReelsLightbox from "../../Videos/ReelsLightbox";
 import Preloader from "../../UI/Preloader/Preloader";
+import RatingBadge from "../../Rating/RatingBadge";
 
 type Props = {
   productId: string;
@@ -69,9 +70,7 @@ export default function ProductReels({ productId, limit = 12, className }: Props
                 )}
               </div>
               <div className={styles["list__item--caption"]}>
-                <div className={styles["rating__value--small"]}>
-                  {it.review.rating}/5
-                </div>
+                <RatingBadge ratingValue={it.review.rating} count={false} reviewCount={0} />
                 {it.review.text}
               </div>
             </button>
