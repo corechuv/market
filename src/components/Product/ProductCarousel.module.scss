@@ -137,10 +137,10 @@ $bp-lg: 1024px;
   width: 100%;
   height: auto;
   object-fit: cover;
-  aspect-ratio: 8/9;
+  aspect-ratio: 8/8;
 
   @media (max-width: $bp-sm) {
-    aspect-ratio: 8/9;
+    aspect-ratio: 8/8;
   }
 }
 

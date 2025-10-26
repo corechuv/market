@@ -4,13 +4,13 @@ import cls from "./ProductsMain.module.scss";
 import { useNavigate } from "react-router-dom";
 import Modal from "../../components/Modal/Modal";
 import ToggleViewSwitch, { type ViewMode } from "../../components/Product/ToggleViewSwitch";
-import SortSelectContainer from "../../components/Product/SortSelectContainer";
 import ProductItemList from "../../components/Product/ProductItemList";
 import SidebarItems from "../../components/Product/SidebarItems";
 import { getProducts } from "../../services/productService";
 import { getCategoryByFullSlug, getBreadcrumbs } from "../../services/categoryService";
 import Breadcrumbs from "../Common/Breadcrumbs";
 import type { Product } from "../../types/product";
+import { SelectField } from "../UI/SelectField";
 
 // Разрешённые API-сортировки
 const sortOptions = [
@@ -103,7 +103,15 @@ export default function ProductsMain({ query = "", showCategories = true, catego
             <h4 className={cls.title}>{query ? `Results for “${query}”` : cat?.name || "All products"}</h4>
 
             <div className={cls.sortWrap}>
-              <SortSelectContainer sort={sort} sortOptions={sortOptions} onChangeSort={setSort} />
+              <SelectField
+                id="products-sort"
+                placeholder="Sort by…"
+                value={sort}
+                onChange={setSort}
+                options={sortOptions}
+                disabled={loading}
+                showTitleOnHover={false}
+              />
             </div>
           </div>
 
