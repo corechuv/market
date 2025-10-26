@@ -43,12 +43,6 @@
 }
 
 .catalog {
-  @media screen {
-    @media (max-width: 768px) {
-      padding: 0;
-    }
-  }
-
   padding: 10px 20px;
   display: flex;
   flex-direction: column;
@@ -57,6 +51,12 @@
   margin: 0 auto;
   max-width: 1024px;
   box-sizing: border-box;
+
+  @media screen {
+    @media (max-width: 768px) {
+      padding: 0;
+    }
+  }
 }
 
 /* ---------- DESKTOP NAV ---------- */
