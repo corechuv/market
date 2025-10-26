@@ -1,12 +1,8 @@
 .meta {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-
-    &__right {}
 
     &__btn {
-
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -20,6 +16,20 @@
         font-weight: 300;
         cursor: pointer;
 
+        &--active {
+            svg {
+                color: #ff004b;
+                fill: #ff004b;
+            }
+        }
+
+        &--count {
+            display: block;
+            font-size: 16px;
+            font-weight: 400;
+            color: #fff;
+        }
+
         svg {
             width: 32px;
             height: 32px;
@@ -29,17 +39,18 @@
         }
     }
 
-
-    &__btnActive {
-        svg {
-            color: #ff004b;
-            fill: #ff004b;
-        }
-    }
-
 }
 
 .bar {
+    &__right {
+        position: absolute;
+        right: 0;
+        bottom: 3px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 20px 20px;
+    }
 
     &__bottom {
         position: absolute;
@@ -53,6 +64,20 @@
         gap: 8px;
         color: #c6c6c6;
         z-index: 4;
+
+        &--name {
+            display: flex;
+            font-size: 16px;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        &--text {
+            font-size: 16px;
+            font-weight: 400;
+            margin: 4px 0 0 0;
+            color: #c6c6c6;
+        }
     }
 }
 

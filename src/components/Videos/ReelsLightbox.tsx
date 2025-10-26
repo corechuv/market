@@ -6,7 +6,6 @@ import { ReviewVideoResolver } from "../Product/Review/ReviewVideoResolver";
 import { setReviewHelpful, deleteReview } from "../../services/reviewApi";
 import CloseIcon from "../Icons/CloseIcon";
 import HeartIcon from "../Icons/HeartIcon";
-import StarIcon from "../Icons/StarIcon";
 import ArrowBottomIcon from "../Icons/ArrowBottomIcon";
 import ArrowTopIcon from "../Icons/ArrowTopIcon";
 import LinkIcon from "../Icons/LinkIcon";
@@ -491,69 +490,48 @@ export default function ReelsLightbox({
         </div>
 
         {/* Нижняя инфо-панель (подписи) */}
-        <div
-          className={styles.bar__bottom}
-          onPointerDown={(e) => e.stopPropagation()}
-          onWheel={(e) => e.stopPropagation()}
-        >
-          <div className={styles.meta}>
-            <div className={styles.info}>
-              <div className={styles.rating}>
-                <StarIcon fill="#5dbc00" />
-                <span className={styles.count}>{cur.review.rating}</span>
-              </div>
-            </div>
-            <div>
-              <strong className={styles.author}>
-                {cur.review.authorName || "Аноним"}
+        <div className={styles.bar}>
+          <div
+            className={styles.bar__bottom}
+            onPointerDown={(e) => e.stopPropagation()}
+            onWheel={(e) => e.stopPropagation()}
+          >
+            <div className={styles.meta}>
+              <strong className={styles["bar__bottom--name"]}>
+                {cur.review.authorName || ""}
               </strong>
-              <p className={styles.text}>{cur.review.text || ""}</p>
-              {cur.review.verified && (
-                <span style={{ display: "none" }}>✅ verified</span>
-              )}
+              <p className={styles["bar__bottom--text"]}>{cur.review.text || ""}</p>
             </div>
           </div>
-        </div>
 
-        {/* Вертикальные action-кнопки как в TikTok (мобилки) */}
-        <div className={styles.actions} aria-label="Actions">
-          <button
-            className={clsx(styles.actionBtn, helpful.mine && styles.actionActive)}
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleHelpful();
-            }}
-            aria-pressed={helpful.mine}
-            aria-label={helpful.mine ? "Убрать отметку полезно" : "Отметить как полезный"}
-            disabled={busy}
-          >
-            <HeartIcon fill="white" />
-            <span className={styles.actionCount}>{helpful.count}</span>
-          </button>
-
-          <button
-            className={styles.actionBtn}
-            onClick={(e) => {
-              e.stopPropagation();
-              onShare();
-            }}
-            aria-label="Поделиться"
-            title="Поделиться"
-          >
-            <LinkIcon />
-          </button>
-
-          <button
-            className={styles.actionBtn}
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsOpen(true);
-            }}
-            aria-label="Ещё"
-            title="Ещё"
-          >
-            <MoreHorizontalIcon />
-          </button>
+          <div className={styles.bar__right} aria-label="Actions">
+            <button
+              className={clsx(styles.meta__btn, helpful.mine && styles["meta__btn--active"])}
+              onClick={(e) => { e.stopPropagation(); toggleHelpful(); }}
+              aria-pressed={helpful.mine}
+              aria-label={helpful.mine ? "Like" : "Dislike"}
+              disabled={busy}
+            >
+              <HeartIcon fill="white" />
+              <span className={styles["meta__btn--count"]}>{helpful.count}</span>
+            </button>
+            <button
+              className={styles.meta__btn}
+              onClick={(e) => { e.stopPropagation(); onShare(); }}
+              aria-label="Share"
+              title="Share"
+            >
+              <LinkIcon />
+            </button>
+            <button
+              className={styles.meta__btn}
+              onClick={(e) => { e.stopPropagation(); setIsOpen(true); }}
+              aria-label="More"
+              title="More"
+            >
+              <MoreHorizontalIcon />
+            </button>
+          </div>
         </div>
 
         <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} variant="center">
