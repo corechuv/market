@@ -24,7 +24,7 @@ import amex from "@/assets/svg/amex.svg"
 
 
 import cls from "./Footer.module.scss"
-import Accordion from "../Product/Accordion"
+import Accordion from "../UI/Accordion"
 
 const NAV_GROUPS = [
     {

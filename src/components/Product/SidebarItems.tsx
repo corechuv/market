@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import Accordion from "../../components/Product/Accordion";
+import Accordion from "../UI/Accordion";
 import CheckboxGroup from "../../components/Product/CheckboxGroup";
 import PriceRangeDual from "../../components/Product/PriceRangeDual";
 import Button from "../UI/Button";

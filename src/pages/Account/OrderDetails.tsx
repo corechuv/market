@@ -6,7 +6,7 @@ import cls from "./OrderDetails.module.scss";
 import Button from "../../components/UI/Button";
 import PageLayout from "../../components/layouts/PageLayout";
 import DefinitionList from "../../components/UI/DefinitionList";
-import Accordion from "../../components/Product/Accordion";
+import Accordion from "../../components/UI/Accordion";
 import api from "../../lib/api";
 import type { Totals } from "../../types/order";
 
