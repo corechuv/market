@@ -139,8 +139,10 @@ body[data-theme='light'] {
   --bg-order-more: #f0f0f0;
 
 
-
   --bg-rating-value: #aaad7629;
+
+  --category-card-bg: #efefef;
+  --category-card-bg-title: #efefef;
 
   color-scheme: light;
 }
@@ -282,6 +284,10 @@ body[data-theme='dark'] {
   
 
   --bg-rating-value: #fdffd629;
+
+
+  --category-card-bg: #161616;
+  --category-card-bg-title: #161616;
 
 
   color-scheme: dark;

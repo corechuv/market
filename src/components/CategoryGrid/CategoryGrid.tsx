@@ -34,6 +34,7 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
 
                     const content = (
                         <>
+                            <h4 className={styles.title}>{c.title}</h4>
                             {c.image && (
                                 <img
                                     className={styles.media}
@@ -43,7 +44,6 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
                                     loading="lazy"
                                 />
                             )}
-                            <h4 className={styles.title}>{c.title}</h4>
                         </>
                     );
 

@@ -1,7 +1,4 @@
 // src/components/CategoryGrid/CategoryGrid.scss
-$gap: 14px;
-$radius: 16px;
-
 .section {
     position: relative;
     display: flex;
@@ -21,7 +18,6 @@ $radius: 16px;
 
 /* Сетка без скролла: 6 колонок на фулл, дальше адаптив */
 .grid {
-    --gap: #{$gap};
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: var(--gap);
@@ -73,10 +69,9 @@ $radius: 16px;
     flex-direction: column;
     width: 100%;
     /* квадратные плитки */
-    border-radius: $radius;
+    border-radius: 14px;
     background: var(--bg);
     overflow: hidden;
-    border: 1px dashed var(--border);
     padding: 0;
     text-decoration: none;
     cursor: pointer;
@@ -90,7 +85,7 @@ $radius: 16px;
 .media {
     width: 100%;
     height: 100%;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 5 / 6;
     object-fit: cover;
 }
 
@@ -101,4 +96,5 @@ $radius: 16px;
     font-weight: 600;
     font-size: 16px;
     user-select: none;
+    background: var(--category-card-bg-title);
 }
