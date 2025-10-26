@@ -74,9 +74,9 @@ const demoImages = [
 ];
 
 const demo = [
-    { id: "1", title: "IPhone", color: "#000000", image: "/cat_iphone_blue_17pro.png" },
+    { id: "1", title: "IPhone", color: "#000000", image: "/preview_categries.png" },
     { id: "2", title: "CPU", color: "#000000", image: "/preview_categries.png" },
-    { id: "3", title: "GPU", color: "#000000", image: "/cat_gpu_rtx5090.png" },
+    { id: "3", title: "GPU", color: "#000000", image: "/preview_categries.png" },
     { id: "4", title: "MacBook", color: "#000000", image: "/preview_categries.png" },
     { id: "5", title: "Case", color: "#000000", image: "/preview_categries.png" },
 ];
