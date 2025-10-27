@@ -14,6 +14,8 @@ export type ReviewOut = {
   productId: string;
   authorId: string;
   authorName?: string | null;
+  authorAvatarUrl?: string | null;
+  authorUpdatedAt?: string | null;
   type: ReviewType;
   rating: number;
   text?: string | null;

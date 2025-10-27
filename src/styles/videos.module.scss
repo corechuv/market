@@ -79,6 +79,26 @@
     }
 }
 
+.avatar {
+  border-radius: 9999px;
+  object-fit: cover;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.avatarPlaceholder {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.7);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  overflow: hidden;
+}
+
 /* List */
 .list {
     &__grid {

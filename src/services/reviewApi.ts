@@ -3,6 +3,8 @@ import type { ReviewOut, ReviewType } from "../types/review/review";
 
 const API = import.meta.env.VITE_API_BASE_URL;
 
+const API_ORIGIN = new URL(API).origin;
+
 function qs(params: Record<string, any>) {
   const q = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {
@@ -173,4 +175,17 @@ export async function listMyReels(opts: {
     return data.filter((rev) => rev.media?.some((m) => m.kind === "video" && m.url));
   }
   return data;
+}
+
+export function abs(u?: string | null): string {
+  if (!u) return "";
+  return u.startsWith("http") ? u : `${API_ORIGIN}${u}`;
+}
+
+// Абсолютный URL аватара с меткой "t=" для борьбы с кешем
+export function toAvatarSrc(r: ReviewOut): string {
+  const url = r.authorAvatarUrl ? abs(r.authorAvatarUrl) : "";
+  if (!url) return "";
+  const t = r.authorUpdatedAt || r.createdAt || "";
+  return t ? `${url}?t=${encodeURIComponent(t)}` : url;
 }
