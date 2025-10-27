@@ -8,7 +8,7 @@ import ChevronRightIcon from "../../components/Icons/ChevronLeftIcon"
 
 import Banner from "../../components/Banner"
 import CategoryGrid from "../../components/CategoryGrid/CategoryGrid"
-import ProductCarouselRich from "../../components/Product/ProductCarouselRich"
+import ProductCarousel from "../../components/Product/ProductCarousel"
 
 import { getProducts } from "../../services/productService";
 import type { Product } from "../../types/product";
@@ -192,7 +192,7 @@ export default function Home() {
                     <div style={{ padding: 16, color: "var(--danger, #c00)" }}>{error}</div>
                 ) : (
                     <>
-                        <ProductCarouselRich
+                        <ProductCarousel
                             label="Best Products"
                             products={products /* пока пустой массив — ок */}
                             visibleItems={4}
@@ -213,7 +213,7 @@ export default function Home() {
                             ))}
                         </div>
 
-                        <ProductCarouselRich
+                        <ProductCarousel
                             label="Featured Products"
                             products={products}
                             visibleItems={4}

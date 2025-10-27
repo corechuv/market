@@ -21,7 +21,7 @@ import ProductDatasheet from "../../components/Product/Details/ProductDatasheet"
 import EnergyLabel from "../../components/Product/Details/EnergyLabel";
 import { useCart } from "../../context/CartContext";
 import { toCartLine } from "../../services/cartAdapter";
-import ProductCarouselRich from "../../components/Product/ProductCarouselRich";
+import ProductCarousel from "../../components/Product/ProductCarousel";
 
 import ProductReels from "../../components/Product/Review/ProductReels";
 import ProductPlainReviews from "../../components/Product/Review/ProductPlainReviews";
@@ -386,7 +386,7 @@ export default function ProductPage() {
             </div>
           </div>
 
-          <ProductCarouselRich
+          <ProductCarousel
             products={moreProducts}
             label="More Products"
             visibleItems={4}
