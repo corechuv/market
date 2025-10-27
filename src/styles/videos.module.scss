@@ -15,6 +15,15 @@
             display: inline-block;
             box-shadow: 0 0 14px #0000003b;
         }
+
+        svg {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: inline-block;
+            box-shadow: 0 0 14px #0000003b;
+        }
     }
 
     &__btn {
@@ -91,19 +100,6 @@
             color: #c6c6c6;
         }
     }
-}
-
-.avatarPlaceholder {
-    width: 36px;
-    height: 36px;
-    border-radius: 9999px;
-    background: rgba(255, 255, 255, .08);
-    color: rgba(255, 255, 255, .7);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 8px;
-    overflow: hidden;
 }
 
 /* List */

@@ -507,15 +507,12 @@ export default function ReelsLightbox({
                       loading="lazy"
                     />
                   ) : (
-                    <div className={styles.avatarPlaceholder} aria-hidden>
-                      {/* простой placeholder — можно ваш SVG */}
-                      <svg viewBox="0 0 128 128" width="36" height="36" aria-hidden>
-                        <g stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity=".6">
-                          <circle cx="64" cy="52" r="16" fill="none" />
-                          <path d="M34 92c6-14 20-22 30-22s24 8 30 22" fill="none" />
-                        </g>
-                      </svg>
-                    </div>
+                    <svg viewBox="0 0 128 128" width="36" height="36" aria-hidden>
+                      <g stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity=".6">
+                        <circle cx="64" cy="52" r="16" fill="none" />
+                        <path d="M34 92c6-14 20-22 30-22s24 8 30 22" fill="none" />
+                      </g>
+                    </svg>
                   );
                 })()}
                 <strong className={styles["bar__bottom--name"]}>
