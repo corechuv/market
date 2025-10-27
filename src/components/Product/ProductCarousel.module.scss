@@ -1,6 +1,10 @@
 /* src/components/Product/ProductCarousel.module.scss */
 @use "../../styles/default.module.scss";
 
+/* брейкпоинты под 4 / 3 / 2 */
+$bp-md: 768px;
+$bp-lg: 1024px;
+
 .container {
   position: relative;
   display: flex;
@@ -56,7 +60,7 @@
   align-items: center;
 }
 
-/* Сам вьюпорт (скроллится) + scroll-snap */
+/* скролл-вьюпорт + snap */
 .trackWrapper {
   overflow-x: auto;
   overflow-y: hidden;
@@ -66,21 +70,24 @@
   scrollbar-width: none;
   overscroll-behavior-inline: contain;
   touch-action: pan-x;
-  scroll-snap-type: x mandatory; /* snap должен быть на контейнере */
+  scroll-snap-type: x mandatory;
   &::-webkit-scrollbar { display: none; }
 
-  /* Значения приходят инлайном из TSX, тут только дефолты */
+  /* СНАЧАЛА декларации */
   --gap: 16px;
-  --visible: 1;
+  --visible: 2;               /* <768 — 2 */
+
+  /* ПОТОМ media — без mixed-decls предупреждений */
+  @media (min-width: $bp-md) { --visible: 3; }   /* 768–1023 — 3 */
+  @media (min-width: $bp-lg) { --visible: 4; }   /* ≥1024 — 4 */
 }
 
-/* Дорожка карточек */
 .track {
   display: flex;
   gap: var(--gap, 16px);
 }
 
-/* Слот под одну карточку (контролируем ширину ряда) */
+/* Ширина "слота" под карточку = 100% ряда / --visible (с учётом gap) */
 .itemWrap {
   flex: 0 0 auto;
   width: calc((100% - (var(--gap, 16px) * (var(--visible) - 1))) / var(--visible));

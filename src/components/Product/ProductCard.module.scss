@@ -8,10 +8,9 @@
 
 $bp-sm: 480px;
 $bp-md: 768px;
-$bp-lg: 1024px;
 
 .item {
-  /* Карточка занимает 100% своего слота (.itemWrap) */
+  /* карточка растягивается на весь слот .itemWrap */
   width: 100%;
   flex: 1 1 auto;
 
@@ -74,7 +73,6 @@ $bp-lg: 1024px;
       font-weight: 400;
       font-size: 20px;
       color: var(--text);
-
       @media (max-width: $bp-md) { font-size: 18px; }
     }
 

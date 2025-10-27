@@ -1,5 +1,5 @@
 // src/components/Product/ProductCarousel.tsx
-import React, { useRef, useCallback, useEffect, useState } from "react";
+import React, { useRef, useCallback } from "react";
 import cls from "./ProductCarousel.module.scss";
 import Right from "../Icons/ChevronLeftIcon";
 import Left from "../Icons/ChevronRightIcon";
@@ -10,23 +10,11 @@ import { getInitialVariant } from "../../specs/builders";
 
 export interface ProductCarouselProps {
   products: Product[];
-  /**
-   * Верхний предел видимых карточек ( ceiling ): «не больше N».
-   * Если не задан — количество определяется только авто-адаптацией по ширине.
-   */
-  visibleItems?: number;
-  /** Минимальная ширина карточки для авто-адаптации, px */
-  minCardWidth?: number; // default 240
-  /** Максимально допустимое число видимых карточек при авто-адаптации */
-  maxVisible?: number;   // default 8
-  /** Зазор между карточками, px */
-  gap?: number;          // default 16
   className?: string;
   label?: string;
   onItemClick?: (product: Product) => void;
 }
 
-/** Вспомогательная без хуков — собираем поля для карточки */
 function computeProductComputed(product: Product) {
   const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
   const variant: ProductVariant | undefined = hasVariants ? getInitialVariant(product) : undefined;
@@ -60,41 +48,21 @@ function computeProductComputed(product: Product) {
 
 const ProductCarousel: React.FC<ProductCarouselProps> = ({
   products,
-  visibleItems,          // потолок (не больше N)
-  minCardWidth = 200,
-  maxVisible = 8,
-  gap = 16,
   className = "",
   label,
   onItemClick,
 }) => {
   const viewportRef = useRef<HTMLDivElement>(null);
-  const [effectiveVisible, setEffectiveVisible] = useState<number>(1);
 
-  // Авто-адаптация: считаем, сколько слотов реально влезает при заданном minCardWidth и gap
-  useEffect(() => {
-    const viewport = viewportRef.current;
-    if (!viewport) return;
+  const getVisibleFromCSS = () => {
+    const vp = viewportRef.current;
+    if (!vp) return 4;
+    const raw = getComputedStyle(vp).getPropertyValue("--visible").trim();
+    const n = parseFloat(raw);
+    return Number.isFinite(n) && n > 0 ? n : 4;
+  };
 
-    const recalc = () => {
-      const W = viewport.clientWidth;
-      const stepBase = minCardWidth + gap;
-      let n = Math.floor((W + gap) / stepBase); // сколько карточек укладывается с учётом gap
-      n = Math.max(1, Math.min(n, maxVisible, products.length));
-      if (typeof visibleItems === "number" && Number.isFinite(visibleItems)) {
-        n = Math.min(n, visibleItems); // проп — потолок
-      }
-      setEffectiveVisible(n);
-    };
-
-    const ro = new ResizeObserver(recalc);
-    ro.observe(viewport);
-    recalc();
-
-    return () => ro.disconnect();
-  }, [visibleItems, minCardWidth, maxVisible, gap, products.length]);
-
-  // Сдвиг ровно на 1 карточку (ширина слота + gap), с ограничениями по краям
+  // шаг ровно 1 карточка: ширина слота + gap
   const scrollByCard = useCallback((dir: "prev" | "next") => {
     const viewport = viewportRef.current;
     if (!viewport) return;
@@ -109,19 +77,18 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
     const step = slotWidth + gapPx;
 
     const count = track.querySelectorAll(`.${cls.itemWrap}`).length;
+    const visible = getVisibleFromCSS();
+
     const currentIndex = Math.round(viewport.scrollLeft / step);
     const delta = dir === "next" ? 1 : -1;
-    const maxIndex = Math.max(0, count - effectiveVisible);
+    const maxIndex = Math.max(0, count - visible);
     const targetIndex = Math.max(0, Math.min(currentIndex + delta, maxIndex));
 
     viewport.scrollTo({ left: targetIndex * step, behavior: "smooth" });
-  }, [effectiveVisible]);
+  }, []);
 
-  // Инлайн-переменные: фактическое число видимых и gap
-  const viewportStyle = {
-    ["--gap" as any]: `${gap}px`,
-    ["--visible" as any]: String(effectiveVisible),
-  } as React.CSSProperties;
+  // только gap и адаптивный --visible из CSS (ничего не переопределяем инлайном)
+  const viewportStyle = { ["--gap" as any]: "16px" } as React.CSSProperties;
 
   return (
     <div className={cls.container}>
