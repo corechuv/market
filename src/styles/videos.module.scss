@@ -8,8 +8,8 @@
         gap: 10px;
 
         img {
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             object-fit: cover;
             display: inline-block;
@@ -17,8 +17,8 @@
         }
 
         svg {
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             object-fit: cover;
             display: inline-block;
@@ -45,6 +45,7 @@
             font-size: 16px;
             font-weight: 400;
             color: #fff;
+            text-shadow: 0 0 8px #0000003b;
         }
 
         svg {
@@ -93,6 +94,7 @@
             font-size: 16px;
             font-weight: 500;
             color: #fff;
+            text-shadow: 0 0 8px #0000003b;
         }
 
         &--text {
@@ -100,6 +102,7 @@
             font-weight: 400;
             margin: 4px 0 0 0;
             color: #c6c6c6;
+            text-shadow: 0 0 8px #0000003b;
         }
     }
 }
