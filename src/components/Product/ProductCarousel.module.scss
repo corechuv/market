@@ -1,4 +1,4 @@
-// src/components/Product/ProductCarousel.module.scss
+/* src/components/Product/ProductCarousel.module.scss */
 @use "../../styles/default.module.scss";
 
 .container {
@@ -8,58 +8,29 @@
   gap: 1.5rem;
   width: 100%;
   max-width: 100%;
-  margin: 0 auto;
-  margin-bottom: 1.5rem;
-
-  &__header {
-    display: flex;
-    gap: 10px;
-    justify-content: space-between;
-    align-items: center;
-
-    &--title {
-      font-size: 1.8rem;
-      margin: 0;
-      color: var(--text);
-    }
-  }
+  margin: 0 auto 1.5rem;
 }
 
-.carousel {
-  position: relative;
+.container__header {
   display: flex;
+  gap: 10px;
+  justify-content: space-between;
   align-items: center;
-}
 
-/* Scrollable viewport */
-.trackWrapper {
-  overflow-x: auto; // 🔑 enable horizontal scroll
-  overflow-y: hidden;
-  flex: 1 1 auto;
-  scroll-behavior: smooth; // smooth for manual swipe too
-  -webkit-overflow-scrolling: touch;
-
-  /* Optional: hide native scrollbar */
-  scrollbar-width: none; // Firefox
-
-  &::-webkit-scrollbar {
-    display: none; // Chrome / Safari / Edge
+  &--title {
+    font-size: 1.8rem;
+    margin: 0;
+    color: var(--text);
   }
 }
 
-.track {
-  display: flex;
-  gap: var(--gap);
-  scroll-snap-type: x mandatory;
-}
-
-.controls {
+.container__controls {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 0.5rem;
 
-  &__btn {
+  &--btn {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -77,4 +48,42 @@
       pointer-events: none;
     }
   }
+}
+
+.carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Сам вьюпорт (скроллится) + scroll-snap */
+.trackWrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex: 1 1 auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  overscroll-behavior-inline: contain;
+  touch-action: pan-x;
+  scroll-snap-type: x mandatory; /* snap должен быть на контейнере */
+  &::-webkit-scrollbar { display: none; }
+
+  /* Значения приходят инлайном из TSX, тут только дефолты */
+  --gap: 16px;
+  --visible: 1;
+}
+
+/* Дорожка карточек */
+.track {
+  display: flex;
+  gap: var(--gap, 16px);
+}
+
+/* Слот под одну карточку (контролируем ширину ряда) */
+.itemWrap {
+  flex: 0 0 auto;
+  width: calc((100% - (var(--gap, 16px) * (var(--visible) - 1))) / var(--visible));
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
