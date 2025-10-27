@@ -49,6 +49,10 @@ $bp-md: 768px;
     }
   }
 
+  &__meta {
+    margin: 0 3px;
+  }
+
   &--disable { opacity: .75; }
 
   &--name {
