@@ -389,7 +389,6 @@ export default function ProductPage() {
           <ProductCarousel
             products={moreProducts}
             label="More Products"
-            visibleItems={4}
             onItemClick={(p) => nav(`/product/${p.id}`)}
           />
         </div>

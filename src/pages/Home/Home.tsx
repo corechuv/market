@@ -195,7 +195,6 @@ export default function Home() {
                         <ProductCarousel
                             label="Best Products"
                             products={products /* пока пустой массив — ок */}
-                            visibleItems={4}
                             onItemClick={(p) => nav(`/product/${p.id}`)}
                         />
 
@@ -216,7 +215,6 @@ export default function Home() {
                         <ProductCarousel
                             label="Featured Products"
                             products={products}
-                            visibleItems={4}
                             onItemClick={(p) => nav(`/product/${p.id}`)}
                         />
                     </>
