@@ -1,23 +1,20 @@
 // src/components/Home/HomeVideos.tsx
 import React from "react";
-import clsx from "clsx";
 import { listReelsFeed, posterFromMediaUrl } from "../../services/reviewApi";
 import type { ReviewOut } from "../../types/review/review";
-// переиспользуем сетку из product reels, чтобы было одинаково
-import gridStyles from "../Product/Review/ProductReels.module.scss";
-import cls from "./HomeVideos.module.scss";
+import cls from "./HomeVideos.module.scss"; // keep for section spacing/title
+import VideoCarousel from "../Videos/VideoCarousel";
 import ReelsLightbox from "../Videos/ReelsLightbox";
 import { ReelsAudio } from "../../utils/reelsAudio";
 
 type Props = {
-    limit?: number; // по умолчанию 5
-    sort?: "new" | "popular" | "trending"; // по умолчанию trending
+    limit?: number; // default 5
+    sort?: "new" | "popular" | "trending"; // default trending
     className?: string;
     label?: string;
 };
 
 type Item = { review: ReviewOut; url: string; poster?: string };
-
 const toItem = (r: ReviewOut): Item | null => {
     const v = r.media.find(m => m.kind === "video");
     if (!v?.url) return null;
@@ -55,39 +52,22 @@ export default function HomeVideos({
         return () => { cancelled = true; };
     }, [limit, sort]);
 
-    return (
-        <section className={`${cls.section} ${className}`} aria-label={label}>
-            {label ? <h2 className={cls.title}>{label}</h2> : null}
+    const viewItems = items.map((it, i) => ({
+        id: it.review.id,
+        poster: it.poster,
+        title: it.review.text,
+        onClick: () => { ReelsAudio.unlock(); setStartIndex(i); setOpen(true); }
+    }));
 
+    return (
+        <section className={`${cls.section} ${className || ""}`} aria-label={label}>
             {loading && <div>Loading videos…</div>}
             {error && <div>Failed to load videos: {error}</div>}
             {!loading && !error && !items.length && <div>No videos yet.</div>}
 
-            {!!items.length && (
+            {!!viewItems.length && (
                 <>
-                    <div className={clsx(gridStyles.list__grid, className)}>
-                        {items.map((it, i) => (
-                            <div key={it.review.id} className={gridStyles.list__item}>
-                                <button
-                                    className={gridStyles.list__btn}
-                                    onClick={() => { ReelsAudio.unlock(); setStartIndex(i); setOpen(true); }}
-                                    aria-label={`Open reel by ${it.review.authorName || "anonymous"}`}
-                                >
-                                    <div className={gridStyles.list__preview}>
-                                        {it.poster ? (
-                                            <img src={it.poster} alt="" className={gridStyles["list__preview--img"]} loading="lazy" />
-                                        ) : (
-                                            <div className={gridStyles["list__preview--placeholder"]}>
-                                                Processing…
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className={gridStyles["list__item--caption"]}>{it.review.text}</div>
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-
+                    <VideoCarousel label={label} items={viewItems} />
                     {open && (
                         <ReelsLightbox
                             items={items}

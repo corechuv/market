@@ -185,7 +185,6 @@ export default function Home() {
                     onSelect={(cat) => console.log("Выбрано:", cat)}
                 />
 
-                {/* === Глобальные трендовые видео-отзывы (до 5 шт.) === */}
                 <HomeVideos limit={4} sort="trending" label="Trending videos" />
 
                 {error ? (

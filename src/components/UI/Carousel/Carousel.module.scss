@@ -1,0 +1,107 @@
+// src/components/UI/Carousel/Carousel.module.scss
+@use "../../../styles/default.module.scss";
+/* Breakpoints aligned with your existing SCSS */
+$bp-md: 768px;
+$bp-lg: 1024px;
+
+.container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto 1.5rem;
+}
+
+.container__header {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+
+  &--title {
+    font-size: 1.8rem;
+    margin: 0;
+    color: var(--text);
+  }
+}
+
+.container__controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+
+  &--btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+
+    svg {
+      width: 2rem;
+      height: 2rem;
+      color: var(--text);
+      pointer-events: none;
+    }
+  }
+}
+
+.carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* scroll viewport + snap */
+.trackWrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex: 1 1 auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  overscroll-behavior-inline: contain;
+  touch-action: pan-x;
+  scroll-snap-type: x mandatory;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* First declare defaults */
+  --gap: 14px;
+  --visible: 2;
+  /* <768 — 2 */
+
+  /* Then media overrides */
+  @media (min-width: $bp-md) {
+    --visible: 3;
+  }
+
+  /* 768–1023 — 3 */
+  @media (min-width: $bp-lg) {
+    --visible: 4;
+  }
+
+  /* ≥1024 — 4 */
+}
+
+.track {
+  display: flex;
+  gap: var(--gap, 14px);
+}
+
+/* Slot width = 100% row / --visible (with gap accounted) */
+.itemWrap {
+  flex: 0 0 auto;
+  width: calc((100% - (var(--gap, 14px) * (var(--visible) - 1))) / var(--visible));
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
