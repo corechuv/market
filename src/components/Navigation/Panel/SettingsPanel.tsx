@@ -18,7 +18,7 @@ interface SettingsPanelProps {
 
 const SettingsPanel: React.FC<SettingsPanelProps> = ({
     open,
-    onClose,
+    /*onClose,*/
     anchorRole = "settings",
     onMouseEnter,
     onMouseLeave,

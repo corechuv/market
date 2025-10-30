@@ -16,7 +16,7 @@ interface CartPanelProps {
 
 const CartPanel: React.FC<CartPanelProps> = ({
     open,
-    onClose,
+    /*onClose,*/
     anchorRole = "cart",
     onMouseEnter,
     onMouseLeave,
