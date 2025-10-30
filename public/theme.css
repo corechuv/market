@@ -144,6 +144,8 @@ body[data-theme='light'] {
   --category-card-bg: #f6f6f6;
   --category-card-bg-title: #efefef;
 
+  --n-bg-desktop: #ffffffbf;
+
   color-scheme: light;
 }
 
@@ -288,6 +290,9 @@ body[data-theme='dark'] {
 
   --category-card-bg: #1b1b1b;
   --category-card-bg-title: #161616;
+
+
+  --n-bg-desktop: #000000db;
 
 
   color-scheme: dark;

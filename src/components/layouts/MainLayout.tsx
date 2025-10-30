@@ -1,15 +1,18 @@
 import { Outlet } from "react-router-dom";
-import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
+import Navigation from "../Navigation/Navigation";
+import c from "./MainLayout.module.scss"
 
 export default function MainLayout() {
   return (
     <>
-      <Header />
-      <main className="app-container">
-        <Outlet />
-      </main>
-      <Footer />
+      <div className={c.m}>
+        <Navigation />
+        <main className="app-container">
+          <Outlet />
+          <Footer />
+        </main>
+      </div>
     </>
   );
 }

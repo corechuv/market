@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react"
-
+/*import { useEffect, useState } from "react"*/
+import "react";
+/*
 import instagramWhite from "@/assets/svg/instagram_white.svg"
 import instagramBlack from "@/assets/svg/instagram_black.svg"
 import metaBlack from "@/assets/svg/meta_black.svg"
@@ -21,7 +22,7 @@ import klarna from "@/assets/svg/klarna.svg"
 import amazonWhite from "@/assets/amazonpay_white.png"
 import amazonBlack from "@/assets/amazonpay_black.png"
 import amex from "@/assets/svg/amex.svg"
-
+*/
 
 import cls from "./Footer.module.scss"
 import Accordion from "../UI/Accordion"
@@ -108,10 +109,11 @@ const NAV_GROUPS = [
 ];
 
 export default function Footer() {
-    const [theme, setTheme] = useState(() =>
+    /*const [theme, setTheme] = useState(() =>
         document.documentElement.getAttribute("data-theme") || "light"
-    );
+    );*/
 
+    /*
     useEffect(() => {
         const observer = new MutationObserver(() => {
             setTheme(document.documentElement.getAttribute("data-theme") || "light");
@@ -119,9 +121,11 @@ export default function Footer() {
         observer.observe(document.documentElement, { attributes: true });
         return () => observer.disconnect();
     }, []);
+    */
     return (
         <footer className={cls.footer}>
             <div className={cls.footer__container}>
+                {/*
                 <div className={`${cls["footer__container--col"]}`}>
                     <section className={cls.methodContainer}>
                         <h3 className={cls.methodContainer__title}>Shipping</h3>
@@ -144,6 +148,7 @@ export default function Footer() {
                         </div>
                     </section>
                 </div>
+                */}
                 <div className={cls["footer__container--col"]}>
                     <section className={cls.footerNav} aria-label="Footer navigation">
                         {/* Desktop / Tablet grid */}
@@ -183,6 +188,12 @@ export default function Footer() {
                 <div className={`${cls["footer__container--col"]}`}>
                     <section className={cls.footerBottom}>
                         <p className={cls.copyRight}>&copy; 2025 Dashedo. All rights reserved.</p>
+                    </section>
+                </div>
+                {/*
+                <div className={`${cls["footer__container--col"]}`}>
+                    <section className={cls.footerBottom}>
+                        <p className={cls.copyRight}>&copy; 2025 Dashedo. All rights reserved.</p>
                         <div className={cls.socialLinks}>
                             <a href="https://instagram.com" className={cls.socialLinks__link} aria-label="Instagram">
                                 <img loading="lazy" src={theme === "dark" ? instagramWhite : instagramBlack} className={cls.socialLinks__instagram} alt="Instagram" />
@@ -202,6 +213,7 @@ export default function Footer() {
                         </div>
                     </section>
                 </div>
+                */}
             </div>
         </footer>
     );

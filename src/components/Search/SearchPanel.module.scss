@@ -1,0 +1,25 @@
+// src/components/Search/SearchPanel.module.scss
+@use "../../styles/search.module.scss";
+
+.g {
+    width: 100%;
+
+    &__wrp {
+        width: 100%;
+        padding: 0rem 1.2rem;
+
+        &--input {
+            padding: 0 14px;
+            height: 43px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 400;
+            font-family: var(--font);
+            border: none;
+            background: rgba(var(--background-color-input));
+            border-radius: 12px;
+            transition: box-shadow .15s, border-color .15s;
+            outline: none;
+        }
+    }
+}

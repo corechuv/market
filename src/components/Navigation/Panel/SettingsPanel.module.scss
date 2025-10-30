@@ -1,0 +1,37 @@
+.g {
+    width: 100%;
+    padding: 0rem 1.2rem;
+}
+
+.b {
+    &__title {
+        margin: 0;
+        margin-bottom: 20px;
+        font-size: 1.12rem;
+    }
+
+    &__list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    &__it {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+
+        &--i {
+            display: flex;
+            svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        &--n {
+            font-size: 16px;
+        }
+    }
+}

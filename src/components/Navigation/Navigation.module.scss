@@ -1,0 +1,112 @@
+/* src/components/Navigation/Navigation.module.scss */
+.nav {
+    padding: 16px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+
+    &__container {
+        width: var(--nav-vw);
+        display: flex;
+        flex-direction: column;
+        place-items: center;
+        gap: 20px;
+
+        &--btn {
+            position: relative;
+            display: flex;
+            padding: 10px;
+            border: none;
+            border-radius: 50%;
+            color: var(--text);
+            background: transparent;
+            font-family: "Roboto", sans-serif;
+            cursor: pointer;
+
+            svg {
+                width: 24px;
+                height: 24px;
+                stroke-width: 1.5;
+                transition: 0.3s;
+            }
+        }
+
+        &--btn:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Подсветка активной кнопки панели */
+        &--btn[data-active] {
+            background-color: rgba(0, 0, 0, 0.12);
+        }
+    }
+}
+
+.logo {
+    width: 24px;
+    height: 24px;
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 24px;
+    color: var(--text);
+}
+
+.cart {
+    position: relative;
+}
+
+/* f main (оверлей + контейнер панелей) */
+.f {
+    z-index: 10000;
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: start;
+    height: 100vh;
+    flex: 0 0 var(--nav-vw);
+
+    /* по умолчанию без затемнения */
+    background-color: transparent;
+    backdrop-filter: none;
+
+    /* включаем затемнение только при открытой панели */
+    &[data-has-open] {
+        background-color: var(--n-bg-desktop);
+    }
+
+    &__main {
+        box-sizing: border-box;
+        padding: 16px 0;
+        height: 100%;
+        width: 0;
+        /* скрыта по умолчанию */
+        padding-left: 10px;
+        opacity: 0;
+        pointer-events: none;
+        overflow: hidden;
+        transition: width .22s ease, opacity .2s ease;
+        display: none;
+
+        &[data-open] {
+            display: block;
+            /* «полностью» раскрыта */
+            opacity: 1;
+            pointer-events: auto;
+            position: fixed;
+            top: 0;
+            height: 100vh;
+            left: 60px;
+            z-index: 10000;
+            max-width: calc(100vw - var(--nav-vw));
+            background-color: var(--n-bg-desktop);
+            backdrop-filter: blur(24px);
+            width: min(280px, calc(100vw - var(--nav-vw)));
+        }
+    }
+
+    &__container {
+        width: 100%;
+        height: 100%;
+    }
+}
