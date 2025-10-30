@@ -102,6 +102,9 @@
             background-color: var(--n-bg-desktop);
             backdrop-filter: blur(24px);
             width: min(280px, calc(100vw - var(--nav-vw)));
+            overscroll-behavior: contain;
+            touch-action: none;
+            /* гасим тач-скролл на фоне */
         }
     }
 

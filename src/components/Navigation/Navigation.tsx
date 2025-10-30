@@ -12,6 +12,7 @@ import PlayIcon from "../Icons/PlayIcon";
 import SearchPanel from "../Search/SearchPanel";
 import SettingsIcon from "../Icons/SettingsIcon";
 import SettingsPanel from "./Panel/SettingsPanel";
+import { useLockBodyScroll } from "../../hooks/useLockBodyScroll";
 
 export interface Props {
   className?: string;
@@ -44,27 +45,7 @@ const Navigation: React.FC<Props> = ({ className }) => {
   );
 
   const [activePanel, setActivePanel] = useState<PanelId | null>(null);
-
-  useEffect(() => {
-    const body = document.body;
-    const doc = document.documentElement;
-
-    if (activePanel) {
-      // ширина вертикального скроллбара (чтобы верстка не "прыгала")
-      const scrollbarW = window.innerWidth - doc.clientWidth;
-      if (scrollbarW > 0) body.style.paddingRight = `${scrollbarW}px`;
-      body.style.overflow = "hidden";
-    } else {
-      body.style.overflow = "";
-      body.style.paddingRight = "";
-    }
-
-    // на случай размонтирования при открытой панели
-    return () => {
-      body.style.overflow = "";
-      body.style.paddingRight = "";
-    };
-  }, [activePanel]);
+  useLockBodyScroll(Boolean(activePanel));
 
   // закрыть по клику вне
   const wrapperRef = useRef<HTMLDivElement>(null);
