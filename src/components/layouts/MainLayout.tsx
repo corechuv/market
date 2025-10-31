@@ -8,10 +8,9 @@ import SearchIcon from "../Icons/SearchIcon";
 import PlayIcon from "../Icons/PlayIcon";
 import BagIcon from "../Icons/BagIcon";
 import AccountIcon from "../Icons/AccountIcon";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useCart } from "../../context/CartContext";
 import CounterBadge from "../Common/CounterBadge/CounterBadge";
-import MobileSearch from "../Header/MobileSearch";
 import HomeIcon from "../Icons/HomeIcon";
 
 export default function MainLayout() {
