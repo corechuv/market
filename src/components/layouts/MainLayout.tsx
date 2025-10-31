@@ -32,7 +32,6 @@ const items: [BottomNavItem, BottomNavItem, BottomNavItem, BottomNavItem] = [
 ];
 
 export default function MainLayout() {
-  const nav = useNavigate();
   return (
     <>
       <div className={c.m}>
