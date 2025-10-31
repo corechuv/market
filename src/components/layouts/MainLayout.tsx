@@ -22,17 +22,17 @@ export default function MainLayout() {
     {
       key: "video",
       icon: <PlayIcon />,
-      onClick: () => navigate("/video"),
+      onClick: () => navigate("/videos?sort=trending"),
     },
     {
       key: "profile",
       icon: <AccountIcon />,
-      onClick: () => navigate("/profile"),
+      onClick: () => navigate("/account"),
     },
     {
       key: "cart",
       icon: <BagIcon />,
-      onClick: () => navigate("/cart"),
+      onClick: () => navigate("/checkout"),
     },
   ], [navigate]); // ключи уникальные!
 
