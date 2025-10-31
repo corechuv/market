@@ -8,14 +8,16 @@ import SearchIcon from "../Icons/SearchIcon";
 import PlayIcon from "../Icons/PlayIcon";
 import BagIcon from "../Icons/BagIcon";
 import AccountIcon from "../Icons/AccountIcon";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useCart } from "../../context/CartContext";
 import CounterBadge from "../Common/CounterBadge/CounterBadge";
+import MobileSearch from "../Header/MobileSearch";
 
 export default function MainLayout() {
   const navigate = useNavigate();
-
   const { lines } = useCart();
+
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const cartCount = useMemo(
     () => lines.reduce((sum, l) => sum + l.qty, 0),
@@ -26,7 +28,7 @@ export default function MainLayout() {
     {
       key: "search",
       icon: <SearchIcon />,
-      onClick: () => navigate("/search"),
+      onClick: () => setMobileSearchOpen(true),
     },
     {
       key: "video",
@@ -57,6 +59,11 @@ export default function MainLayout() {
           bottomOffset={12}
           rounded={18}
           visibleOnDesktop={true}
+        />
+
+        <MobileSearch
+          open={mobileSearchOpen}
+          onOpenChange={setMobileSearchOpen}
         />
         <main className="app-container">
           <Outlet />
