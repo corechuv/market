@@ -12,6 +12,7 @@ import { useMemo, useState } from "react";
 import { useCart } from "../../context/CartContext";
 import CounterBadge from "../Common/CounterBadge/CounterBadge";
 import MobileSearch from "../Header/MobileSearch";
+import HomeIcon from "../Icons/HomeIcon";
 
 export default function MainLayout() {
   const navigate = useNavigate();
@@ -24,7 +25,12 @@ export default function MainLayout() {
     [lines]
   );
 
-  const items = useMemo<[BottomNavItem, BottomNavItem, BottomNavItem, BottomNavItem]>(() => [
+  const items = useMemo<BottomNavItem[]>(() => [
+    {
+      key: "home",
+      icon: <HomeIcon />,
+      onClick: () => navigate("/"),
+    },
     {
       key: "search",
       icon: <SearchIcon />,

@@ -16,7 +16,7 @@ export type BottomNavItem = {
 
 export type BottomNavigationProps = {
   /** Ровно 4 элемента */
-  items: [BottomNavItem, BottomNavItem, BottomNavItem, BottomNavItem];
+  items: BottomNavItem[];
   /** Отступ снизу в px (к safe-area добавится автоматически) */
   bottomOffset?: number;
   /** Радиус скругления контейнера в px */
