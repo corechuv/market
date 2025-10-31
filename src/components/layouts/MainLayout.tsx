@@ -9,9 +9,18 @@ import PlayIcon from "../Icons/PlayIcon";
 import BagIcon from "../Icons/BagIcon";
 import AccountIcon from "../Icons/AccountIcon";
 import { useMemo } from "react";
+import { useCart } from "../../context/CartContext";
+import CounterBadge from "../Common/CounterBadge/CounterBadge";
 
 export default function MainLayout() {
   const navigate = useNavigate();
+
+  const { lines } = useCart();
+
+  const cartCount = useMemo(
+    () => lines.reduce((sum, l) => sum + l.qty, 0),
+    [lines]
+  );
 
   const items = useMemo<[BottomNavItem, BottomNavItem, BottomNavItem, BottomNavItem]>(() => [
     {
@@ -32,6 +41,9 @@ export default function MainLayout() {
     {
       key: "cart",
       icon: <BagIcon />,
+      renderAfterIcon: (
+        <CounterBadge count={cartCount} title={`In cart: ${cartCount}`} />
+      ),
       onClick: () => navigate("/checkout"),
     },
   ], [navigate]); // ключи уникальные!

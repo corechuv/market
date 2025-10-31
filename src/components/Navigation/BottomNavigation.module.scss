@@ -37,7 +37,7 @@
   -webkit-backdrop-filter: saturate(180%) blur(14px);
   border-radius: var(--radius, 16px);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  padding: 8px;
+  padding: 12px 26px;
 }
 
 /* Контейнер для пунктов */
@@ -47,11 +47,12 @@
   padding: 0;
   display: inline-flex;
   justify-content: space-between;
-  gap: 15px;
+  gap: 20px;
 }
 
 .navItem {
   role: none;
+  position: relative;
 }
 
 /* Кнопки */
@@ -89,8 +90,8 @@
   font-size: 18px;
 
   svg {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
   }
 }
 

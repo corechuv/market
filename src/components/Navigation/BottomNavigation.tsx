@@ -5,6 +5,7 @@ import styles from "./BottomNavigation.module.scss";
 export type BottomNavItem = {
   key: string;
   icon?: React.ReactNode;
+  renderAfterIcon?: React.ReactNode;
   onClick?: () => void;
   href?: string;
   ariaLabel?: string;
@@ -164,7 +165,12 @@ export default function BottomNavigation({
           {items.map((item) => {
             const content = (
               <>
-                {item.icon && <div className={styles.icon} aria-hidden>{item.icon}</div>}
+                {item.icon &&
+                  <div className={styles.icon} aria-hidden>
+                    {item.icon}
+                    {item.renderAfterIcon}
+                  </div>
+                }
               </>
             );
 
