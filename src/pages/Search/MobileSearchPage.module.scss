@@ -1,0 +1,118 @@
+.page {
+    min-height: 100dvh;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    gap: .75rem;
+    align-items: center;
+    padding: calc(env(safe-area-inset-top) + .5rem) 1rem .5rem;
+    background: var(--bg);
+}
+
+.backBtn {
+    border: none;
+    background: transparent;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    color: var(--text);
+}
+
+.backIcon {
+    opacity: .9;
+}
+
+.inputWrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    height: 43px;
+    padding: 0 14px;
+    font-size: 16px;
+    border-radius: 12px;
+    background: rgba(var(--background-color-input));
+}
+
+.input {
+    flex: 1;
+    height: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    outline: none;
+}
+
+.clearBtn {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.searchIcon {
+    width: 20px;
+    height: 20px;
+    opacity: .7;
+}
+
+.meta {
+    color: var(--text-secondary);
+    font-size: .85rem;
+    padding: .25rem 1.2rem .5rem;
+}
+
+.list {
+    list-style: none;
+    margin: 0;
+    padding: .25rem 0 1rem;
+}
+
+.item {
+    padding: .75rem 1.2rem;
+    cursor: pointer;
+    background: var(--bg);
+
+    &:hover,
+    &:focus-visible {
+        background: var(--bg-hover-item);
+    }
+}
+
+.itemLabel {
+    font-size: .95rem;
+}
+
+.skeleton {
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+        content: "";
+        position: absolute;
+        height: 30px;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .06), transparent);
+        animation: shimmer 1.2s infinite;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}

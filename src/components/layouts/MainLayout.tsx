@@ -18,8 +18,6 @@ export default function MainLayout() {
   const navigate = useNavigate();
   const { lines } = useCart();
 
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-
   const cartCount = useMemo(
     () => lines.reduce((sum, l) => sum + l.qty, 0),
     [lines]
@@ -34,7 +32,7 @@ export default function MainLayout() {
     {
       key: "search",
       icon: <SearchIcon />,
-      onClick: () => setMobileSearchOpen(true),
+      onClick: () => navigate("/s"),
     },
     {
       key: "video",
@@ -65,11 +63,6 @@ export default function MainLayout() {
           bottomOffset={12}
           rounded={18}
           visibleOnDesktop={true}
-        />
-
-        <MobileSearch
-          open={mobileSearchOpen}
-          onOpenChange={setMobileSearchOpen}
         />
         <main className="app-container">
           <Outlet />

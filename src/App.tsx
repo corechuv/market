@@ -49,6 +49,7 @@ import ChangePasswordPage from "./pages/Account/ChangePasswordPage";
 import VerifyEmailPage from "./pages/Account/VerifyEmailPage";
 import ReelsPage from "./pages/ReelsPage";
 import MyVideosPage from "./pages/Account/MyVideosPage";
+import MobileSearchPage from "./pages/Search/MobileSearchPage";
 
 export default function App() {
 
@@ -59,7 +60,10 @@ export default function App() {
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/wishlist" element={<WishlistPage />} />
+
             <Route path="/search" element={<SearchPage />} />
+            <Route path="/s" element={<MobileSearchPage />} />
+
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/product/:productId" element={<ProductPage />} />
             <Route path="/category/*" element={<CategoryPage />} />
