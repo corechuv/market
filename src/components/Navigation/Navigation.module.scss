@@ -17,7 +17,7 @@
             position: relative;
             display: flex;
             padding: 10px;
-            border: none;
+            border: none;  
             border-radius: 50%;
             color: var(--text);
             background: transparent;
@@ -112,4 +112,10 @@
         width: 100%;
         height: 100%;
     }
+}
+
+@media (max-width: 768px) {
+  .f[data-hide-mobile] {
+    display: none !important; /* чтобы не занимал var(--nav-vw) */
+  }
 }

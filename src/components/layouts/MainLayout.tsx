@@ -39,7 +39,7 @@ export default function MainLayout() {
   return (
     <>
       <div className={c.m}>
-        <Navigation />
+        <Navigation hideOnMobile />
         <BottomNavigation
           items={items}
           bottomOffset={12}

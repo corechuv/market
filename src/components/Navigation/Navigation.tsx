@@ -16,6 +16,7 @@ import { useLockBodyScroll } from "../../hooks/useLockBodyScroll";
 
 export interface Props {
   className?: string;
+  hideOnMobile?: boolean;
 }
 
 type PanelId = "search" | "settings";
@@ -34,7 +35,7 @@ type NavItem =
   | (BaseItem & { action: "panel"; panel: PanelId })
   | (BaseItem & { action: "link"; to: string });
 
-const Navigation: React.FC<Props> = ({ className }) => {
+const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
   const nav = useNavigate();
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { lines } = useCart();
@@ -164,6 +165,7 @@ const Navigation: React.FC<Props> = ({ className }) => {
       className={cls.f}
       ref={wrapperRef}
       data-has-open={activePanel ? true : undefined}   // для затемнения фона
+      data-hide-mobile={hideOnMobile ? true : undefined}  // ← добавили
     >
       <nav className={`${cls.nav} ${className || ""}`}>
         {renderGroup("top")}
