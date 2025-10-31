@@ -1,0 +1,42 @@
+.field {
+    position: relative;
+    width: 100%;
+
+    &__icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        bottom: 0;
+        width: 20px;
+        height: 20px;
+        transform: translate(0, -50%);
+        opacity: 0.7;
+    }
+
+    &__input {
+        padding: 0 14px;
+        padding-left: 46px;
+        height: 43px;
+        width: 100%;
+        font-size: 16px;
+        font-weight: 400;
+        font-family: var(--font);
+        border: none;
+        background: rgba(var(--background-color-input));
+        border-radius: 12px;
+        transition: box-shadow .15s, border-color .15s;
+        outline: none;
+    }
+
+    &__clear {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        bottom: 0;
+        width: 18px;
+        height: 18px;
+        transform: translate(0, -50%);
+        opacity: 0.7;
+        cursor: pointer;
+    }
+}

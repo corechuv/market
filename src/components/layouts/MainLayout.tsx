@@ -1,6 +1,5 @@
 // MainLayout.tsx
 import { Outlet, useNavigate } from "react-router-dom";
-import Footer from "../../components/Footer/Footer";
 import Navigation from "../Navigation/Navigation";
 import c from "./MainLayout.module.scss";
 import BottomNavigation, { type BottomNavItem } from "../Navigation/BottomNavigation";
@@ -65,7 +64,6 @@ export default function MainLayout() {
         />
         <main className="app-container">
           <Outlet />
-          <Footer />
         </main>
       </div>
     </>

@@ -2,9 +2,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./MobileSearchPage.module.scss";
-import SearchIcon from "../../components/Icons/SearchIcon";
-import SearchInput from "../../components/UI/SearchInput";
 import { getProducts } from "../../services/productService";
+import SearchField from "../../components/UI/SearchField";
 
 type ProductLike = { id: string | number; name?: string; title?: string };
 
@@ -89,16 +88,12 @@ export default function ModileSearchPage() {
     return (
         <div className={styles.page} role="search">
             <header className={styles.topbar}>
-                <SearchInput
+                <SearchField
                     ref={inputRef}
                     value={query}
                     onChange={setQuery}
-                    placeholder="Поиск товаров"
-                    aria-label="Строка поиска"
-                    leftIcon={<SearchIcon className={styles.searchIcon} />}
-                    wrapperClassName={styles.inputWrap}
-                    inputClassName={styles.input}
-                    clearButtonClassName={styles.clearBtn}
+                    placeholder="Start typing..."
+                    aria-label="Search"
                     onEnter={() => {
                         if (results[0]) navigate(`/product/${results[0].id}`);
                     }}
@@ -142,8 +137,8 @@ function SkeletonRows() {
     return (
         <>
             {Array.from({ length: 6 }).map((_, i) => (
-                <li key={i} className={`${styles.item} ${styles.skeleton}`}>
-                    <span className={styles.itemLabel}>&nbsp;</span>
+                <li key={i} className={`${styles.item}`}>
+                    <span className={`${styles.itemLabel} ${styles.skeleton}`}>&nbsp;</span>
                 </li>
             ))}
         </>
