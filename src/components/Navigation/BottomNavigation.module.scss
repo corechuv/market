@@ -1,0 +1,107 @@
+// src/components/Navigation/BottomNavigation.module.scss
+
+/* Обёртка: фиксируем и центрируем панель; по умолчанию видна только на мобилках */
+.outer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--bottom-offset, 12px) + env(safe-area-inset-bottom));
+    display: flex;
+    justify-content: center;
+    z-index: 50;
+    transition: transform 220ms ease, opacity 220ms ease;
+    will-change: transform, opacity;
+}
+
+/* Спрятать при скролле вниз */
+.hidden {
+    transform: translateY(120%);
+    opacity: 0.98;
+}
+
+/* Сама панель */
+.bar {
+    background: var(--n-bg-desktop);
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    border-radius: var(--radius, 16px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    padding: 8px;
+}
+
+/* Контейнер для пунктов */
+.nav {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: inline-flex;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.navItem {
+    role: none;
+}
+
+/* Кнопки */
+.item {
+    -webkit-tap-highlight-color: transparent;
+    appearance: none;
+    border: none;
+    background: transparent;
+    text-decoration: none;
+    user-select: none;
+    cursor: pointer;
+
+    flex: 1 1 0;
+    min-height: 34px;
+    padding: 2px 4px;
+    border-radius: 12px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    color: #111;
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+.item:active {
+    transform: scale(0.98);
+}
+
+.icon {
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    
+    svg {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+.itemActive {
+    background: rgba(0, 122, 255, 0.12);
+    color: #007aff;
+}
+
+/* Мобильность по ширине: на десктопе прячем по умолчанию */
+@media (min-width: 768px) {
+    .outer {
+        display: none;
+    }
+
+    .outer.forceDesktop {
+        display: flex;
+    }
+}
+
+/* Доступность: меньше анимаций при reduce motion */
+@media (prefers-reduced-motion: reduce) {
+    .outer {
+        transition: none;
+    }
+}

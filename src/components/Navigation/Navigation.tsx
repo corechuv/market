@@ -1,4 +1,4 @@
-// src/components/Navigation/Navigation.tsx (или ваш Header.tsx)
+// src/components/Navigation/Navigation.tsx
 import { useMemo, useRef, useState, useEffect } from "react";
 import cls from "./Navigation.module.scss";
 import AccountIcon from "../Icons/AccountIcon";
