@@ -159,11 +159,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
         role="listbox"
         ariaLabel="Search results"
         listId={listboxId}
-        className={c.list}
-        itemClassName={c.list__item}
         skeletonRows={6}
-        skeletonItemClassName={c.list__item}
-        skeletonBarClassName={c.skeleton}
         activeIndex={activeIndex}
         onActiveIndexChange={setActiveIndex}
       />

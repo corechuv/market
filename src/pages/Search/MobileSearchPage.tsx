@@ -113,11 +113,7 @@ export default function MobileSearchPage() {
                     role="listbox"
                     ariaLabel="Search results"
                     listId={listboxId}
-                    className={styles.list}
-                    itemClassName={styles.list__item}
                     skeletonRows={6}
-                    skeletonItemClassName={styles.list__item}
-                    skeletonBarClassName={styles.skeleton}
                 />
             </div>
         </Page>

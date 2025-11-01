@@ -1,4 +1,6 @@
-import React from "react";
+// src/components/Search/SearchResultList.tsx
+import React from "react"
+import c from "./SearchResultList.module.scss"
 
 export type KeyGetter<T> = (item: T, index: number) => React.Key;
 export type LabelGetter<T> = (item: T) => string;
@@ -18,12 +20,6 @@ export interface SearchResultsListProps<T> {
     ariaLabel?: string;
     listId?: string; // чтобы связать с aria-controls у поля ввода
 
-    /** Стили (из ваших *.module.scss) */
-    className?: string;        // ul
-    itemClassName?: string;    // li
-    skeletonItemClassName?: string; // li при лоадере
-    skeletonBarClassName?: string;  // внутренняя "полоска" лоадера
-
     /** Подсветка активного элемента (для варианта с клавиатурной навигацией) */
     activeIndex?: number;
     onActiveIndexChange?: (index: number) => void;
@@ -42,11 +38,6 @@ function SearchResultsList<T>({
     ariaLabel = "Search results",
     listId,
 
-    className,
-    itemClassName,
-    skeletonItemClassName,
-    skeletonBarClassName,
-
     activeIndex = -1,
     onActiveIndexChange,
 }: SearchResultsListProps<T>) {
@@ -58,16 +49,15 @@ function SearchResultsList<T>({
     };
 
     return (
-        <ul
-            className={className}
+        <ul className={c.list}
             role={role}
             aria-label={ariaLabel}
             id={listId}
         >
             {loading
                 ? Array.from({ length: skeletonRows }).map((_, i) => (
-                    <li key={`skeleton-${i}`} className={skeletonItemClassName ?? itemClassName}>
-                        <span className={skeletonBarClassName} aria-hidden="true">&nbsp;</span>
+                    <li key={`skeleton-${i}`} className={c.list__item}>
+                        <span className={`${c["list__item--label"]} ${c.skeleton}`} aria-hidden="true">&nbsp;</span>
                     </li>
                 ))
                 : items.map((item, idx) => {
@@ -76,10 +66,9 @@ function SearchResultsList<T>({
                     const isActive = idx === activeIndex;
 
                     return (
-                        <li
-                            key={key}
+                        <li key={key}
                             id={listId ? `${listId}-opt-${idx}` : undefined}
-                            className={itemClassName}
+                            className={c.list__item}
                             role="option"
                             aria-selected={isActive || undefined}
                             data-active={isActive || undefined}
@@ -94,7 +83,8 @@ function SearchResultsList<T>({
                                 }
                             }}
                         >
-                            <span data-search="item-label">{label}</span>
+                            <span className={c["list__item--label"]}
+                                data-search="item-label">{label}</span>
                         </li>
                     );
                 })}
