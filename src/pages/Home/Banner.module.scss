@@ -1,11 +1,10 @@
 .bannerGrid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 14px;
+  gap: var(--gap);
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
   }
 }
 
