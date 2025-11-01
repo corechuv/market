@@ -1,11 +1,10 @@
 // src/styles/default.module.scss
 :root {
     --gap: 14px;
+    // Navigation
+    --nav-vw: 60px;
 
     @media (max-width: 768px) {
         --gap: 12px;
     }
-
-    // NAvigation
-    --nav-vw: 60px;
 }

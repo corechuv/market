@@ -57,7 +57,7 @@ function SearchResultsList<T>({
             {loading
                 ? Array.from({ length: skeletonRows }).map((_, i) => (
                     <li key={`skeleton-${i}`} className={c.list__item}>
-                        <span className={`${c["list__item--label"]} ${c.skeleton}`} aria-hidden="true">&nbsp;</span>
+                        <span className={`${c.skeleton}`} aria-hidden="true">&nbsp;</span>
                     </li>
                 ))
                 : items.map((item, idx) => {

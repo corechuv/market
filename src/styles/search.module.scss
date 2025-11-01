@@ -8,14 +8,14 @@
         padding: 0.75rem 1.2rem;
         cursor: pointer;
 
-        &:hover,
-        &:focus-visible {
-            background: var(--bg-hover-item);
-        }
-
         &--label {
             color: var(--text);
             font-size: 0.95rem;
+
+            &:hover,
+            &:focus-visible {
+                background: var(--bg-hover-item);
+            }
         }
     }
 }
@@ -26,6 +26,8 @@
     width: 100%;
     border-radius: 6px;
     display: block;
+    color: var(--text);
+    font-size: 0.95rem;
 
     &::after {
         content: "";
