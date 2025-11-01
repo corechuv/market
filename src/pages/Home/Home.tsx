@@ -171,7 +171,6 @@ export default function Home() {
                 <div className={cls.homeContent}>
                     <Banner
                         images={demoImages}
-                        aspectRatio="3 / 1"
                         interval={4500}
                         autoPlay
                         loop

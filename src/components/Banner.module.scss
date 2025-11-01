@@ -1,15 +1,23 @@
 $bg-overlay: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 55%, rgba(0,0,0,0.45) 100%);
 
+/* ---------- базовые переменные и брейкпоинты ---------- */
 .banner {
+  /* дефолтные AR (desktop) */
+  --ar: 3 / 1;
+  --ar-w: 3;
+  --ar-h: 1;
+
   position: relative;
   width: 100%;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+  color-scheme: light dark;
 }
 
 .rounded {
   border-radius: 14px;
-  overflow: clip; // безопаснее для анимаций, чем hidden
+  /* clip — безопаснее для анимаций; fallback на старых браузерах это просто ignored */
+  overflow: clip;
 }
 
 .withOverlay::after {
@@ -25,20 +33,47 @@ $bg-overlay: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 55%, 
   position: relative;
   width: 100%;
   overflow: hidden;
-  // Фолбэк для старых браузеров без aspect-ratio
+  aspect-ratio: var(--ar);
+
+  // Фолбэк для браузеров без aspect-ratio
   &::before {
     content: "";
     display: block;
-    padding-top: 42.857%; // ~21:9
+    padding-top: calc(var(--ar-h) / var(--ar-w) * 100%);
   }
 }
 
-// Когда есть aspect-ratio, псевдоэлемент не нужен
-@supports (aspect-ratio: 21 / 9) {
-  .viewport::before { display: none; padding-top: 0; }
-  .viewport { height: auto; }
+@supports (aspect-ratio: 1 / 1) {
+  .viewport::before { display: none; }
 }
 
+/* Tablet (<=1024px) */
+@media (max-width: 1024px) {
+  /*
+  .banner {
+    --ar: 16 / 9;
+    --ar-w: 16;
+    --ar-h: 9;
+  }
+  */
+  
+  .banner {
+    --ar: 3 / 1;
+    --ar-w: 3;
+    --ar-h: 1;
+  }
+}
+
+/* Mobile (<=768px) */
+@media (max-width: 768px) {
+  .banner {
+    --ar: 2 / 1; /* можно заменить на 3 / 2, если нужна выше */
+    --ar-w: 2;
+    --ar-h: 1;
+  }
+}
+
+/* ---------- слайды ---------- */
 .slide {
   position: absolute;
   inset: 0;
@@ -48,9 +83,7 @@ $bg-overlay: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 55%, 
   place-items: end start;
 }
 
-.active {
-  opacity: 1;
-}
+.active { opacity: 1; }
 
 .image {
   position: absolute;
@@ -78,6 +111,7 @@ $bg-overlay: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 55%, 
   animation: captionIn 500ms ease 120ms forwards;
 }
 
+/* ---------- контролы ---------- */
 .ctrl {
   position: absolute;
   z-index: 3;
@@ -94,6 +128,7 @@ $bg-overlay: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 55%, 
   place-items: center;
   cursor: pointer;
   transition: transform 120ms ease, background 120ms ease;
+
   &:hover { background: rgba(0,0,0,0.6); transform: translateY(-50%) scale(1.04); }
   &:active { transform: translateY(-50%) scale(0.98); }
 
@@ -107,6 +142,12 @@ $bg-overlay: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 55%, 
 .prev { left: 10px; }
 .next { right: 10px; }
 
+/* Больше тач-таргеты на мобилке */
+@media (max-width: 768px) {
+  .ctrl { width: 48px; height: 48px; }
+}
+
+/* ---------- точки ---------- */
 .dots {
   position: absolute;
   z-index: 3;
@@ -131,6 +172,7 @@ $bg-overlay: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 55%, 
 
 .dotActive { background: #fff; }
 
+/* ---------- анимации + accessibility ---------- */
 @keyframes kenburns {
   from { transform: scale(1.08) translate3d(0, 0, 0); }
   to   { transform: scale(1.00) translate3d(0, 0, 0); }
@@ -139,4 +181,10 @@ $bg-overlay: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 55%, 
 @keyframes captionIn {
   from { transform: translateY(10px); opacity: 0; }
   to   { transform: translateY(0px);  opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide { transition: none; }
+  .image { animation: none; transform: none; }
+  .caption { animation: none; opacity: 1; transform: none; }
 }
