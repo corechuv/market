@@ -1,14 +1,15 @@
 // src/pages/Search/ModileSearchPage.tsx
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useId } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./MobileSearchPage.module.scss";
 import { getProducts } from "../../services/productService";
 import SearchField from "../../components/UI/SearchField";
 import Page from "../../components/UI/Page/Page";
+import SearchResultsList from "../../components/Search/SearchResultsList";
 
 type ProductLike = { id: string | number; name?: string; title?: string };
 
-export default function ModileSearchPage() {
+export default function MobileSearchPage() {
     const navigate = useNavigate();
     const [params, setParams] = useSearchParams();
     const qParam = params.get("q") ?? "";
@@ -19,20 +20,18 @@ export default function ModileSearchPage() {
     const [error, setError] = useState<string | null>(null);
 
     const inputRef = useRef<HTMLInputElement>(null);
+    const listboxId = useId(); // чтобы связать поле и список
 
-    // Фокус в поле при заходе на страницу
     useEffect(() => {
         const t = setTimeout(() => inputRef.current?.focus(), 0);
         return () => clearTimeout(t);
     }, []);
 
-    // Дебаунс: пишем q в URL и запускаем поиск
     useEffect(() => {
         const h = setTimeout(() => {
             const next = new URLSearchParams(params);
             if (query.trim()) next.set("q", query.trim());
             else next.delete("q");
-            // Не триггерим push при одинаковых значениях
             if (next.toString() !== params.toString()) setParams(next, { replace: false });
 
             void runSearch(query.trim());
@@ -41,7 +40,6 @@ export default function ModileSearchPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [query]);
 
-    // Синхронизация, если q меняют руками в адресной строке/ссылке
     useEffect(() => {
         if (qParam !== query) setQuery(qParam);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -75,16 +73,17 @@ export default function ModileSearchPage() {
     }
 
     const results = useMemo(() => {
-        // Если бэкенд не умеет search, подстрахуемся фильтром по клиенту
         const q = (query || "").trim().toLowerCase();
         if (!q) return [];
-        return items.filter((i) => (i.name ?? "").toLowerCase().includes(q));
+        return items.filter((i) => (i.name ?? "").toLowerCase().includes(q)).slice(0, 50);
     }, [items, query]);
 
     const smartBack = () => {
         if (window.history.length > 1) navigate(-1);
-        else navigate("/"); // прямой заход на /search
+        else navigate("/");
     };
+
+    const onSelect = (p: ProductLike) => navigate(`/product/${p.id}`);
 
     return (
         <Page padding={false}>
@@ -95,44 +94,32 @@ export default function ModileSearchPage() {
                     onChange={setQuery}
                     placeholder="Start typing..."
                     aria-label="Search"
-                    onEnter={() => {
-                        if (results[0]) navigate(`/product/${results[0].id}`);
-                    }}
+                    aria-controls={listboxId}                // связь с listbox
+                    aria-expanded={results.length > 0}
+                    // активного элемента в мобильном варианте нет — aria-activedescendant опускаем
+                    onEnter={() => { if (results[0]) onSelect(results[0]); }}
                     onEscape={smartBack}
                     loading={loading}
                     error={error}
                     resultsLength={results.length}
                 />
 
-                <ul className={styles.list} role="listbox" aria-label="Search results">
-                    {loading && <SkeletonRows />}
-                    {!loading &&
-                        results.map((p) => (
-                            <li
-                                key={String(p.id)}
-                                className={styles.list__item}
-                                role="option"
-                                tabIndex={0}
-                                onClick={() => navigate(`/product/${p.id}`)}
-                                onKeyDown={(e) => e.key === "Enter" && navigate(`/product/${p.id}`)}
-                            >
-                                <span className={styles.itemLabel}>{p.name}</span>
-                            </li>
-                        ))}
-                </ul>
+                <SearchResultsList
+                    items={results}
+                    getKey={(p) => String(p.id)}
+                    getLabel={(p) => String(p.name ?? p.title ?? "")}
+                    onSelect={(p) => onSelect(p)}
+                    loading={loading}
+                    role="listbox"
+                    ariaLabel="Search results"
+                    listId={listboxId}
+                    className={styles.list}
+                    itemClassName={styles.list__item}
+                    skeletonRows={6}
+                    skeletonItemClassName={styles.list__item}
+                    skeletonBarClassName={styles.skeleton}
+                />
             </div>
         </Page>
-    );
-}
-
-function SkeletonRows() {
-    return (
-        <>
-            {Array.from({ length: 6 }).map((_, i) => (
-                <li key={i} className={`${styles.list__item}`}>
-                    <span className={`${styles.skeleton}`}>&nbsp;</span>
-                </li>
-            ))}
-        </>
     );
 }

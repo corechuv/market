@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { getProducts } from "../../../services/productService";
 import c from "./SearchPanel.module.scss";
 import SearchField from "../../UI/SearchField";
+import SearchResultsList from "../../Search/SearchResultsList";
 
 export interface SearchItem {
   id: string;
@@ -139,7 +140,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
         placeholder="Start typing..."
         aria-label="Search bar"
         aria-controls={listboxId}
-        aria-expanded={results.length > 0}
+        aria-expanded={loading || results.length > 0}   // <-- учитываем загрузку
         aria-autocomplete="list"
         aria-activedescendant={
           activeIndex >= 0 ? `${listboxId}-opt-${activeIndex}` : undefined
@@ -148,34 +149,23 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
         error={loadError}
         resultsLength={results.length}
       />
-
-      {query && results.length > 0 && (
-        <ul
-          className={c.list}
-          id={listboxId}
-          role="listbox"
-          aria-label="Search results"
-          data-search="list"
-        >
-          {results.map((item, idx) => (
-            <li
-              className={c.list__item}
-              id={`${listboxId}-opt-${idx}`}
-              key={item.id}
-              role="option"
-              aria-selected={idx === activeIndex}
-              tabIndex={0}
-              data-active={idx === activeIndex || undefined}
-              onMouseEnter={() => setActiveIndex(idx)}
-              onMouseLeave={() => setActiveIndex(-1)}
-              onClick={() => onSelect(item)}
-              onKeyDown={(e) => { if (e.key === "Enter") onSelect(item); }}
-            >
-              <span data-search="item-label">{item.label}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+      <SearchResultsList
+        items={results}
+        getKey={(x) => x.id}
+        getLabel={(x) => x.label}
+        onSelect={(item) => onSelect(item)}
+        loading={loading}
+        role="listbox"
+        ariaLabel="Search results"
+        listId={listboxId}
+        className={c.list}
+        itemClassName={c.list__item}
+        skeletonRows={6}
+        skeletonItemClassName={c.list__item}
+        skeletonBarClassName={c.skeleton}
+        activeIndex={activeIndex}
+        onActiveIndexChange={setActiveIndex}
+      />
     </section>
   );
 };
