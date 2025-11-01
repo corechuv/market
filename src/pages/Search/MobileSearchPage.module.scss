@@ -1,45 +1,9 @@
+@use "../../styles/search.module.scss";
+
 .page {
     min-height: 100dvh;
     background: var(--bg);
     color: var(--text);
-}
-
-.topbar {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    display: flex;
-    gap: .75rem;
-    align-items: center;
-    padding: calc(env(safe-area-inset-top) + .5rem) 1rem .5rem;
-    background: var(--bg);
-}
-
-.meta {
-    color: var(--text-secondary);
-    font-size: .85rem;
-    padding: .25rem 1.2rem .5rem;
-}
-
-.list {
-    list-style: none;
-    margin: 0;
-    padding: .25rem 0 1rem;
-}
-
-.item {
-    padding: .75rem 1.2rem;
-    cursor: pointer;
-    background: var(--bg);
-
-    &:hover,
-    &:focus-visible {
-        background: var(--bg-hover-item);
-    }
-}
-
-.itemLabel {
-    font-size: .95rem;
 }
 
 .skeleton {

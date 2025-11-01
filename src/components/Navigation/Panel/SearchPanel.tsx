@@ -8,8 +8,9 @@ import React, {
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import { getProducts } from "../../services/productService";
+import { getProducts } from "../../../services/productService";
 import c from "./SearchPanel.module.scss";
+import SearchField from "../../UI/SearchField";
 
 export interface SearchItem {
   id: string;
@@ -130,32 +131,23 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
       onMouseLeave={onMouseLeave}
       className={c.g}
     >
-      <div className={c.g__wrp} data-search="input-wrap">
-        <input
-          className={c["g__wrp--input"]}
-          ref={inputRef}
-          type="text"
-          value={query}
-          onChange={(e) => { setQuery(e.target.value); setActiveIndex(-1); }}
-          onKeyDown={onKeyDown}
-          placeholder="Start typing..."
-          aria-label="Search bar"
-          aria-controls={listboxId}
-          aria-expanded={results.length > 0}
-          aria-autocomplete="list"
-          aria-activedescendant={
-            activeIndex >= 0 ? `${listboxId}-opt-${activeIndex}` : undefined
-          }
-        />
-      </div>
-
-      <div className={c.info} data-search="status" aria-live="polite">
-        {loading && "Loading…"}
-        {loadError && !loading && loadError}
-        {!loading && !loadError && query && results.length === 0 && "Nothing found"}
-        {!loading && !loadError && query && results.length > 0 && `${results.length} results`}
-        {!query && !loading && !loadError && "Start typing to see results"}
-      </div>
+      <SearchField
+        ref={inputRef}
+        value={query}
+        onChange={(value: string) => { setQuery(value); setActiveIndex(-1); }}
+        onKeyDown={onKeyDown}
+        placeholder="Start typing..."
+        aria-label="Search bar"
+        aria-controls={listboxId}
+        aria-expanded={results.length > 0}
+        aria-autocomplete="list"
+        aria-activedescendant={
+          activeIndex >= 0 ? `${listboxId}-opt-${activeIndex}` : undefined
+        }
+        loading={loading}
+        error={loadError}
+        resultsLength={results.length}
+      />
 
       {query && results.length > 0 && (
         <ul

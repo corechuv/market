@@ -6,11 +6,7 @@
   right: 0;
 
   /* Учитываем offset снизу + safe-area + перекрытие visualViewport (нижний тулбар/клава) */
-  bottom: calc(
-    var(--bottom-offset, 12px)
-    + env(safe-area-inset-bottom)
-    + var(--vb-offset, 0px)
-  );
+  bottom: calc(var(--bottom-offset, 12px) + env(safe-area-inset-bottom) + var(--vb-offset, 0px));
 
   display: flex;
   justify-content: center;
@@ -21,12 +17,7 @@
 
 /* Спрятать при скролле вниз — уезжаем ровно на высоту панели + все отступы */
 .hidden {
-  transform: translateY(calc(
-    var(--bar-h, 56px)
-    + var(--bottom-offset, 12px)
-    + env(safe-area-inset-bottom)
-    + var(--vb-offset, 0px)
-  ));
+  transform: translateY(calc(var(--bar-h, 56px) + var(--bottom-offset, 12px) + env(safe-area-inset-bottom) + var(--vb-offset, 0px)));
   opacity: 0.98;
 }
 
@@ -102,11 +93,18 @@
 
 /* Мобильность по ширине: на десктопе прячем по умолчанию */
 @media (min-width: 768px) {
-  .outer { display: none; }
-  .outer.forceDesktop { display: flex; }
+  .outer {
+    display: none;
+  }
+
+  .outer.forceDesktop {
+    display: flex;
+  }
 }
 
 /* Доступность: меньше анимаций при reduce motion */
 @media (prefers-reduced-motion: reduce) {
-  .outer { transition: none; }
+  .outer {
+    transition: none;
+  }
 }

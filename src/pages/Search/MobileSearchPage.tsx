@@ -87,39 +87,28 @@ export default function ModileSearchPage() {
 
     return (
         <div className={styles.page} role="search">
-            <header className={styles.topbar}>
-                <SearchField
-                    ref={inputRef}
-                    value={query}
-                    onChange={setQuery}
-                    placeholder="Start typing..."
-                    aria-label="Search"
-                    onEnter={() => {
-                        if (results[0]) navigate(`/product/${results[0].id}`);
-                    }}
-                    onEscape={smartBack}
-                />
-            </header>
+            <SearchField
+                ref={inputRef}
+                value={query}
+                onChange={setQuery}
+                placeholder="Start typing..."
+                aria-label="Search"
+                onEnter={() => {
+                    if (results[0]) navigate(`/product/${results[0].id}`);
+                }}
+                onEscape={smartBack}
+                loading={loading}
+                error={error}
+                resultsLength={results.length}
+            />
 
-            <section className={styles.meta}>
-                {query
-                    ? loading
-                        ? "Ищем…"
-                        : error
-                            ? `Ошибка: ${error}`
-                            : results.length
-                                ? `${results.length} результатов`
-                                : "Ничего не найдено"
-                    : "Начните вводить, чтобы увидеть результаты"}
-            </section>
-
-            <ul className={styles.list} role="listbox" aria-label="Результаты поиска">
+            <ul className={styles.list} role="listbox" aria-label="Search results">
                 {loading && <SkeletonRows />}
                 {!loading &&
                     results.map((p) => (
                         <li
                             key={String(p.id)}
-                            className={styles.item}
+                            className={styles.list__item}
                             role="option"
                             tabIndex={0}
                             onClick={() => navigate(`/product/${p.id}`)}
@@ -137,8 +126,8 @@ function SkeletonRows() {
     return (
         <>
             {Array.from({ length: 6 }).map((_, i) => (
-                <li key={i} className={`${styles.item}`}>
-                    <span className={`${styles.itemLabel} ${styles.skeleton}`}>&nbsp;</span>
+                <li key={i} className={`${styles.list__item}`}>
+                    <span className={`${styles.skeleton}`}>&nbsp;</span>
                 </li>
             ))}
         </>

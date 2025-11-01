@@ -9,7 +9,7 @@ import CounterBadge from "../Common/CounterBadge/CounterBadge";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 import PlayIcon from "../Icons/PlayIcon";
-import SearchPanel from "../Search/SearchPanel";
+import SearchPanel from "./Panel/SearchPanel";
 import SettingsIcon from "../Icons/SettingsIcon";
 import SettingsPanel from "./Panel/SettingsPanel";
 import { useLockBodyScroll } from "../../hooks/useLockBodyScroll";
