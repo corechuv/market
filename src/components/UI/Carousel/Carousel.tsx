@@ -1,5 +1,5 @@
 // src/components/UI/Carousel/Carousel.tsx
-import React, { useRef, useCallback, useMemo } from "react";
+import React, { useRef, useCallback } from "react";
 import cls from "./Carousel.module.scss";
 import Right from "../../Icons/ChevronLeftIcon";
 import Left from "../../Icons/ChevronRightIcon";
@@ -12,7 +12,6 @@ export type CarouselProps<T> = {
     className?: string;
     getKey?: (item: T, index: number) => string | number;
     renderItem: CarouselRenderItem<T>;
-    gap?: number | string; // CSS var override for --gap (e.g. 12, "12px", "1rem")
     controls?: {
         show?: boolean;
         prevAria?: string;
@@ -32,7 +31,6 @@ export default function Carousel<T>({
     className = "",
     getKey,
     renderItem,
-    gap = 14,
     controls = { show: true, prevAria: "Scroll left", nextAria: "Scroll right" },
 }: CarouselProps<T>) {
     const viewportRef = useRef<HTMLDivElement>(null);
@@ -80,10 +78,6 @@ export default function Carousel<T>({
         vp.scrollTo({ left: targetIndex * step, behavior: "smooth" });
     }, [computeStep]);
 
-    const viewportStyle = useMemo(() => (
-        { ["--gap" as any]: typeof gap === "number" ? `${gap}px` : gap }
-    ), [gap]);
-
     return (
         <div className={cls.container}>
             <div className={cls.container__header}>
@@ -111,7 +105,7 @@ export default function Carousel<T>({
             </div>
 
             <div className={`${cls.carousel} ${className}`.trim()}>
-                <div className={cls.trackWrapper} ref={viewportRef} style={viewportStyle}
+                <div className={cls.trackWrapper} ref={viewportRef}
                     role="region" aria-label={label || "Carousel"}>
                     <div className={cls.track} role="list">
                         {items.map((item, i) => (

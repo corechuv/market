@@ -75,8 +75,6 @@ $bp-lg: 1024px;
     display: none;
   }
 
-  /* First declare defaults */
-  --gap: 14px;
   --visible: 2;
   /* <768 — 2 */
 
@@ -95,13 +93,13 @@ $bp-lg: 1024px;
 
 .track {
   display: flex;
-  gap: var(--gap, 14px);
+  gap: var(--gap);
 }
 
 /* Slot width = 100% row / --visible (with gap accounted) */
 .itemWrap {
   flex: 0 0 auto;
-  width: calc((100% - (var(--gap, 14px) * (var(--visible) - 1))) / var(--visible));
+  width: calc((100% - (var(--gap) * (var(--visible) - 1))) / var(--visible));
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }

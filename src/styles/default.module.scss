@@ -2,6 +2,10 @@
 :root {
     --gap: 14px;
 
+    @media (max-width: 768px) {
+        --gap: 10px;
+    }
+
     // NAvigation
     --nav-vw: 60px;
 }
