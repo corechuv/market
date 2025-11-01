@@ -8,6 +8,7 @@ import { getSearchStatus, type SearchStatusMessages } from "../../utils/searchSt
 export interface SearchFieldProps
     extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value"> {
     value: string;
+    backgroundColor?: string;
     onChange: (value: string) => void;
     /** Вызывается по Enter */
     onEnter?: () => void;
@@ -28,6 +29,7 @@ export interface SearchFieldProps
 const SearchField = React.forwardRef<HTMLInputElement, SearchFieldProps>(
     (
         {
+            backgroundColor = "var(--bg)",
             value,
             onChange,
             onEnter,
@@ -71,7 +73,7 @@ const SearchField = React.forwardRef<HTMLInputElement, SearchFieldProps>(
                 });
 
         return (
-            <div className={c.topbar}>
+            <div className={c.topbar} style={{backgroundColor: backgroundColor}}>
                 <div className={c.topbar__panel}>
                     <SearchIcon className={c["topbar__panel--icon"]} />
                     <input

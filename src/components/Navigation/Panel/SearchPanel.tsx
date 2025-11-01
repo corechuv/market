@@ -135,6 +135,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
       <SearchField
         ref={inputRef}
         value={query}
+        backgroundColor="var(--n-bg-desktop)"
         onChange={(value: string) => { setQuery(value); setActiveIndex(-1); }}
         onKeyDown={onKeyDown}
         placeholder="Start typing..."
