@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { listMyReels, posterFromMediaUrl } from "../../services/reviewApi";
 import type { ReviewOut } from "../../types/review/review";
 import ReelsLightbox from "../../components/Videos/ReelsLightbox";
+import Page from "../../components/UI/Page/Page";
 
 type Item = { review: ReviewOut; url: string; poster?: string };
 
@@ -41,10 +42,12 @@ export default function MyVideosPage() {
   if (!items.length) return null;
 
   return (
-    <ReelsLightbox
-      items={items}
-      startIndex={0}
-      onClose={() => nav(-1)}
-    />
+    <Page>
+      <ReelsLightbox
+        items={items}
+        startIndex={0}
+        onClose={() => nav(-1)}
+      />
+    </Page>
   );
 }

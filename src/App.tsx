@@ -2,7 +2,6 @@ import "react";
 import "./App.css";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Home from "./pages/Home/Home";
-import WishlistPage from "./pages/Wishlist/WishlistPage";
 import SearchPage from "./pages/Search/SearchPage";
 import ProductsPage from "./pages/Product/ProductsPage";
 import ProductPage from "./pages/Product/ProductPage";
@@ -59,7 +58,6 @@ export default function App() {
         <Routes>
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
-            <Route path="/wishlist" element={<WishlistPage />} />
 
             <Route path="/search" element={<SearchPage />} />
             <Route path="/s" element={<MobileSearchPage />} />

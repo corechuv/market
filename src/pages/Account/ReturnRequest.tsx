@@ -16,6 +16,7 @@ import type { Currency } from "../../types/currency";
 
 import api from "../../lib/api";
 import type { Totals } from "../../types/order";
+import Page from "../../components/UI/Page/Page";
 
 /* ========= локальные типы/константы под UI причин ========= */
 type ReturnKind = "withdrawal" | "defect"; // mixed не нужен фронту
@@ -337,31 +338,35 @@ export default function ReturnRequestPage() {
   // если заказа нет — заглушка
   if (loading) {
     return (
-      <PageLayout title="Return request" onBack={() => navigate(-1)}>
-        <div className={styles.card}>
-          <div className={styles.loadingWrap}>Loading…</div>
-        </div>
-      </PageLayout>
+      <Page>
+        <PageLayout title="Return request" onBack={() => navigate(-1)}>
+          <div className={styles.card}>
+            <div className={styles.loadingWrap}>Loading…</div>
+          </div>
+        </PageLayout>
+      </Page>
     );
   }
 
   if (!order || loadErr) {
     return (
-      <PageLayout title="Order not found" onBack={() => navigate(-1)}>
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <h2 className={styles.titlePage}>Order not found</h2>
-            <p className={styles.muted}>
-              {loadErr || 'Open your order and click "Return" to submit your request.'}
-            </p>
+      <Page>
+        <PageLayout title="Order not found" onBack={() => navigate(-1)}>
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h2 className={styles.titlePage}>Order not found</h2>
+              <p className={styles.muted}>
+                {loadErr || 'Open your order and click "Return" to submit your request.'}
+              </p>
+            </div>
+            <div className={styles.formActions}>
+              <Button variant="secondary" size="small" onClick={() => navigate("/account?tab=orders")}>
+                To orders
+              </Button>
+            </div>
           </div>
-          <div className={styles.formActions}>
-            <Button variant="secondary" size="small" onClick={() => navigate("/account?tab=orders")}>
-              To orders
-            </Button>
-          </div>
-        </div>
-      </PageLayout>
+        </PageLayout>
+      </Page>
     );
   }
 
@@ -371,220 +376,222 @@ export default function ReturnRequestPage() {
   ];
 
   return (
-    <PageLayout title="Return request" onBack={() => navigate(-1)}>
-      <div className={styles.card}>
-        <div className={styles.cardHeader}>
-          <p className={styles.muted}>
-            {RETURN_WINDOW_DAYS}-дневное право на отказ (Widerrufsrecht) действует с даты получения.
-            По дефектам — законная гарантия (Gewährleistung) до 2 лет.
-          </p>
-        </div>
+    <Page>
+      <PageLayout title="Return request" onBack={() => navigate(-1)}>
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <p className={styles.muted}>
+              {RETURN_WINDOW_DAYS}-дневное право на отказ (Widerrufsrecht) действует с даты получения.
+              По дефектам — законная гарантия (Gewährleistung) до 2 лет.
+            </p>
+          </div>
 
-        <div className={styles.form}>
-          <DefinitionList items={orderDetails} compact={true} />
+          <div className={styles.form}>
+            <DefinitionList items={orderDetails} compact={true} />
 
-          <div className={styles.stack}>
-            {/* Товары */}
-            <div>
-              <h3>Товары</h3>
-              <section className={cls.section}>
-                {order.items.map((it) => {
-                  const ordered = it.qty || 0;
-                  const alreadyReserved = reservedQtyByOrderItemId.get(it.orderItemId) || 0;
-                  const itemFormLines = lines.filter((l) => l.orderItemId === it.orderItemId);
-                  const selectedForItem = itemFormLines.reduce((s, l) => s + (l.qty || 0), 0);
-                  const leftGlobal = Math.max(0, ordered - alreadyReserved);
-                  const remainingForItem = Math.max(0, leftGlobal - selectedForItem);
+            <div className={styles.stack}>
+              {/* Товары */}
+              <div>
+                <h3>Товары</h3>
+                <section className={cls.section}>
+                  {order.items.map((it) => {
+                    const ordered = it.qty || 0;
+                    const alreadyReserved = reservedQtyByOrderItemId.get(it.orderItemId) || 0;
+                    const itemFormLines = lines.filter((l) => l.orderItemId === it.orderItemId);
+                    const selectedForItem = itemFormLines.reduce((s, l) => s + (l.qty || 0), 0);
+                    const leftGlobal = Math.max(0, ordered - alreadyReserved);
+                    const remainingForItem = Math.max(0, leftGlobal - selectedForItem);
 
-                  if (leftGlobal === 0) {
+                    if (leftGlobal === 0) {
+                      return (
+                        <article key={it.orderItemId} className={styles.orderCard}>
+                          <div className={styles.orderBody}>
+                            <div className={styles.orderMeta}>
+                              {it.imageUrl && (
+                                <img
+                                  src={it.imageUrl}
+                                  alt={it.name}
+                                  className={styles.orderThumb}
+                                  loading="lazy"
+                                />
+                              )}
+                              <div className={styles.orderTitles}>{it.name}</div>
+                              <div className={styles.muted}>
+                                SKU: {it.sku} • Доступно к возврату: ×0
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    }
+
                     return (
-                      <article key={it.orderItemId} className={styles.orderCard}>
-                        <div className={styles.orderBody}>
-                          <div className={styles.orderMeta}>
-                            {it.imageUrl && (
-                              <img
-                                src={it.imageUrl}
-                                alt={it.name}
-                                className={styles.orderThumb}
-                                loading="lazy"
-                              />
-                            )}
-                            <div className={styles.orderTitles}>{it.name}</div>
-                            <div className={styles.muted}>
-                              SKU: {it.sku} • Доступно к возврату: ×0
+                      <article key={it.orderItemId} className={cls.section__article}>
+                        <div className={cls.item}>
+                          {it.imageUrl && (
+                            <img src={it.imageUrl} alt={it.name} loading="lazy" className={cls.item__thumb} />
+                          )}
+                          <div>
+                            <div className="mini-item__title">{it.name}</div>
+                            <div className="mini-item__sku">SKU: {it.sku}</div>
+                            <div className="mini-item__sku">В заказе: ×{ordered}</div>
+                            <div className="mini-item__sku">
+                              Уже в возвратах: ×{alreadyReserved} • Доступно: ×{leftGlobal}
+                            </div>
+                            <div className={cls.column}>
+                              {/* строки формы по этой строке заказа */}
+                              {itemFormLines.map((line) => {
+                                const selectedOther = selectedForItem - (line.qty || 0);
+                                const maxForThisLine = Math.max(0, ordered - alreadyReserved - selectedOther);
+
+                                const clampedQty = Math.min(line.qty || 0, maxForThisLine);
+                                const active = clampedQty > 0;
+
+                                return (
+                                  <div key={line.lineId} className={cls.form}>
+                                    <div className={cls.form__header}>
+                                      <h4 className={cls["form__header--title"]}>
+                                        {active ? "Строка к возврату" : "Добавить к возврату"}
+                                      </h4>
+                                      <div className={cls["form__header--actions"]}>
+                                        <CloseIcon onClick={() => removeLine(line.lineId)} />
+                                      </div>
+                                    </div>
+
+                                    {/* Количество */}
+                                    <div className="form__row">
+                                      <div>
+                                        <QtyStepper
+                                          value={clampedQty}
+                                          max={maxForThisLine}
+                                          min={0}
+                                          onChange={(q) => updateLine(line.lineId, { qty: q })}
+                                          ariaLabel={`Количество к возврату для SKU ${it.sku}`}
+                                          size="sm"
+                                        />
+                                      </div>
+                                    </div>
+
+                                    {/* Остальные поля показываем только если позиция активна */}
+                                    {active && (
+                                      <>
+                                        <div className="form__row">
+                                          <SelectField
+                                            value={line.kind}
+                                            label="Тип"
+                                            onChange={(v) => {
+                                              const nextKind = v as ReturnKind;
+                                              const nextReason = fitReasonToKind(nextKind, line.reason);
+                                              updateLine(line.lineId, { kind: nextKind, reason: nextReason });
+                                            }}
+                                            options={[
+                                              { value: "withdrawal", label: "Widerruf (14 дней)" },
+                                              { value: "defect", label: "Дефект (Gewährleistung)" },
+                                            ]}
+                                          />
+                                          <SelectField
+                                            value={line.reason}
+                                            label="Причина"
+                                            onChange={(v) =>
+                                              updateLine(line.lineId, {
+                                                reason: fitReasonToKind(line.kind, v as ReturnReason),
+                                              })
+                                            }
+                                            options={REASONS_BY_KIND[line.kind].map((value) => ({
+                                              value,
+                                              label: RETURN_REASONS[value],
+                                            }))}
+                                          />
+                                        </div>
+
+                                        <UploadField
+                                          label="Фото/доказательства (опционально)"
+                                          multiple
+                                          accept="image/*"
+                                          maxFiles={10}
+                                          maxSizeMb={8}
+                                          thumbSize={56}
+                                          disabled={submitting}
+                                          value={Array.isArray(line.photos) ? line.photos : []}
+                                          onChange={({ dataUrls }) => {
+                                            updateLine(line.lineId, { photos: dataUrls });
+                                          }}
+                                          hint="Можно перетащить сюда файлы"
+                                          showCount="auto"
+                                        />
+
+                                        <TextareaField
+                                          label="Комментарий к строке (опционально)"
+                                          maxLength={500}
+                                          resizable="none"
+                                          value={line.note || ""}
+                                          onChange={(e) => updateLine(line.lineId, { note: e.target.value })}
+                                        />
+                                      </>
+                                    )}
+                                  </div>
+                                );
+                              })}
+
+                              {/* Добавить ещё причину — только если текущие строки активированы */}
+                              {(() => {
+                                const canAddAnotherReason =
+                                  remainingForItem > 0 && itemFormLines.every((l) => (l.qty || 0) > 0);
+                                return canAddAnotherReason;
+                              })() && (
+                                  <div className={styles.orderActions}>
+                                    <Button
+                                      size="small"
+                                      variant="secondary"
+                                      onClick={() => addLineForOrderItem(it)}
+                                      disabled={submitting}
+                                    >
+                                      Добавить ещё причину
+                                    </Button>
+                                  </div>
+                                )}
                             </div>
                           </div>
                         </div>
                       </article>
                     );
-                  }
-
-                  return (
-                    <article key={it.orderItemId} className={cls.section__article}>
-                      <div className={cls.item}>
-                        {it.imageUrl && (
-                          <img src={it.imageUrl} alt={it.name} loading="lazy" className={cls.item__thumb} />
-                        )}
-                        <div>
-                          <div className="mini-item__title">{it.name}</div>
-                          <div className="mini-item__sku">SKU: {it.sku}</div>
-                          <div className="mini-item__sku">В заказе: ×{ordered}</div>
-                          <div className="mini-item__sku">
-                            Уже в возвратах: ×{alreadyReserved} • Доступно: ×{leftGlobal}
-                          </div>
-                          <div className={cls.column}>
-                            {/* строки формы по этой строке заказа */}
-                            {itemFormLines.map((line) => {
-                              const selectedOther = selectedForItem - (line.qty || 0);
-                              const maxForThisLine = Math.max(0, ordered - alreadyReserved - selectedOther);
-
-                              const clampedQty = Math.min(line.qty || 0, maxForThisLine);
-                              const active = clampedQty > 0;
-
-                              return (
-                                <div key={line.lineId} className={cls.form}>
-                                  <div className={cls.form__header}>
-                                    <h4 className={cls["form__header--title"]}>
-                                      {active ? "Строка к возврату" : "Добавить к возврату"}
-                                    </h4>
-                                    <div className={cls["form__header--actions"]}>
-                                      <CloseIcon onClick={() => removeLine(line.lineId)} />
-                                    </div>
-                                  </div>
-
-                                  {/* Количество */}
-                                  <div className="form__row">
-                                    <div>
-                                      <QtyStepper
-                                        value={clampedQty}
-                                        max={maxForThisLine}
-                                        min={0}
-                                        onChange={(q) => updateLine(line.lineId, { qty: q })}
-                                        ariaLabel={`Количество к возврату для SKU ${it.sku}`}
-                                        size="sm"
-                                      />
-                                    </div>
-                                  </div>
-
-                                  {/* Остальные поля показываем только если позиция активна */}
-                                  {active && (
-                                    <>
-                                      <div className="form__row">
-                                        <SelectField
-                                          value={line.kind}
-                                          label="Тип"
-                                          onChange={(v) => {
-                                            const nextKind = v as ReturnKind;
-                                            const nextReason = fitReasonToKind(nextKind, line.reason);
-                                            updateLine(line.lineId, { kind: nextKind, reason: nextReason });
-                                          }}
-                                          options={[
-                                            { value: "withdrawal", label: "Widerruf (14 дней)" },
-                                            { value: "defect", label: "Дефект (Gewährleistung)" },
-                                          ]}
-                                        />
-                                        <SelectField
-                                          value={line.reason}
-                                          label="Причина"
-                                          onChange={(v) =>
-                                            updateLine(line.lineId, {
-                                              reason: fitReasonToKind(line.kind, v as ReturnReason),
-                                            })
-                                          }
-                                          options={REASONS_BY_KIND[line.kind].map((value) => ({
-                                            value,
-                                            label: RETURN_REASONS[value],
-                                          }))}
-                                        />
-                                      </div>
-
-                                      <UploadField
-                                        label="Фото/доказательства (опционально)"
-                                        multiple
-                                        accept="image/*"
-                                        maxFiles={10}
-                                        maxSizeMb={8}
-                                        thumbSize={56}
-                                        disabled={submitting}
-                                        value={Array.isArray(line.photos) ? line.photos : []}
-                                        onChange={({ dataUrls }) => {
-                                          updateLine(line.lineId, { photos: dataUrls });
-                                        }}
-                                        hint="Можно перетащить сюда файлы"
-                                        showCount="auto"
-                                      />
-
-                                      <TextareaField
-                                        label="Комментарий к строке (опционально)"
-                                        maxLength={500}
-                                        resizable="none"
-                                        value={line.note || ""}
-                                        onChange={(e) => updateLine(line.lineId, { note: e.target.value })}
-                                      />
-                                    </>
-                                  )}
-                                </div>
-                              );
-                            })}
-
-                            {/* Добавить ещё причину — только если текущие строки активированы */}
-                            {(() => {
-                              const canAddAnotherReason =
-                                remainingForItem > 0 && itemFormLines.every((l) => (l.qty || 0) > 0);
-                              return canAddAnotherReason;
-                            })() && (
-                              <div className={styles.orderActions}>
-                                <Button
-                                  size="small"
-                                  variant="secondary"
-                                  onClick={() => addLineForOrderItem(it)}
-                                  disabled={submitting}
-                                >
-                                  Добавить ещё причину
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })}
-              </section>
-            </div>
-
-            <TextareaField
-              label="Примечание к заявке (опционально)"
-              maxLength={200}
-              resizable="none"
-              value={customerNote}
-              onChange={(e) => setCustomerNote(e.target.value)}
-            />
-
-            {/* Итого */}
-            <div className={styles.addrBody}>
-              <div>
-                <span className={styles.muted}>Сумма товаров к возврату:</span>{" "}
-                {formatMoney(sumCents, currency)}
+                  })}
+                </section>
               </div>
-              <div className={styles.muted}>
-                При полном отказе от заказа продавец возвращает стоимость стандартной доставки (если она
-                была платной). Экспресс доставка не возвращаются.
-              </div>
-            </div>
 
-            <div className={styles.formActions}>
-              <Button variant="primary" size="small" onClick={submit} disabled={submitting}>
-                {submitting ? "Отправка…" : "Отправить запрос"}
-              </Button>
-              <Button variant="secondary" size="small" onClick={() => navigate(-1)} disabled={submitting}>
-                Отмена
-              </Button>
+              <TextareaField
+                label="Примечание к заявке (опционально)"
+                maxLength={200}
+                resizable="none"
+                value={customerNote}
+                onChange={(e) => setCustomerNote(e.target.value)}
+              />
+
+              {/* Итого */}
+              <div className={styles.addrBody}>
+                <div>
+                  <span className={styles.muted}>Сумма товаров к возврату:</span>{" "}
+                  {formatMoney(sumCents, currency)}
+                </div>
+                <div className={styles.muted}>
+                  При полном отказе от заказа продавец возвращает стоимость стандартной доставки (если она
+                  была платной). Экспресс доставка не возвращаются.
+                </div>
+              </div>
+
+              <div className={styles.formActions}>
+                <Button variant="primary" size="small" onClick={submit} disabled={submitting}>
+                  {submitting ? "Отправка…" : "Отправить запрос"}
+                </Button>
+                <Button variant="secondary" size="small" onClick={() => navigate(-1)} disabled={submitting}>
+                  Отмена
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </PageLayout>
+      </PageLayout>
+    </Page>
   );
 }
 
@@ -599,18 +606,18 @@ function normalizeOrder(raw: any): OrderDto {
     currency: raw?.currency ?? null,
     items: Array.isArray(raw?.items)
       ? raw.items.map((it: any) => ({
-          orderItemId: it?.id ?? it?.orderItemId ?? it?.itemId ?? it?.order_item_id, // важно
-          sku: it?.sku,
-          name: it?.name,
-          qty: it?.qty ?? it?.quantity ?? 0,
-          priceCents: it?.priceCents ?? it?.price ?? 0,
-          imageUrl:
-            it?.imageUrl ??
-            it?.image ??
-            (Array.isArray(it?.images) ? it.images[0] : undefined) ??
-            it?.thumb ??
-            null,
-        }))
+        orderItemId: it?.id ?? it?.orderItemId ?? it?.itemId ?? it?.order_item_id, // важно
+        sku: it?.sku,
+        name: it?.name,
+        qty: it?.qty ?? it?.quantity ?? 0,
+        priceCents: it?.priceCents ?? it?.price ?? 0,
+        imageUrl:
+          it?.imageUrl ??
+          it?.image ??
+          (Array.isArray(it?.images) ? it.images[0] : undefined) ??
+          it?.thumb ??
+          null,
+      }))
       : [],
   };
 }

@@ -4,6 +4,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { listReelsFeed, posterFromMediaUrl, getReviewById } from "../services/reviewApi";
 import type { ReviewOut } from "../types/review/review";
 import ReelsLightbox from "../components/Videos/ReelsLightbox";
+import Page from "../components/UI/Page/Page";
 
 type Item = { review: ReviewOut; url: string; poster?: string };
 const mapToItem = (r: ReviewOut): Item | null => {
@@ -110,11 +111,13 @@ export default function ReelsPage() {
   const startIndex = 0;
 
   return (
-    <ReelsLightbox
-      items={items}
-      startIndex={startIndex}
-      onClose={() => nav(-1)}
-      onIndexChange={onIndexChange}
-    />
+    <Page>
+      <ReelsLightbox
+        items={items}
+        startIndex={startIndex}
+        onClose={() => nav(-1)}
+        onIndexChange={onIndexChange}
+      />
+    </Page>
   );
 }

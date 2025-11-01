@@ -1,9 +1,11 @@
 import "react"
-
-import ProductsMain from "../../components/Product/ProductsMain";
+import Page from "../../components/UI/Page/Page"
+import ProductsMain from "../../components/Product/ProductsMain"
 
 export default function ProductsPage() {
   return (
-    <ProductsMain />
+    <Page>
+      <ProductsMain />
+    </Page>
   );
 };

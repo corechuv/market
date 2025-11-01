@@ -9,6 +9,7 @@ import DefinitionList from "../../components/UI/DefinitionList";
 import Accordion from "../../components/UI/Accordion";
 import api from "../../lib/api";
 import type { Totals } from "../../types/order";
+import Page from "../../components/UI/Page/Page";
 
 function classNames(...xs: Array<string | false | undefined | null>) {
     return xs.filter(Boolean).join(" ");
@@ -249,271 +250,273 @@ export default function OrderDetails() {
 
 
     return (
-        <PageLayout title="Order" onBack={() => nav(backTo)}>
-            <div style={{ display: "flex", gap: 40, flexDirection: "column" }}>
-                {loading && <div className={styles.muted}>Loading…</div>}
-                {err && <div className={styles.error} role="alert">{err}</div>}
+        <Page>
+            <PageLayout title="Order" onBack={() => nav(backTo)}>
+                <div style={{ display: "flex", gap: 40, flexDirection: "column" }}>
+                    {loading && <div className={styles.muted}>Loading…</div>}
+                    {err && <div className={styles.error} role="alert">{err}</div>}
 
-                {!loading && !err && data && (
-                    <div className={styles.stack}>
-                        {/* Статус (если нужна цветовая подсветка — подхватываем через cls.*) */}
-                        <div style={{ display: "none" }}>
-                            <span className={styles.muted}>Status:</span>{" "}
-                            <span
-                                className={classNames(
-                                    cls.badge,
-                                    cls[(data.status || "new").toLowerCase() as keyof typeof cls]
-                                )}
-                            >
-                                {data.status || "—"}
-                            </span>
-                        </div>
-
-                        {/* Общие детали */}
-                        <section>
-                            <DefinitionList items={orderDetails} compact />
-                        </section>
-
-                        {/* Трекинг */}
-                        <section>
-                            <h3>Tracking info</h3>
-                            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                                {(shipments?.length ?? 0) === 0 && (
-                                    <div className={styles.muted}>No tracking numbers yet.</div>
-                                )}
-
-                                {shipments.flatMap((sh, si) => {
-                                    const pkgs = (sh?.packages && sh.packages.length > 0)
-                                        ? sh.packages
-                                        : [{ seq: 1, tracking: sh?.masterTracking, status: sh?.status }];
-
-                                    return pkgs.map((p, pi) => (
-                                        <Accordion
-                                            key={`${si}-${pi}`}
-                                            title={p.tracking || sh.masterTracking || `Package #${p.seq}`}
-                                            margin={false}
-                                        >
-                                            <div className={styles.stack} style={{ gap: 6 }}>
-                                                <div className={styles.muted}>Status: {p.status || sh.status || "—"}</div>
-                                                {!!p.labelUrl && (
-                                                    <a href={p.labelUrl} target="_blank" rel="noreferrer">Label PDF</a>
-                                                )}
-                                                {(sh.carrierCode || sh.serviceCode) && (
-                                                    <div>
-                                                        Carrier: {sh.carrierCode || "—"}{sh.serviceCode ? ` • ${sh.serviceCode}` : ""}
-                                                    </div>
-                                                )}
-                                                {/* при желании — сюда можно добавить таймлайн событий */}
-                                            </div>
-                                        </Accordion>
-                                    ));
-                                })}
+                    {!loading && !err && data && (
+                        <div className={styles.stack}>
+                            {/* Статус (если нужна цветовая подсветка — подхватываем через cls.*) */}
+                            <div style={{ display: "none" }}>
+                                <span className={styles.muted}>Status:</span>{" "}
+                                <span
+                                    className={classNames(
+                                        cls.badge,
+                                        cls[(data.status || "new").toLowerCase() as keyof typeof cls]
+                                    )}
+                                >
+                                    {data.status || "—"}
+                                </span>
                             </div>
-                        </section>
 
-                        {/* Товары */}
-                        <section>
-                            <h3>Products</h3>
-                            <div className="summary__mini">
-                                {data.items.map((it, idx) => (
-                                    <div key={`${it.sku}-${idx}`} className="mini-item">
-                                        {it.imageUrl ? (
-                                            <img src={it.imageUrl} alt={it.name} />
-                                        ) : (
-                                            <div className="mini-item__noimg" />
-                                        )}
-                                        <div>
+                            {/* Общие детали */}
+                            <section>
+                                <DefinitionList items={orderDetails} compact />
+                            </section>
+
+                            {/* Трекинг */}
+                            <section>
+                                <h3>Tracking info</h3>
+                                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                                    {(shipments?.length ?? 0) === 0 && (
+                                        <div className={styles.muted}>No tracking numbers yet.</div>
+                                    )}
+
+                                    {shipments.flatMap((sh, si) => {
+                                        const pkgs = (sh?.packages && sh.packages.length > 0)
+                                            ? sh.packages
+                                            : [{ seq: 1, tracking: sh?.masterTracking, status: sh?.status }];
+
+                                        return pkgs.map((p, pi) => (
+                                            <Accordion
+                                                key={`${si}-${pi}`}
+                                                title={p.tracking || sh.masterTracking || `Package #${p.seq}`}
+                                                margin={false}
+                                            >
+                                                <div className={styles.stack} style={{ gap: 6 }}>
+                                                    <div className={styles.muted}>Status: {p.status || sh.status || "—"}</div>
+                                                    {!!p.labelUrl && (
+                                                        <a href={p.labelUrl} target="_blank" rel="noreferrer">Label PDF</a>
+                                                    )}
+                                                    {(sh.carrierCode || sh.serviceCode) && (
+                                                        <div>
+                                                            Carrier: {sh.carrierCode || "—"}{sh.serviceCode ? ` • ${sh.serviceCode}` : ""}
+                                                        </div>
+                                                    )}
+                                                    {/* при желании — сюда можно добавить таймлайн событий */}
+                                                </div>
+                                            </Accordion>
+                                        ));
+                                    })}
+                                </div>
+                            </section>
+
+                            {/* Товары */}
+                            <section>
+                                <h3>Products</h3>
+                                <div className="summary__mini">
+                                    {data.items.map((it, idx) => (
+                                        <div key={`${it.sku}-${idx}`} className="mini-item">
+                                            {it.imageUrl ? (
+                                                <img src={it.imageUrl} alt={it.name} />
+                                            ) : (
+                                                <div className="mini-item__noimg" />
+                                            )}
                                             <div>
-                                                <div className="mini-item__title">{it.name}</div>
-                                                <div className="mini-item__sku">{it.sku}</div>
-                                                <div className="muted">x{it.qty}</div>
+                                                <div>
+                                                    <div className="mini-item__title">{it.name}</div>
+                                                    <div className="mini-item__sku">{it.sku}</div>
+                                                    <div className="muted">x{it.qty}</div>
+                                                </div>
+                                            </div>
+                                            <div className="mini-item__price">
+                                                {fmtMoney((it.priceCents || 0) * (it.qty || 0), it.currency)}
                                             </div>
                                         </div>
-                                        <div className="mini-item__price">
-                                            {fmtMoney((it.priceCents || 0) * (it.qty || 0), it.currency)}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-
-                        {/* Адрес доставки */}
-                        <section>
-                            <h3>Delivery address</h3>
-                            <div className={styles.addrBody}>
-                                <div>{data.addresses.delivery.firstName} {data.addresses.delivery.lastName}</div>
-                                {data.addresses.delivery.company && <div>{data.addresses.delivery.company}</div>}
-                                <div>{data.addresses.delivery.line1}</div>
-                                {data.addresses.delivery.line2 && <div>{data.addresses.delivery.line2}</div>}
-                                <div>
-                                    {data.addresses.delivery.postalCode} {data.addresses.delivery.city}
-                                    {data.addresses.delivery.region ? `, ${data.addresses.delivery.region}` : ""}
+                                    ))}
                                 </div>
-                                <div>{data.addresses.delivery.country}</div>
-                                {data.addresses.delivery.phone && (
-                                    <div className={styles.muted}>{data.addresses.delivery.phone}</div>
-                                )}
-                            </div>
-                        </section>
+                            </section>
 
-                        {/* Оплата */}
-                        <section>
-                            <h3>Payment info</h3>
-                            <ul className="summary__list">
-                                <li>
-                                    <span>Method</span>
-                                    <span>{firstPayment?.provider || "—"}</span>
-                                </li>
-                                <li>
-                                    <span>{isFinal(firstPayment?.status) ? "Paid" : "Amount"}</span>
-                                    <span>
-                                        {firstPayment
-                                            ? fmtMoney(firstPayment.amountCents || 0, firstPayment.currency || data.totals.currency)
-                                            : fmtMoney(0, data.totals.currency)}
-                                    </span>
-                                </li>
-                                {/* --- Bank transfer instructions (только если это офлайн и еще не финализировано) --- */}
-                                {firstPayment?.bank && !isFinal(firstPayment?.status) && (
-                                    <div className={styles.stack} style={{ gap: 8, marginTop: 8 }}>
-                                        <h4 style={{ margin: 0 }}>Bank transfer (prepayment)</h4>
-                                        {firstPayment.instructions && (
-                                            <div className={styles.muted}>{firstPayment.instructions}</div>
-                                        )}
-                                        <ul className="summary__list">
-                                            <li>
-                                                <span>Beneficiary</span>
-                                                <span>{firstPayment.bank?.beneficiary || "—"}</span>
-                                            </li>
-                                            <li>
-                                                <span>IBAN</span>
-                                                <span><code>{firstPayment.bank?.iban || "—"}</code></span>
-                                            </li>
-                                            <li>
-                                                <span>BIC</span>
-                                                <span><code>{firstPayment.bank?.bic || "—"}</code></span>
-                                            </li>
-                                            {firstPayment.bank?.bank && (
-                                                <li>
-                                                    <span>Bank</span>
-                                                    <span>{firstPayment.bank.bank}</span>
-                                                </li>
-                                            )}
-                                            {firstPayment.dueDate && (
-                                                <li>
-                                                    <span>Due date</span>
-                                                    <span>{new Date(firstPayment.dueDate).toLocaleDateString()}</span>
-                                                </li>
-                                            )}
-                                        </ul>
+                            {/* Адрес доставки */}
+                            <section>
+                                <h3>Delivery address</h3>
+                                <div className={styles.addrBody}>
+                                    <div>{data.addresses.delivery.firstName} {data.addresses.delivery.lastName}</div>
+                                    {data.addresses.delivery.company && <div>{data.addresses.delivery.company}</div>}
+                                    <div>{data.addresses.delivery.line1}</div>
+                                    {data.addresses.delivery.line2 && <div>{data.addresses.delivery.line2}</div>}
+                                    <div>
+                                        {data.addresses.delivery.postalCode} {data.addresses.delivery.city}
+                                        {data.addresses.delivery.region ? `, ${data.addresses.delivery.region}` : ""}
                                     </div>
-                                )}
-                                {!!firstPayment?.approvalUrl && (
+                                    <div>{data.addresses.delivery.country}</div>
+                                    {data.addresses.delivery.phone && (
+                                        <div className={styles.muted}>{data.addresses.delivery.phone}</div>
+                                    )}
+                                </div>
+                            </section>
+
+                            {/* Оплата */}
+                            <section>
+                                <h3>Payment info</h3>
+                                <ul className="summary__list">
                                     <li>
-                                        <span>Approve</span>
-                                        <a href={firstPayment.approvalUrl} target="_blank" rel="noreferrer">Open</a>
+                                        <span>Method</span>
+                                        <span>{firstPayment?.provider || "—"}</span>
                                     </li>
-                                )}
-                            </ul>
-                        </section>
-
-                        {/* Сумма */}
-                        <section>
-                            <h3>Summary</h3>
-                            <ul className="summary__list">
-                                <li>
-                                    <span>Products</span>
-                                    <span>{fmtMoney(data.totals.subtotalCents, data.totals.currency)}</span>
-                                </li>
-                                <li>
-                                    <span>Delivery {data.shippingMethod ? `(${data.shippingMethod})` : ""}</span>
-                                    <span>{fmtMoney(data.totals.shippingCents, data.totals.currency)}</span>
-                                </li>
-                                {data.totals.discountCents > 0 && (
-                                    <li className="good">
-                                        <span>Discount</span>
-                                        <span>-{fmtMoney(data.totals.discountCents, data.totals.currency)}</span>
+                                    <li>
+                                        <span>{isFinal(firstPayment?.status) ? "Paid" : "Amount"}</span>
+                                        <span>
+                                            {firstPayment
+                                                ? fmtMoney(firstPayment.amountCents || 0, firstPayment.currency || data.totals.currency)
+                                                : fmtMoney(0, data.totals.currency)}
+                                        </span>
                                     </li>
-                                )}
-                                <li>
-                                    <span>Including VAT</span>
-                                    <span>{fmtMoney(data.totals.vatCents, data.totals.currency)}</span>
-                                </li>
-                                <li className="sum">
-                                    <span>Total</span>
-                                    <span>{fmtMoney(data.totals.totalCents, data.totals.currency)}</span>
-                                </li>
-                            </ul>
-                        </section>
-
-                        <section>
-                            <h3>Invoice</h3>
-
-                            {invFromPayment ? (
-                                <div className={styles.stack} style={{ gap: 8 }}>
-                                    <div className={styles.muted}>
-                                        № {invFromPayment.number || "—"}
-                                        {invFromPayment.dueDate ? ` • due ${new Date(invFromPayment.dueDate).toLocaleDateString()}` : ""}
-                                    </div>
-                                    <div className={styles.orderActions}>
-                                        <Button size="small"
-                                            onClick={async () => {
-                                                // если API дал прямой URL — открываем им; иначе падаем на прежний механизм
-                                                const url = invFromPayment.pdfUrl || (invoice?.id ? `/invoices/${invoice.id}/pdf` : "");
-                                                if (!url) {
-                                                    // нет прямого URL — попробуем существующий флоу (создать/загрузить)
-                                                    await handleInvoiceClick();
-                                                } else {
-                                                    await openPdfByBlob(url);
-                                                }
-                                            }}
-                                            disabled={invLoading}
-                                        >
-                                            {invLoading ? "Opening…" : "Open PDF"}
-                                        </Button>
-                                    </div>
-                                </div>
-                            ) : (
-                                // старый флоу: если инвойс уже подгружен отдельным вызовом — показываем,
-                                // иначе: если заказ оплачен — кнопка "Issue & Open PDF", если нет — "Invoice unavailable"
-                                <>
-                                    {invoice ? (
-                                        <div className={styles.stack} style={{ gap: 8 }}>
-                                            <div className={styles.muted}>
-                                                № {invoice.number} • {new Date(invoice.issueDate).toLocaleDateString()}
-                                            </div>
-                                            <div className={styles.orderActions}>
-                                                <Button size="small" onClick={handleInvoiceClick} disabled={invLoading}>
-                                                    {invLoading ? "Opening…" : "Open PDF"}
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className={styles.orderActions} style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                                            <Button size="small" onClick={handleInvoiceClick} disabled={invLoading || !canIssueInvoice()}>
-                                                {invLoading ? "Issuing…" : (canIssueInvoice() ? "Issue & Open PDF" : "Invoice unavailable")}
-                                            </Button>
-                                            {invErr && <div className={styles.error} role="alert">{invErr}</div>}
+                                    {/* --- Bank transfer instructions (только если это офлайн и еще не финализировано) --- */}
+                                    {firstPayment?.bank && !isFinal(firstPayment?.status) && (
+                                        <div className={styles.stack} style={{ gap: 8, marginTop: 8 }}>
+                                            <h4 style={{ margin: 0 }}>Bank transfer (prepayment)</h4>
+                                            {firstPayment.instructions && (
+                                                <div className={styles.muted}>{firstPayment.instructions}</div>
+                                            )}
+                                            <ul className="summary__list">
+                                                <li>
+                                                    <span>Beneficiary</span>
+                                                    <span>{firstPayment.bank?.beneficiary || "—"}</span>
+                                                </li>
+                                                <li>
+                                                    <span>IBAN</span>
+                                                    <span><code>{firstPayment.bank?.iban || "—"}</code></span>
+                                                </li>
+                                                <li>
+                                                    <span>BIC</span>
+                                                    <span><code>{firstPayment.bank?.bic || "—"}</code></span>
+                                                </li>
+                                                {firstPayment.bank?.bank && (
+                                                    <li>
+                                                        <span>Bank</span>
+                                                        <span>{firstPayment.bank.bank}</span>
+                                                    </li>
+                                                )}
+                                                {firstPayment.dueDate && (
+                                                    <li>
+                                                        <span>Due date</span>
+                                                        <span>{new Date(firstPayment.dueDate).toLocaleDateString()}</span>
+                                                    </li>
+                                                )}
+                                            </ul>
                                         </div>
                                     )}
-                                </>
-                            )}
-                        </section>
-                        <section>
-                            <div className={styles.orderActions}>
-                                <Button
-                                    size="small"
-                                    onClick={() =>
-                                        nav(`/account/returns/new?order=${encodeURIComponent(id || data?.id || "")}`)
-                                    }
-                                    disabled={!id && !data?.id}
-                                >
-                                    Return items
-                                </Button>
-                            </div>
-                        </section>
-                    </div>
-                )}
-            </div>
-        </PageLayout>
+                                    {!!firstPayment?.approvalUrl && (
+                                        <li>
+                                            <span>Approve</span>
+                                            <a href={firstPayment.approvalUrl} target="_blank" rel="noreferrer">Open</a>
+                                        </li>
+                                    )}
+                                </ul>
+                            </section>
+
+                            {/* Сумма */}
+                            <section>
+                                <h3>Summary</h3>
+                                <ul className="summary__list">
+                                    <li>
+                                        <span>Products</span>
+                                        <span>{fmtMoney(data.totals.subtotalCents, data.totals.currency)}</span>
+                                    </li>
+                                    <li>
+                                        <span>Delivery {data.shippingMethod ? `(${data.shippingMethod})` : ""}</span>
+                                        <span>{fmtMoney(data.totals.shippingCents, data.totals.currency)}</span>
+                                    </li>
+                                    {data.totals.discountCents > 0 && (
+                                        <li className="good">
+                                            <span>Discount</span>
+                                            <span>-{fmtMoney(data.totals.discountCents, data.totals.currency)}</span>
+                                        </li>
+                                    )}
+                                    <li>
+                                        <span>Including VAT</span>
+                                        <span>{fmtMoney(data.totals.vatCents, data.totals.currency)}</span>
+                                    </li>
+                                    <li className="sum">
+                                        <span>Total</span>
+                                        <span>{fmtMoney(data.totals.totalCents, data.totals.currency)}</span>
+                                    </li>
+                                </ul>
+                            </section>
+
+                            <section>
+                                <h3>Invoice</h3>
+
+                                {invFromPayment ? (
+                                    <div className={styles.stack} style={{ gap: 8 }}>
+                                        <div className={styles.muted}>
+                                            № {invFromPayment.number || "—"}
+                                            {invFromPayment.dueDate ? ` • due ${new Date(invFromPayment.dueDate).toLocaleDateString()}` : ""}
+                                        </div>
+                                        <div className={styles.orderActions}>
+                                            <Button size="small"
+                                                onClick={async () => {
+                                                    // если API дал прямой URL — открываем им; иначе падаем на прежний механизм
+                                                    const url = invFromPayment.pdfUrl || (invoice?.id ? `/invoices/${invoice.id}/pdf` : "");
+                                                    if (!url) {
+                                                        // нет прямого URL — попробуем существующий флоу (создать/загрузить)
+                                                        await handleInvoiceClick();
+                                                    } else {
+                                                        await openPdfByBlob(url);
+                                                    }
+                                                }}
+                                                disabled={invLoading}
+                                            >
+                                                {invLoading ? "Opening…" : "Open PDF"}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    // старый флоу: если инвойс уже подгружен отдельным вызовом — показываем,
+                                    // иначе: если заказ оплачен — кнопка "Issue & Open PDF", если нет — "Invoice unavailable"
+                                    <>
+                                        {invoice ? (
+                                            <div className={styles.stack} style={{ gap: 8 }}>
+                                                <div className={styles.muted}>
+                                                    № {invoice.number} • {new Date(invoice.issueDate).toLocaleDateString()}
+                                                </div>
+                                                <div className={styles.orderActions}>
+                                                    <Button size="small" onClick={handleInvoiceClick} disabled={invLoading}>
+                                                        {invLoading ? "Opening…" : "Open PDF"}
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className={styles.orderActions} style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                                                <Button size="small" onClick={handleInvoiceClick} disabled={invLoading || !canIssueInvoice()}>
+                                                    {invLoading ? "Issuing…" : (canIssueInvoice() ? "Issue & Open PDF" : "Invoice unavailable")}
+                                                </Button>
+                                                {invErr && <div className={styles.error} role="alert">{invErr}</div>}
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </section>
+                            <section>
+                                <div className={styles.orderActions}>
+                                    <Button
+                                        size="small"
+                                        onClick={() =>
+                                            nav(`/account/returns/new?order=${encodeURIComponent(id || data?.id || "")}`)
+                                        }
+                                        disabled={!id && !data?.id}
+                                    >
+                                        Return items
+                                    </Button>
+                                </div>
+                            </section>
+                        </div>
+                    )}
+                </div>
+            </PageLayout>
+        </Page>
     );
 }

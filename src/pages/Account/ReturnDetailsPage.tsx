@@ -7,6 +7,7 @@ import Button from "../../components/UI/Button";
 import api from "../../lib/api";
 import DefinitionList from "../../components/UI/DefinitionList";
 import cls from "./ReturnDetails.module.scss";
+import Page from "../../components/UI/Page/Page";
 
 function classNames(...xs: Array<string | false | undefined | null>) {
     return xs.filter(Boolean).join(" ");
@@ -239,125 +240,127 @@ export default function ReturnDetailsPage() {
     ];
 
     return (
-        <PageLayout title="Return" onBack={() => navigate(backTo)}>
-            <div className={styles.stack}>
-                {loading && <div className={styles.muted}>Loading…</div>}
-                {err && <div className={styles.error} role="alert">{err}</div>}
+        <Page>
+            <PageLayout title="Return" onBack={() => navigate(backTo)}>
+                <div className={styles.stack}>
+                    {loading && <div className={styles.muted}>Loading…</div>}
+                    {err && <div className={styles.error} role="alert">{err}</div>}
 
-                {!loading && !err && data && (
-                    <>
-                        <DefinitionList items={returnDetails} compact={true} />
-                        <div className={styles.card}>
-                            <div className={styles.orderBody} style={{ alignItems: "flex-start" }}>
-                                <div className={styles.orderTotal} style={{ textAlign: "right" }}>
-                                    {creditLoading && <>Loading credit…</>}
-                                    {!creditLoading && credit && (
-                                        <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" }}>
-                                            <div className={styles.muted}>Credit note</div>
-                                            <div style={{ fontWeight: 600 }}>{credit.number}</div>
-                                            <div className={styles.muted}>{fmtMoney(credit.totals.totalCents, credit.totals.currency)}</div>
-                                            <Button size="small" onClick={() => openPdfByBlob(credit.pdfUrl || `/credit-notes/${credit.id}/pdf`)}>
-                                                Open PDF
-                                            </Button>
-                                        </div>
-                                    )}
-                                    {!creditLoading && !credit && <div className={styles.muted}>No credit note yet</div>}
-                                    {creditErr && <div className={styles.error} role="alert">{creditErr}</div>}
-                                </div>
-                            </div>
-                            <section>
-                                <h3>Items</h3>
-                                <div className="summary__mini">
-                                    {data.items.map((it) => {
-                                        const snap = oiById[it.orderItemId];
-                                        const ev = (it.evidenceUrls || []).slice(0, 6);
-                                        const decision = (it.decision || "").toLowerCase();
-
-                                        return (
-                                            <div key={it.id} className="mini-item" style={{ alignItems: "flex-start" }}>
-                                                {snap?.imageUrl ? (
-                                                    <img src={snap.imageUrl} alt={snap.name || snap.sku || "Product"} />
-                                                ) : (
-                                                    <div className="mini-item__noimg" />
-                                                )}
-                                                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                                                    <div className="mini-item__title">{snap?.name || `Item ${snap?.sku || it.orderItemId.slice(0, 8)}`}</div>
-                                                    <div className="mini-item__sku">{snap?.sku ? `SKU: ${snap.sku}` : "SKU: —"}</div>
-                                                    <div className={styles.muted}>
-                                                        Requested ×{it.requestedQty}
-                                                        {typeof it.approvedQty === "number" ? ` • Approved ×${it.approvedQty}` : ""}
-                                                        {typeof it.receivedQty === "number" ? ` • Received ×${it.receivedQty}` : ""}
-                                                        {typeof it.acceptedQty === "number" ? ` • Accepted ×${it.acceptedQty}` : ""}
-                                                        {it.restockingFeeCents > 0 ? ` • Restocking: ${fmtMoney(it.restockingFeeCents, orderCurrency)}` : ""}
-                                                        {decision ? ` • Decision: ${decision}` : ""}
-                                                    </div>
-
-                                                    {(it.reasonCode || it.reasonText) && (
-                                                        <div className={styles.muted}>
-                                                            {it.reasonCode ? `Reason: ${it.reasonCode}` : "Reason: —"}{it.reasonText ? ` — ${it.reasonText}` : ""}
-                                                        </div>
-                                                    )}
-
-                                                    {/* evidence thumbnails (детали — оставляем) */}
-                                                    {ev.length > 0 && (
-                                                        <div
-                                                            style={{
-                                                                display: "grid",
-                                                                gridTemplateColumns: "repeat(auto-fill, minmax(72px, 1fr))",
-                                                                gap: 8,
-                                                                marginTop: 6,
-                                                                maxWidth: 420,
-                                                            }}
-                                                        >
-                                                            {ev.map((url, i) => (
-                                                                <a
-                                                                    key={i}
-                                                                    href={url}
-                                                                    target="_blank"
-                                                                    rel="noreferrer"
-                                                                    style={{
-                                                                        display: "block",
-                                                                        width: "100%",
-                                                                        aspectRatio: "1/1",
-                                                                        overflow: "hidden",
-                                                                        borderRadius: 8,
-                                                                        boxShadow: "0 0 0 1px rgba(0,0,0,0.06) inset",
-                                                                    }}
-                                                                >
-                                                                    <img
-                                                                        src={url}
-                                                                        alt={`evidence ${i + 1}`}
-                                                                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                                                        loading="lazy"
-                                                                    />
-                                                                </a>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
+                    {!loading && !err && data && (
+                        <>
+                            <DefinitionList items={returnDetails} compact={true} />
+                            <div className={styles.card}>
+                                <div className={styles.orderBody} style={{ alignItems: "flex-start" }}>
+                                    <div className={styles.orderTotal} style={{ textAlign: "right" }}>
+                                        {creditLoading && <>Loading credit…</>}
+                                        {!creditLoading && credit && (
+                                            <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" }}>
+                                                <div className={styles.muted}>Credit note</div>
+                                                <div style={{ fontWeight: 600 }}>{credit.number}</div>
+                                                <div className={styles.muted}>{fmtMoney(credit.totals.totalCents, credit.totals.currency)}</div>
+                                                <Button size="small" onClick={() => openPdfByBlob(credit.pdfUrl || `/credit-notes/${credit.id}/pdf`)}>
+                                                    Open PDF
+                                                </Button>
                                             </div>
-                                        );
-                                    })}
+                                        )}
+                                        {!creditLoading && !credit && <div className={styles.muted}>No credit note yet</div>}
+                                        {creditErr && <div className={styles.error} role="alert">{creditErr}</div>}
+                                    </div>
                                 </div>
-                            </section>
-                            <div className={styles.orderActions}>
-                                <Button
-                                    size="small"
-                                    variant="secondary"
-                                    onClick={() =>
-                                        navigate(`/account/orders/${encodeURIComponent(data.orderId)}?back=${encodeURIComponent("/account/returns")}`)
-                                    }
-                                >
-                                    Order details
-                                </Button>
-                                <Button size="small" onClick={() => navigate("/account/returns")}>
-                                    All returns
-                                </Button>
+                                <section>
+                                    <h3>Items</h3>
+                                    <div className="summary__mini">
+                                        {data.items.map((it) => {
+                                            const snap = oiById[it.orderItemId];
+                                            const ev = (it.evidenceUrls || []).slice(0, 6);
+                                            const decision = (it.decision || "").toLowerCase();
+
+                                            return (
+                                                <div key={it.id} className="mini-item" style={{ alignItems: "flex-start" }}>
+                                                    {snap?.imageUrl ? (
+                                                        <img src={snap.imageUrl} alt={snap.name || snap.sku || "Product"} />
+                                                    ) : (
+                                                        <div className="mini-item__noimg" />
+                                                    )}
+                                                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                                                        <div className="mini-item__title">{snap?.name || `Item ${snap?.sku || it.orderItemId.slice(0, 8)}`}</div>
+                                                        <div className="mini-item__sku">{snap?.sku ? `SKU: ${snap.sku}` : "SKU: —"}</div>
+                                                        <div className={styles.muted}>
+                                                            Requested ×{it.requestedQty}
+                                                            {typeof it.approvedQty === "number" ? ` • Approved ×${it.approvedQty}` : ""}
+                                                            {typeof it.receivedQty === "number" ? ` • Received ×${it.receivedQty}` : ""}
+                                                            {typeof it.acceptedQty === "number" ? ` • Accepted ×${it.acceptedQty}` : ""}
+                                                            {it.restockingFeeCents > 0 ? ` • Restocking: ${fmtMoney(it.restockingFeeCents, orderCurrency)}` : ""}
+                                                            {decision ? ` • Decision: ${decision}` : ""}
+                                                        </div>
+
+                                                        {(it.reasonCode || it.reasonText) && (
+                                                            <div className={styles.muted}>
+                                                                {it.reasonCode ? `Reason: ${it.reasonCode}` : "Reason: —"}{it.reasonText ? ` — ${it.reasonText}` : ""}
+                                                            </div>
+                                                        )}
+
+                                                        {/* evidence thumbnails (детали — оставляем) */}
+                                                        {ev.length > 0 && (
+                                                            <div
+                                                                style={{
+                                                                    display: "grid",
+                                                                    gridTemplateColumns: "repeat(auto-fill, minmax(72px, 1fr))",
+                                                                    gap: 8,
+                                                                    marginTop: 6,
+                                                                    maxWidth: 420,
+                                                                }}
+                                                            >
+                                                                {ev.map((url, i) => (
+                                                                    <a
+                                                                        key={i}
+                                                                        href={url}
+                                                                        target="_blank"
+                                                                        rel="noreferrer"
+                                                                        style={{
+                                                                            display: "block",
+                                                                            width: "100%",
+                                                                            aspectRatio: "1/1",
+                                                                            overflow: "hidden",
+                                                                            borderRadius: 8,
+                                                                            boxShadow: "0 0 0 1px rgba(0,0,0,0.06) inset",
+                                                                        }}
+                                                                    >
+                                                                        <img
+                                                                            src={url}
+                                                                            alt={`evidence ${i + 1}`}
+                                                                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                                                            loading="lazy"
+                                                                        />
+                                                                    </a>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </section>
+                                <div className={styles.orderActions}>
+                                    <Button
+                                        size="small"
+                                        variant="secondary"
+                                        onClick={() =>
+                                            navigate(`/account/orders/${encodeURIComponent(data.orderId)}?back=${encodeURIComponent("/account/returns")}`)
+                                        }
+                                    >
+                                        Order details
+                                    </Button>
+                                    <Button size="small" onClick={() => navigate("/account/returns")}>
+                                        All returns
+                                    </Button>
+                                </div>
                             </div>
-                        </div>
-                    </>
-                )}
-            </div>
-        </PageLayout>
+                        </>
+                    )}
+                </div>
+            </PageLayout>
+        </Page>
     );
 }

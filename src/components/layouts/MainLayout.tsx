@@ -62,9 +62,7 @@ export default function MainLayout() {
           rounded={18}
           visibleOnDesktop={true}
         />
-        <main className="app-container">
-          <Outlet />
-        </main>
+        <Outlet />
       </div>
     </>
   );

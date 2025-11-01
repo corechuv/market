@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./MobileSearchPage.module.scss";
 import { getProducts } from "../../services/productService";
 import SearchField from "../../components/UI/SearchField";
+import Page from "../../components/UI/Page/Page";
 
 type ProductLike = { id: string | number; name?: string; title?: string };
 
@@ -86,39 +87,41 @@ export default function ModileSearchPage() {
     };
 
     return (
-        <div className={styles.page} role="search">
-            <SearchField
-                ref={inputRef}
-                value={query}
-                onChange={setQuery}
-                placeholder="Start typing..."
-                aria-label="Search"
-                onEnter={() => {
-                    if (results[0]) navigate(`/product/${results[0].id}`);
-                }}
-                onEscape={smartBack}
-                loading={loading}
-                error={error}
-                resultsLength={results.length}
-            />
+        <Page padding={false}>
+            <div className={styles.page} role="search">
+                <SearchField
+                    ref={inputRef}
+                    value={query}
+                    onChange={setQuery}
+                    placeholder="Start typing..."
+                    aria-label="Search"
+                    onEnter={() => {
+                        if (results[0]) navigate(`/product/${results[0].id}`);
+                    }}
+                    onEscape={smartBack}
+                    loading={loading}
+                    error={error}
+                    resultsLength={results.length}
+                />
 
-            <ul className={styles.list} role="listbox" aria-label="Search results">
-                {loading && <SkeletonRows />}
-                {!loading &&
-                    results.map((p) => (
-                        <li
-                            key={String(p.id)}
-                            className={styles.list__item}
-                            role="option"
-                            tabIndex={0}
-                            onClick={() => navigate(`/product/${p.id}`)}
-                            onKeyDown={(e) => e.key === "Enter" && navigate(`/product/${p.id}`)}
-                        >
-                            <span className={styles.itemLabel}>{p.name}</span>
-                        </li>
-                    ))}
-            </ul>
-        </div>
+                <ul className={styles.list} role="listbox" aria-label="Search results">
+                    {loading && <SkeletonRows />}
+                    {!loading &&
+                        results.map((p) => (
+                            <li
+                                key={String(p.id)}
+                                className={styles.list__item}
+                                role="option"
+                                tabIndex={0}
+                                onClick={() => navigate(`/product/${p.id}`)}
+                                onKeyDown={(e) => e.key === "Enter" && navigate(`/product/${p.id}`)}
+                            >
+                                <span className={styles.itemLabel}>{p.name}</span>
+                            </li>
+                        ))}
+                </ul>
+            </div>
+        </Page>
     );
 }
 

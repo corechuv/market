@@ -15,6 +15,7 @@ import {
   type FieldErrors,
 } from "../../utils/validate/fields";
 import PageLayout from "../../components/layouts/PageLayout";
+import Page from "../../components/UI/Page/Page";
 
 export default function ChangePasswordPage() {
   const navigate = useNavigate();
@@ -107,95 +108,97 @@ export default function ChangePasswordPage() {
   }
 
   return (
-    <PageLayout title="Change password" onBack={() => navigate(backTo)}>
-      <div>
-        <section>
-          <h3>
-            {token
-              ? "Enter a new password for your account"
-              : "Send a reset link to your email/username"}
-          </h3>
-        </section>
-        <section className={styles.content}>
-          <div className={styles.card}>
-            {/* ===== Messages ===== */}
-            {doneMsg && <div className={styles.noticeSuccess} role="status">{doneMsg}</div>}
-            {errorMsg && <div className={styles.formError} role="alert">{errorMsg}</div>}
+    <Page>
+      <PageLayout title="Change password" onBack={() => navigate(backTo)}>
+        <div>
+          <section>
+            <h3>
+              {token
+                ? "Enter a new password for your account"
+                : "Send a reset link to your email/username"}
+            </h3>
+          </section>
+          <section className={styles.content}>
+            <div className={styles.card}>
+              {/* ===== Messages ===== */}
+              {doneMsg && <div className={styles.noticeSuccess} role="status">{doneMsg}</div>}
+              {errorMsg && <div className={styles.formError} role="alert">{errorMsg}</div>}
 
-            {/* ===== Forms ===== */}
-            {!token ? (
-              <form className={styles.form} onSubmit={submitForgot} noValidate>
-                <div className={styles.grid2}>
-                  <TextField
-                    label="Email or username *"
-                    name="emailOrUsername"
-                    value={forgotForm.emailOrUsername}
-                    onChange={(e) => setForgotForm({ emailOrUsername: e.target.value })}
-                    error={errs.emailOrUsername}
-                    autoComplete="username"
-                    disabled={sending}
-                  />
-                </div>
+              {/* ===== Forms ===== */}
+              {!token ? (
+                <form className={styles.form} onSubmit={submitForgot} noValidate>
+                  <div className={styles.grid2}>
+                    <TextField
+                      label="Email or username *"
+                      name="emailOrUsername"
+                      value={forgotForm.emailOrUsername}
+                      onChange={(e) => setForgotForm({ emailOrUsername: e.target.value })}
+                      error={errs.emailOrUsername}
+                      autoComplete="username"
+                      disabled={sending}
+                    />
+                  </div>
 
-                <div className={styles.formActions}>
-                  <Button type="submit" size="small" variant="primary" disabled={sending}>
-                    {sending ? "Sending…" : "Send reset link"}
-                  </Button>
-                  <Button
-                    type="button"
-                    size="small"
-                    variant="secondary"
-                    onClick={() => navigate(backTo)}
-                    disabled={sending}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            ) : (
-              <form className={styles.form} onSubmit={submitReset} noValidate>
-                <div className={styles.grid2}>
-                  <TextField
-                    label="New password *"
-                    type="password"
-                    name="newPassword"
-                    value={resetForm.newPassword}
-                    onChange={(e) => setResetForm({ ...resetForm, newPassword: e.target.value })}
-                    error={errs.newPassword}
-                    autoComplete="new-password"
-                    disabled={sending}
-                  />
-                  <TextField
-                    label="Confirm password *"
-                    type="password"
-                    name="confirm"
-                    value={resetForm.confirm}
-                    onChange={(e) => setResetForm({ ...resetForm, confirm: e.target.value })}
-                    error={errs.confirm}
-                    autoComplete="new-password"
-                    disabled={sending}
-                  />
-                </div>
+                  <div className={styles.formActions}>
+                    <Button type="submit" size="small" variant="primary" disabled={sending}>
+                      {sending ? "Sending…" : "Send reset link"}
+                    </Button>
+                    <Button
+                      type="button"
+                      size="small"
+                      variant="secondary"
+                      onClick={() => navigate(backTo)}
+                      disabled={sending}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <form className={styles.form} onSubmit={submitReset} noValidate>
+                  <div className={styles.grid2}>
+                    <TextField
+                      label="New password *"
+                      type="password"
+                      name="newPassword"
+                      value={resetForm.newPassword}
+                      onChange={(e) => setResetForm({ ...resetForm, newPassword: e.target.value })}
+                      error={errs.newPassword}
+                      autoComplete="new-password"
+                      disabled={sending}
+                    />
+                    <TextField
+                      label="Confirm password *"
+                      type="password"
+                      name="confirm"
+                      value={resetForm.confirm}
+                      onChange={(e) => setResetForm({ ...resetForm, confirm: e.target.value })}
+                      error={errs.confirm}
+                      autoComplete="new-password"
+                      disabled={sending}
+                    />
+                  </div>
 
-                <div className={styles.formActions}>
-                  <Button type="submit" size="small" variant="primary" disabled={sending}>
-                    {sending ? "Saving…" : "Change password"}
-                  </Button>
-                  <Button
-                    type="button"
-                    size="small"
-                    variant="secondary"
-                    onClick={() => navigate(backTo)}
-                    disabled={sending}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            )}
-          </div>
-        </section>
-      </div>
-    </PageLayout>
+                  <div className={styles.formActions}>
+                    <Button type="submit" size="small" variant="primary" disabled={sending}>
+                      {sending ? "Saving…" : "Change password"}
+                    </Button>
+                    <Button
+                      type="button"
+                      size="small"
+                      variant="secondary"
+                      onClick={() => navigate(backTo)}
+                      disabled={sending}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </section>
+        </div>
+      </PageLayout>
+    </Page>
   );
 }

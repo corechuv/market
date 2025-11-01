@@ -99,6 +99,7 @@ import nvidia_dark from "@/assets/brand_logos/NVIDIA_Logo_white.png"
 import hp_light from "@/assets/brand_logos/HP_Logo_color.svg"
 import hp_dark from "@/assets/brand_logos/HP_Logo_color.svg"
 import HomeVideos from "../../components/Home/HomeVideos"
+import Page from "../../components/UI/Page/Page"
 
 const brandLogos = [
     {
@@ -165,61 +166,63 @@ export default function Home() {
         };
     }, []);
     return (
-        <div className="container">
-            <div className={cls.homeContent}>
-                <Banner
-                    images={demoImages}
-                    aspectRatio="3 / 1"
-                    interval={4500}
-                    autoPlay
-                    loop
-                    pauseOnHover
-                    showControls
-                    showDots
-                    rounded
-                    overlay="gradient"
-                />
-                <CategoryGrid
-                    title="Customer Favorites"
-                    categories={demo}
-                    onSelect={(cat) => console.log("Выбрано:", cat)}
-                />
+        <Page>
+            <div className="container">
+                <div className={cls.homeContent}>
+                    <Banner
+                        images={demoImages}
+                        aspectRatio="3 / 1"
+                        interval={4500}
+                        autoPlay
+                        loop
+                        pauseOnHover
+                        showControls
+                        showDots
+                        rounded
+                        overlay="gradient"
+                    />
+                    <CategoryGrid
+                        title="Customer Favorites"
+                        categories={demo}
+                        onSelect={(cat) => console.log("Выбрано:", cat)}
+                    />
 
-                <HomeVideos limit={4} sort="trending" label="Trending videos" />
+                    <HomeVideos limit={4} sort="trending" label="Trending videos" />
 
-                {error ? (
-                    <div style={{ padding: 16, color: "var(--danger, #c00)" }}>{error}</div>
-                ) : (
-                    <>
-                        <ProductCarousel
-                            label="Best Products"
-                            products={products /* пока пустой массив — ок */}
-                            onItemClick={(p) => nav(`/product/${p.id}`)}
-                        />
+                    {error ? (
+                        <div style={{ padding: 16, color: "var(--danger, #c00)" }}>{error}</div>
+                    ) : (
+                        <>
+                            <ProductCarousel
+                                label="Best Products"
+                                products={products /* пока пустой массив — ок */}
+                                onItemClick={(p) => nav(`/product/${p.id}`)}
+                            />
 
-                        <div className={stylesBanner.bannerGrid}>
-                            {bannerList.map((banner) => (
-                                <div key={banner.id} className={stylesBanner.bannerCard}>
-                                    <img src={banner.imageUrl} alt={banner.name} className={stylesBanner.bannerImage} />
-                                    <div className={stylesBanner.bannerInfo}>
-                                        <div className={stylesBanner.bannerTitle}>{banner.name}</div>
-                                        <button className={stylesBanner.bannerButton}>
-                                            <ChevronRightIcon className={stylesBanner.icon} />
-                                        </button>
+                            <div className={stylesBanner.bannerGrid}>
+                                {bannerList.map((banner) => (
+                                    <div key={banner.id} className={stylesBanner.bannerCard}>
+                                        <img src={banner.imageUrl} alt={banner.name} className={stylesBanner.bannerImage} />
+                                        <div className={stylesBanner.bannerInfo}>
+                                            <div className={stylesBanner.bannerTitle}>{banner.name}</div>
+                                            <button className={stylesBanner.bannerButton}>
+                                                <ChevronRightIcon className={stylesBanner.icon} />
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
 
-                        <ProductCarousel
-                            label="Featured Products"
-                            products={products}
-                            onItemClick={(p) => nav(`/product/${p.id}`)}
-                        />
-                    </>
-                )}
-                <BrandCarousel label="Brands" images={brandLogos} />
+                            <ProductCarousel
+                                label="Featured Products"
+                                products={products}
+                                onItemClick={(p) => nav(`/product/${p.id}`)}
+                            />
+                        </>
+                    )}
+                    <BrandCarousel label="Brands" images={brandLogos} />
+                </div>
             </div>
-        </div>
+        </Page>
     )
 }

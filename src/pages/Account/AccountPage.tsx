@@ -22,6 +22,7 @@ import PlusIcon from "../../components/Icons/PlusIcon";
 import CloseIcon from "../../components/Icons/CloseIcon";
 import { EUROPE_COUNTRIES } from "../../utils/country";
 import MyVideos from "./MyVideos";
+import Page from "../../components/UI/Page/Page";
 
 const API_ORIGIN = new URL(import.meta.env.VITE_API_BASE_URL).origin;
 const abs = (u?: string | null) =>
@@ -154,34 +155,127 @@ export default function AccountPage() {
   // === если НЕ верифицирован — показываем компактный экран
   if (!verified) {
     return (
+      <Page>
+        <main className={styles.page}>
+          <header className={styles.header}>
+            <div className={styles.headerMain}>
+              <div className={styles.avatarWrap}>
+                <svg
+                  className={styles.avatar}
+                  width="128"
+                  height="128"
+                  viewBox="0 0 128 128"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  role="img"
+                  aria-label="Avatar"
+                >
+                  <g
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    opacity=".6"
+                  >
+                    <circle cx="64" cy="52" r="16" fill="none" />
+                    <path
+                      d="M34 92c6-14 20-22 30-22s24 8 30 22"
+                      fill="none"
+                    />
+                  </g>
+                </svg>
+              </div>
+              <div>
+                <h1 className={styles.title}>{displayName}</h1>
+                <p className={styles.subtitle}>
+                  {me.email}
+                  {me.username ? ` · @${me.username}` : ""}
+                </p>
+                <small className={styles.muted}>
+                  Please verify your email to access your account.
+                </small>
+              </div>
+            </div>
+          </header>
+
+          <div className={styles.layout}>
+            <section className={styles.content}>
+              <div className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <h2 className={styles.titlePage}>Email verification required</h2>
+                  <p className={styles.muted}>
+                    We sent you a link. You can resend it or open the verification screen.
+                  </p>
+                </div>
+
+                <div className={styles.formActions}>
+                  <Button
+                    variant="primary"
+                    size="small"
+                    onClick={() =>
+                      navigate(
+                        `/account/settings/verify-email?back=${backSettings}`,
+                      )
+                    }
+                  >
+                    Open verification screen
+                  </Button>
+                  <Button variant="secondary" size="small" onClick={resendVerify}>
+                    Resend link
+                  </Button>
+                </div>
+              </div>
+            </section>
+          </div>
+        </main>
+      </Page>
+    );
+  }
+
+  return (
+    <Page>
       <main className={styles.page}>
         <header className={styles.header}>
           <div className={styles.headerMain}>
             <div className={styles.avatarWrap}>
-              <svg
-                className={styles.avatar}
-                width="128"
-                height="128"
-                viewBox="0 0 128 128"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                role="img"
-                aria-label="Avatar"
-              >
-                <g
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  opacity=".6"
+              {me.avatarUrl ? (
+                <img
+                  src={
+                    abs(me.avatarUrl) +
+                    `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`
+                  }
+                  alt={displayName}
+                  className={styles.avatar}
+                  loading="lazy"
+                  width={128}
+                  height={128}
+                />
+              ) : (
+                <svg
+                  className={styles.avatar}
+                  width="128"
+                  height="128"
+                  viewBox="0 0 128 128"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  role="img"
+                  aria-label="Avatar"
                 >
-                  <circle cx="64" cy="52" r="16" fill="none" />
-                  <path
-                    d="M34 92c6-14 20-22 30-22s24 8 30 22"
-                    fill="none"
-                  />
-                </g>
-              </svg>
+                  <g
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    opacity=".6"
+                  >
+                    <circle cx="64" cy="52" r="16" fill="none" />
+                    <path
+                      d="M34 92c6-14 20-22 30-22s24 8 30 22"
+                      fill="none"
+                    />
+                  </g>
+                </svg>
+              )}
             </div>
             <div>
               <h1 className={styles.title}>{displayName}</h1>
@@ -189,189 +283,100 @@ export default function AccountPage() {
                 {me.email}
                 {me.username ? ` · @${me.username}` : ""}
               </p>
-              <small className={styles.muted}>
-                Please verify your email to access your account.
-              </small>
             </div>
           </div>
+          <div className={styles.headerActions} />
         </header>
 
         <div className={styles.layout}>
           <section className={styles.content}>
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2 className={styles.titlePage}>Email verification required</h2>
-                <p className={styles.muted}>
-                  We sent you a link. You can resend it or open the verification screen.
-                </p>
+            <Tabs<TabKey>
+              items={tabs}
+              activeKey={active}
+              onChange={setActive}
+              ariaLabel="Account sections"
+            />
+            {active === "videos" && (
+              <div className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <h2 className={styles.titlePage}>My videos</h2>
+                </div>
+                <MyVideos />
               </div>
+            )}
+            {active === "profile" && (
+              <ProfileForm
+                me={me}
+                saving={loading}
+                onSave={async (patch, avatar) => {
+                  setLoading(true);
+                  try {
+                    // 1) Сохраняем текстовые поля
+                    await api.put(`/customers/${me.id}`, {
+                      email: patch.email || null,
+                      phone: patch.phone || null,
+                      firstName: patch.firstName || null,
+                      lastName: patch.lastName || null,
+                    });
 
-              <div className={styles.formActions}>
-                <Button
-                  variant="primary"
-                  size="small"
-                  onClick={() =>
-                    navigate(
-                      `/account/settings/verify-email?back=${backSettings}`,
-                    )
+                    // 2) Если пользователь менял аватар — применяем
+                    if (avatar?.removed) {
+                      await api.delete("/customers/me/avatar");
+                    } else if (avatar?.file) {
+                      const fd = new FormData();
+                      fd.append(
+                        "file",
+                        avatar.file,
+                        avatar.file.name || "avatar.jpg",
+                      );
+                      await api.post("/customers/me/avatar", fd, {
+                        // убираем возможный глобальный JSON-заголовок
+                        transformRequest: [
+                          (data, headers) => {
+                            if (headers) {
+                              delete (headers as any)["Content-Type"];
+                            }
+                            return data as any;
+                          },
+                        ],
+                      });
+                    }
+
+                    // 3) Обновляем профиль в состоянии и кэше
+                    await refreshMeAndCache();
+                  } catch (e: any) {
+                    const status = e?.response?.status;
+                    const msg =
+                      e?.response?.data?.message || "Failed to save profile";
+                    if (status === 409) throw { email: "Email already exists" };
+                    throw { _form: msg };
+                  } finally {
+                    setLoading(false);
                   }
-                >
-                  Open verification screen
-                </Button>
-                <Button variant="secondary" size="small" onClick={resendVerify}>
-                  Resend link
-                </Button>
-              </div>
-            </div>
+                }}
+              />
+            )}
+            {active === "addresses" && (
+              <AddressesSection
+                me={me}
+                onMeRefresh={async () => {
+                  const { data } = await api.get("/auth/me");
+                  setMe(data as Me);
+                  try {
+                    localStorage.setItem("mp_auth_user", JSON.stringify(data));
+                    sessionStorage.setItem("mp_auth_user", JSON.stringify(data));
+                  } catch {
+                    /* ignore */
+                  }
+                }}
+              />
+            )}
+            {active === "orders" && <OrdersSection />}
+            {active === "settings" && <SettingsSection me={me} />}
           </section>
         </div>
       </main>
-    );
-  }
-
-  return (
-    <main className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerMain}>
-          <div className={styles.avatarWrap}>
-            {me.avatarUrl ? (
-              <img
-                src={
-                  abs(me.avatarUrl) +
-                  `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`
-                }
-                alt={displayName}
-                className={styles.avatar}
-                loading="lazy"
-                width={128}
-                height={128}
-              />
-            ) : (
-              <svg
-                className={styles.avatar}
-                width="128"
-                height="128"
-                viewBox="0 0 128 128"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                role="img"
-                aria-label="Avatar"
-              >
-                <g
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  opacity=".6"
-                >
-                  <circle cx="64" cy="52" r="16" fill="none" />
-                  <path
-                    d="M34 92c6-14 20-22 30-22s24 8 30 22"
-                    fill="none"
-                  />
-                </g>
-              </svg>
-            )}
-          </div>
-          <div>
-            <h1 className={styles.title}>{displayName}</h1>
-            <p className={styles.subtitle}>
-              {me.email}
-              {me.username ? ` · @${me.username}` : ""}
-            </p>
-          </div>
-        </div>
-        <div className={styles.headerActions} />
-      </header>
-
-      <div className={styles.layout}>
-        <section className={styles.content}>
-          <Tabs<TabKey>
-            items={tabs}
-            activeKey={active}
-            onChange={setActive}
-            ariaLabel="Account sections"
-          />
-          {active === "videos" && (
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2 className={styles.titlePage}>My videos</h2>
-              </div>
-              <MyVideos />
-            </div>
-          )}
-          {active === "profile" && (
-            <ProfileForm
-              me={me}
-              saving={loading}
-              onSave={async (patch, avatar) => {
-                setLoading(true);
-                try {
-                  // 1) Сохраняем текстовые поля
-                  await api.put(`/customers/${me.id}`, {
-                    email: patch.email || null,
-                    phone: patch.phone || null,
-                    firstName: patch.firstName || null,
-                    lastName: patch.lastName || null,
-                  });
-
-                  // 2) Если пользователь менял аватар — применяем
-                  if (avatar?.removed) {
-                    await api.delete("/customers/me/avatar");
-                  } else if (avatar?.file) {
-                    const fd = new FormData();
-                    fd.append(
-                      "file",
-                      avatar.file,
-                      avatar.file.name || "avatar.jpg",
-                    );
-                    await api.post("/customers/me/avatar", fd, {
-                      // убираем возможный глобальный JSON-заголовок
-                      transformRequest: [
-                        (data, headers) => {
-                          if (headers) {
-                            delete (headers as any)["Content-Type"];
-                          }
-                          return data as any;
-                        },
-                      ],
-                    });
-                  }
-
-                  // 3) Обновляем профиль в состоянии и кэше
-                  await refreshMeAndCache();
-                } catch (e: any) {
-                  const status = e?.response?.status;
-                  const msg =
-                    e?.response?.data?.message || "Failed to save profile";
-                  if (status === 409) throw { email: "Email already exists" };
-                  throw { _form: msg };
-                } finally {
-                  setLoading(false);
-                }
-              }}
-            />
-          )}
-          {active === "addresses" && (
-            <AddressesSection
-              me={me}
-              onMeRefresh={async () => {
-                const { data } = await api.get("/auth/me");
-                setMe(data as Me);
-                try {
-                  localStorage.setItem("mp_auth_user", JSON.stringify(data));
-                  sessionStorage.setItem("mp_auth_user", JSON.stringify(data));
-                } catch {
-                  /* ignore */
-                }
-              }}
-            />
-          )}
-          {active === "orders" && <OrdersSection />}
-          {active === "settings" && <SettingsSection me={me} />}
-        </section>
-      </div>
-    </main>
+    </Page>
   );
 }
 
@@ -401,7 +406,7 @@ function ProfileForm({
   const [avatarPreview, setAvatarPreview] = useState<string>(
     me.avatarUrl
       ? abs(me.avatarUrl) +
-          `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`
+      `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`
       : "",
   );
 
@@ -410,7 +415,7 @@ function ProfileForm({
     setAvatarPreview(
       me.avatarUrl
         ? abs(me.avatarUrl) +
-            `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`
+        `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`
         : "",
     );
   }, [me.avatarUrl, me.updatedAt]);

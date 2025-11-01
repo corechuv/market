@@ -5,6 +5,7 @@ import styles from "./AccountPage.module.scss";
 import Button from "../../components/UI/Button";
 import api from "../../lib/api";
 import PageLayout from "../../components/layouts/PageLayout";
+import Page from "../../components/UI/Page/Page";
 
 export default function VerifyEmailPage() {
     const navigate = useNavigate();
@@ -87,52 +88,54 @@ export default function VerifyEmailPage() {
     }
 
     return (
-        <PageLayout title="Verify email" onBack={() => navigate(backTo)}>
-            <div>
-                <section>
-                    <h3>{token ? "Email verification" : "Request verification link"}</h3>
-                </section>
-                <section className={styles.content}>
-                    <div className={styles.card}>
-                        {doneMsg && <div className={styles.noticeSuccess} role="status">{doneMsg}</div>}
-                        {errorMsg && <div className={styles.formError} role="alert">{errorMsg}</div>}
+        <Page>
+            <PageLayout title="Verify email" onBack={() => navigate(backTo)}>
+                <div>
+                    <section>
+                        <h3>{token ? "Email verification" : "Request verification link"}</h3>
+                    </section>
+                    <section className={styles.content}>
+                        <div className={styles.card}>
+                            {doneMsg && <div className={styles.noticeSuccess} role="status">{doneMsg}</div>}
+                            {errorMsg && <div className={styles.formError} role="alert">{errorMsg}</div>}
 
-                        {!token && (
-                            <div className={styles.formActions}>
-                                <Button variant="primary" size="small" onClick={resend}>
-                                    Send verification link
-                                </Button>
-                                <Button variant="secondary" size="small" onClick={() => navigate(backTo)}>
-                                    Back
-                                </Button>
-                            </div>
-                        )}
+                            {!token && (
+                                <div className={styles.formActions}>
+                                    <Button variant="primary" size="small" onClick={resend}>
+                                        Send verification link
+                                    </Button>
+                                    <Button variant="secondary" size="small" onClick={() => navigate(backTo)}>
+                                        Back
+                                    </Button>
+                                </div>
+                            )}
 
-                        {token && (
-                            <div className={styles.formActions} style={{ gap: 8 }}>
-                                {authed === false && (
+                            {token && (
+                                <div className={styles.formActions} style={{ gap: 8 }}>
+                                    {authed === false && (
+                                        <Button
+                                            variant="primary"
+                                            size="small"
+                                            onClick={() => navigate("/auth")}
+                                            disabled={verifying}
+                                        >
+                                            Go to login
+                                        </Button>
+                                    )}
                                     <Button
-                                        variant="primary"
+                                        variant="secondary"
                                         size="small"
-                                        onClick={() => navigate("/auth")}
+                                        onClick={() => navigate(backTo)}
                                         disabled={verifying}
                                     >
-                                        Go to login
+                                        {verifying ? "Verifying…" : "Back to settings"}
                                     </Button>
-                                )}
-                                <Button
-                                    variant="secondary"
-                                    size="small"
-                                    onClick={() => navigate(backTo)}
-                                    disabled={verifying}
-                                >
-                                    {verifying ? "Verifying…" : "Back to settings"}
-                                </Button>
-                            </div>
-                        )}
-                    </div>
-                </section>
-            </div>
-        </PageLayout>
+                                </div>
+                            )}
+                        </div>
+                    </section>
+                </div>
+            </PageLayout>
+        </Page>
     );
 }
