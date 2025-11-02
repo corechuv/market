@@ -100,6 +100,7 @@ import hp_light from "@/assets/brand_logos/HP_Logo_color.svg"
 import hp_dark from "@/assets/brand_logos/HP_Logo_color.svg"
 import HomeVideos from "../../components/Home/HomeVideos"
 import Page from "../../components/UI/Page/Page"
+import Footer from "../../components/Footer/Footer"
 
 const brandLogos = [
     {
@@ -222,6 +223,7 @@ export default function Home() {
                     <BrandCarousel label="Brands" images={brandLogos} />
                 </div>
             </div>
+            <Footer />
         </Page>
     )
 }
