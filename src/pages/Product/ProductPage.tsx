@@ -249,7 +249,6 @@ export default function ProductPage() {
           <Breadcrumbs crumbs={categoryCrumbs as any} />
           <div className={cls.productDetails}>
             <ProductImages images={images} />
-            <ProductReels productId={product.id} limit={4} />
             <div className={cls.productInfo}>
               <div className={cls.productTitle}>
                 <h1 className={cls.productName}>{product.name}</h1>

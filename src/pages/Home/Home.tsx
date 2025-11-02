@@ -1,10 +1,6 @@
 import "react"
 
 import cls from './Home.module.scss'
-import stylesBanner from './Banner.module.scss'
-import ChevronRightIcon from "../../components/Icons/ChevronLeftIcon"
-
-// import previewBanner from "@/assets/banners/grid.svg"
 
 import Banner from "../../components/Banner"
 import CategoryGrid from "../../components/CategoryGrid/CategoryGrid"
@@ -15,45 +11,6 @@ import type { Product } from "../../types/product";
 import { useNavigate } from "react-router-dom";
 import React from "react"
 import BrandCarousel from "../../components/Home/BrandCarousel"
-
-const bannerList = [
-    {
-        id: "1",
-        imageUrl: "https://www.apple.com/v/iphone-17-pro/a/images/overview/cameras/photo/photographic_styles__boatmzba74ty_medium_2x.jpg",
-        name: "",
-        link: "#"
-    },
-    {
-        id: "2",
-        imageUrl: "https://www.apple.com/v/iphone-17-pro/a/images/overview/cameras/photo/night_mode__dksu23l8q2eu_medium_2x.jpg",
-        name: "",
-        link: "#"
-    },
-    {
-        id: "3",
-        imageUrl: "https://www.apple.com/v/iphone-17-pro/a/images/overview/accessories/case_techwoven__dxrkavb48rgy_medium_2x.jpg",
-        name: "",
-        link: "#"
-    },
-    {
-        id: "4",
-        imageUrl: "https://www.apple.com/v/iphone/home/ce/images/overview/consider/privacy__dd7zepyil6gm_medium_2x.jpg",
-        name: "",
-        link: "#"
-    },
-    {
-        id: "5",
-        imageUrl: "https://www.apple.com/v/iphone/home/ce/images/overview/consider/ios__02vczxaa3siu_medium_2x.jpg",
-        name: "",
-        link: "#"
-    },
-    {
-        id: "6",
-        imageUrl: "https://www.apple.com/v/iphone/home/ce/images/overview/consider/chip__6hy1uruuluaa_medium_2x.jpg",
-        name: "",
-        link: "#"
-    },
-];
 
 const demoImages = [
     {
@@ -198,22 +155,6 @@ export default function Home() {
                                 products={products /* пока пустой массив — ок */}
                                 onItemClick={(p) => nav(`/product/${p.id}`)}
                             />
-
-                            {/*
-                            <div className={stylesBanner.bannerGrid}>
-                                {bannerList.map((banner) => (
-                                    <div key={banner.id} className={stylesBanner.bannerCard}>
-                                        <img src={banner.imageUrl} alt={banner.name} className={stylesBanner.bannerImage} />
-                                        <div className={stylesBanner.bannerInfo}>
-                                            <div className={stylesBanner.bannerTitle}>{banner.name}</div>
-                                            <button className={stylesBanner.bannerButton}>
-                                                <ChevronRightIcon className={stylesBanner.icon} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            */}
 
                             <ProductCarousel
                                 label="Featured Products"
