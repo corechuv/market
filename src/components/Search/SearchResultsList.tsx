@@ -1,6 +1,7 @@
 // src/components/Search/SearchResultList.tsx
 import React from "react"
 import c from "./SearchResultList.module.scss"
+import SearchIcon from "../Icons/SearchIcon";
 
 export type KeyGetter<T> = (item: T, index: number) => React.Key;
 export type LabelGetter<T> = (item: T) => string;
@@ -83,6 +84,7 @@ function SearchResultsList<T>({
                                 }
                             }}
                         >
+                            <SearchIcon />
                             <span className={c["list__item--label"]}
                                 data-search="item-label">{label}</span>
                         </li>
