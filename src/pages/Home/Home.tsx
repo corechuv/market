@@ -100,6 +100,7 @@ import hp_light from "@/assets/brand_logos/HP_Logo_color.svg"
 import hp_dark from "@/assets/brand_logos/HP_Logo_color.svg"
 import HomeVideos from "../../components/Home/HomeVideos"
 import Page from "../../components/UI/Page/Page"
+import Logo from "../../components/logo/Logo"
 
 const brandLogos = [
     {
@@ -169,6 +170,7 @@ export default function Home() {
         <Page>
             <div className="container">
                 <div className={cls.homeContent}>
+                    <Logo size={42} />
                     <Banner
                         images={demoImages}
                         interval={4500}
