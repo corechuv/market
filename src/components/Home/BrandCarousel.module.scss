@@ -1,8 +1,6 @@
 .root {
   width: 100%;
-  /* Управляемые переменные */
-  --gap: 16px;
-  --logo-pad: 8px;                     /* внутренний отступ */
+  --logo-pad: 8px;
 }
 
 .listContainer {
@@ -42,13 +40,13 @@
 
 /* ВАЖНО: стилизуем видимый ресурс */
 .item :is(img, svg) {
-    width: 160px;
-    height: 85px;
-    object-fit: contain;
-    padding: 25px;
-    border-radius: 16px;
-    background-color: var(--bg-card);
-    cursor: pointer;
+  width: 160px;
+  height: 85px;
+  object-fit: contain;
+  padding: 25px;
+  border-radius: 16px;
+  background-color: var(--bg-card);
+  cursor: pointer;
 }
 
 /* мобильный горизонтальный скролл — без изменений */
@@ -64,6 +62,12 @@
     touch-action: pan-x;
     overscroll-behavior-x: contain;
   }
-  .track::-webkit-scrollbar { display: none; }
-  .item { scroll-snap-align: start; }
+
+  .track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .item {
+    scroll-snap-align: start;
+  }
 }

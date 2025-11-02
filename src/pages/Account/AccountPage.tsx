@@ -187,10 +187,10 @@ export default function AccountPage() {
               </div>
               <div>
                 <h1 className={styles.title}>{displayName}</h1>
-                <p className={styles.subtitle}>
+                <div className={styles.subtitle}>
                   {me.email}
                   {me.username ? ` · @${me.username}` : ""}
-                </p>
+                </div>
                 <small className={styles.muted}>
                   Please verify your email to access your account.
                 </small>
@@ -279,10 +279,10 @@ export default function AccountPage() {
             </div>
             <div>
               <h1 className={styles.title}>{displayName}</h1>
-              <p className={styles.subtitle}>
+              <div className={styles.subtitle}>
                 {me.email}
                 {me.username ? ` · @${me.username}` : ""}
-              </p>
+              </div>
             </div>
           </div>
           <div className={styles.headerActions} />
