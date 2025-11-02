@@ -1,6 +1,11 @@
 /* Корневой контейнер */
 .root {
   position: relative;
+  --img-size: 460px;
+  --img-size-thumb-l: 104px;
+  --img-size-thumb-s: 56px;
+  --radius: 20px;
+  --radius-s: 12px;
 }
 
 /* ============= КНОПКИ-МИНИАТЮРЫ (общие) ============= */
@@ -14,10 +19,10 @@
   cursor: pointer;
 
   img {
-    width: 164px;
-    height: 164px;
+    width: var(--img-size-thumb-l);
+    height: var(--img-size-thumb-l);
     object-fit: cover;
-    border-radius: 20px;
+    border-radius: var(--radius);
   }
 }
 
@@ -37,16 +42,18 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-height: 500px;
+  max-height: var(--img-size);
   overflow-y: auto;
 }
 
 .main {
   flex: 1 1 auto;
   position: relative;
-  overflow: hidden; /* обрезаем выступающие края */
-  max-height: 500px;
-  border-radius: 26px;
+  overflow: hidden;
+  /* обрезаем выступающие края */
+  max-width: var(--img-size);
+  max-height: var(--img-size);
+  border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -55,8 +62,8 @@
   img {
     width: 100%;
     height: 100%;
-    max-width: 500px;
-    max-height: 500px;
+    max-width: var(--img-size);
+    max-height: var(--img-size);
     object-fit: contain;
     transition: transform 0.25s ease;
     user-select: none;
@@ -64,6 +71,7 @@
 
   /* Зум ТОЛЬКО на устройствах с мышью */
   @media (hover: hover) and (pointer: fine) {
+
     img:hover,
     img:focus {
       transform: scale(2); // коэффициент зума
@@ -73,10 +81,15 @@
 
 /* ============= МОБИЛЬНАЯ ВЕРСИЯ ============= */
 /* по умолчанию мобильный блок скрыт — включаем только на узких экранах */
-.wrapperMobile { display: none; }
+.wrapperMobile {
+  display: none;
+}
 
 @media (max-width: 768px) {
-  .wrapperDesktop { display: none; }
+  .wrapperDesktop {
+    display: none;
+  }
+
   .wrapperMobile {
     display: grid;
     gap: 0.75rem;
@@ -87,24 +100,31 @@
 /* горизонтальная карусель со snap */
 .carousel {
   position: relative;
-  border-radius: 20px;
-  border: 1px dashed var(--border, rgba(0,0,0,0.08));
+  border-radius: var(--radius);
+  border: 1px dashed var(--border, rgba(0, 0, 0, 0.08));
 
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
+  /* Firefox */
 }
-.carousel::-webkit-scrollbar { display: none; } /* WebKit */
+
+.carousel::-webkit-scrollbar {
+  display: none;
+}
+
+/* WebKit */
 
 .slide {
   flex: 0 0 100%;
   scroll-snap-align: center;
   display: grid;
   place-items: center;
-  aspect-ratio: 1 / 1; /* квадрат для аккуратной вьюшки */
+  aspect-ratio: 1 / 1;
+  /* квадрат для аккуратной вьюшки */
   background: var(--surface, #fff);
 }
 
@@ -113,7 +133,8 @@
   height: 100%;
   object-fit: contain;
   user-select: none;
-  pointer-events: none; /* предотвращает «залипание» при свайпе */
+  pointer-events: none;
+  /* предотвращает «залипание» при свайпе */
 }
 
 /* миниатюры под каруселью — горизонтальный скролл */
@@ -125,10 +146,13 @@
   padding: 0.25rem 0.125rem;
   scrollbar-width: none;
 }
-.thumbsMobile::-webkit-scrollbar { display: none; }
+
+.thumbsMobile::-webkit-scrollbar {
+  display: none;
+}
 
 .thumbsMobile .thumbBtn img {
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
+  width: var(--img-size-thumb-s);
+  height: var(--img-size-thumb-s);
+  border-radius: var(--radius-s);
 }

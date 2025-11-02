@@ -199,6 +199,7 @@ export default function Home() {
                                 onItemClick={(p) => nav(`/product/${p.id}`)}
                             />
 
+                            {/*
                             <div className={stylesBanner.bannerGrid}>
                                 {bannerList.map((banner) => (
                                     <div key={banner.id} className={stylesBanner.bannerCard}>
@@ -212,6 +213,7 @@ export default function Home() {
                                     </div>
                                 ))}
                             </div>
+                            */}
 
                             <ProductCarousel
                                 label="Featured Products"
