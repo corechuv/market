@@ -17,7 +17,6 @@
   backdrop-filter: saturate(180%) blur(14px);
   -webkit-backdrop-filter: saturate(180%) blur(14px);
   border-radius: var(--radius, 16px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   padding: 12px 26px;
 
   transform: translate3d(0, 0, 0);
@@ -99,8 +98,8 @@
   font-size: 18px;
 
   svg {
-    width: 24px;
-    height: 24px;
+    width: 27px;
+    height: 27px;
   }
 }
 
