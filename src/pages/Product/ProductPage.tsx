@@ -28,6 +28,7 @@ import ProductPlainReviews from "../../components/Product/Review/ProductPlainRev
 import ReviewComposer from "../../components/Product/Review/ReviewComposer";
 import RatingBadge from "../../components/Rating/RatingBadge";
 import Page from "../../components/UI/Page/Page";
+import Footer from "../../components/Footer/Footer";
 
 export default function ProductPage() {
   const nav = useNavigate();
@@ -420,6 +421,7 @@ export default function ProductPage() {
           <ReviewComposer productId={product.id} />
         </Modal>
       </div>
+      <Footer />
     </Page>
   );
 }
