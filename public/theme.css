@@ -148,6 +148,7 @@ body[data-theme='light'] {
 
   /* Skeleton */
   --bg-skeleton: linear-gradient(90deg, transparent, rgba(54, 54, 54, 0.2), transparent);
+  --bg-skeleton_v2: linear-gradient(90deg, #ededed 25%, #f6f6f6 37%, #ededed 63%);
 
   color-scheme: light;
 }
@@ -299,6 +300,7 @@ body[data-theme='dark'] {
 
   /* Skeleton */
   --bg-skeleton: linear-gradient(90deg, transparent, rgba(54, 54, 54, 0.2), transparent);
+  --bg-skeleton_v2: linear-gradient(90deg, #000000 25%, #2d2d2d 37%, #000000 63%);
 
   color-scheme: dark;
 }
