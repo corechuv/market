@@ -8,7 +8,7 @@ const VideoCardSkeleton: React.FC<Props> = ({ withTitle = true }) => {
   return (
     <article className={`${cls.item} ${cls["item--skeleton"]}`} aria-busy="true" aria-label="Loading video">
       <div className={cls.item__preview} aria-hidden>
-        <div className={`${cls.skeletonBlock} ${cls["item__preview--skeleton"]}`} />
+        <div className={`${cls.skeletonBlock} ${cls["item__preview--placeholder"]}`} />
       </div>
       {withTitle && (
         <div className={cls.item__title}>
