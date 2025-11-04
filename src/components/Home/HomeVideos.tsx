@@ -61,21 +61,23 @@ export default function HomeVideos({
 
     return (
         <section className={`${cls.section} ${className || ""}`} aria-label={label}>
-            {loading && <div>Loading videos…</div>}
             {error && <div>Failed to load videos: {error}</div>}
+
+            <VideoCarousel
+                label={label}
+                items={viewItems}
+                isLoading={loading}
+                skeletonCount={limit}
+            />
+
             {!loading && !error && !items.length && <div>No videos yet.</div>}
 
-            {!!viewItems.length && (
-                <>
-                    <VideoCarousel label={label} items={viewItems} />
-                    {open && (
-                        <ReelsLightbox
-                            items={items}
-                            startIndex={startIndex}
-                            onClose={() => setOpen(false)}
-                        />
-                    )}
-                </>
+            {open && (
+                <ReelsLightbox
+                    items={items}
+                    startIndex={startIndex}
+                    onClose={() => setOpen(false)}
+                />
             )}
         </section>
     );

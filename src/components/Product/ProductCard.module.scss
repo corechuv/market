@@ -53,7 +53,9 @@ $bp-md: 768px;
     margin: 0 3px;
   }
 
-  &--disable { opacity: .75; }
+  &--disable {
+    opacity: .75;
+  }
 
   &--name {
     margin: 6px 0 6px;
@@ -77,10 +79,17 @@ $bp-md: 768px;
       font-weight: 400;
       font-size: 20px;
       color: var(--text);
-      @media (max-width: $bp-md) { font-size: 18px; }
+
+      @media (max-width: $bp-md) {
+        font-size: 18px;
+      }
     }
 
-    &--row { display: flex; align-items: center; gap: 8px; }
+    &--row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
     &--discount {
       font-size: 12px;
@@ -106,34 +115,118 @@ $bp-md: 768px;
       &::after {
         content: "";
         position: absolute;
-        left: 2px; right: 2px; top: 50%;
-        height: 1px; border-radius: 20px;
+        left: 2px;
+        right: 2px;
+        top: 50%;
+        height: 1px;
+        border-radius: 20px;
         background: var(--text);
         transform: translateY(-50%) rotate(-4deg);
         transform-origin: 50% 50%;
         pointer-events: none;
       }
 
-      @media (max-width: $bp-md) { font-size: 15px; }
+      @media (max-width: $bp-md) {
+        font-size: 15px;
+      }
     }
   }
 
   &__available {
-    display: flex; align-items: center; gap: 8px;
-    font-weight: 300; font-size: 14px; color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 300;
+    font-size: 14px;
+    color: var(--text);
     margin-top: 5px;
 
-    @media (max-width: $bp-md) { font-size: 13px; }
+    @media (max-width: $bp-md) {
+      font-size: 13px;
+    }
 
     &--badge {
-      display: flex; width: 5px; height: 5px; border-radius: 50%;
-      &--true { background-color: var(--available-color); }
-      &--false { background-color: var(--not-available-color); }
+      display: flex;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+
+      &--true {
+        background-color: var(--available-color);
+      }
+
+      &--false {
+        background-color: var(--not-available-color);
+      }
     }
 
     &--text {
-      &--true { color: var(--available-color); }
-      &--false { color: var(--not-available-color); }
+      &--true {
+        color: var(--available-color);
+      }
+
+      &--false {
+        color: var(--not-available-color);
+      }
+    }
+  }
+}
+
+/* ==== Skeleton styles ==== */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Базовый миксин для шимеров */
+%skeleton {
+  background: linear-gradient(90deg,
+      #ededed 25%,
+      #f6f6f6 37%,
+      #ededed 63%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.2s ease-in-out infinite;
+  border-radius: 8px;
+  color: transparent;
+}
+
+/* Модификатор карточки в режиме загрузки */
+.item--skeleton {
+  pointer-events: none;
+  user-select: none;
+
+  /* затемняем метатеги, если вдруг есть */
+  .item__price {
+    opacity: 1;
+  }
+}
+
+/* Элементы-утилиты скелетона */
+.skeletonBlock {
+  @extend %skeleton;
+  width: 100%;
+  aspect-ratio: 1/1;
+}
+
+.skeletonLine {
+  @extend %skeleton;
+  border-radius: 6px;
+}
+
+
+/* Уже существующий плейсхолдер картинки делаем шимерным */
+.item {
+  &__watch {
+    &--placeholder {
+      @extend %skeleton;
+      width: 100%;
+      aspect-ratio: 1/1;
+      border-radius: 14px;
     }
   }
 }

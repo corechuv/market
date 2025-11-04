@@ -1,16 +1,19 @@
 // src/components/Product/ProductCarousel.tsx
-import React from "react"; "react";
+import React from "react";
 import Carousel from "../UI/Carousel/Carousel";
 import ProductCard from "./ProductCard";
 import type { Product, ProductVariant } from "../../types/product";
 import { parseMoney } from "../../types/helpers/parseMoney";
 import { getInitialVariant } from "../../specs/builders";
+import ProductCardSkeleton from "./ProductCard.Skeleton";
 
 export interface ProductCarouselProps {
     products: Product[];
     className?: string;
     label?: string;
     onItemClick?: (product: Product) => void;
+    isLoading?: boolean;
+    skeletonCount?: number;
 }
 
 function computeProductComputed(product: Product) {
@@ -40,9 +43,31 @@ function computeProductComputed(product: Product) {
     return { imageSrc, images, price, compareAt, available, discountPercent, energyClassArrow, energyClass };
 }
 
-const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, className = "", label, onItemClick }) => {
+const ProductCarousel: React.FC<ProductCarouselProps> = ({
+    products,
+    className = "",
+    label,
+    onItemClick,
+    isLoading = false,
+    skeletonCount = 8,
+}) => {
+    if (isLoading) {
+        const placeholders = Array.from({ length: skeletonCount }, (_, i) => i);
+
+        return (
+            <Carousel<number>
+                items={placeholders}
+                className={className}
+                label={label}
+                getKey={(n) => `skeleton-${n}`}
+                renderItem={() => <ProductCardSkeleton />}
+            // опционально: controls={{ show: false }}
+            />
+        );
+    }
+
     return (
-        <Carousel
+        <Carousel<Product>
             items={products}
             className={className}
             label={label}
