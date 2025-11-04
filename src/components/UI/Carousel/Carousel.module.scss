@@ -75,17 +75,17 @@ $bp-lg: 1024px;
     display: none;
   }
 
-  --visible: 2;
+  --visible: 1.5;
   /* <768 — 2 */
 
   /* Then media overrides */
   @media (min-width: $bp-md) {
-    --visible: 3;
+    --visible: 2.5;
   }
 
   /* 768–1023 — 3 */
   @media (min-width: $bp-lg) {
-    --visible: 4;
+    --visible: 3.5;
   }
 
   /* ≥1024 — 4 */
