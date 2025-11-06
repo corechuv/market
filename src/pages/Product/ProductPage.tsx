@@ -36,7 +36,7 @@ export default function ProductPage() {
 
   // --- загрузка товара ---
   const [product, setProduct] = React.useState<Product | undefined>(undefined);
-  const [loading, setLoading] = React.useState<boolean>(true);
+  const [, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -178,26 +178,16 @@ export default function ProductPage() {
     };
   }, [product?.id]);
 
-  // --- загрузочные состояния (после объявления всех хуков!) ---
-  if (loading) {
-    return (
-      <div className="container">
-        <div className={cls.product}>
-          <Breadcrumbs crumbs={[]} />
-          <h2>Loading…</h2>
-        </div>
-      </div>
-    );
-  }
-
   if (error || !product) {
     return (
-      <div className="container">
-        <div className={cls.product}>
-          <Breadcrumbs crumbs={categoryCrumbs as any} />
-          <h2>{error ?? "Product not found"}</h2>
+      <Page>
+        <div className="container">
+          <div className={cls.product}>
+            <Breadcrumbs crumbs={categoryCrumbs as any} />
+            {/*<h2>{error ?? "Product not found"}</h2>*/}
+          </div>
         </div>
-      </div>
+      </Page>
     );
   }
 

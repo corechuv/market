@@ -51,13 +51,14 @@
   position: relative;
   overflow: hidden;
   /* обрезаем выступающие края */
-  max-width: var(--img-size);
+  /* max-width: var(--img-size); */
   max-height: var(--img-size);
   border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0;
+  background-color: var(--bg-wrapper-details-image);
 
   img {
     width: 100%;

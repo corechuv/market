@@ -62,6 +62,10 @@ body[data-theme='light'] {
   --card-auth: rgba(248, 248, 248, .6);
 
 
+  /* Images Details */
+  --bg-wrapper-details-image: #fbfbfb;
+
+
   --background-color-input: 0 0 0 / .05;
   --background-color-tabs: #0000000a;
   --background-color-tab: linear-gradient(180deg, rgba(0 0 0 / .05), rgba(0 0 0 / .03));
@@ -78,7 +82,7 @@ body[data-theme='light'] {
 
   /* ReviewHistogram */
   --fill: #212121;
-  --muted: #475569;
+  --muted: #6a6a6a;
   --track: #e5e7eb;
   /* End ReviewHistogram */
 
@@ -211,6 +215,9 @@ body[data-theme='dark'] {
 
   --card-auth: #0c0c0c;
 
+  /* Images Details */
+  --bg-wrapper-details-image: white;
+
 
   --background-color-input: 255 255 255 / .05;
   --background-color-tabs: #ffffff0a;
@@ -228,7 +235,7 @@ body[data-theme='dark'] {
 
   /* ReviewHistogram */
   --fill: #47597b;
-  --muted: #94a3b8;
+  --muted: #6a6a6a;
   --track: #1f2937;
   /* End ReviewHistogram */
 
@@ -287,7 +294,7 @@ body[data-theme='dark'] {
   /* End Select UI */
 
   --bg-order-more: #000000;
-  
+
 
   --bg-rating-value: #fdffd629;
 
