@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import styles from "./BrandCarousel.module.scss";
 
 export type BrandImage = {
@@ -14,6 +14,8 @@ type Props = {
   className?: string;
   label?: string;
   ariaLabel?: string;
+  /** Длительность полного цикла прокрутки (сек). Чем больше — тем медленнее. По умолчанию 120 */
+  durationSec?: number;
 };
 
 type Theme = "light" | "dark";
@@ -31,9 +33,13 @@ export default function BrandCarousel({
   className,
   label,
   ariaLabel,
+  durationSec = 120, // медленно по умолчанию
 }: Props) {
   // null на первом рендере (SSR/гидратация), затем 'light' | 'dark'
   const [resolvedTheme, setResolvedTheme] = useState<Theme | null>(null);
+
+  // Дублируем список для бесконечной петли
+  const looped = useMemo(() => [...images, ...images], [images]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -91,16 +97,22 @@ export default function BrandCarousel({
   return (
     <div className={styles.listContainer}>
       {label ? <h2 className={styles.title}>{label}</h2> : null}
-      <div className={`${styles.root} ${className ?? ""}`}>
+
+      {/* durationSec пробрасываем в CSS-переменную */}
+      <div
+        className={`${styles.root} ${className ?? ""}`}
+        style={{ ["--duration" as any]: `${Math.max(1, durationSec)}s` }}
+      >
         <ul className={styles.track} aria-label={ariaLabel ?? "Бренды"} role="list">
-          {images.map((img, i) => {
+          {looped.map((img, i) => {
+            const isClone = i >= images.length; // вторая половина — клон
             const alt = img.alt ?? img.name ?? "";
 
             // Пока тема не определилась (первый рендер/SSR) — безопасный <picture> с авто-выбором
             if (resolvedTheme === null) {
               const fallback = pickAny(img) ?? "";
               return (
-                <li className={styles.item} key={i}>
+                <li className={styles.item} key={`pre-${i}`} aria-hidden={isClone}>
                   <picture>
                     {img.dark?.svg && (
                       <source srcSet={img.dark.svg} media="(prefers-color-scheme: dark)" type="image/svg+xml" />
@@ -119,7 +131,7 @@ export default function BrandCarousel({
             // Когда тема известна — рендерим один конкретный src (без <picture>)
             const forced = pickByMode(img, resolvedTheme) ?? pickAny(img) ?? "";
             return (
-              <li className={styles.item} key={i}>
+              <li className={styles.item} key={`img-${i}`} aria-hidden={isClone}>
                 <img src={forced} alt={alt} loading="lazy" draggable={false} />
               </li>
             );

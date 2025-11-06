@@ -45,7 +45,6 @@
   object-fit: contain;
   padding: 25px;
   border-radius: 16px;
-  background-color: var(--bg-card);
   cursor: pointer;
 }
 
@@ -69,5 +68,58 @@
 
   .item {
     scroll-snap-align: start;
+  }
+}
+
+.listContainer {
+  width: 100%;
+}
+
+.title {
+  margin: 0 0 12px;
+  font: inherit;
+  font-weight: 600;
+}
+
+.root {
+  --logo-h: 32px;
+  --duration: 120s; /* запасной дефолт, если не передали через style */
+  --edge-fade: 80px;
+
+  position: relative;
+  overflow: hidden;
+
+}
+
+.track {
+  display: flex;
+  flex-wrap: nowrap; /* одна строка */
+  align-items: center;
+  gap: var(--gap);
+  width: max-content; /* ширина по содержимому */
+  will-change: transform;
+  animation: marquee var(--duration) linear infinite;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%); /* уезжаем ровно на половину ширины (т.к. список продублирован) */
+  }
+}
+
+.item {
+  flex: 0 0 auto; /* запрещаем перенос и сжатие */
+}
+
+.root:hover .item img {
+  opacity: 1;
+  filter: none;
+}
+
+/* Уважение к reduce-motion */
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+    transform: none;
   }
 }
