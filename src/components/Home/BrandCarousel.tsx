@@ -33,7 +33,7 @@ export default function BrandCarousel({
   className,
   label,
   ariaLabel,
-  durationSec = 120, // медленно по умолчанию
+  durationSec = 35, // медленно по умолчанию
 }: Props) {
   // null на первом рендере (SSR/гидратация), затем 'light' | 'dark'
   const [resolvedTheme, setResolvedTheme] = useState<Theme | null>(null);
