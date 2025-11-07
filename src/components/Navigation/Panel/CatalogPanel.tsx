@@ -188,7 +188,7 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                     onTouchStart={onTouchStart}
                     onTouchEnd={onTouchEnd}
                 >
-                    <div className={c.bar}>
+                    <div className={c.topbar}>
                         <button className={c.back} onClick={back} aria-label="Back to roots" type="button">
                             <ChevronLeftIcon /> Back
                         </button>
@@ -217,7 +217,7 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                     onTouchStart={onTouchStart}
                     onTouchEnd={onTouchEnd}
                 >
-                    <div className={c.bar}>
+                    <div className={c.topbar}>
                         <button className={c.back} onClick={back} aria-label="Back to subcategories" type="button">
                             <ChevronLeftIcon /> Back
                         </button>
