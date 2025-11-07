@@ -2,10 +2,8 @@
 .s {
     flex: 1 1 auto;
     min-height: 0;
-    /* важно для flex, иначе не сожмётся и скролла не будет */
     overflow-y: auto;
-    /* этот элемент скроллит */
     -webkit-overflow-scrolling: touch;
-    /* приятный инерционный скролл на iOS */
-    overscroll-behavior-y: contain; // не «пробрасывать» скролл на body
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
 }

@@ -1,13 +1,12 @@
 // src/pages/Search/ModileSearchPage.module.scss
 .page {
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
-    /* вместо 100dvh — мы уже растянуты предками */
-    background: var(--bg);
-    color: var(--text);
-    position: fixed;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+
+  height: 100dvh;                /* важно на мобилках */
+  overscroll-behavior: none;     /* не «пробрасывать» на окно */
+  background: var(--bg);
+  color: var(--text);
 }
