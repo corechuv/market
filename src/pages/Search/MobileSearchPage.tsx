@@ -6,6 +6,7 @@ import { getProducts } from "../../services/productService";
 import SearchField from "../../components/UI/SearchField";
 import Page from "../../components/UI/Page/Page";
 import SearchResultsList from "../../components/Search/SearchResultsList";
+import MasterBar from "../../components/UI/Bars/MasterBar";
 
 type ProductLike = { id: string | number; name?: string; title?: string };
 
@@ -88,6 +89,7 @@ export default function MobileSearchPage() {
     return (
         <Page padding={false}>
             <div className={styles.page} role="search">
+                <MasterBar title="Search" includeBars />
                 <SearchField
                     ref={inputRef}
                     value={query}
