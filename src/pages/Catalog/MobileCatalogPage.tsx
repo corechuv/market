@@ -108,93 +108,95 @@ export default function MobileCatalogPage() {
 
     return (
         <Page padding={false}>
-            <div className={c.drawer}>
-                {/* SCREEN L1: ROOTS */}
-                <div className={screenClass("L1")}>
-                    <MasterBar title="Catalog" />
-                    {isLoading ? (
-                        <div className={c.skeleton} role="status" aria-live="polite">
-                            Загрузка…
-                        </div>
-                    ) : error && roots.length === 0 ? (
-                        <div className={c.skeleton} role="alert">
-                            Не удалось загрузить категории
-                        </div>
-                    ) : (
-                        <ul className={c.list}>
-                            {roots.map((cat) => (
-                                <li key={cat.id} className={c.list__item} onClick={() => openL2(cat)}>
-                                    <span
-                                        className={c["list__item--label"]}
-                                        aria-label={`Open ${cat.name}`}
-                                        title={cat.name}
-                                    >
-                                        {cat.name}
-                                    </span>
-                                    <ChevronRightIcon className={c["list__item--icon-right"]} />
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-
-                {/* SCREEN L2 */}
-                <div className={screenClass("L2")} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-                    <div className={c.mastbar}>
-                        <button className={c.back} onClick={back} aria-label="Back to roots" type="button">
-                            <ChevronLeftIcon /> Back
-                        </button>
-                    </div>
-
-                    {rootCat && (
-                        <>
-                            <h2 className={c.title}>{rootCat.name}</h2>
+            <div className={c.page}>
+                <div className={c.drawer}>
+                    {/* SCREEN L1: ROOTS */}
+                    <div className={screenClass("L1")}>
+                        <MasterBar title="Catalog" />
+                        {isLoading ? (
+                            <div className={c.skeleton} role="status" aria-live="polite">
+                                Загрузка…
+                            </div>
+                        ) : error && roots.length === 0 ? (
+                            <div className={c.skeleton} role="alert">
+                                Не удалось загрузить категории
+                            </div>
+                        ) : (
                             <ul className={c.list}>
-                                {l2List.map((l2) => (
-                                    <li key={l2.id} className={c.list__item} onClick={() => openL3(l2)}>
+                                {roots.map((cat) => (
+                                    <li key={cat.id} className={c.list__item} onClick={() => openL2(cat)}>
                                         <span
                                             className={c["list__item--label"]}
-                                            aria-label={`Open ${l2.name}`}
-                                            title={l2.name}
+                                            aria-label={`Open ${cat.name}`}
+                                            title={cat.name}
                                         >
-                                            {l2.name}
+                                            {cat.name}
                                         </span>
                                         <ChevronRightIcon className={c["list__item--icon-right"]} />
                                     </li>
                                 ))}
                             </ul>
-                        </>
-                    )}
-                </div>
-
-                {/* SCREEN L3 */}
-                <div className={screenClass("L3")} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-                    <div className={c.mastbar}>
-                        <button className={c.back} onClick={back} aria-label="Back to subcategories" type="button">
-                            <ChevronLeftIcon /> Back
-                        </button>
+                        )}
                     </div>
 
-                    {l2Cat && (
-                        <>
-                            <h2 className={c.title}>{l2Cat.name}</h2>
-                            <ul className={c.list}>
-                                {l3List.map((leaf) => (
-                                    <li
-                                        key={leaf.id}
-                                        className={c.list__item}
-                                        onClick={() => {
-                                            nav(`/category${leaf.fullSlug}`);
-                                        }}
-                                    >
-                                        <span className={c["list__item--label"]} title={leaf.name}>
-                                            {leaf.name}
-                                        </span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </>
-                    )}
+                    {/* SCREEN L2 */}
+                    <div className={screenClass("L2")} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+                        <div className={c.mastbar}>
+                            <button className={c.back} onClick={back} aria-label="Back to roots" type="button">
+                                <ChevronLeftIcon /> Back
+                            </button>
+                        </div>
+
+                        {rootCat && (
+                            <>
+                                <h2 className={c.title}>{rootCat.name}</h2>
+                                <ul className={c.list}>
+                                    {l2List.map((l2) => (
+                                        <li key={l2.id} className={c.list__item} onClick={() => openL3(l2)}>
+                                            <span
+                                                className={c["list__item--label"]}
+                                                aria-label={`Open ${l2.name}`}
+                                                title={l2.name}
+                                            >
+                                                {l2.name}
+                                            </span>
+                                            <ChevronRightIcon className={c["list__item--icon-right"]} />
+                                        </li>
+                                    ))}
+                                </ul>
+                            </>
+                        )}
+                    </div>
+
+                    {/* SCREEN L3 */}
+                    <div className={screenClass("L3")} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+                        <div className={c.mastbar}>
+                            <button className={c.back} onClick={back} aria-label="Back to subcategories" type="button">
+                                <ChevronLeftIcon /> Back
+                            </button>
+                        </div>
+
+                        {l2Cat && (
+                            <>
+                                <h2 className={c.title}>{l2Cat.name}</h2>
+                                <ul className={c.list}>
+                                    {l3List.map((leaf) => (
+                                        <li
+                                            key={leaf.id}
+                                            className={c.list__item}
+                                            onClick={() => {
+                                                nav(`/category${leaf.fullSlug}`);
+                                            }}
+                                        >
+                                            <span className={c["list__item--label"]} title={leaf.name}>
+                                                {leaf.name}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
         </Page>
