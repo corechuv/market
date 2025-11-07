@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 import c from "../../components/Navigation/Panel/CatalogPanel.module.scss";
 
 // FIX: в исходнике были перепутаны импорты иконок
-import ChevronLeftIcon from "../../components/Icons/ChevronLeftIcon";
-import ChevronRightIcon from "../../components/Icons/ChevronRightIcon";
+import ChevronRightIcon from "../../components/Icons/ChevronLeftIcon";
+import ChevronLeftIcon from "../../components/Icons/ChevronRightIcon";
 
 import type { Category as Cat } from "../../types/category";
 import {
@@ -117,10 +117,7 @@ export default function MobileCatalogPage() {
       >
         <div className={c.drawer}>
           {/* SCREEN L1: ROOTS */}
-          <div className={screenClass("L1")}>            
-            <button className={c.back} onClick={smartBack} aria-label="Back" type="button">
-              <ChevronLeftIcon /> Back
-            </button>
+          <div className={screenClass("L1")}>
 
             {isLoading ? (
               <div className={c.skeleton} role="status" aria-live="polite">
