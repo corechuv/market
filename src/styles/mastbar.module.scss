@@ -1,0 +1,16 @@
+// src/styles/topbar.module.scss
+.titlebase {
+    color: var(--text);
+    margin: 0;
+    font-size: 1.6rem;
+    line-height: 1;
+    font-weight: 500;
+}
+
+.mastbar {
+    padding: 1.5rem 1.2rem 0;
+
+    &__title {
+        @extend .titlebase;
+    }
+}

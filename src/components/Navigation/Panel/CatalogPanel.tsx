@@ -21,6 +21,7 @@ import {
     syncFromApi,
     getStatus,
 } from "../../../services/categoryService";
+import MasterBar from "../../UI/Bars/MasterBar";
 
 interface CatalogPanelProps {
     /** Управление видимостью извне (Navigation) */
@@ -157,6 +158,7 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
             <div className={c.drawer}>
                 {/* SCREEN L1: ROOTS */}
                 <div className={screenClass("L1")}>
+                    <MasterBar title="Catalog" />
                     {isLoading ? (
                         <div className={c.skeleton} role="status" aria-live="polite">
                             Загрузка…
@@ -166,19 +168,16 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                             Не удалось загрузить категории
                         </div>
                     ) : (
-                        <>
-                            <h2 className={c.title}>Catalog</h2>
-                            <ul className={c.list}>
-                                {roots.map((cat) => (
-                                    <li key={cat.id} className={c.list__item} onClick={() => openL2(cat)}>
-                                        <span className={c["list__item--label"]} aria-label={`Open ${cat.name}`} title={cat.name}>
-                                            {cat.name}
-                                        </span>
-                                        <ChevronRightIcon className={c["list__item--icon-right"]} />
-                                    </li>
-                                ))}
-                            </ul>
-                        </>
+                        <ul className={c.list}>
+                            {roots.map((cat) => (
+                                <li key={cat.id} className={c.list__item} onClick={() => openL2(cat)}>
+                                    <span className={c["list__item--label"]} aria-label={`Open ${cat.name}`} title={cat.name}>
+                                        {cat.name}
+                                    </span>
+                                    <ChevronRightIcon className={c["list__item--icon-right"]} />
+                                </li>
+                            ))}
+                        </ul>
                     )}
                 </div>
 
@@ -188,7 +187,7 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                     onTouchStart={onTouchStart}
                     onTouchEnd={onTouchEnd}
                 >
-                    <div className={c.topbar}>
+                    <div className={c.mastbar}>
                         <button className={c.back} onClick={back} aria-label="Back to roots" type="button">
                             <ChevronLeftIcon /> Back
                         </button>
@@ -217,7 +216,7 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                     onTouchStart={onTouchStart}
                     onTouchEnd={onTouchEnd}
                 >
-                    <div className={c.topbar}>
+                    <div className={c.mastbar}>
                         <button className={c.back} onClick={back} aria-label="Back to subcategories" type="button">
                             <ChevronLeftIcon /> Back
                         </button>

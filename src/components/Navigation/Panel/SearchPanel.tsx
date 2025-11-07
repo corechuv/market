@@ -12,6 +12,7 @@ import { getProducts } from "../../../services/productService";
 import c from "./SearchPanel.module.scss";
 import SearchField from "../../UI/SearchField";
 import SearchResultsList from "../../Search/SearchResultsList";
+import MasterBar from "../../UI/Bars/MasterBar";
 
 export interface SearchItem {
   id: string;
@@ -132,6 +133,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
       onMouseLeave={onMouseLeave}
       className={c.g}
     >
+      <MasterBar title="Search" includeBars />
       <SearchField
         ref={inputRef}
         value={query}
