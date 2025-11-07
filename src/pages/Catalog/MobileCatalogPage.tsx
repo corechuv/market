@@ -141,9 +141,11 @@ export default function MobileCatalogPage() {
 
                 {/* SCREEN L2 */}
                 <div className={screenClass("L2")} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-                    <button className={c.back} onClick={back} aria-label="Back to roots" type="button">
-                        <ChevronLeftIcon /> Back
-                    </button>
+                    <div className={c.bar}>
+                        <button className={c.back} onClick={back} aria-label="Back to roots" type="button">
+                            <ChevronLeftIcon /> Back
+                        </button>
+                    </div>
 
                     {rootCat && (
                         <>
@@ -168,9 +170,11 @@ export default function MobileCatalogPage() {
 
                 {/* SCREEN L3 */}
                 <div className={screenClass("L3")} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-                    <button className={c.back} onClick={back} aria-label="Back to subcategories" type="button">
-                        <ChevronLeftIcon /> Back
-                    </button>
+                    <div className={c.bar}>
+                        <button className={c.back} onClick={back} aria-label="Back to subcategories" type="button">
+                            <ChevronLeftIcon /> Back
+                        </button>
+                    </div>
 
                     {l2Cat && (
                         <>
