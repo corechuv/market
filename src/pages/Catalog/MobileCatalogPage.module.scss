@@ -2,6 +2,12 @@
 @use "../../styles/default_list.module.scss";
 @use "../../styles/mastbar.module.scss";
 
+.page {
+    min-height: 100dvh;
+    background: var(--bg);
+    color: var(--text);
+}
+
 .screenBase {
     position: absolute;
     inset: 0;
