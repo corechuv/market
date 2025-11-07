@@ -15,13 +15,15 @@ import SettingsPanel from "./Panel/SettingsPanel";
 import { useLockBodyScroll } from "../../hooks/useLockBodyScroll";
 import GridIcon from "../Icons/GridIcon";
 import CatalogPanel from "./Panel/CatalogPanel";
+import NotificationsPanel from "./Panel/NotificationsPanel";
+import NotificationIcon from "../Icons/NotificationIcon";
 
 export interface Props {
   className?: string;
   hideOnMobile?: boolean;
 }
 
-type PanelId = "search" | "catalog" | "settings";
+type PanelId = "search" | "catalog" | "notifications" | "settings";
 
 type BaseItem = {
   id: string;
@@ -96,6 +98,15 @@ const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
       icon: <PlayIcon />,
       action: "link",
       to: "/videos?sort=trending",
+      align: "top",
+    },
+    {
+      id: "notifications",
+      ariaLabel: "Notifications",
+      icon: <NotificationIcon />,
+      action: "panel",
+      panel: "notifications",
+      controlsId: "notifications-panel",
       align: "top",
     },
     {
@@ -199,6 +210,9 @@ const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
           )}
           {activePanel === "catalog" && (
             <CatalogPanel open onClose={closePanels} anchorRole="catalog" />
+          )}
+          {activePanel === "notifications" && (
+            <NotificationsPanel open onClose={closePanels} anchorRole="notifications" />
           )}
           {activePanel === "settings" && (
             <SettingsPanel open onClose={closePanels} anchorRole="settings" />
