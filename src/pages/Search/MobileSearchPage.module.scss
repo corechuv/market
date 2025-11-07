@@ -6,4 +6,8 @@
     /* вместо 100dvh — мы уже растянуты предками */
     background: var(--bg);
     color: var(--text);
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
 }

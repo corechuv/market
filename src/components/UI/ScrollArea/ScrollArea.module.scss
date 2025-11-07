@@ -1,9 +1,11 @@
 // src/components/UI/ScrollArea/ScrollArea.module.scss
 .s {
-    width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+    /* важно для flex, иначе не сожмётся и скролла не будет */
     overflow-y: auto;
-
-    /* улучшения для мобильных */
-    -webkit-overflow-scrolling: touch; // iOS momentum scroll
+    /* этот элемент скроллит */
+    -webkit-overflow-scrolling: touch;
+    /* приятный инерционный скролл на iOS */
     overscroll-behavior-y: contain; // не «пробрасывать» скролл на body
 }
