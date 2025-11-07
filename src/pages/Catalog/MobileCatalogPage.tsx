@@ -1,20 +1,19 @@
+// src/pages/Catalog/MobileCatalogPage.tsx
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Reuse existing styles from the panel so the look/animations stay identical
-import c from "../../components/Navigation/Panel/CatalogPanel.module.scss";
+import c from "./MobileCatalogPage.module.scss";
 
-// FIX: в исходнике были перепутаны импорты иконок
 import ChevronRightIcon from "../../components/Icons/ChevronLeftIcon";
 import ChevronLeftIcon from "../../components/Icons/ChevronRightIcon";
 
 import type { Category as Cat } from "../../types/category";
 import {
-  getRootCategories,
-  getChildren,
-  subscribe,
-  syncFromApi,
-  getStatus,
+    getRootCategories,
+    getChildren,
+    subscribe,
+    syncFromApi,
+    getStatus,
 } from "../../services/categoryService";
 
 import Page from "../../components/UI/Page/Page";
@@ -22,188 +21,179 @@ import Page from "../../components/UI/Page/Page";
 type Stage = "L1" | "L2" | "L3";
 
 export default function MobileCatalogPage() {
-  const nav = useNavigate();
+    const nav = useNavigate();
 
-  // ----- загрузка категорий -----
-  const [tick, force] = useReducer((x) => x + 1, 0);
-  const [{ loaded, error }, setStatus] = useState(getStatus());
+    // ----- загрузка категорий -----
+    const [tick, force] = useReducer((x) => x + 1, 0);
+    const [{ loaded, error }, setStatus] = useState(getStatus());
 
-  useEffect(() => {
-    const off = subscribe(() => {
-      setStatus(getStatus());
-      force();
-    });
-    void syncFromApi().then(() => setStatus(getStatus()));
-    return off;
-  }, []);
+    useEffect(() => {
+        const off = subscribe(() => {
+            setStatus(getStatus());
+            force();
+        });
+        void syncFromApi().then(() => setStatus(getStatus()));
+        return off;
+    }, []);
 
-  const roots = useMemo(() => getRootCategories(), [tick]);
-  const isLoading = !loaded && roots.length === 0;
+    const roots = useMemo(() => getRootCategories(), [tick]);
+    const isLoading = !loaded && roots.length === 0;
 
-  // ----- L1/L2/L3 -----
-  const [stage, setStage] = useState<Stage>("L1");
-  const [rootCat, setRootCat] = useState<Cat | null>(null);
-  const [l2Cat, setL2Cat] = useState<Cat | null>(null);
+    // ----- L1/L2/L3 -----
+    const [stage, setStage] = useState<Stage>("L1");
+    const [rootCat, setRootCat] = useState<Cat | null>(null);
+    const [l2Cat, setL2Cat] = useState<Cat | null>(null);
 
-  const l2List = useMemo<Cat[]>(() => (rootCat ? getChildren(rootCat.id) : []), [rootCat, tick]);
-  const l3List = useMemo<Cat[]>(() => (l2Cat ? getChildren(l2Cat.id) : []), [l2Cat, tick]);
+    const l2List = useMemo<Cat[]>(() => (rootCat ? getChildren(rootCat.id) : []), [rootCat, tick]);
+    const l3List = useMemo<Cat[]>(() => (l2Cat ? getChildren(l2Cat.id) : []), [l2Cat, tick]);
 
-  const openL2 = (cat: Cat) => {
-    setRootCat(cat);
-    setL2Cat(null);
-    setStage("L2");
-  };
+    const openL2 = (cat: Cat) => {
+        setRootCat(cat);
+        setL2Cat(null);
+        setStage("L2");
+    };
 
-  const openL3 = (cat: Cat) => {
-    const children = getChildren(cat.id);
-    if (!children.length) {
-      nav(`/category${cat.fullSlug}`);
-      return;
-    }
-    setL2Cat(cat);
-    setStage("L3");
-  };
+    const openL3 = (cat: Cat) => {
+        const children = getChildren(cat.id);
+        if (!children.length) {
+            nav(`/category${cat.fullSlug}`);
+            return;
+        }
+        setL2Cat(cat);
+        setStage("L3");
+    };
 
-  const smartBack = () => {
-    if (window.history.length > 1) nav(-1);
-    else nav("/");
-  };
+    const smartBack = () => {
+        if (window.history.length > 1) nav(-1);
+        else nav("/");
+    };
 
-  const back = () => {
-    if (stage === "L3") {
-      setStage("L2");
-      return;
-    }
-    if (stage === "L2") {
-      setStage("L1");
-      setL2Cat(null);
-      return;
-    }
-    smartBack();
-  };
+    const back = () => {
+        if (stage === "L3") {
+            setStage("L2");
+            return;
+        }
+        if (stage === "L2") {
+            setStage("L1");
+            setL2Cat(null);
+            return;
+        }
+        smartBack();
+    };
 
-  // свайп-назад (вправо) на L2/L3
-  const touchStartX = useRef<number | null>(null);
-  const onTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-  const onTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current == null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (dx > 60) back();
-    touchStartX.current = null;
-  };
+    // свайп-назад (вправо) на L2/L3
+    const touchStartX = useRef<number | null>(null);
+    const onTouchStart = (e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX;
+    };
+    const onTouchEnd = (e: React.TouchEvent) => {
+        if (touchStartX.current == null) return;
+        const dx = e.changedTouches[0].clientX - touchStartX.current;
+        if (dx > 60) back();
+        touchStartX.current = null;
+    };
 
-  // классы для "слайдов"
-  const screenClass = useCallback(
-    (name: Stage) => {
-      if (stage === name) return c.screenActive;
-      if (name === "L1")
-        return stage === "L2" || stage === "L3" ? c.screenHiddenLeft : c.screenHiddenRight;
-      if (name === "L2") return stage === "L1" ? c.screenHiddenRight : c.screenHiddenLeft;
-      return c.screenHiddenRight; // L3
-    },
-    [stage]
-  );
+    // классы для "слайдов"
+    const screenClass = useCallback(
+        (name: Stage) => {
+            if (stage === name) return c.screenActive;
+            if (name === "L1")
+                return stage === "L2" || stage === "L3" ? c.screenHiddenLeft : c.screenHiddenRight;
+            if (name === "L2") return stage === "L1" ? c.screenHiddenRight : c.screenHiddenLeft;
+            return c.screenHiddenRight; // L3
+        },
+        [stage]
+    );
 
-  return (
-    <Page padding={false}>
-      <section
-        id="mobile-catalog"
-        role="region"
-        aria-label="Catalog"
-        data-panel="catalog"
-        className={c.g}
-      >
-        <div className={c.drawer}>
-          {/* SCREEN L1: ROOTS */}
-          <div className={screenClass("L1")}>
+    return (
+        <Page padding={false}>
+            <div className={c.drawer}>
+                {/* SCREEN L1: ROOTS */}
+                <div className={screenClass("L1")}>
+                    {isLoading ? (
+                        <div className={c.skeleton} role="status" aria-live="polite">
+                            Загрузка…
+                        </div>
+                    ) : error && roots.length === 0 ? (
+                        <div className={c.skeleton} role="alert">
+                            Не удалось загрузить категории
+                        </div>
+                    ) : (
+                        <>
+                            <h1 className={c.title}>Каталог</h1>
+                            <ul className={c.list}>
+                                {roots.map((cat) => (
+                                    <li key={cat.id} className={c.list__item} onClick={() => openL2(cat)}>
+                                        <span
+                                            className={c["list__item--label"]}
+                                            aria-label={`Open ${cat.name}`}
+                                            title={cat.name}
+                                        >
+                                            {cat.name}
+                                        </span>
+                                        <ChevronRightIcon className={c["list__item--icon-right"]} />
+                                    </li>
+                                ))}
+                            </ul>
+                        </>
+                    )}
+                </div>
 
-            {isLoading ? (
-              <div className={c.skeleton} role="status" aria-live="polite">
-                Загрузка…
-              </div>
-            ) : error && roots.length === 0 ? (
-              <div className={c.skeleton} role="alert">
-                Не удалось загрузить категории
-              </div>
-            ) : (
-              <>
-                <h1 className={c.title}>Каталог</h1>
-                <ul className={c.list}>
-                  {roots.map((cat) => (
-                    <li key={cat.id} className={c.list__item} onClick={() => openL2(cat)}>
-                      <span
-                        className={c["list__item--label"]}
-                        aria-label={`Open ${cat.name}`}
-                        title={cat.name}
-                      >
-                        {cat.name}
-                      </span>
-                      <ChevronRightIcon className={c["list__item--icon-right"]} />
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </div>
+                {/* SCREEN L2 */}
+                <div className={screenClass("L2")} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+                    <button className={c.back} onClick={back} aria-label="Back to roots" type="button">
+                        <ChevronLeftIcon /> Back
+                    </button>
 
-          {/* SCREEN L2 */}
-          <div className={screenClass("L2")} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-            <button className={c.back} onClick={back} aria-label="Back to roots" type="button">
-              <ChevronLeftIcon /> Back
-            </button>
+                    {rootCat && (
+                        <>
+                            <h2 className={c.title}>{rootCat.name}</h2>
+                            <ul className={c.list}>
+                                {l2List.map((l2) => (
+                                    <li key={l2.id} className={c.list__item} onClick={() => openL3(l2)}>
+                                        <span
+                                            className={c["list__item--label"]}
+                                            aria-label={`Open ${l2.name}`}
+                                            title={l2.name}
+                                        >
+                                            {l2.name}
+                                        </span>
+                                        <ChevronRightIcon className={c["list__item--icon-right"]} />
+                                    </li>
+                                ))}
+                            </ul>
+                        </>
+                    )}
+                </div>
 
-            {rootCat && (
-              <>
-                <h2 className={c.title}>{rootCat.name}</h2>
-                <ul className={c.list}>
-                  {l2List.map((l2) => (
-                    <li key={l2.id} className={c.list__item} onClick={() => openL3(l2)}>
-                      <span
-                        className={c["list__item--label"]}
-                        aria-label={`Open ${l2.name}`}
-                        title={l2.name}
-                      >
-                        {l2.name}
-                      </span>
-                      <ChevronRightIcon className={c["list__item--icon-right"]} />
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </div>
+                {/* SCREEN L3 */}
+                <div className={screenClass("L3")} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+                    <button className={c.back} onClick={back} aria-label="Back to subcategories" type="button">
+                        <ChevronLeftIcon /> Back
+                    </button>
 
-          {/* SCREEN L3 */}
-          <div className={screenClass("L3")} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-            <button className={c.back} onClick={back} aria-label="Back to subcategories" type="button">
-              <ChevronLeftIcon /> Back
-            </button>
-
-            {l2Cat && (
-              <>
-                <h2 className={c.title}>{l2Cat.name}</h2>
-                <ul className={c.list}>
-                  {l3List.map((leaf) => (
-                    <li
-                      key={leaf.id}
-                      className={c.list__item}
-                      onClick={() => {
-                        nav(`/category${leaf.fullSlug}`);
-                      }}
-                    >
-                      <span className={c["list__item--label"]} title={leaf.name}>
-                        {leaf.name}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </div>
-        </div>
-      </section>
-    </Page>
-  );
+                    {l2Cat && (
+                        <>
+                            <h2 className={c.title}>{l2Cat.name}</h2>
+                            <ul className={c.list}>
+                                {l3List.map((leaf) => (
+                                    <li
+                                        key={leaf.id}
+                                        className={c.list__item}
+                                        onClick={() => {
+                                            nav(`/category${leaf.fullSlug}`);
+                                        }}
+                                    >
+                                        <span className={c["list__item--label"]} title={leaf.name}>
+                                            {leaf.name}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </>
+                    )}
+                </div>
+            </div>
+        </Page>
+    );
 }
