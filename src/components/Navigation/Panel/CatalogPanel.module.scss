@@ -1,0 +1,195 @@
+/* ====================================================================
+   Catalog.module.scss (поместите в отдельный файл с тем же именем)
+   ==================================================================== */
+
+.g {
+    width: 100%;
+    height: 100%;
+}
+
+
+.catalogContainer {
+    width: 100%;
+    transition: border-bottom-color 0.2s ease;
+    border-bottom: 1px dashed transparent;
+
+    display: none;
+
+    &.isOpen {
+        border-bottom: 1px dashed var(--border); // при клике/открытии
+    }
+
+    &.isHover {
+        border-bottom: 1px dashed var(--border); // при наведении
+    }
+}
+
+.catalog {
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    align-items: flex-end;
+    margin: 0 auto;
+    max-width: 1024px;
+    box-sizing: border-box;
+
+    @media screen {
+        @media (max-width: 768px) {
+            padding: 0;
+        }
+    }
+}
+
+/* ---------- DESKTOP NAV ---------- */
+.categories {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 20px;
+}
+
+.categoryItem {
+    padding: 10px 0;
+}
+
+.categoryLink {
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 500;
+    transition: color 0.2s;
+
+    &:hover,
+    &:focus-visible {
+        text-decoration: underline;
+    }
+}
+
+.categoryLinkActive {
+    text-decoration: underline;
+    color: var(--text);
+}
+
+/* ---------- MOBILE ---------- */
+
+.mobileColumns {
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 12px 16px;
+}
+
+/* ---------- MOBILE SLIDE SCREENS ---------- */
+.screenBase {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    transition: transform 0.25s ease;
+}
+
+.screenActive {
+    @extend .screenBase;
+    transform: translateX(0);
+}
+
+.screenHiddenLeft {
+    @extend .screenBase;
+    transform: translateX(-100%);
+}
+
+.screenHiddenRight {
+    @extend .screenBase;
+    transform: translateX(100%);
+}
+
+.drawer {
+    position: relative;
+    /* нужно, чтобы .screen* располагались внутри */
+    overflow: hidden;
+    /* скрываем соседний экран */
+    height: 100%;
+}
+
+
+/* кнопка «Назад» */
+.back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    background: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 0;
+    margin-bottom: 20px;
+    color: var(--text);
+    cursor: pointer;
+
+    svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.groupsGrid {
+    column-count: 4;
+    /* сколько "колонок" */
+    column-gap: 24px;
+    /* зазор между колонками */
+}
+
+.group {
+    break-inside: avoid;
+    /* не разрывать блок между колонками */
+    -webkit-column-break-inside: avoid;
+    margin-bottom: 24px;
+    /* вертикальный отступ между карточками */
+}
+
+.title {
+    color: var(--text);
+    margin: 0;
+    font-size: 1.6rem;
+    line-height: 1;
+    font-weight: 500;
+    padding: 1.5rem 1.2rem;
+}
+
+.list {
+    list-style: none;
+    margin: 0;
+
+    &__item {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 0.75rem 1.2rem;
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+            background: var(--bg-hover-item);
+        }
+
+        svg {
+            width: 15px;
+            height: 15px;
+            opacity: 0.7;
+            margin-left: auto;
+            color: var(--text);
+            transition: transform 0.2s;
+        }
+
+        &--label {
+            color: var(--text);
+            font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+    }
+}
