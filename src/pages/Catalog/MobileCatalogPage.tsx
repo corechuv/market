@@ -120,7 +120,7 @@ export default function MobileCatalogPage() {
                         </div>
                     ) : (
                         <>
-                            <h1 className={c.title}>Каталог</h1>
+                            <h1 className={c.title}>Catalog</h1>
                             <ul className={c.list}>
                                 {roots.map((cat) => (
                                     <li key={cat.id} className={c.list__item} onClick={() => openL2(cat)}>
