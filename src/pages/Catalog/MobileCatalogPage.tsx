@@ -109,10 +109,17 @@ export default function MobileCatalogPage() {
     return (
         <Page padding={false}>
             <div className={c.page}>
+                {/* Бар вне трансформируемых экранов */}
+                <MasterBar title={stage === "L1" ? "Catalog" : ""}>
+                    {stage !== "L1" && (
+                        <button className={c.back} onClick={back} aria-label="Back" type="button">
+                            <ChevronLeftIcon /> Back
+                        </button>
+                    )}
+                </MasterBar>
                 <div className={c.drawer}>
                     {/* SCREEN L1: ROOTS */}
                     <div className={screenClass("L1")}>
-                        <MasterBar title="Catalog" />
                         {isLoading ? (
                             <div className={c.skeleton} role="status" aria-live="polite">
                                 Загрузка…
@@ -141,12 +148,6 @@ export default function MobileCatalogPage() {
 
                     {/* SCREEN L2 */}
                     <div className={screenClass("L2")} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-                        <MasterBar title="">
-                            <button className={c.back} onClick={back} aria-label="Back to roots" type="button">
-                                <ChevronLeftIcon /> Back
-                            </button>
-                        </MasterBar>
-
                         {rootCat && (
                             <>
                                 <h2 className={c.title}>{rootCat.name}</h2>
@@ -170,12 +171,6 @@ export default function MobileCatalogPage() {
 
                     {/* SCREEN L3 */}
                     <div className={screenClass("L3")} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-                        <MasterBar title="">
-                            <button className={c.back} onClick={back} aria-label="Back to subcategories" type="button">
-                                <ChevronLeftIcon /> Back
-                            </button>
-                        </MasterBar>
-
                         {l2Cat && (
                             <>
                                 <h2 className={c.title}>{l2Cat.name}</h2>
