@@ -7,6 +7,7 @@ import SearchField from "../../components/UI/SearchField";
 import Page from "../../components/UI/Page/Page";
 import SearchResultsList from "../../components/Search/SearchResultsList";
 import MasterBar from "../../components/UI/Bars/MasterBar";
+import ScrollArea from "../../components/UI/ScrollArea/ScrollArea";
 
 type ProductLike = { id: string | number; name?: string; title?: string };
 
@@ -106,7 +107,7 @@ export default function MobileSearchPage() {
                         resultsLength={results.length}
                     />
                 </MasterBar>
-                <div className={styles.scrollArea}>
+                <ScrollArea>
                     <SearchResultsList
                         items={results}
                         getKey={(p) => String(p.id)}
@@ -118,7 +119,7 @@ export default function MobileSearchPage() {
                         listId={listboxId}
                         skeletonRows={6}
                     />
-                </div>
+                </ScrollArea>
             </div>
         </Page>
     );
