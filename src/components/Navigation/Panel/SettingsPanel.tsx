@@ -63,10 +63,10 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         Notifications
                     </span>
                 </li>
-                <li className={c.list__item} onClick={() => { nav("/account/profile") }}>
+                <li className={c.list__item} onClick={() => { nav("/account") }}>
                     <AccountIcon className={c["list__item--icon-left"]} />
                     <span className={c["list__item--label"]} aria-label={``} title="">
-                        Edit profile
+                        Account
                     </span>
                 </li>
             </ul>
