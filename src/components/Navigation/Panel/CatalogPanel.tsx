@@ -167,6 +167,7 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                         </div>
                     ) : (
                         <>
+                            <h2 className={c.title}>Catalog</h2>
                             <ul className={c.list}>
                                 {roots.map((cat) => (
                                     <li key={cat.id} className={c.list__item} onClick={() => openL2(cat)}>
