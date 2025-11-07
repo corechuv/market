@@ -2,6 +2,7 @@
 import React from "react";
 import c from "./NotificationsPanel.module.scss";
 import { useNavigate } from "react-router-dom";
+import MasterBar from "../../UI/Bars/MasterBar";
 
 interface NotificationsPanelProps {
     /** Управление видимостью извне (Navigation) */
@@ -37,7 +38,7 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
             onMouseLeave={onMouseLeave}
             className={c.g}
         >
-            <h2 className={c.title}>Notifications</h2>
+            <MasterBar title="Notifications" background="var(--n-bg-desktop)" />
             <ul className={c.list}>
                 <li className={c.list__item} onClick={() => { nav("/account") }}>
                     <span className={c["list__item--label"]} aria-label={``} title="">

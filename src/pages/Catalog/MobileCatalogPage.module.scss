@@ -13,6 +13,7 @@
     inset: 0;
     overflow-y: auto;
     transition: transform 0.25s ease;
+    min-height: 100dvh;
 }
 
 .screenActive {

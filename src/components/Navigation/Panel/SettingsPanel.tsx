@@ -6,6 +6,7 @@ import MoonIcon from "../../Icons/MoonIcon";
 import { useNavigate } from "react-router-dom";
 import AccountIcon from "../../Icons/AccountIcon";
 import NotificationIcon from "../../Icons/NotificationIcon";
+import MasterBar from "../../UI/Bars/MasterBar";
 
 interface SettingsPanelProps {
     /** Управление видимостью извне (Navigation) */
@@ -55,7 +56,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             onMouseLeave={onMouseLeave}
             className={c.g}
         >
-            <h2 className={c.title}></h2>
+            <MasterBar title="Settings" background="var(--n-bg-desktop)" />
             <ul className={c.list}>
                 <li className={c.list__item} onClick={() => { nav("/account/notifications") }}>
                     <NotificationIcon className={c["list__item--icon-left"]} />

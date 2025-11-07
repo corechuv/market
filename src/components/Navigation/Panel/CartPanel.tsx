@@ -1,6 +1,7 @@
 // src/components/Navigation/Panel/CartPanel.tsx
 import React from "react";
 import c from "./CartPanel.module.scss";
+import MasterBar from "../../UI/Bars/MasterBar";
 
 interface CartPanelProps {
     /** Управление видимостью извне (Navigation) */
@@ -34,7 +35,7 @@ const CartPanel: React.FC<CartPanelProps> = ({
             onMouseLeave={onMouseLeave}
             className={c.g}
         >
-            Settings
+            <MasterBar title="Settings" background="var(--n-bg-desktop)" />
         </section>
     );
 };
