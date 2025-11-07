@@ -4,6 +4,8 @@
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 3px;
+        border-radius: 16px;
+        overflow: hidden;
     }
 
     @media (max-width: 1024px) {
@@ -15,7 +17,7 @@
     @media (max-width: 768px) {
         &__grid {
             grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 2px;
+            gap: 1px;
         }
     }
 
