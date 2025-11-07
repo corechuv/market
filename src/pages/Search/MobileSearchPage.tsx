@@ -106,18 +106,19 @@ export default function MobileSearchPage() {
                         resultsLength={results.length}
                     />
                 </MasterBar>
-
-                <SearchResultsList
-                    items={results}
-                    getKey={(p) => String(p.id)}
-                    getLabel={(p) => String(p.name ?? p.title ?? "")}
-                    onSelect={(p) => onSelect(p)}
-                    loading={loading}
-                    role="listbox"
-                    ariaLabel="Search results"
-                    listId={listboxId}
-                    skeletonRows={6}
-                />
+                <div className={styles.scrollArea}>
+                    <SearchResultsList
+                        items={results}
+                        getKey={(p) => String(p.id)}
+                        getLabel={(p) => String(p.name ?? p.title ?? "")}
+                        onSelect={(p) => onSelect(p)}
+                        loading={loading}
+                        role="listbox"
+                        ariaLabel="Search results"
+                        listId={listboxId}
+                        skeletonRows={6}
+                    />
+                </div>
             </div>
         </Page>
     );

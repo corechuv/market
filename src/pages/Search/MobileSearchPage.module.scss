@@ -1,6 +1,20 @@
 // src/pages/Search/ModileSearchPage.module.scss
 .page {
-    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    /* вместо 100dvh — мы уже растянуты предками */
     background: var(--bg);
     color: var(--text);
+}
+
+.scrollArea {
+    flex: 1 1 auto;
+    min-height: 0;
+    /* критично для flex-детей */
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    /* плавный инерционный скролл iOS */
+    overscroll-behavior: contain;
+    /* не передаём скролл документу */
 }

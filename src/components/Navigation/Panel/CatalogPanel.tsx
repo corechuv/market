@@ -155,10 +155,17 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
             onMouseLeave={onMouseLeave}
             className={c.g}
         >
+            {/* Бар вне трансформируемых экранов */}
+            <MasterBar title={stage === "L1" ? "Catalog" : ""} background="var(--n-bg-desktop)">
+                {stage !== "L1" && (
+                    <button className={c.back} onClick={back} aria-label="Back" type="button">
+                        <ChevronLeftIcon /> Back
+                    </button>
+                )}
+            </MasterBar>
             <div className={c.drawer}>
                 {/* SCREEN L1: ROOTS */}
                 <div className={screenClass("L1")}>
-                    <MasterBar title="Catalog" background="var(--n-bg-desktop)" />
                     {isLoading ? (
                         <div className={c.skeleton} role="status" aria-live="polite">
                             Загрузка…
@@ -187,12 +194,6 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                     onTouchStart={onTouchStart}
                     onTouchEnd={onTouchEnd}
                 >
-                    <MasterBar title="" background="var(--n-bg-desktop)">
-                        <button className={c.back} onClick={back} aria-label="Back to roots" type="button">
-                            <ChevronLeftIcon /> Back
-                        </button>
-                    </MasterBar>
-
                     {rootCat && (
                         <>
                             <h2 className={c.title}>{rootCat.name}</h2>
@@ -216,12 +217,6 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                     onTouchStart={onTouchStart}
                     onTouchEnd={onTouchEnd}
                 >
-                    <MasterBar title="" background="var(--n-bg-desktop)">
-                        <button className={c.back} onClick={back} aria-label="Back to subcategories" type="button">
-                            <ChevronLeftIcon /> Back
-                        </button>
-                    </MasterBar>
-
                     {l2Cat && (
                         <>
                             <h2 className={c.title}>{l2Cat.name}</h2>
