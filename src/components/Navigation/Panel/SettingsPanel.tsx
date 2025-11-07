@@ -3,6 +3,9 @@ import React, { useEffect, useState } from "react";
 import c from "./SettingsPanel.module.scss";
 import SunIcon from "../../Icons/SunIcon";
 import MoonIcon from "../../Icons/MoonIcon";
+import { useNavigate } from "react-router-dom";
+import AccountIcon from "../../Icons/AccountIcon";
+import NotificationIcon from "../../Icons/NotificationIcon";
 
 interface SettingsPanelProps {
     /** Управление видимостью извне (Navigation) */
@@ -24,6 +27,9 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     onMouseLeave,
 }) => {
     if (!open) return null;
+
+
+    const nav = useNavigate()
 
     // Инициализация темы и сохранение в localStorage
     const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -49,31 +55,36 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             onMouseLeave={onMouseLeave}
             className={c.g}
         >
-            <div className={c.b}>
-                <h4 className={c.b__title}>Theme</h4>
-                <div className={c.b__list}>
-                    <div
-                        className={c.b__it}
-                        aria-checked={theme === 'light'}
-                        onClick={() => { setTheme('light') }}
-                    >
-                        <span className={c["b__it--i"]}>
-                            <SunIcon />
-                        </span>
-                        <div className={c["b__it--n"]}>Light</div>
-                    </div>
-                    <div
-                        className={c.b__it}
-                        aria-checked={theme === 'dark'}
-                        onClick={() => { setTheme('dark') }}
-                    >
-                        <span className={c["b__it--i"]}>
-                            <MoonIcon />
-                        </span>
-                        <div className={c["b__it--n"]}>Dark</div>
-                    </div>
-                </div>
-            </div>
+            <h2 className={c.title}></h2>
+            <ul className={c.list}>
+                <li className={c.list__item} onClick={() => { nav("/account/notifications") }}>
+                    <NotificationIcon className={c["list__item--icon-left"]} />
+                    <span className={c["list__item--label"]} aria-label={``} title="">
+                        Notifications
+                    </span>
+                </li>
+                <li className={c.list__item} onClick={() => { nav("/account/profile") }}>
+                    <AccountIcon className={c["list__item--icon-left"]} />
+                    <span className={c["list__item--label"]} aria-label={``} title="">
+                        Edit profile
+                    </span>
+                </li>
+            </ul>
+            <h2 className={c.title}>Theme</h2>
+            <ul className={c.list}>
+                <li className={c.list__item} aria-checked={theme === 'light'} onClick={() => { setTheme('light') }}>
+                    <SunIcon className={c["list__item--icon-left"]} />
+                    <span className={c["list__item--label"]} aria-label={`Light`} title="light">
+                        Light
+                    </span>
+                </li>
+                <li className={c.list__item} aria-checked={theme === 'dark'} onClick={() => { setTheme('dark') }}>
+                    <MoonIcon className={c["list__item--icon-left"]} />
+                    <span className={c["list__item--label"]} aria-label={`Dark`} title="dark">
+                        Dark
+                    </span>
+                </li>
+            </ul>
         </section>
     );
 };
