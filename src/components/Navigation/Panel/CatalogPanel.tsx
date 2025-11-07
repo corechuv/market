@@ -158,7 +158,7 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
             <div className={c.drawer}>
                 {/* SCREEN L1: ROOTS */}
                 <div className={screenClass("L1")}>
-                    <MasterBar title="Catalog" />
+                    <MasterBar title="Catalog" background="var(--n-bg-desktop)" />
                     {isLoading ? (
                         <div className={c.skeleton} role="status" aria-live="polite">
                             Загрузка…
@@ -187,11 +187,11 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                     onTouchStart={onTouchStart}
                     onTouchEnd={onTouchEnd}
                 >
-                    <div className={c.mastbar}>
+                    <MasterBar title="" background="var(--n-bg-desktop)">
                         <button className={c.back} onClick={back} aria-label="Back to roots" type="button">
                             <ChevronLeftIcon /> Back
                         </button>
-                    </div>
+                    </MasterBar>
 
                     {rootCat && (
                         <>
@@ -216,11 +216,11 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                     onTouchStart={onTouchStart}
                     onTouchEnd={onTouchEnd}
                 >
-                    <div className={c.mastbar}>
+                    <MasterBar title="" background="var(--n-bg-desktop)">
                         <button className={c.back} onClick={back} aria-label="Back to subcategories" type="button">
                             <ChevronLeftIcon /> Back
                         </button>
-                    </div>
+                    </MasterBar>
 
                     {l2Cat && (
                         <>

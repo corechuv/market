@@ -133,25 +133,25 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
       onMouseLeave={onMouseLeave}
       className={c.g}
     >
-      <MasterBar title="Search" includeBars />
-      <SearchField
-        ref={inputRef}
-        value={query}
-        backgroundColor="var(--n-bg-desktop)"
-        onChange={(value: string) => { setQuery(value); setActiveIndex(-1); }}
-        onKeyDown={onKeyDown}
-        placeholder="Start typing..."
-        aria-label="Search bar"
-        aria-controls={listboxId}
-        aria-expanded={loading || results.length > 0}   // <-- учитываем загрузку
-        aria-autocomplete="list"
-        aria-activedescendant={
-          activeIndex >= 0 ? `${listboxId}-opt-${activeIndex}` : undefined
-        }
-        loading={loading}
-        error={loadError}
-        resultsLength={results.length}
-      />
+      <MasterBar title="Search" includeBars background="var(--n-bg-desktop)">
+        <SearchField
+          ref={inputRef}
+          value={query}
+          onChange={(value: string) => { setQuery(value); setActiveIndex(-1); }}
+          onKeyDown={onKeyDown}
+          placeholder="Start typing..."
+          aria-label="Search bar"
+          aria-controls={listboxId}
+          aria-expanded={loading || results.length > 0}   // <-- учитываем загрузку
+          aria-autocomplete="list"
+          aria-activedescendant={
+            activeIndex >= 0 ? `${listboxId}-opt-${activeIndex}` : undefined
+          }
+          loading={loading}
+          error={loadError}
+          resultsLength={results.length}
+        />
+      </MasterBar>
       <SearchResultsList
         items={results}
         getKey={(x) => x.id}

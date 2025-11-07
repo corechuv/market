@@ -73,7 +73,7 @@ const SearchField = React.forwardRef<HTMLInputElement, SearchFieldProps>(
                 });
 
         return (
-            <div className={c.topbar} style={{backgroundColor: backgroundColor}}>
+            <div className={c.topbar}>
                 <div className={c.topbar__panel}>
                     <SearchIcon className={c["topbar__panel--icon"]} />
                     <input

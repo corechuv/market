@@ -8,7 +8,12 @@
 }
 
 .mastbar {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1;
     padding: 1.5rem 1.2rem 0;
+    background: var(--bg);
 
     &__title {
         @extend .titlebase;

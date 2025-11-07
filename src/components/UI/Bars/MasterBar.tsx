@@ -1,22 +1,32 @@
 // src/components/UI/Bars/MasterBar.tsx
-import React from "react"
-import c from './MasterBar.module.scss'
+import React from "react";
+import clsx from "clsx";
+import c from "./MasterBar.module.scss";
 
-export interface MasterBarProps {
+export interface MasterBarProps extends React.HTMLAttributes<HTMLDivElement> {
     title?: string;
     includeBars?: boolean;
-    className?: string;
+    background?: React.CSSProperties["background"];
 }
 
-export default function MasterBar({ className = '', title = 'text', includeBars = false }: MasterBarProps) {
-
-    const inclBars: React.CSSProperties = {
+export default function MasterBar({
+    children,
+    className,
+    title = "text",
+    includeBars = false,
+    background,
+    ...divProps
+}: MasterBarProps) {
+    const style: React.CSSProperties = {
         paddingBottom: includeBars ? "0" : "1.2rem",
+        ...(background ? { background } : {}),
+        ...divProps.style,
     };
 
     return (
-        <div className={`${c.mastbar} ${className}`} style={inclBars}>
-            <h2 className={c.mastbar__title}>{title}</h2>
-        </div >
+        <div className={clsx(c.mastbar, className)} style={style} {...divProps}>
+            {title && <h2 className={c.mastbar__title}>{title}</h2>}
+            {children}
+        </div>
     );
 }
