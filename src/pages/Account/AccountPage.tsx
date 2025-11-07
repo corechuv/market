@@ -290,6 +290,7 @@ export default function AccountPage() {
 
         <div className={styles.layout}>
           <section className={styles.content}>
+            <div style={{marginBottom: 14}}></div>
             <Tabs<TabKey>
               items={tabs}
               activeKey={active}
