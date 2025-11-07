@@ -1,10 +1,13 @@
 // src/components/UI/Page/Page.module.scss
 .main {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;        /* важно! разрешаем детям ужиматься, иначе появится скрытый overflow */
-  width: auto;
-  max-width: 1024px;
-  margin: 0 auto;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    width: auto;
+    max-width: 1024px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    height: 100svh;
 }

@@ -6,11 +6,8 @@ import s from "./ScrollArea.module.scss";
 type ScrollAreaProps = React.HTMLAttributes<HTMLDivElement> & {
     /** Блокировать скролл документа при маунте */
     lockBody?: boolean;
-    /** Переопределить нижний внутренний отступ (например, высоту нижней навигации). Можно "0", "72px" или "calc(...)" */
-    bottomInset?: number | string;
 };
 
-/* ====== body scroll lock с рефкаунтингом ====== */
 let lockCount = 0;
 let savedState: null | {
     scrollY: number;
@@ -67,14 +64,12 @@ function lockBodyScroll(): () => void {
         }
     };
 }
-/* ============================================== */
 
 export default function ScrollArea({
     className,
     style,
     children,
     lockBody = true,
-    bottomInset,
     ...rest
 }: ScrollAreaProps) {
     useEffect(() => {
@@ -83,17 +78,8 @@ export default function ScrollArea({
         return () => unlock();
     }, [lockBody]);
 
-    const styleWithInset: React.CSSProperties =
-        bottomInset === undefined
-            ? style || {}
-            : {
-                ...style,
-                paddingBottom:
-                    typeof bottomInset === "number" ? `${bottomInset}px` : String(bottomInset),
-            };
-
     return (
-        <div className={clsx(s.root, className)} style={styleWithInset} {...rest}>
+        <div className={clsx(s.s, className)} {...rest}>
             {children}
         </div>
     );
