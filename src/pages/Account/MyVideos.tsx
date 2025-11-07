@@ -1,7 +1,7 @@
 // src/pages/Account/MyVideos.tsx
 import React from "react";
 import clsx from "clsx";
-import styles from "../../components/Product/Review/ProductReels.module.scss";
+import styles from "./MyVideos.module.scss";
 import ReelsLightbox from "../../components/Videos/ReelsLightbox";
 import { listMyReels, posterFromMediaUrl } from "../../services/reviewApi";
 import type { ReviewOut } from "../../types/review/review";
@@ -66,7 +66,6 @@ export default function MyVideos() {
                                 </div>
                             </button>
                         </div>
-                        <div className={styles["list__item--caption"]}>{it.review.text}</div>
                     </div>
                 ))}
             </div>
