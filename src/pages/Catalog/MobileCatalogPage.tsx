@@ -119,23 +119,20 @@ export default function MobileCatalogPage() {
                             Не удалось загрузить категории
                         </div>
                     ) : (
-                        <>
-                            <h1 className={c.title}>Catalog</h1>
-                            <ul className={c.list}>
-                                {roots.map((cat) => (
-                                    <li key={cat.id} className={c.list__item} onClick={() => openL2(cat)}>
-                                        <span
-                                            className={c["list__item--label"]}
-                                            aria-label={`Open ${cat.name}`}
-                                            title={cat.name}
-                                        >
-                                            {cat.name}
-                                        </span>
-                                        <ChevronRightIcon className={c["list__item--icon-right"]} />
-                                    </li>
-                                ))}
-                            </ul>
-                        </>
+                        <ul className={c.list}>
+                            {roots.map((cat) => (
+                                <li key={cat.id} className={c.list__item} onClick={() => openL2(cat)}>
+                                    <span
+                                        className={c["list__item--label"]}
+                                        aria-label={`Open ${cat.name}`}
+                                        title={cat.name}
+                                    >
+                                        {cat.name}
+                                    </span>
+                                    <ChevronRightIcon className={c["list__item--icon-right"]} />
+                                </li>
+                            ))}
+                        </ul>
                     )}
                 </div>
 
