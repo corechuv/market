@@ -173,7 +173,7 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                                         <span className={c["list__item--label"]} aria-label={`Open ${cat.name}`} title={cat.name}>
                                             {cat.name}
                                         </span>
-                                        <ChevronRightIcon />
+                                        <ChevronRightIcon className={c["list__item--icon-right"]} />
                                     </li>
                                 ))}
                             </ul>
@@ -200,7 +200,7 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                                         <span className={c["list__item--label"]} aria-label={`Open ${l2.name}`} title={l2.name}>
                                             {l2.name}
                                         </span>
-                                        <ChevronRightIcon />
+                                        <ChevronRightIcon className={c["list__item--icon-right"]} />
                                     </li>
                                 ))}
                             </ul>

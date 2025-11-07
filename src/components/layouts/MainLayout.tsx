@@ -11,6 +11,7 @@ import { useMemo } from "react";
 import { useCart } from "../../context/CartContext";
 import CounterBadge from "../Common/CounterBadge/CounterBadge";
 import HomeIcon from "../Icons/HomeIcon";
+import GridIcon from "../Icons/GridIcon";
 
 export default function MainLayout() {
   const navigate = useNavigate();
@@ -26,6 +27,11 @@ export default function MainLayout() {
       key: "home",
       icon: <HomeIcon />,
       onClick: () => navigate("/"),
+    },
+    {
+      key: "catalog",
+      icon: <GridIcon />,
+      onClick: () => navigate("/c"),
     },
     {
       key: "search",

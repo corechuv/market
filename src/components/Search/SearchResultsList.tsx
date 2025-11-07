@@ -84,9 +84,9 @@ function SearchResultsList<T>({
                                 }
                             }}
                         >
-                            <SearchIcon />
+                            <SearchIcon className={c["list__item--icon-left"]} />
                             <span className={c["list__item--label"]}
-                                data-search="item-label">{label}</span>
+                                data-search="item-label" title={label}>{label}</span>
                         </li>
                     );
                 })}

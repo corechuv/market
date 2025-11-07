@@ -49,6 +49,7 @@ import VerifyEmailPage from "./pages/Account/VerifyEmailPage";
 import ReelsPage from "./pages/ReelsPage";
 import MyVideosPage from "./pages/Account/MyVideosPage";
 import MobileSearchPage from "./pages/Search/MobileSearchPage";
+import MobileCatalogPage from "./pages/Catalog/MobileCatalogPage";
 
 export default function App() {
 
@@ -61,6 +62,7 @@ export default function App() {
 
             <Route path="/search" element={<SearchPage />} />
             <Route path="/s" element={<MobileSearchPage />} />
+             <Route path="/c" element={<MobileCatalogPage />} />
 
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/product/:productId" element={<ProductPage />} />
