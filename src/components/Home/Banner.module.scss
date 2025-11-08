@@ -5,7 +5,7 @@ $bg-overlay: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 55%, 
   /* дефолтные AR (desktop) */
   --ar: 21 / 8;
   --ar-w: 21;
-  --ar-h: 9;
+  --ar-h: 8;
 
   position: relative;
   width: 100%;
@@ -59,9 +59,9 @@ $bg-overlay: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 55%, 
 /* Mobile (<=768px) */
 @media (max-width: 768px) {
   .banner {
-    --ar: 21 / 8; /* можно заменить на 3 / 2, если нужна выше */
-    --ar-w: 21;
-    --ar-h: 8;
+    --ar: 16 / 9; /* можно заменить на 3 / 2, если нужна выше */
+    --ar-w: 16;
+    --ar-h: 9;
   }
 }
 

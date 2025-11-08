@@ -25,39 +25,39 @@
 
 /* Контейнер экранов под шапкой */
 .drawer {
-  position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: hidden;
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
 }
 
 /* База для экранов (каждый экран — свой flex-колоночный контейнер) */
 .screenBase {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.25s ease;
-  will-change: transform;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.25s ease;
+    will-change: transform;
 }
 
 /* Активный экран участвует в событиях; скрытые — нет */
 .screenActive {
-  @extend .screenBase;
-  transform: translateX(0);
-  pointer-events: auto;
+    @extend .screenBase;
+    transform: translateX(0);
+    pointer-events: auto;
 }
 
 .screenHiddenLeft {
-  @extend .screenBase;
-  transform: translateX(-100%);
-  pointer-events: none;
+    @extend .screenBase;
+    transform: translateX(-100%);
+    pointer-events: none;
 }
 
 .screenHiddenRight {
-  @extend .screenBase;
-  transform: translateX(100%);
-  pointer-events: none;
+    @extend .screenBase;
+    transform: translateX(100%);
+    pointer-events: none;
 }
 
 .back {

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import s from "./Banner.module.scss";
-import ChevronLeftIcon  from "./Icons/ChevronRightIcon";
-import ChevronRightIcon from "./Icons/ChevronLeftIcon";
+import ChevronLeftIcon  from "../Icons/ChevronRightIcon";
+import ChevronRightIcon from "../Icons/ChevronLeftIcon";
 
 export type BannerImage = {
   src: string;
