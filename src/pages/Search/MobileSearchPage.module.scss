@@ -1,6 +1,6 @@
 // src/pages/Search/ModileSearchPage.module.scss
 .page {
-  /* вместо fixed + 100vh: привязываемся к visualViewport */
+  /* Привязываемся к visualViewport */
   position: absolute; 
   top: var(--vv-top, 0);
   left: var(--vv-left, 0);

@@ -19,10 +19,13 @@ import {
 import Page from "../../components/UI/Page/Page";
 import MasterBar from "../../components/UI/Bars/MasterBar";
 import ScrollArea from "../../components/UI/ScrollArea/ScrollArea";
+import { useVisualViewport } from "../../hooks/useViewportUnits";
 
 type Stage = "L1" | "L2" | "L3";
 
 export default function MobileCatalogPage() {
+
+    useVisualViewport();
     const nav = useNavigate();
 
     // ----- загрузка категорий -----
@@ -110,14 +113,14 @@ export default function MobileCatalogPage() {
     return (
         <Page padding={false}>
             <div className={c.page}>
-                <MasterBar title={stage === "L1" ? "Catalog" : ""}>
-                    {stage !== "L1" && (
-                        <button className={c.back} onClick={back} aria-label="Back" type="button">
-                            <ChevronLeftIcon /> Back
-                        </button>
-                    )}
-                </MasterBar>
                 <ScrollArea>
+                    <MasterBar title={stage === "L1" ? "Catalog" : ""}>
+                        {stage !== "L1" && (
+                            <button className={c.back} onClick={back} aria-label="Back" type="button">
+                                <ChevronLeftIcon /> Back
+                            </button>
+                        )}
+                    </MasterBar>
                     <div className={c.drawer}>
                         {/* SCREEN L1: ROOTS */}
                         <div className={screenClass("L1")}>
