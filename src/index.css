@@ -28,7 +28,6 @@ li {
 body {
   margin: 0;
   display: flex;
-  min-height: 100vh;
 }
 
 h1 {
@@ -55,6 +54,7 @@ body,
 #root {
   color: var(--text) !important;
   background-color: var(--bg) !important;
+  height: 100%;
 }
 
 /* Ссылки наследуют цвет темы */
