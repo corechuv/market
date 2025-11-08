@@ -1,7 +1,7 @@
 // src/pages/Search/ModileSearchPage.module.scss
 .page {
   /* вместо fixed + 100vh: привязываемся к visualViewport */
-  position: absolute;
+  position: absolute; 
   top: var(--vv-top, 0);
   left: var(--vv-left, 0);
   width: var(--vv-w, 100vw);
@@ -14,9 +14,8 @@
   overscroll-behavior: none;
 
   /* контент не уезжает под клавиатуру/чёлку */
-  padding-bottom: max(env(safe-area-inset-bottom), var(--kb, 0px));
+  padding-bottom: env(safe-area-inset-bottom);
 
   background: var(--bg);
   color: var(--text);
-
 }
