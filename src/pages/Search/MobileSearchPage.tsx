@@ -8,10 +8,12 @@ import Page from "../../components/UI/Page/Page";
 import SearchResultsList from "../../components/Search/SearchResultsList";
 import MasterBar from "../../components/UI/Bars/MasterBar";
 import ScrollArea from "../../components/UI/ScrollArea/ScrollArea";
+import { useViewportUnits } from "../../hooks/useViewportUnits";
 
 type ProductLike = { id: string | number; name?: string; title?: string };
 
 export default function MobileSearchPage() {
+    useViewportUnits();
     const navigate = useNavigate();
     const [params, setParams] = useSearchParams();
     const qParam = params.get("q") ?? "";

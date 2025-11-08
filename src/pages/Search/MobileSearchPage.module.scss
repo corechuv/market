@@ -5,8 +5,15 @@
   display: flex;
   flex-direction: column;
 
-  height: 100dvh;                /* важно на мобилках */
-  overscroll-behavior: none;     /* не «пробрасывать» на окно */
+  /* Ключевая строка: высота = visual viewport */
+  height: var(--app-vh, 100dvh);
+
+  /* Чтобы контент не уезжал под клаву/чёлку */
+  padding-bottom: max(env(safe-area-inset-bottom), var(--kb, 0px));
+
+  /* Не «протекать» скроллом на окно */
+  overscroll-behavior: none;
+
   background: var(--bg);
   color: var(--text);
 }
