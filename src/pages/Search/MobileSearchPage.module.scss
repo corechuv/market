@@ -1,19 +1,22 @@
 // src/pages/Search/ModileSearchPage.module.scss
 .page {
-  position: fixed;
-  inset: 0;
+  /* вместо fixed + 100vh: привязываемся к visualViewport */
+  position: absolute;
+  top: var(--vv-top, 0);
+  left: var(--vv-left, 0);
+  width: var(--vv-w, 100vw);
+  height: var(--vv-h, 100dvh);
+
   display: flex;
   flex-direction: column;
 
-  /* Ключевая строка: высота = visual viewport */
-  height: var(--app-vh, 100dvh);
-
-  /* Чтобы контент не уезжал под клаву/чёлку */
-  padding-bottom: max(env(safe-area-inset-bottom), var(--kb, 0px));
-
-  /* Не «протекать» скроллом на окно */
+  /* гасим «протекание» скролла наверх */
   overscroll-behavior: none;
+
+  /* контент не уезжает под клавиатуру/чёлку */
+  padding-bottom: max(env(safe-area-inset-bottom), var(--kb, 0px));
 
   background: var(--bg);
   color: var(--text);
+
 }
