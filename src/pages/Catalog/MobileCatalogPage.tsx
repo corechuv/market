@@ -113,7 +113,6 @@ export default function MobileCatalogPage() {
   return (
     <Page padding={false}>
       <div className={c.page}>
-        {/* Общий верхний бар (не скроллится) */}
         <MasterBar title={stage === "L1" ? "Catalog" : ""}>
           {stage !== "L1" && (
             <button className={c.back} onClick={back} aria-label="Back" type="button">
@@ -124,7 +123,6 @@ export default function MobileCatalogPage() {
 
         {/* Область экранов; ниже — по ScrollArea на уровень */}
         <div className={c.drawer}>
-          {/* L1 */}
           <div className={screenClass("L1")}>
             <ScrollArea
               lockBody={stage === "L1"}            // ← держим глобальный лок только у активного
@@ -153,7 +151,6 @@ export default function MobileCatalogPage() {
             </ScrollArea>
           </div>
 
-          {/* L2 */}
           <div className={screenClass("L2")} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
             <ScrollArea
               className={c.scroll}
@@ -161,29 +158,25 @@ export default function MobileCatalogPage() {
               ref={(el: any) => (l2ScrollRef.current = el)}
             >
               {rootCat && (
-                <>
-                  <h2 className={c.title}>{rootCat.name}</h2>
-                  <ul className={c.list}>
-                    <li className={c.list__item} onClick={() => { nav(`/category${rootCat.fullSlug}`); }}>
-                      <span className={c["list__item--label"]} aria-label={`Open ${rootCat.name}`} title={rootCat.name}>
-                        {rootCat.name}
+                <ul className={c.list}>
+                  <li className={c.list__item} onClick={() => { nav(`/category${rootCat.fullSlug}`); }}>
+                    <span className={c["list__item--label"]} aria-label={`Open ${rootCat.name}`} title={rootCat.name}>
+                      {rootCat.name}
+                    </span>
+                  </li>
+                  {l2List.map((l2) => (
+                    <li key={l2.id} className={c.list__item} onClick={() => openL3(l2)}>
+                      <span className={c["list__item--label"]} title={l2.name}>
+                        {l2.name}
                       </span>
+                      <Right className={c["list__item--icon-right"]} />
                     </li>
-                    {l2List.map((l2) => (
-                      <li key={l2.id} className={c.list__item} onClick={() => openL3(l2)}>
-                        <span className={c["list__item--label"]} title={l2.name}>
-                          {l2.name}
-                        </span>
-                        <Right className={c["list__item--icon-right"]} />
-                      </li>
-                    ))}
-                  </ul>
-                </>
+                  ))}
+                </ul>
               )}
             </ScrollArea>
           </div>
 
-          {/* L3 */}
           <div className={screenClass("L3")} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
             <ScrollArea
               className={c.scroll}
@@ -191,27 +184,24 @@ export default function MobileCatalogPage() {
               ref={(el: any) => (l3ScrollRef.current = el)}
             >
               {l2Cat && (
-                <>
-                  <h2 className={c.title}>{l2Cat.name}</h2>
-                  <ul className={c.list}>
-                    <li className={c.list__item} onClick={() => { nav(`/category${l2Cat.fullSlug}`); }}>
-                      <span className={c["list__item--label"]} aria-label={`Open ${l2Cat.name}`} title={l2Cat.name}>
-                        {l2Cat.name}
+                <ul className={c.list}>
+                  <li className={c.list__item} onClick={() => { nav(`/category${l2Cat.fullSlug}`); }}>
+                    <span className={c["list__item--label"]} aria-label={`Open ${l2Cat.name}`} title={l2Cat.name}>
+                      {l2Cat.name}
+                    </span>
+                  </li>
+                  {l3List.map((leaf) => (
+                    <li
+                      key={leaf.id}
+                      className={c.list__item}
+                      onClick={() => nav(`/category${leaf.fullSlug}`)}
+                    >
+                      <span className={c["list__item--label"]} title={leaf.name}>
+                        {leaf.name}
                       </span>
                     </li>
-                    {l3List.map((leaf) => (
-                      <li
-                        key={leaf.id}
-                        className={c.list__item}
-                        onClick={() => nav(`/category${leaf.fullSlug}`)}
-                      >
-                        <span className={c["list__item--label"]} title={leaf.name}>
-                          {leaf.name}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </>
+                  ))}
+                </ul>
               )}
             </ScrollArea>
           </div>
