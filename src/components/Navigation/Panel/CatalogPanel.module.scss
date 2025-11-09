@@ -2,33 +2,59 @@
 @use "../../../styles/default_list.module.scss";
 @use "../../../styles/mastbar.module.scss";
 
+
+.page {
+    /* Привязываемся к visualViewport */
+    position: absolute;
+    top: var(--vv-top, 0);
+    left: var(--vv-left, 0);
+    width: 100%;
+    height: var(--vv-h, 100dvh);
+
+    display: flex;
+    flex-direction: column;
+
+    /* гасим «протекание» скролла наверх */
+    overscroll-behavior: none;
+
+    /* контент не уезжает под клавиатуру/чёлку */
+    padding-bottom: env(safe-area-inset-bottom);
+
+    color: var(--text);
+}
+
+.drawer {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+
 .screenBase {
     position: absolute;
     inset: 0;
-    overflow-y: auto;
-    padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
     transition: transform 0.25s ease;
+    will-change: transform;
 }
 
 .screenActive {
     @extend .screenBase;
     transform: translateX(0);
+    pointer-events: auto;
 }
 
 .screenHiddenLeft {
     @extend .screenBase;
     transform: translateX(-100%);
+    pointer-events: auto;
 }
 
 .screenHiddenRight {
     @extend .screenBase;
     transform: translateX(100%);
-}
-
-.drawer {
-    position: relative;
-    overflow: hidden;
-    height: 100%;
+    pointer-events: auto;
 }
 
 .back {

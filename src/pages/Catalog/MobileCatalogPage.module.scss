@@ -7,7 +7,7 @@
     position: absolute;
     top: var(--vv-top, 0);
     left: var(--vv-left, 0);
-    width: var(--vv-w, 100vw);
+    width: 100%;
     height: var(--vv-h, 100dvh);
 
     display: flex;
@@ -19,7 +19,6 @@
     /* контент не уезжает под клавиатуру/чёлку */
     padding-bottom: env(safe-area-inset-bottom);
 
-    background: var(--bg);
     color: var(--text);
 }
 

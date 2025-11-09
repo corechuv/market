@@ -22,6 +22,8 @@ import {
     getStatus,
 } from "../../../services/categoryService";
 import MasterBar from "../../UI/Bars/MasterBar";
+import { useVisualViewport } from "../../../hooks/useViewportUnits";
+import ScrollArea from "../../UI/ScrollArea/ScrollArea";
 
 interface CatalogPanelProps {
     /** Управление видимостью извне (Navigation) */
@@ -44,6 +46,7 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
     onMouseEnter,
     onMouseLeave,
 }) => {
+    useVisualViewport();
     const nav = useNavigate();
 
     // ----- загрузка категорий -----
@@ -142,6 +145,18 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
         [stage]
     );
 
+    // чтобы при смене экрана начинать с верха
+    const l1ScrollRef = useRef<HTMLDivElement | null>(null);
+    const l2ScrollRef = useRef<HTMLDivElement | null>(null);
+    const l3ScrollRef = useRef<HTMLDivElement | null>(null);
+    useEffect(() => {
+        const el =
+            stage === "L1" ? l1ScrollRef.current :
+                stage === "L2" ? l2ScrollRef.current :
+                    l3ScrollRef.current;
+        el?.scrollTo({ top: 0 });
+    }, [stage]);
+
     if (!open) return null;
 
     return (
@@ -155,89 +170,104 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
             onMouseLeave={onMouseLeave}
             className={c.g}
         >
-            {/* Бар вне трансформируемых экранов */}
-            <MasterBar title={stage === "L1" ? "Catalog" : ""} background="var(--n-bg-desktop)">
-                {stage !== "L1" && (
-                    <button className={c.back} onClick={back} aria-label="Back" type="button">
-                        <Left /> Back
-                    </button>
-                )}
-            </MasterBar>
-            <div className={c.drawer}>
-                {/* SCREEN L1: ROOTS */}
-                <div className={screenClass("L1")}>
-                    {isLoading ? (
-                        <div className={c.skeleton} role="status" aria-live="polite">
-                            Загрузка…
-                        </div>
-                    ) : error && roots.length === 0 ? (
-                        <div className={c.skeleton} role="alert">
-                            Не удалось загрузить категории
-                        </div>
-                    ) : (
-                        <ul className={c.list}>
-                            {roots.map((cat) => (
-                                <li key={cat.id} className={c.list__item} onClick={() => openL2(cat)}>
-                                    <span className={c["list__item--label"]} aria-label={`Open ${cat.name}`} title={cat.name}>
-                                        {cat.name}
-                                    </span>
-                                    <Right className={c["list__item--icon-right"]} />
-                                </li>
-                            ))}
-                        </ul>
+            <div className={c.page}>
+                <MasterBar title={stage === "L1" ? "Catalog" : ""} background="var(--n-bg-desktop)">
+                    {stage !== "L1" && (
+                        <button className={c.back} onClick={back} aria-label="Back" type="button">
+                            <Left /> Back
+                        </button>
                     )}
-                </div>
+                </MasterBar>
+                <div className={c.drawer}>
+                    <div className={screenClass("L1")}>
+                        <ScrollArea
+                            lockBody={stage === "L1"}            // ← держим глобальный лок только у активного
+                            ref={(el: any) => (l1ScrollRef.current = el)}
+                        >
+                            {isLoading ? (
+                                <div className={c.skeleton} role="status" aria-live="polite">
+                                    Загрузка…
+                                </div>
+                            ) : error && roots.length === 0 ? (
+                                <div className={c.skeleton} role="alert">
+                                    Не удалось загрузить категории
+                                </div>
+                            ) : (
+                                <ul className={c.list}>
+                                    {roots.map((cat) => (
+                                        <li key={cat.id} className={c.list__item} onClick={() => openL2(cat)}>
+                                            <span className={c["list__item--label"]} aria-label={`Open ${cat.name}`} title={cat.name}>
+                                                {cat.name}
+                                            </span>
+                                            <Right className={c["list__item--icon-right"]} />
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </ScrollArea>
+                    </div>
 
-                {/* SCREEN L2 */}
-                <div
-                    className={screenClass("L2")}
-                    onTouchStart={onTouchStart}
-                    onTouchEnd={onTouchEnd}
-                >
-                    {rootCat && (
-                        <ul className={c.list}>
-                            <li className={c.list__item} onClick={() => { onClose(); nav(`/category${rootCat.fullSlug}`); }}>
-                                <span className={c["list__item--label"]} aria-label={`Open ${rootCat.name}`} title={rootCat.name}>
-                                    {rootCat.name}
-                                </span>
-                            </li>
-                            {l2List.map((l2) => (
-                                <li key={l2.id} className={c.list__item} onClick={() => openL3(l2)}>
-                                    <span className={c["list__item--label"]} aria-label={`Open ${l2.name}`} title={l2.name}>
-                                        {l2.name}
-                                    </span>
-                                    <Right className={c["list__item--icon-right"]} />
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
+                    <div
+                        className={screenClass("L2")}
+                        onTouchStart={onTouchStart}
+                        onTouchEnd={onTouchEnd}
+                    >
+                        <ScrollArea
+                            className={c.scroll}
+                            lockBody={stage === "L2"}
+                            ref={(el: any) => (l2ScrollRef.current = el)}
+                        >
+                            {rootCat && (
+                                <ul className={c.list}>
+                                    <li className={c.list__item} onClick={() => { onClose(); nav(`/category${rootCat.fullSlug}`); }}>
+                                        <span className={c["list__item--label"]} aria-label={`Open ${rootCat.name}`} title={rootCat.name}>
+                                            {rootCat.name}
+                                        </span>
+                                    </li>
+                                    {l2List.map((l2) => (
+                                        <li key={l2.id} className={c.list__item} onClick={() => openL3(l2)}>
+                                            <span className={c["list__item--label"]} aria-label={`Open ${l2.name}`} title={l2.name}>
+                                                {l2.name}
+                                            </span>
+                                            <Right className={c["list__item--icon-right"]} />
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </ScrollArea>
+                    </div>
 
-                {/* SCREEN L3 */}
-                <div
-                    className={screenClass("L3")}
-                    onTouchStart={onTouchStart}
-                    onTouchEnd={onTouchEnd}
-                >
-                    {l2Cat && (
-                        <ul className={c.list}>
-                            <li className={c.list__item} onClick={() => { onClose(); nav(`/category${l2Cat.fullSlug}`); }}>
-                                <span className={c["list__item--label"]} aria-label={`Open ${l2Cat.name}`} title={l2Cat.name}>
-                                    {l2Cat.name}
-                                </span>
-                            </li>
-                            {l3List.map((leaf) => (
-                                <li key={leaf.id} className={c.list__item} onClick={() => { onClose(); nav(`/category${leaf.fullSlug}`); }}>
-                                    <span className={c["list__item--label"]} title={leaf.name}>
-                                        {leaf.name}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                    <div
+                        className={screenClass("L3")}
+                        onTouchStart={onTouchStart}
+                        onTouchEnd={onTouchEnd}
+                    >
+                        <ScrollArea
+                            className={c.scroll}
+                            lockBody={stage === "L3"}
+                            ref={(el: any) => (l3ScrollRef.current = el)}
+                        >
+                            {l2Cat && (
+                                <ul className={c.list}>
+                                    <li className={c.list__item} onClick={() => { onClose(); nav(`/category${l2Cat.fullSlug}`); }}>
+                                        <span className={c["list__item--label"]} aria-label={`Open ${l2Cat.name}`} title={l2Cat.name}>
+                                            {l2Cat.name}
+                                        </span>
+                                    </li>
+                                    {l3List.map((leaf) => (
+                                        <li key={leaf.id} className={c.list__item} onClick={() => { onClose(); nav(`/category${leaf.fullSlug}`); }}>
+                                            <span className={c["list__item--label"]} title={leaf.name}>
+                                                {leaf.name}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </ScrollArea>
+                    </div>
                 </div>
             </div>
-        </section>
+        </section >
     );
 };
 
