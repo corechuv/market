@@ -1,2 +1,22 @@
 // src/components/Search/SearchPanel.module.scss
 @use "../../../styles/mastbar.module.scss";
+
+.page {
+  /* Привязываемся к visualViewport */
+  position: absolute; 
+  top: var(--vv-top, 0);
+  left: var(--vv-left, 0);
+  /* width: var(--vv-w, 100vw); */
+  height: var(--vv-h, 100dvh);
+
+  display: flex;
+  flex-direction: column;
+
+  /* гасим «протекание» скролла наверх */
+  overscroll-behavior: none;
+
+  /* контент не уезжает под клавиатуру/чёлку */
+  padding-bottom: env(safe-area-inset-bottom);
+
+  color: var(--text);
+}

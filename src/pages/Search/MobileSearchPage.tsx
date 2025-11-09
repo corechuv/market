@@ -92,24 +92,24 @@ export default function MobileSearchPage() {
     return (
         <Page padding={false}>
             <div className={styles.page} role="search">
+                <MasterBar title="Search" includeBars>
+                    <SearchField
+                        ref={inputRef}
+                        value={query}
+                        onChange={setQuery}
+                        placeholder="Start typing..."
+                        aria-label="Search"
+                        aria-controls={listboxId}                // связь с listbox
+                        aria-expanded={results.length > 0}
+                        // активного элемента в мобильном варианте нет — aria-activedescendant опускаем
+                        onEnter={() => { if (results[0]) onSelect(results[0]); }}
+                        onEscape={smartBack}
+                        loading={loading}
+                        error={error}
+                        resultsLength={results.length}
+                    />
+                </MasterBar>
                 <ScrollArea>
-                    <MasterBar title="Search" includeBars>
-                        <SearchField
-                            ref={inputRef}
-                            value={query}
-                            onChange={setQuery}
-                            placeholder="Start typing..."
-                            aria-label="Search"
-                            aria-controls={listboxId}                // связь с listbox
-                            aria-expanded={results.length > 0}
-                            // активного элемента в мобильном варианте нет — aria-activedescendant опускаем
-                            onEnter={() => { if (results[0]) onSelect(results[0]); }}
-                            onEscape={smartBack}
-                            loading={loading}
-                            error={error}
-                            resultsLength={results.length}
-                        />
-                    </MasterBar>
                     <SearchResultsList
                         items={results}
                         getKey={(p) => String(p.id)}
