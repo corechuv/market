@@ -65,6 +65,7 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                 onOpenL2={flow.openL2}
                 onOpenL3={flow.openL3}
                 onOpenSlug={(slug) => { onClose(); nav(`/category${slug}`); }}
+                lockBody={false}
             />
         </section>
     );
