@@ -3,8 +3,8 @@ import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } 
 import { useNavigate } from "react-router-dom";
 import c from "./MobileCatalogPage.module.scss";
 
-import ChevronRightIcon from "../../components/Icons/ChevronLeftIcon";
-import ChevronLeftIcon from "../../components/Icons/ChevronRightIcon";
+import Left from "../../components/Icons/ChevronLeftIcon";
+import Right from "../../components/Icons/ChevronRightIcon";
 
 import type { Category as Cat } from "../../types/category";
 import {
@@ -105,8 +105,8 @@ export default function MobileCatalogPage() {
   useEffect(() => {
     const el =
       stage === "L1" ? l1ScrollRef.current :
-      stage === "L2" ? l2ScrollRef.current :
-      l3ScrollRef.current;
+        stage === "L2" ? l2ScrollRef.current :
+          l3ScrollRef.current;
     el?.scrollTo({ top: 0 });
   }, [stage]);
 
@@ -117,7 +117,7 @@ export default function MobileCatalogPage() {
         <MasterBar title={stage === "L1" ? "Catalog" : ""}>
           {stage !== "L1" && (
             <button className={c.back} onClick={back} aria-label="Back" type="button">
-              <ChevronLeftIcon /> Back
+              <Left /> Back
             </button>
           )}
         </MasterBar>
@@ -145,7 +145,7 @@ export default function MobileCatalogPage() {
                       <span className={c["list__item--label"]} title={cat.name}>
                         {cat.name}
                       </span>
-                      <ChevronRightIcon className={c["list__item--icon-right"]} />
+                      <Right className={c["list__item--icon-right"]} />
                     </li>
                   ))}
                 </ul>
@@ -164,12 +164,17 @@ export default function MobileCatalogPage() {
                 <>
                   <h2 className={c.title}>{rootCat.name}</h2>
                   <ul className={c.list}>
+                    <li className={c.list__item} onClick={() => { nav(`/category${rootCat.fullSlug}`); }}>
+                      <span className={c["list__item--label"]} aria-label={`Open ${rootCat.name}`} title={rootCat.name}>
+                        {rootCat.name}
+                      </span>
+                    </li>
                     {l2List.map((l2) => (
                       <li key={l2.id} className={c.list__item} onClick={() => openL3(l2)}>
                         <span className={c["list__item--label"]} title={l2.name}>
                           {l2.name}
                         </span>
-                        <ChevronRightIcon className={c["list__item--icon-right"]} />
+                        <Right className={c["list__item--icon-right"]} />
                       </li>
                     ))}
                   </ul>
@@ -189,6 +194,11 @@ export default function MobileCatalogPage() {
                 <>
                   <h2 className={c.title}>{l2Cat.name}</h2>
                   <ul className={c.list}>
+                    <li className={c.list__item} onClick={() => { nav(`/category${l2Cat.fullSlug}`); }}>
+                      <span className={c["list__item--label"]} aria-label={`Open ${l2Cat.name}`} title={l2Cat.name}>
+                        {l2Cat.name}
+                      </span>
+                    </li>
                     {l3List.map((leaf) => (
                       <li
                         key={leaf.id}

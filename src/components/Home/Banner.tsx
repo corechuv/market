@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import s from "./Banner.module.scss";
-import ChevronLeftIcon  from "../Icons/ChevronRightIcon";
-import ChevronRightIcon from "../Icons/ChevronLeftIcon";
+import Left  from "../Icons/ChevronLeftIcon";
+import Right from "../Icons/ChevronRightIcon";
 
 export type BannerImage = {
   src: string;
@@ -175,10 +175,10 @@ const Banner: React.FC<BannerProps> = ({
             aria-label="Предыдущий слайд"
             onClick={prev}
           >
-            <ChevronLeftIcon />
+            <Left />
           </button>
           <button className={[s.ctrl, s.next].join(" ")} aria-label="Следующий слайд" onClick={next}>
-            <ChevronRightIcon />
+            <Right />
           </button>
         </>
       )}

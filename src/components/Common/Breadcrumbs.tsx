@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import ChevronRightIcon from "../Icons/ChevronLeftIcon"; // 👈 проверь импорт!
+import Right from "../Icons/ChevronRightIcon";
 import cls from "./Breadcrumbs.module.scss";
 import HomeIcon from "../Icons/HomeIcon";
 
@@ -110,7 +110,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                 const isLast = i === crumbs.length - 1;
                 return (
                     <span className={cls.category__crumb} key={c.id}>
-                        <ChevronRightIcon className={cls.category__icon} aria-hidden />
+                        <Right className={cls.category__icon} aria-hidden />
                         <span
                             className={cls.category__link}
                             aria-current={isLast ? "page" : undefined}

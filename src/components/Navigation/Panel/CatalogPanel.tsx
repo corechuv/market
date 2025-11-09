@@ -9,8 +9,8 @@ import React, {
 import { useNavigate } from "react-router-dom";
 
 import c from "./CatalogPanel.module.scss";
-import ChevronLeftIcon from "../../Icons/ChevronRightIcon";
-import ChevronRightIcon from "../../Icons/ChevronLeftIcon";
+import Left from "../../Icons/ChevronLeftIcon";
+import Right from "../../Icons/ChevronRightIcon";
 
 // пути от папки Panel/ к types и services
 import type { Category as Cat } from "../../../types/category";
@@ -159,7 +159,7 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
             <MasterBar title={stage === "L1" ? "Catalog" : ""} background="var(--n-bg-desktop)">
                 {stage !== "L1" && (
                     <button className={c.back} onClick={back} aria-label="Back" type="button">
-                        <ChevronLeftIcon /> Back
+                        <Left /> Back
                     </button>
                 )}
             </MasterBar>
@@ -181,7 +181,7 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                                     <span className={c["list__item--label"]} aria-label={`Open ${cat.name}`} title={cat.name}>
                                         {cat.name}
                                     </span>
-                                    <ChevronRightIcon className={c["list__item--icon-right"]} />
+                                    <Right className={c["list__item--icon-right"]} />
                                 </li>
                             ))}
                         </ul>
@@ -195,19 +195,21 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                     onTouchEnd={onTouchEnd}
                 >
                     {rootCat && (
-                        <>
-                            <h2 className={c.title}>{rootCat.name}</h2>
-                            <ul className={c.list}>
-                                {l2List.map((l2) => (
-                                    <li key={l2.id} className={c.list__item} onClick={() => openL3(l2)}>
-                                        <span className={c["list__item--label"]} aria-label={`Open ${l2.name}`} title={l2.name}>
-                                            {l2.name}
-                                        </span>
-                                        <ChevronRightIcon className={c["list__item--icon-right"]} />
-                                    </li>
-                                ))}
-                            </ul>
-                        </>
+                        <ul className={c.list}>
+                            <li className={c.list__item} onClick={() => { onClose(); nav(`/category${rootCat.fullSlug}`); }}>
+                                <span className={c["list__item--label"]} aria-label={`Open ${rootCat.name}`} title={rootCat.name}>
+                                    {rootCat.name}
+                                </span>
+                            </li>
+                            {l2List.map((l2) => (
+                                <li key={l2.id} className={c.list__item} onClick={() => openL3(l2)}>
+                                    <span className={c["list__item--label"]} aria-label={`Open ${l2.name}`} title={l2.name}>
+                                        {l2.name}
+                                    </span>
+                                    <Right className={c["list__item--icon-right"]} />
+                                </li>
+                            ))}
+                        </ul>
                     )}
                 </div>
 
@@ -218,18 +220,20 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                     onTouchEnd={onTouchEnd}
                 >
                     {l2Cat && (
-                        <>
-                            <h2 className={c.title}>{l2Cat.name}</h2>
-                            <ul className={c.list}>
-                                {l3List.map((leaf) => (
-                                    <li key={leaf.id} className={c.list__item} onClick={() => { onClose(); nav(`/category${leaf.fullSlug}`); }}>
-                                        <span className={c["list__item--label"]} title={leaf.name}>
-                                            {leaf.name}
-                                        </span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </>
+                        <ul className={c.list}>
+                            <li className={c.list__item} onClick={() => { onClose(); nav(`/category${l2Cat.fullSlug}`); }}>
+                                <span className={c["list__item--label"]} aria-label={`Open ${l2Cat.name}`} title={l2Cat.name}>
+                                    {l2Cat.name}
+                                </span>
+                            </li>
+                            {l3List.map((leaf) => (
+                                <li key={leaf.id} className={c.list__item} onClick={() => { onClose(); nav(`/category${leaf.fullSlug}`); }}>
+                                    <span className={c["list__item--label"]} title={leaf.name}>
+                                        {leaf.name}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
                     )}
                 </div>
             </div>

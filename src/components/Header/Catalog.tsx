@@ -22,7 +22,7 @@ import cls from "./Catalog.module.scss";
 import CloseIcon from "../Icons/CloseIcon";
 import HamburgerIcon from "../Icons/HamburgerIcon";
 import Modal from "../Modal/Modal";
-import ChevronRightIcon from "../Icons/ChevronLeftIcon";
+import ChevronRightIcon from "../Icons/ChevronRightIcon";
 import ChevronLeftIcon from "../Icons/ChevronRightIcon";
 import Logo from "../logo/Logo";
 

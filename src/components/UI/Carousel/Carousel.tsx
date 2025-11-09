@@ -1,8 +1,8 @@
 // src/components/UI/Carousel/Carousel.tsx
 import React, { useRef, useCallback } from "react";
 import cls from "./Carousel.module.scss";
-import Right from "../../Icons/ChevronLeftIcon";
-import Left from "../../Icons/ChevronRightIcon";
+import Right from "../../Icons/ChevronRightIcon";
+import Left from "../../Icons/ChevronLeftIcon";
 
 export type CarouselRenderItem<T> = (args: { item: T; index: number }) => React.ReactNode;
 
