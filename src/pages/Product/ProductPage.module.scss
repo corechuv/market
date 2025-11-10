@@ -441,11 +441,18 @@
 }
 
 .reviews {
-    display: grid;
-    grid-template-columns: 340px 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 30px;
 
     @media (max-width: 768px) {
         grid-template-columns: 1fr;
     }
+}
+
+.rating {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
 }
