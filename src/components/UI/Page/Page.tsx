@@ -9,7 +9,10 @@ type PageProps = {
 
 export default function Page({ children, padding = true }: PageProps) {
 
-    const paddingStyles: React.CSSProperties = { padding: padding ? "0 var(--page-pad)" : "" }
+    const paddingStyles: React.CSSProperties = {
+        paddingLeft: padding ? "var(--page-pad)" : "",
+        paddingRight: padding ? "var(--page-pad)" : ""
+    }
 
     return (
         <>

@@ -234,183 +234,181 @@ export default function ProductPage() {
   const ratingValue = reviewAvg !== null ? Math.round(reviewAvg * 10) / 10 : null;
 
   return (
-    <Page>
-      <div className="container">
-        <div className={cls.product}>
-          <Breadcrumbs crumbs={categoryCrumbs as any} />
-          <div className={cls.productDetails}>
-            <ProductImages images={images} />
-            <div className={cls.productInfo}>
-              <div className={cls.productTitle}>
-                <h1 className={cls.productName}>{product.name}</h1>
+    <Page padding>
+      <div className={cls.product}>
+        <Breadcrumbs crumbs={categoryCrumbs as any} />
+        <div className={cls.productDetails}>
+          <ProductImages images={images} />
+          <div className={cls.productInfo}>
+            <div className={cls.productTitle}>
+              <h1 className={cls.productName}>{product.name}</h1>
 
-                <div className={cls.productMeta}>
-                  <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
-                  <div className={cls.productMeta__articleNumber}>Art.-Nr.: {articleNumber}</div>
-                </div>
+              <div className={cls.productMeta}>
+                <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
+                <div className={cls.productMeta__articleNumber}>Art.-Nr.: {articleNumber}</div>
+              </div>
 
-                <div className={cls.productPrice}>
-                  <div className={cls.meta__container}>
-                    <div className={"cls.meta_container--item"}>
-                      <div className={cls.price}>
-                        {!!discountPercent && compareAt && (
-                          <div className={cls.price__old}>
-                            <span className={cls.price__discount}>-{discountPercent}%</span>
-                            <span className={cls.price__compareAt}>{compareAt}</span>
-                          </div>
-                        )}
-                        <span className={cls.price__current}>{price}</span>
-                      </div>
-                      <div className={cls.product__infoBelow}>
-                        <span className={cls.productVat}>inkl. MwSt.</span>&nbsp;
-                        <span className={cls.productDelivery}>versandkostenfrei</span>
-                      </div>
+              <div className={cls.productPrice}>
+                <div className={cls.meta__container}>
+                  <div className={"cls.meta_container--item"}>
+                    <div className={cls.price}>
+                      {!!discountPercent && compareAt && (
+                        <div className={cls.price__old}>
+                          <span className={cls.price__discount}>-{discountPercent}%</span>
+                          <span className={cls.price__compareAt}>{compareAt}</span>
+                        </div>
+                      )}
+                      <span className={cls.price__current}>{price}</span>
                     </div>
+                    <div className={cls.product__infoBelow}>
+                      <span className={cls.productVat}>inkl. MwSt.</span>&nbsp;
+                      <span className={cls.productDelivery}>versandkostenfrei</span>
+                    </div>
+                  </div>
 
-                    <div className={"cls.meta_container--item"}>
-                      <div className={cls.product__info}>
-                        {(energyClass || energyClassArrow || datasheetUrl) && (
-                          <div className={cls.productEnergy}>
-                            {(energyClass || energyClassArrow) && (
-                              <EnergyLabel
-                                energyClassUrl={energyClass || undefined}
-                                energyClassArrowUrl={energyClassArrow || undefined}
-                                label="Energieklasse"
-                              />
-                            )}
-                            {datasheetUrl && (
-                              <ProductDatasheet pdfUrl={datasheetUrl} label="Produktdatenblatt" />
-                            )}
-                          </div>
-                        )}
-                      </div>
+                  <div className={"cls.meta_container--item"}>
+                    <div className={cls.product__info}>
+                      {(energyClass || energyClassArrow || datasheetUrl) && (
+                        <div className={cls.productEnergy}>
+                          {(energyClass || energyClassArrow) && (
+                            <EnergyLabel
+                              energyClassUrl={energyClass || undefined}
+                              energyClassArrowUrl={energyClassArrow || undefined}
+                              label="Energieklasse"
+                            />
+                          )}
+                          {datasheetUrl && (
+                            <ProductDatasheet pdfUrl={datasheetUrl} label="Produktdatenblatt" />
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
+              </div>
 
+              <div className={cls.section}>
+                <div className={cls.section__content}>
+                  <div className={cls.available}>
+                    <span className={available ? cls.inStock : cls.outOfStock} />
+                    <span className={available ? cls.inStockText : cls.outOfStockText}>
+                      {available ? "In Stock" : "Out of Stock"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {hasVariants && (
                 <div className={cls.section}>
                   <div className={cls.section__content}>
-                    <div className={cls.available}>
-                      <span className={available ? cls.inStock : cls.outOfStock} />
-                      <span className={available ? cls.inStockText : cls.outOfStockText}>
-                        {available ? "In Stock" : "Out of Stock"}
-                      </span>
-                    </div>
+                    <VariantPicker product={product} value={variant} onChange={setVariant} />
                   </div>
-                </div>
-
-                {hasVariants && (
-                  <div className={cls.section}>
-                    <div className={cls.section__content}>
-                      <VariantPicker product={product} value={variant} onChange={setVariant} />
-                    </div>
-                  </div>
-                )}
-
-                <div className={cls.section}>
-                  <h3 className={cls.section__title}>Delivery</h3>
-                  <div className={cls.section__content}>
-                    <DeliveryBadge minDays={2} maxDays={4} />
-                  </div>
-                </div>
-              </div>
-
-              <div ref={actionsRef} className={cls.productActions}>
-                <Button className={cls.addToCart} disabled={!available} onClick={handleAddToCart}>
-                  Add to Cart
-                </Button>
-              </div>
-            </div>
-
-            <div className={cls.section}>
-              <h3 className={cls.section__title}>Short description</h3>
-              <div className={cls.section__content}>
-                <ul className={cls.list}>
-                  {product.shortDescription?.length ? (
-                    product.shortDescription.map((line, idx) => <li key={idx}>{line}</li>)
-                  ) : (
-                    <li>No short description available for this product.</li>
-                  )}
-                </ul>
-              </div>
-            </div>
-
-            <div className={cls.section}>
-              <h3 className={cls.section__title}>Specifications</h3>
-              <div className={cls.section__content}>
-                <SpecTable
-                  specs={entries}
-                  dictionary={dictionary}
-                  showEmpty="dash"
-                  mergeStrategy="dict-first"
-                />
-              </div>
-            </div>
-
-            <div className={cls.section}>
-              <h3 className={cls.section__title}>Description</h3>
-              <div className={cls.section__content}>
-                <p>{product.description || "No description available for this product."}</p>
-              </div>
-            </div>
-
-            {/* === Plain Reviews (server) — превью === */}
-            <div className={cls.section}>
-              <h3 className={cls.section__title}>Reviews</h3>
-              <div className={cls.section__content}>
-                <div className={cls.reviews}>
-                  <div className={cls.rating}>
-                    <RatingBadge size="default" ratingValue={ratingValue} reviewCount={reviewCount} />
-                    <Button variant="secondary" size="small" onClick={() => setIsOpenUpload(true)}>Add review</Button>
-                  </div>
-                  <ProductPlainReviews productId={product.id} limit={5} />
-                </div>
-              </div>
-            </div>
-
-            {/* === Video Reels (server) === */}
-            <div className={cls.section}>
-              <h3 className={cls.section__title}>Review videos</h3>
-              <div className={cls.section__content}>
-                <ProductReels productId={product.id} limit={4} />
-              </div>
-            </div>
-
-            <ProductCarousel
-              products={moreProducts}
-              label="More Products"
-              onItemClick={(p) => nav(`/product/${p.id}`)}
-            />
-          </div>
-        </div>
-
-        {showStickyCta && (
-          <div className={cls.stickyCta} role="region" aria-label="Quick add to cart">
-            <div className={cls.stickyCta__price}>
-              {!!discountPercent && compareAt && (
-                <div className={cls.price__old}>
-                  <span className={cls.price__discount}>-{discountPercent}%</span>
-                  <span className={cls.price__compareAt}>{compareAt}</span>
                 </div>
               )}
-              <span className={cls.stickyCta__currentPrice}>{price}</span>
-            </div>
-            <Button disabled={!available} onClick={handleAddToCart}>
-              Add to Cart
-            </Button>
-          </div>
-        )}
 
-        <Modal
-          isOpen={isOpenUpload}
-          onClose={() => setIsOpenUpload(false)}
-          variant="center"
-          headerBorder={false}
-          bodyStyles={true}
-        >
-          <ReviewComposer productId={product.id} />
-        </Modal>
+              <div className={cls.section}>
+                <h3 className={cls.section__title}>Delivery</h3>
+                <div className={cls.section__content}>
+                  <DeliveryBadge minDays={2} maxDays={4} />
+                </div>
+              </div>
+            </div>
+
+            <div ref={actionsRef} className={cls.productActions}>
+              <Button className={cls.addToCart} disabled={!available} onClick={handleAddToCart}>
+                Add to Cart
+              </Button>
+            </div>
+          </div>
+
+          <div className={cls.section}>
+            <h3 className={cls.section__title}>Short description</h3>
+            <div className={cls.section__content}>
+              <ul className={cls.list}>
+                {product.shortDescription?.length ? (
+                  product.shortDescription.map((line, idx) => <li key={idx}>{line}</li>)
+                ) : (
+                  <li>No short description available for this product.</li>
+                )}
+              </ul>
+            </div>
+          </div>
+
+          <div className={cls.section}>
+            <h3 className={cls.section__title}>Specifications</h3>
+            <div className={cls.section__content}>
+              <SpecTable
+                specs={entries}
+                dictionary={dictionary}
+                showEmpty="dash"
+                mergeStrategy="dict-first"
+              />
+            </div>
+          </div>
+
+          <div className={cls.section}>
+            <h3 className={cls.section__title}>Description</h3>
+            <div className={cls.section__content}>
+              <p>{product.description || "No description available for this product."}</p>
+            </div>
+          </div>
+
+          {/* === Plain Reviews (server) — превью === */}
+          <div className={cls.section}>
+            <h3 className={cls.section__title}>Reviews</h3>
+            <div className={cls.section__content}>
+              <div className={cls.reviews}>
+                <div className={cls.rating}>
+                  <RatingBadge size="default" ratingValue={ratingValue} reviewCount={reviewCount} />
+                  <Button variant="secondary" size="small" onClick={() => setIsOpenUpload(true)}>Add review</Button>
+                </div>
+                <ProductPlainReviews productId={product.id} limit={5} />
+              </div>
+            </div>
+          </div>
+
+          {/* === Video Reels (server) === */}
+          <div className={cls.section}>
+            <h3 className={cls.section__title}>Review videos</h3>
+            <div className={cls.section__content}>
+              <ProductReels productId={product.id} limit={4} />
+            </div>
+          </div>
+
+          <ProductCarousel
+            products={moreProducts}
+            label="More Products"
+            onItemClick={(p) => nav(`/product/${p.id}`)}
+          />
+        </div>
       </div>
+
+      {showStickyCta && (
+        <div className={cls.stickyCta} role="region" aria-label="Quick add to cart">
+          <div className={cls.stickyCta__price}>
+            {!!discountPercent && compareAt && (
+              <div className={cls.price__old}>
+                <span className={cls.price__discount}>-{discountPercent}%</span>
+                <span className={cls.price__compareAt}>{compareAt}</span>
+              </div>
+            )}
+            <span className={cls.stickyCta__currentPrice}>{price}</span>
+          </div>
+          <Button disabled={!available} onClick={handleAddToCart}>
+            Add to Cart
+          </Button>
+        </div>
+      )}
+
+      <Modal
+        isOpen={isOpenUpload}
+        onClose={() => setIsOpenUpload(false)}
+        variant="center"
+        headerBorder={false}
+        bodyStyles={true}
+      >
+        <ReviewComposer productId={product.id} />
+      </Modal>
       <Footer />
     </Page>
   );
