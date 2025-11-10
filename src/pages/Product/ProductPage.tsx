@@ -29,7 +29,6 @@ import ReviewComposer from "../../components/Product/Review/ReviewComposer";
 import RatingBadge from "../../components/Rating/RatingBadge";
 import Page from "../../components/UI/Page/Page";
 import Footer from "../../components/Footer/Footer";
-import ScrollArea from "../../components/UI/ScrollArea/ScrollArea";
 
 export default function ProductPage() {
   const nav = useNavigate();
