@@ -32,7 +32,7 @@ const Wrapper: React.FC<UserProps> = ({ photoUrl, fullname, username }) => {
                 }
                 {username &&
                     <div className={s["profile__identity--username"]}>
-                        {username}
+                        @{username}
                     </div>
                 }
             </div>
