@@ -1,7 +1,7 @@
 // src/components/layouts/PageLayout.tsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import ChevronRightIcon from "../Icons/ChevronRightIcon";
+import Left from "../Icons/ChevronLeftIcon";
 import styles from "./PageLayout.module.scss";
 
 type PageLayoutProps = {
@@ -57,7 +57,7 @@ export default function PageLayout({
                             className={styles["header__main--btn"]}
                             onClick={handleBack}
                         >
-                            <ChevronRightIcon />
+                            <Left />
                         </button>
                     )}
                     <h1 className={styles["header__main--title"]}>{title}</h1>
