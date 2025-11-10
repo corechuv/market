@@ -5,6 +5,7 @@ import MasterBar from "../UI/Bars/MasterBar";
 import ScrollArea from "../UI/ScrollArea/ScrollArea";
 import type { Category as Cat } from "../../types/category";
 import c from "./CatalogScreens.module.scss";
+import Left from "../Icons/ChevronLeftIcon";
 
 interface Props {
   title?: string;
@@ -50,6 +51,7 @@ export const CatalogScreens: React.FC<Props> = (p) => {
             aria-label="Back"
             type="button"
           >
+            <Left />
             Back
           </button>
         )}
