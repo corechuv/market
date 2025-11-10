@@ -23,6 +23,7 @@ import CloseIcon from "../../components/Icons/CloseIcon";
 import { EUROPE_COUNTRIES } from "../../utils/country";
 import MyVideos from "./MyVideos";
 import Page from "../../components/UI/Page/Page";
+import Wrapper from "../../components/User/Wrapper";
 
 const API_ORIGIN = new URL(import.meta.env.VITE_API_BASE_URL).origin;
 const abs = (u?: string | null) =>
@@ -127,6 +128,11 @@ export default function AccountPage() {
     return full || me?.username || me?.email || "User";
   })();
 
+  const displayUsername = (() => {
+    if (me?.username || null)
+      return me?.username
+  })();
+
   const verified = !!me?.isEmailVerified;
   const backSettings = encodeURIComponent("/account?tab=settings");
 
@@ -157,46 +163,11 @@ export default function AccountPage() {
     return (
       <Page>
         <main className={styles.page}>
-          <header className={styles.header}>
-            <div className={styles.headerMain}>
-              <div className={styles.avatarWrap}>
-                <svg
-                  className={styles.avatar}
-                  width="128"
-                  height="128"
-                  viewBox="0 0 128 128"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  role="img"
-                  aria-label="Avatar"
-                >
-                  <g
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    opacity=".6"
-                  >
-                    <circle cx="64" cy="52" r="16" fill="none" />
-                    <path
-                      d="M34 92c6-14 20-22 30-22s24 8 30 22"
-                      fill="none"
-                    />
-                  </g>
-                </svg>
-              </div>
-              <div>
-                <h1 className={styles.title}>{displayName}</h1>
-                <div className={styles.subtitle}>
-                  {me.email}
-                  {me.username ? ` · @${me.username}` : ""}
-                </div>
-                <small className={styles.muted}>
-                  Please verify your email to access your account.
-                </small>
-              </div>
-            </div>
-          </header>
+          <Wrapper
+            photoUrl={abs(me.avatarUrl) + `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`}
+            fullname={displayName}
+            username={displayUsername}
+          />
 
           <div className={styles.layout}>
             <section className={styles.content}>
@@ -235,58 +206,11 @@ export default function AccountPage() {
   return (
     <Page padding={false}>
       <main className={styles.page}>
-        <header className={styles.header}>
-          <div className={styles.headerMain}>
-            <div className={styles.avatarWrap}>
-              {me.avatarUrl ? (
-                <img
-                  src={
-                    abs(me.avatarUrl) +
-                    `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`
-                  }
-                  alt={displayName}
-                  className={styles.avatar}
-                  loading="lazy"
-                  width={128}
-                  height={128}
-                />
-              ) : (
-                <svg
-                  className={styles.avatar}
-                  width="128"
-                  height="128"
-                  viewBox="0 0 128 128"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  role="img"
-                  aria-label="Avatar"
-                >
-                  <g
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    opacity=".6"
-                  >
-                    <circle cx="64" cy="52" r="16" fill="none" />
-                    <path
-                      d="M34 92c6-14 20-22 30-22s24 8 30 22"
-                      fill="none"
-                    />
-                  </g>
-                </svg>
-              )}
-            </div>
-            <div>
-              <h1 className={styles.title}>{displayName}</h1>
-              <div className={styles.subtitle}>
-                {me.email}
-                {me.username ? ` · @${me.username}` : ""}
-              </div>
-            </div>
-          </div>
-          <div className={styles.headerActions} />
-        </header>
+        <Wrapper
+          photoUrl={abs(me.avatarUrl) + `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`}
+          fullname={displayName}
+          username={displayUsername}
+        />
 
         <div className={styles.layout}>
           <section className={styles.content}>
@@ -300,7 +224,7 @@ export default function AccountPage() {
               />
             </div>
             {active === "videos" && (
-                <MyVideos />
+              <MyVideos />
             )}
             {active === "profile" && (
               <ProfileForm
