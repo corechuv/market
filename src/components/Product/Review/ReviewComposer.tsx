@@ -292,7 +292,7 @@ export default function ReviewComposer({
   const SelectRatingBar = (
     <div className={styles.controls}>
       <div className={styles.ratingWrap}>
-        <label className={styles.ratingLabel}>Rating</label>
+        <label className={styles.ratingLabel}>Product rating</label>
         <NumericRating value={rating} onChange={setRating} disabled={busy} />
       </div>
     </div>
