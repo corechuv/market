@@ -367,7 +367,7 @@ export default function ProductPage() {
             </div>
           </div>
 
-          <ProductVideos label="Review videos" limit={10} productId={product.id} />
+          <ProductVideos label="Video reviews" limit={10} productId={product.id} />
 
           <ProductCarousel
             products={moreProducts}
