@@ -23,12 +23,12 @@ import { useCart } from "../../context/CartContext";
 import { toCartLine } from "../../services/cartAdapter";
 import ProductCarousel from "../../components/Product/ProductCarousel";
 
-import ProductReels from "../../components/Product/Review/ProductReels";
 import ProductPlainReviews from "../../components/Product/Review/ProductPlainReviews";
 import ReviewComposer from "../../components/Product/Review/ReviewComposer";
 import RatingBadge from "../../components/Rating/RatingBadge";
 import Page from "../../components/UI/Page/Page";
 import Footer from "../../components/Footer/Footer";
+import ProductVideos from "../../components/Product/Review/ProductVideos";
 
 export default function ProductPage() {
   const nav = useNavigate();
@@ -367,13 +367,7 @@ export default function ProductPage() {
             </div>
           </div>
 
-          {/* === Video Reels (server) === */}
-          <div className={cls.section}>
-            <h3 className={cls.section__title}>Review videos</h3>
-            <div className={cls.section__content}>
-              <ProductReels productId={product.id} limit={4} />
-            </div>
-          </div>
+          <ProductVideos label="Review videos" limit={10} productId={product.id} />
 
           <ProductCarousel
             products={moreProducts}
