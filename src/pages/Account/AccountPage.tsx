@@ -183,11 +183,7 @@ export default function AccountPage() {
                   <Button
                     variant="primary"
                     size="small"
-                    onClick={() =>
-                      navigate(
-                        `/account/settings/verify-email?back=${backSettings}`,
-                      )
-                    }
+                    onClick={() => navigate(`/account/settings/verify-email?back=${backSettings}`)}
                   >
                     Open verification screen
                   </Button>
@@ -205,99 +201,97 @@ export default function AccountPage() {
 
   return (
     <Page padding={false}>
-      <main className={styles.page}>
-        <Wrapper
-          photoUrl={abs(me.avatarUrl) + `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`}
-          fullname={displayName}
-          username={displayUsername}
-        />
+      <Wrapper
+        photoUrl={abs(me.avatarUrl) + `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`}
+        fullname={displayName}
+        username={displayUsername}
+      />
 
-        <div className={styles.layout}>
-          <section className={styles.content}>
-            <div style={{ marginBottom: 14 }}></div>
-            <div style={{ padding: "0 16px" }}>
-              <Tabs<TabKey>
-                items={tabs}
-                activeKey={active}
-                onChange={setActive}
-                ariaLabel="Account sections"
-              />
-            </div>
-            {active === "videos" && (
-              <MyVideos />
-            )}
-            {active === "profile" && (
-              <ProfileForm
-                me={me}
-                saving={loading}
-                onSave={async (patch, avatar) => {
-                  setLoading(true);
-                  try {
-                    // 1) Сохраняем текстовые поля
-                    await api.put(`/customers/${me.id}`, {
-                      email: patch.email || null,
-                      phone: patch.phone || null,
-                      firstName: patch.firstName || null,
-                      lastName: patch.lastName || null,
+      <div className={styles.layout}>
+        <section className={styles.content}>
+          <div style={{ marginBottom: 14 }}></div>
+          <div style={{ padding: "0 16px" }}>
+            <Tabs<TabKey>
+              items={tabs}
+              activeKey={active}
+              onChange={setActive}
+              ariaLabel="Account sections"
+            />
+          </div>
+          {active === "videos" && (
+            <MyVideos />
+          )}
+          {active === "profile" && (
+            <ProfileForm
+              me={me}
+              saving={loading}
+              onSave={async (patch, avatar) => {
+                setLoading(true);
+                try {
+                  // 1) Сохраняем текстовые поля
+                  await api.put(`/customers/${me.id}`, {
+                    email: patch.email || null,
+                    phone: patch.phone || null,
+                    firstName: patch.firstName || null,
+                    lastName: patch.lastName || null,
+                  });
+
+                  // 2) Если пользователь менял аватар — применяем
+                  if (avatar?.removed) {
+                    await api.delete("/customers/me/avatar");
+                  } else if (avatar?.file) {
+                    const fd = new FormData();
+                    fd.append(
+                      "file",
+                      avatar.file,
+                      avatar.file.name || "avatar.jpg",
+                    );
+                    await api.post("/customers/me/avatar", fd, {
+                      // убираем возможный глобальный JSON-заголовок
+                      transformRequest: [
+                        (data, headers) => {
+                          if (headers) {
+                            delete (headers as any)["Content-Type"];
+                          }
+                          return data as any;
+                        },
+                      ],
                     });
-
-                    // 2) Если пользователь менял аватар — применяем
-                    if (avatar?.removed) {
-                      await api.delete("/customers/me/avatar");
-                    } else if (avatar?.file) {
-                      const fd = new FormData();
-                      fd.append(
-                        "file",
-                        avatar.file,
-                        avatar.file.name || "avatar.jpg",
-                      );
-                      await api.post("/customers/me/avatar", fd, {
-                        // убираем возможный глобальный JSON-заголовок
-                        transformRequest: [
-                          (data, headers) => {
-                            if (headers) {
-                              delete (headers as any)["Content-Type"];
-                            }
-                            return data as any;
-                          },
-                        ],
-                      });
-                    }
-
-                    // 3) Обновляем профиль в состоянии и кэше
-                    await refreshMeAndCache();
-                  } catch (e: any) {
-                    const status = e?.response?.status;
-                    const msg =
-                      e?.response?.data?.message || "Failed to save profile";
-                    if (status === 409) throw { email: "Email already exists" };
-                    throw { _form: msg };
-                  } finally {
-                    setLoading(false);
                   }
-                }}
-              />
-            )}
-            {active === "addresses" && (
-              <AddressesSection
-                me={me}
-                onMeRefresh={async () => {
-                  const { data } = await api.get("/auth/me");
-                  setMe(data as Me);
-                  try {
-                    localStorage.setItem("mp_auth_user", JSON.stringify(data));
-                    sessionStorage.setItem("mp_auth_user", JSON.stringify(data));
-                  } catch {
-                    /* ignore */
-                  }
-                }}
-              />
-            )}
-            {active === "orders" && <OrdersSection />}
-            {active === "settings" && <SettingsSection me={me} />}
-          </section>
-        </div>
-      </main>
+
+                  // 3) Обновляем профиль в состоянии и кэше
+                  await refreshMeAndCache();
+                } catch (e: any) {
+                  const status = e?.response?.status;
+                  const msg =
+                    e?.response?.data?.message || "Failed to save profile";
+                  if (status === 409) throw { email: "Email already exists" };
+                  throw { _form: msg };
+                } finally {
+                  setLoading(false);
+                }
+              }}
+            />
+          )}
+          {active === "addresses" && (
+            <AddressesSection
+              me={me}
+              onMeRefresh={async () => {
+                const { data } = await api.get("/auth/me");
+                setMe(data as Me);
+                try {
+                  localStorage.setItem("mp_auth_user", JSON.stringify(data));
+                  sessionStorage.setItem("mp_auth_user", JSON.stringify(data));
+                } catch {
+                  /* ignore */
+                }
+              }}
+            />
+          )}
+          {active === "orders" && <OrdersSection />}
+          {active === "settings" && <SettingsSection me={me} />}
+        </section>
+      </div>
     </Page>
   );
 }

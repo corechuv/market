@@ -19,8 +19,7 @@ const Wrapper: React.FC<UserProps> = ({ photoUrl, fullname, username }) => {
                         src={photoUrl}
                         alt=""
                         loading="lazy"
-                    />
-                    :
+                    /> :
                     <div className={s["profile__photo--no"]}></div>
                 }
 
