@@ -97,6 +97,11 @@
 /* Cards, table, etc */
 .card {
     box-shadow: var(--shadow);
+    padding: 0 20px;
+
+    @media (max-width: 768px) {
+        padding: 0 16px;
+    }
 }
 
 .cardHeader {
