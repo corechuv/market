@@ -300,12 +300,7 @@ export default function AccountPage() {
               />
             </div>
             {active === "videos" && (
-              <div className={styles.card}>
-                <div className={styles.cardHeader}>
-                  <h2 className={styles.titlePage}>My videos</h2>
-                </div>
                 <MyVideos />
-              </div>
             )}
             {active === "profile" && (
               <ProfileForm
