@@ -233,7 +233,7 @@ export default function AccountPage() {
   }
 
   return (
-    <Page>
+    <Page padding={false}>
       <main className={styles.page}>
         <header className={styles.header}>
           <div className={styles.headerMain}>
@@ -290,13 +290,15 @@ export default function AccountPage() {
 
         <div className={styles.layout}>
           <section className={styles.content}>
-            <div style={{marginBottom: 14}}></div>
-            <Tabs<TabKey>
-              items={tabs}
-              activeKey={active}
-              onChange={setActive}
-              ariaLabel="Account sections"
-            />
+            <div style={{ marginBottom: 14 }}></div>
+            <div style={{ padding: "0 16px" }}>
+              <Tabs<TabKey>
+                items={tabs}
+                activeKey={active}
+                onChange={setActive}
+                ariaLabel="Account sections"
+              />
+            </div>
             {active === "videos" && (
               <div className={styles.card}>
                 <div className={styles.cardHeader}>

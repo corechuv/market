@@ -1,4 +1,5 @@
 @use "../../styles/global.module.scss";
+
 /* Цвета и базовые токены */
 :root {
     /* тёмный фон — легко поменять под бренд dashedo.com */
@@ -43,6 +44,11 @@
     gap: var(--space-4);
     margin-bottom: 30px;
     z-index: 3;
+    padding: 0 20px;
+
+    @media (max-width: 768px) {
+        padding: 0 16px;
+    }
 }
 
 .headerMain {
@@ -557,6 +563,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+
     img {
         padding: 10px 0;
         width: 70px;
