@@ -7,7 +7,7 @@ import { createReview, addReviewMedia } from "../../../services/reviewApi";
 import styles from "./ReviewComposer.module.scss";
 import Button from "../../UI/Button";
 import { TextareaField } from "../../UI/TextareaField";
-import ChevronLeftIcon from "../../Icons/ChevronRightIcon";
+import Left from "../../Icons/ChevronLeftIcon";
 
 type ReviewMode = "choose" | "plain" | "reel";
 
@@ -76,9 +76,8 @@ function NumericRating({
         <button
           key={n}
           type="button"
-          className={`${styles.ratingItem} ${
-            n <= value ? styles.isActive : ""
-          }`}
+          className={`${styles.ratingItem} ${n <= value ? styles.isActive : ""
+            }`}
           onClick={() => !disabled && onChange(n)}
           disabled={disabled}
           role="radio"
@@ -279,25 +278,25 @@ export default function ReviewComposer({
   };
 
   const Controls = (
-    <>
-      <div className={styles.controls}>
-        <div className={styles.ratingWrap}>
-          <label className={styles.ratingLabel}>Rating</label>
-          <NumericRating value={rating} onChange={setRating} disabled={busy} />
-        </div>
-      </div>
-
-      <TextareaField
-        label="Name"
-        placeholder={isReel ? "Description" : "Description"}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        disabled={busy}
-        resizable="none"
-        rows={3}
-      />
-    </>
+    <TextareaField
+      label="Name"
+      placeholder={isReel ? "Description" : "Description"}
+      value={text}
+      onChange={(e) => setText(e.target.value)}
+      disabled={busy}
+      resizable="none"
+      rows={3}
+    />
   );
+
+  const SelectRatingBar = (
+    <div className={styles.controls}>
+      <div className={styles.ratingWrap}>
+        <label className={styles.ratingLabel}>Rating</label>
+        <NumericRating value={rating} onChange={setRating} disabled={busy} />
+      </div>
+    </div>
+  )
 
   return (
     <div className={styles.root}>
@@ -312,7 +311,7 @@ export default function ReviewComposer({
             className={styles.backBtn}
             aria-label="Назад"
           >
-            <ChevronLeftIcon />
+            <Left />
           </Button>
 
           <div className={styles.topbarSpacer} />
@@ -365,17 +364,17 @@ export default function ReviewComposer({
           </div>
         ) : mode === "reel" ? (
           <div className={styles.layout__grid}>
-            {/* ЛЕВО: кликабельная drop-зона с превью 9:16, h<=368px */}
+            {SelectRatingBar}
+
             <div
-              className={`${styles.previewWrap} ${
-                dragActive ? styles.isDragActive : ""
-              }`}
+              className={`${styles.previewWrap} ${dragActive ? styles.isDragActive : ""
+                }`}
               role="button"
               tabIndex={0}
               aria-label={
                 file
                   ? "Видео выбрано — кликните, чтобы заменить"
-                  : "Загрузить видео — кликните или перетащите файл"
+                  : "Upload video — кликните или перетащите файл"
               }
               onClick={pickFromDialog}
               onKeyDown={onPreviewKeyDown}
@@ -396,10 +395,7 @@ export default function ReviewComposer({
                 />
               ) : (
                 <div className={styles.previewPlaceholder}>
-                  <div className={styles.previewHintTitle}>Загрузить видео</div>
-                  <div className={styles.previewHintSub}>
-                    Кликните или перетащите сюда • 9:16
-                  </div>
+                  <div className={styles.previewHintTitle}>Upload video</div>
                 </div>
               )}
 
@@ -415,47 +411,40 @@ export default function ReviewComposer({
               />
             </div>
 
-            {/* ПРАВО: текст и остальное */}
-            <div className={styles.reelRight}>
-              {Controls}
-
-              {progress > 0 && (
-                <div className={styles.progress}>
-                  Uploading: {progress}%
-                  <div className={styles.progressTrack}>
-                    <div
-                      className={styles.progressBar}
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Кнопку Publish снизу удалили — теперь она в топбаре */}
-
-              {msg && (
-                <div
-                  className={`${styles.msg} ${
-                    msg.startsWith("Не удалось") ? styles.msgError : ""
-                  }`}
-                >
-                  {msg}
-                </div>
-              )}
-            </div>
-          </div>
-        ) : (
-          // mode === "plain"
-          <div className={styles.layout__fields}>
             {Controls}
+
+            {progress > 0 && (
+              <div className={styles.progress}>
+                Uploading: {progress}%
+                <div className={styles.progressTrack}>
+                  <div
+                    className={styles.progressBar}
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Кнопку Publish снизу удалили — теперь она в топбаре */}
 
             {msg && (
               <div
-                className={`${styles.msg} ${
-                  msg.startsWith("Не удалось") ? styles.msgError : ""
-                }`}
+                className={`${styles.msg} ${msg.startsWith("Не удалось") ? styles.msgError : ""
+                  }`}
+              >
+                {msg}
+              </div>
+            )}
+          </div>
+        ) : (
+          // mode === "plain"
+          <div className={styles.layout__fields}>
+            {SelectRatingBar}
+            {Controls}
+            {msg && (
+              <div
+                className={`${styles.msg} ${msg.startsWith("Не удалось") ? styles.msgError : ""
+                  }`}
               >
                 {msg}
               </div>

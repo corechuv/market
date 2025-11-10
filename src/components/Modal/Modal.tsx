@@ -5,13 +5,14 @@ import React, { useRef, useLayoutEffect } from 'react'; // ← useLayoutEffect
 import cls from './Modal.module.scss';
 import CloseIcon from '../Icons/CloseIcon';
 import { createPortal } from 'react-dom';
+import ScrollArea from '../UI/ScrollArea/ScrollArea';
 
 // --- Глобальный, безопасный для нескольких модалок скролл-лок ---
 let __lockCount = 0;
 let __restore: null | (() => void) = null;
 
 function lockBodyScroll() {
-  if (typeof window === 'undefined') return () => {};
+  if (typeof window === 'undefined') return () => { };
   const html = document.documentElement;
   const body = document.body;
 
@@ -190,7 +191,9 @@ export default function Modal({
         )}
         {tab && <>{tabContent}</>}
         <div className={`${cls.modalBody} ${bodyClassName}`} style={modalBodyStyle}>
-          <div className={cls.modalScroll}>{children}</div>
+          <ScrollArea lockBody={false}>
+            {children}
+          </ScrollArea>
         </div>
       </div>
     </div>,

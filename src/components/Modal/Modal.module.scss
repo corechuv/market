@@ -1,7 +1,4 @@
-// ============================
 // Modal.module.scss
-// ============================
-@use "../../styles/scrollbar.module.scss" as scrollbar;
 $anim-time: 0.3s;
 
 .modalOverlay {
@@ -26,10 +23,6 @@ $anim-time: 0.3s;
 
 .modalOverlay {
   overscroll-behavior: contain;
-}
-
-.modalScroll {
-  -webkit-overflow-scrolling: touch;
 }
 
 .modalContent {
@@ -58,8 +51,6 @@ $anim-time: 0.3s;
     opacity: 0;
     transform: scale(0.9);
     animation: zoomIn $anim-time forwards;
-    @include scrollbar.custom-scrollbar();
-    /* если надо прокручивать вложенный скролл */
   }
 
   /* ===== Слева/справа (fullscreen height drawers) ===== */
@@ -149,17 +140,6 @@ $anim-time: 0.3s;
   /* ДОБАВИТЬ */
   overflow: hidden;
   /* лучше скрыть, чтобы не было bleed */
-}
-
-/* Внутренний скролл только тут */
-.modalScroll {
-  flex: 1 1 auto;
-  /* ДОБАВИТЬ: пусть растёт/сжимается */
-  min-height: 0;
-  /* КЛЮЧЕВОЕ — разрешает сжиматься */
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  @include scrollbar.custom-scrollbar();
 }
 
 @keyframes zoomIn {

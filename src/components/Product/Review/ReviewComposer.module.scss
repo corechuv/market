@@ -385,7 +385,7 @@
 /* Кликабельная drop-зона с превью 9:16, h<=438px */
 .previewWrap {
   position: relative;
-  border-radius: 10px;
+  border-radius: 16px;
   overflow: hidden;
   background: black;
   cursor: pointer;
@@ -420,19 +420,8 @@
 
 .previewHintTitle {
   font-size: 14px;
-  font-weight: 600;
-  color: var(--rc-text);
-}
-
-.previewHintSub {
-  font-size: 12px;
-  margin-top: 4px;
-}
-
-.reelRight {
-  display: grid;
-  gap: 10px;
-  padding: 6px 0 6px;
+  font-weight: 500;
+  color: whitesmoke;
 }
 
 /* Скрытый, но доступный инпут */
@@ -457,7 +446,7 @@
 
   &__grid {
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: 1fr;
     gap: 12px;
     align-items: start;
 
