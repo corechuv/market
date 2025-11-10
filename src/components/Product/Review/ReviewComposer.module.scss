@@ -214,10 +214,8 @@
 }
 
 .isActive {
-  background: black;
-  /* активный — заливка акцентом */
-  color: #fff;
-  /* контрастный текст */
+  background: var(--bg-rating-value);
+  color: whitesmoke;
 }
 
 .ratingItem[disabled] {
