@@ -112,7 +112,7 @@ export default function App() {
             {/* Legal */}
             <Route path="legal/terms" element={<TermsPage />} />
             <Route path="legal/privacy" element={<PrivacyPolicyPage />} />
-            <Route path="legal/cookie" element={<CookiePolicyPage />} />
+            <Route path="legal/cookies" element={<CookiePolicyPage />} />
             <Route path="legal/imprint" element={<ImprintPage />} />
             <Route path="legal/sitemap" element={<SitemapPage />} />
 

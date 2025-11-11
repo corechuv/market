@@ -59,7 +59,7 @@ const NAV_GROUPS = [
         links: [
             { href: "/legal/terms", label: "Terms of Service" },
             { href: "/legal/privacy", label: "Privacy Policy" },
-            { href: "/legal/cookie", label: "Cookie Policy" },
+            { href: "/legal/cookies", label: "Cookie Policy" },
             { href: "/legal/imprint", label: "Imprint" },
             { href: "/legal/sitemap", label: "Sitemap" },
         ],
