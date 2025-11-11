@@ -41,12 +41,10 @@ const NAV_GROUPS = [
     {
         title: "Help & Support",
         links: [
-            { href: "/contact", label: "Contact" },
-            { href: "/faq", label: "FAQ" },
-            { href: "/shipping", label: "Shipping & Delivery" },
-            { href: "/returns", label: "Returns & Refunds" },
-            { href: "/track", label: "Track Order" },
-            { href: "/size-guide", label: "Size Guide" },
+            { href: "/help/contact", label: "Contact" },
+            { href: "/help/faq", label: "FAQ" },
+            { href: "/help/shipping", label: "Shipping & Delivery" },
+            { href: "/help/returns-refunds", label: "Returns & Refunds" },
         ],
     },
     {
@@ -72,38 +70,11 @@ const NAV_GROUPS = [
     {
         title: "Legal",
         links: [
-            { href: "/terms", label: "Terms of Service" },
-            { href: "/privacy", label: "Privacy Policy" },
-            { href: "/cookie", label: "Cookie Policy" },
-            { href: "/imprint", label: "Imprint" },
-            { href: "/sitemap", label: "Sitemap" },
-        ],
-    },
-    {
-        title: "Partners",
-        links: [
-            { href: "/affiliate", label: "Affiliate Program" },
-            { href: "/wholesale", label: "Wholesale" },
-            { href: "/partners", label: "Partners" },
-            { href: "/csr", label: "Sustainability" },
-        ],
-    },
-    {
-        title: "Explore",
-        links: [
-            { href: "/stories", label: "Stories" },
-            { href: "/lookbook", label: "Lookbook" },
-            { href: "/community", label: "Community" },
-            { href: "/events", label: "Events" },
-        ],
-    },
-    {
-        title: "Resources",
-        links: [
-            { href: "/developers", label: "Developers" },
-            { href: "/api", label: "API" },
-            { href: "/docs", label: "Docs" },
-            { href: "/status", label: "Status" },
+            { href: "/legal/terms", label: "Terms of Service" },
+            { href: "/legal/privacy", label: "Privacy Policy" },
+            { href: "/legal/cookie", label: "Cookie Policy" },
+            { href: "/legal/imprint", label: "Imprint" },
+            { href: "/legal/sitemap", label: "Sitemap" },
         ],
     },
 ];

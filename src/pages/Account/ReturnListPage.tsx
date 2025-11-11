@@ -141,7 +141,7 @@ export default function ReturnListPage() {
           {err && <div className={styles.error} role="alert">{err}</div>}
 
           {!loading && !err && rows.length === 0 && (
-            <div className={styles.card}>
+            <>
               <div className={styles.cardHeader}>
                 <h2 className={styles.titlePage}>No returns yet</h2>
                 <p className={styles.muted}>Оформляйте возврат из деталей нужного заказа.</p>
@@ -151,7 +151,7 @@ export default function ReturnListPage() {
                   My orders
                 </Button>
               </div>
-            </div>
+            </>
           )}
 
           {!loading && !err && rows.length > 0 && (

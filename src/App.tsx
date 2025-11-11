@@ -50,6 +50,17 @@ import ReelsPage from "./pages/ReelsPage";
 import MyVideosPage from "./pages/Account/MyVideosPage";
 import MobileSearchPage from "./pages/Search/MobileSearchPage";
 import MobileCatalogPage from "./pages/Catalog/MobileCatalogPage";
+{/* Legal */ }
+import TermsPage from "./pages/Legal/TermsPage";
+import PrivacyPolicyPage from "./pages/Legal/PrivacyPolicyPage";
+import CookiePolicyPage from "./pages/Legal/CookiePolicyPage";
+import ImprintPage from "./pages/Legal/ImprintPage";
+import SitemapPage from "./pages/Legal/SitemapPage";
+{/* Help */ }
+import ContactPage from "./pages/Help/ContactPage";
+import FAQPage from "./pages/Help/FAQPage";
+import ShippingPage from "./pages/Help/ShippingPage";
+import ReturnsRefundsPage from "./pages/Help/ReturnsRefundsPage";
 
 export default function App() {
 
@@ -62,7 +73,7 @@ export default function App() {
 
             <Route path="/search" element={<SearchPage />} />
             <Route path="/s" element={<MobileSearchPage />} />
-             <Route path="/c" element={<MobileCatalogPage />} />
+            <Route path="/c" element={<MobileCatalogPage />} />
 
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/product/:productId" element={<ProductPage />} />
@@ -85,6 +96,19 @@ export default function App() {
             <Route path="/verify-email" element={<VerifyEmailPage />} /> {/* ← алиас на случай старых писем */}
             <Route path="/account/settings/change-password" element={<ChangePasswordPage />} />
             <Route path="/reset-password" element={<ChangePasswordPage />} /> {/* ← алиас */}
+
+            {/* Help */}
+            <Route path="help/contact" element={<ContactPage />} />
+            <Route path="help/faq" element={<FAQPage />} />
+            <Route path="help/shipping" element={<ShippingPage />} />
+            <Route path="help/returns-refunds" element={<ReturnsRefundsPage />} />
+            {/* Legal */}
+            <Route path="legal/terms" element={<TermsPage />} />
+            <Route path="legal/privacy" element={<PrivacyPolicyPage />} />
+            <Route path="legal/cookie" element={<CookiePolicyPage />} />
+            <Route path="legal/imprint" element={<ImprintPage />} />
+            <Route path="legal/sitemap" element={<SitemapPage />} />
+
             <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
           </Route>
 
