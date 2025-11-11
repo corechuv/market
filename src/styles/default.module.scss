@@ -11,13 +11,13 @@
 
 .brand {
     padding: 0 20px;
-    margin-bottom: 30px;
+    margin: 50px 0;
     height: clamp(20px, 50vw, 60px);
     display: flex;
     justify-content: center;
 
     @media (max-width: 756px) {
-    height: clamp(20px, 50vw, 40px);
+        height: clamp(20px, 50vw, 40px);
     }
 
     &__logo {
