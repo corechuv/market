@@ -3,6 +3,7 @@ import "react"
 import Page from "../../components/UI/Page/Page"
 import s from "./Legal.module.scss"
 import Logo from "../../components/Footer/Logo";
+import Button from "../../components/UI/Button";
 
 export default function CookiePolicyPage() {
     const jsonLd = {
@@ -23,6 +24,7 @@ export default function CookiePolicyPage() {
 
     const openCookieSettings = () => {
         try {
+            window.dispatchEvent(new Event("cookie-consent:open"));
             (window as any)?.Cookiebot?.renew?.();
             (window as any)?.OneTrust?.ToggleInfoDisplay?.();
             (window as any)?.klaro?.show?.();
@@ -77,7 +79,7 @@ export default function CookiePolicyPage() {
                 <h2>4. Verwaltung Ihrer Einwilligung</h2>
                 <p>Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft anpassen oder widerrufen:</p>
                 <p>
-                    <button type="button" onClick={openCookieSettings}>Cookie-Einstellungen öffnen</button>
+                    <Button onClick={openCookieSettings}>Cookie-Einstellungen öffnen</Button>
                 </p>
                 <p>Alternativ: Browser-Einstellungen für Cookies ändern oder Cookies löschen.</p>
 
