@@ -9,7 +9,6 @@ import NotificationIcon from "../../Icons/NotificationIcon";
 import MasterBar from "../../UI/Bars/MasterBar";
 import AboutIcon from "../../Icons/AboutIcon";
 import HelpSupportIcon from "../../Icons/HelpSupportIcon";
-import LegalIcon from "../../Icons/LegalIcon";
 
 interface SettingsPanelProps {
     /** Управление видимостью извне (Navigation) */
