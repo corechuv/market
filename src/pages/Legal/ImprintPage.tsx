@@ -2,6 +2,7 @@
 import "react"
 import Page from "../../components/UI/Page/Page"
 import s from "./Legal.module.scss"
+import Logo from "../../components/Footer/Logo";
 
 export default function ImprintPage() {
     const orgJsonLd = {
@@ -33,6 +34,9 @@ export default function ImprintPage() {
     return (
         <Page>
             <div className={s.content}>
+
+                <Logo />
+
                 <nav aria-label="Brotkrumen">
                     <a href="/">Startseite</a> &nbsp;/&nbsp; <a href="/legal">Rechtliches</a> &nbsp;/&nbsp; <span>Impressum</span>
                 </nav>
@@ -42,13 +46,13 @@ export default function ImprintPage() {
 
                 <h2>Anbieterkennzeichnung gemäß § 5 TMG</h2>
                 <p>
-                    <strong>⟨Dashedo GmbH⟩</strong><br/>
-                    ⟨Musterstraße 1⟩<br/>
+                    <strong>⟨Dashedo GmbH⟩</strong><br />
+                    ⟨Musterstraße 1⟩<br />
                     10115 Berlin, Deutschland
                 </p>
                 <p>
-                    Telefon: +49 ⟨30⟩ ⟨1234567⟩<br/>
-                    E-Mail: <a href="mailto:⟨hello@dashedo.com⟩">⟨hello@dashedo.com⟩</a><br/>
+                    Telefon: +49 ⟨30⟩ ⟨1234567⟩<br />
+                    E-Mail: <a href="mailto:⟨hello@dashedo.com⟩">⟨hello@dashedo.com⟩</a><br />
                     Website: <a href="https://dashedo.com/">dashedo.com</a>
                 </p>
 
@@ -57,8 +61,8 @@ export default function ImprintPage() {
 
                 <h3>Register &amp; Umsatzsteuer</h3>
                 <p>
-                    Registergericht: Amtsgericht Berlin-Charlottenburg<br/>
-                    Handelsregisternummer (HRB): ⟨HRB-Nummer⟩<br/>
+                    Registergericht: Amtsgericht Berlin-Charlottenburg<br />
+                    Handelsregisternummer (HRB): ⟨HRB-Nummer⟩<br />
                     USt-IdNr.: ⟨DE-Nummer⟩
                 </p>
 

@@ -2,6 +2,7 @@
 import "react"
 import Page from "../../components/UI/Page/Page"
 import s from "./About.module.scss"
+import Logo from "../../components/Footer/Logo";
 
 export default function PressPage() {
     const orgJsonLd = {
@@ -16,7 +17,7 @@ export default function PressPage() {
             "email": "press@dashedo.com",
             "telephone": "+49 ⟨30⟩ ⟨1234567⟩",
             "areaServed": "DE, AT, CH, EU",
-            "availableLanguage": ["de","en"]
+            "availableLanguage": ["de", "en"]
         }]
     };
 
@@ -39,6 +40,9 @@ export default function PressPage() {
     return (
         <Page>
             <div className={s.content}>
+
+                <Logo />
+
                 <nav aria-label="Brotkrumen">
                     <a href="/">Startseite</a> &nbsp;/&nbsp; <a href="/about">Über uns</a> &nbsp;/&nbsp; <span>Presse</span>
                 </nav>
@@ -61,8 +65,8 @@ export default function PressPage() {
 
                 <h2>Pressekontakt</h2>
                 <p>
-                    <strong>Media Relations</strong><br/>
-                    E-Mail: <a href="mailto:press@dashedo.com">press@dashedo.com</a><br/>
+                    <strong>Media Relations</strong><br />
+                    E-Mail: <a href="mailto:press@dashedo.com">press@dashedo.com</a><br />
                     Telefon: +49 ⟨30⟩ ⟨1234567⟩
                 </p>
 
@@ -75,8 +79,8 @@ export default function PressPage() {
 
                 <h2>Boilerplate</h2>
                 <p>
-                    <em>Über Dashedo:</em> Dashedo ist eine cloudbasierte Plattform für ⟨Wertversprechen⟩. 
-                    Das Unternehmen mit Sitz in Berlin unterstützt Teams dabei, ⟨Hauptnutzen⟩ – sicher, skalierbar 
+                    <em>Über Dashedo:</em> Dashedo ist eine cloudbasierte Plattform für ⟨Wertversprechen⟩.
+                    Das Unternehmen mit Sitz in Berlin unterstützt Teams dabei, ⟨Hauptnutzen⟩ – sicher, skalierbar
                     und DSGVO-konform. Mehr unter <a href="https://dashedo.com/">dashedo.com</a>.
                 </p>
 

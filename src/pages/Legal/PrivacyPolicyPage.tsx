@@ -2,6 +2,7 @@
 import "react"
 import Page from "../../components/UI/Page/Page"
 import s from "./Legal.module.scss"
+import Logo from "../../components/Footer/Logo";
 
 export default function PrivacyPolicyPage() {
     const jsonLd = {
@@ -15,6 +16,9 @@ export default function PrivacyPolicyPage() {
     return (
         <Page>
             <div className={s.content}>
+
+                <Logo />
+
                 <nav aria-label="Brotkrumen">
                     <a href="/">Startseite</a> &nbsp;/&nbsp; <a href="/legal">Rechtliches</a> &nbsp;/&nbsp; <span>Datenschutzerklärung</span>
                 </nav>
@@ -24,9 +28,9 @@ export default function PrivacyPolicyPage() {
 
                 <h2>1. Verantwortlicher</h2>
                 <p>
-                    <strong>⟨Dashedo GmbH⟩</strong><br/>
-                    ⟨Musterstraße 1⟩, 10115 Berlin, Deutschland<br/>
-                    E-Mail: <a href="mailto:⟨hello@dashedo.com⟩">⟨hello@dashedo.com⟩</a><br/>
+                    <strong>⟨Dashedo GmbH⟩</strong><br />
+                    ⟨Musterstraße 1⟩, 10115 Berlin, Deutschland<br />
+                    E-Mail: <a href="mailto:⟨hello@dashedo.com⟩">⟨hello@dashedo.com⟩</a><br />
                     Telefon: +49 ⟨30⟩ ⟨1234567⟩
                 </p>
                 <p><em>Datenschutzbeauftragte/r (falls vorhanden):</em> ⟨Name, Kontakt⟩</p>

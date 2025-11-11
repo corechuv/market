@@ -2,6 +2,7 @@
 import "react"
 import Page from "../../components/UI/Page/Page"
 import s from "./About.module.scss"
+import Logo from "../../components/Footer/Logo";
 
 export default function CareersPage() {
     const pageJsonLd = {
@@ -62,6 +63,9 @@ export default function CareersPage() {
     return (
         <Page>
             <div className={s.content}>
+                
+                <Logo />
+
                 <nav aria-label="Brotkrumen">
                     <a href="/">Startseite</a> &nbsp;/&nbsp; <a href="/about">Über uns</a> &nbsp;/&nbsp; <span>Karriere</span>
                 </nav>
