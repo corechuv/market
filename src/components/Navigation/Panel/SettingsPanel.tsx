@@ -7,6 +7,9 @@ import { useNavigate } from "react-router-dom";
 import AccountIcon from "../../Icons/AccountIcon";
 import NotificationIcon from "../../Icons/NotificationIcon";
 import MasterBar from "../../UI/Bars/MasterBar";
+import AboutIcon from "../../Icons/AboutIcon";
+import HelpSupportIcon from "../../Icons/HelpSupportIcon";
+import LegalIcon from "../../Icons/LegalIcon";
 
 interface SettingsPanelProps {
     /** Управление видимостью извне (Navigation) */
@@ -71,7 +74,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     </span>
                 </li>
             </ul>
-            <h2 className={c.title}>Theme</h2>
+            <h3 className={c.subtitle}>Theme</h3>
             <ul className={c.list}>
                 <li className={c.list__item} aria-checked={theme === 'light'} onClick={() => { setTheme('light') }}>
                     <SunIcon className={c["list__item--icon-left"]} />
@@ -83,6 +86,27 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     <MoonIcon className={c["list__item--icon-left"]} />
                     <span className={c["list__item--label"]} aria-label={`Dark`} title="dark">
                         Dark
+                    </span>
+                </li>
+            </ul>
+            <h3 className={c.subtitle}>Information</h3>
+            <ul className={c.list}>
+                <li className={c.list__item} onClick={() => { nav("/account/notifications") }}>
+                    <AboutIcon className={c["list__item--icon-left"]} />
+                    <span className={c["list__item--label"]} aria-label={``} title="">
+                        About
+                    </span>
+                </li>
+                <li className={c.list__item} onClick={() => { nav("/account") }}>
+                    <HelpSupportIcon className={c["list__item--icon-left"]} />
+                    <span className={c["list__item--label"]} aria-label={``} title="">
+                        Help & Support
+                    </span>
+                </li>
+                <li className={c.list__item} onClick={() => { nav("/account") }}>
+                    <LegalIcon className={c["list__item--icon-left"]} />
+                    <span className={c["list__item--label"]} aria-label={``} title="">
+                        Legal
                     </span>
                 </li>
             </ul>

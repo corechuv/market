@@ -4,12 +4,10 @@
     height: 100%;
 }
 
-.titlebase {
+.titleParam {
     color: var(--text);
     margin: 0;
-    font-size: 1.75rem;
     line-height: 1;
-    font-weight: 600;
 }
 
 .list {
@@ -58,6 +56,15 @@
 }
 
 .title {
-    @extend .titlebase;
+    @extend .titleParam;
+    font-size: 1.75rem;
+    font-weight: 600;
     padding: 1.5rem 1.2rem 1.6rem;
+}
+
+.subtitle {
+    @extend .titleParam;
+    font-size: 1.12rem;
+    font-weight: 500;
+    padding: 1.5rem 1.2rem 1rem;
 }

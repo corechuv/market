@@ -137,7 +137,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
       onMouseLeave={onMouseLeave}
       className={c.g}
     >
-      <div className={c.page}>
+      <div className={c.content}>
         <MasterBar title="Search" includeBars background="var(--n-bg-desktop)">
           <SearchField
             ref={inputRef}

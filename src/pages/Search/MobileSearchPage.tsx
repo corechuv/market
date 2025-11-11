@@ -91,7 +91,7 @@ export default function MobileSearchPage() {
 
     return (
         <Page padding={false}>
-            <div className={styles.page} role="search">
+            <div className={styles.content} role="search">
                 <MasterBar title="Search" includeBars>
                     <SearchField
                         ref={inputRef}
