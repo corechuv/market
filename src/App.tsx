@@ -61,6 +61,9 @@ import ContactPage from "./pages/Help/ContactPage";
 import FAQPage from "./pages/Help/FAQPage";
 import ShippingPage from "./pages/Help/ShippingPage";
 import ReturnsRefundsPage from "./pages/Help/ReturnsRefundsPage";
+import AboutPage from "./pages/About/AboutPage";
+import CareersPage from "./pages/About/CareersPage";
+import PressPage from "./pages/About/PressPage";
 
 export default function App() {
 
@@ -97,6 +100,10 @@ export default function App() {
             <Route path="/account/settings/change-password" element={<ChangePasswordPage />} />
             <Route path="/reset-password" element={<ChangePasswordPage />} /> {/* ← алиас */}
 
+            {/* About */}
+            <Route path="about" element={<AboutPage />} />
+            <Route path="about/careers" element={<CareersPage />} />
+            <Route path="about/press" element={<PressPage />} />
             {/* Help */}
             <Route path="help/contact" element={<ContactPage />} />
             <Route path="help/faq" element={<FAQPage />} />

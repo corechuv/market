@@ -32,10 +32,8 @@ const NAV_GROUPS = [
         title: "About",
         links: [
             { href: "/about", label: "About Us" },
-            { href: "/team", label: "Our Team" },
-            { href: "/careers", label: "Careers" },
-            { href: "/press", label: "Press" },
-            { href: "/blog", label: "Blog" },
+            { href: "/about/careers", label: "Careers" },
+            { href: "/about/press", label: "Press" },
         ],
     },
     {
@@ -53,8 +51,6 @@ const NAV_GROUPS = [
             { href: "/new", label: "New Arrivals" },
             { href: "/bestsellers", label: "Bestsellers" },
             { href: "/sale", label: "Sale" },
-            { href: "/gifts", label: "Gifts" },
-            { href: "/last-chance", label: "Last Chance" },
         ],
     },
     {
@@ -62,7 +58,6 @@ const NAV_GROUPS = [
         links: [
             { href: "/account", label: "My Account" },
             { href: "/account/orders", label: "Orders" },
-            { href: "/account/wishlist", label: "Wishlist" },
             { href: "/account/addresses", label: "Addresses" },
             { href: "/account/security", label: "Security" },
         ],
