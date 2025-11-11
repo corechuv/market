@@ -44,7 +44,7 @@ export default function CookiePolicyPage() {
                     <a href="/">Startseite</a> &nbsp;/&nbsp; <a href="/legal">Rechtliches</a> &nbsp;/&nbsp; <span>Cookie-Richtlinie</span>
                 </nav>
 
-                <h1 className={s.content__title}>Cookie-Richtlinie</h1>
+                <h1>Cookie-Richtlinie</h1>
                 <p><strong>Zuletzt aktualisiert:</strong> 11.11.2025</p>
 
                 <p>
