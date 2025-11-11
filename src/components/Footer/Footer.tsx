@@ -46,14 +46,6 @@ const NAV_GROUPS = [
         ],
     },
     {
-        title: "Shop",
-        links: [
-            { href: "/new", label: "New Arrivals" },
-            { href: "/bestsellers", label: "Bestsellers" },
-            { href: "/sale", label: "Sale" },
-        ],
-    },
-    {
         title: "Account",
         links: [
             { href: "/account", label: "My Account" },

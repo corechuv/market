@@ -109,7 +109,7 @@ export default function Home() {
                         <>
                             {/* Во время загрузки ProductCarousel сам покажет скелеты */}
                             <ProductCarousel
-                                label="Best Products"
+                                label="New Arrivals"
                                 products={products}
                                 isLoading={loading}
                                 skeletonCount={10}
@@ -117,7 +117,15 @@ export default function Home() {
                             />
 
                             <ProductCarousel
-                                label="Featured Products"
+                                label="Bestsellers"
+                                products={products}
+                                isLoading={loading}
+                                skeletonCount={10}
+                                onItemClick={(p) => nav(`/product/${p.id}`)}
+                            />
+
+                            <ProductCarousel
+                                label="Sale"
                                 products={products}
                                 isLoading={loading}
                                 skeletonCount={10}
