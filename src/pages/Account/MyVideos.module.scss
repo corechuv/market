@@ -2,14 +2,16 @@
 .list {
     &__grid {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 1px;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
         overflow: hidden;
+        background-color: rgb(12, 12, 12);
+        gap: 1px;
+        padding: 1px 0;
     }
 
     @media (max-width: 1024px) {
         &__grid {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
         }
     }
 

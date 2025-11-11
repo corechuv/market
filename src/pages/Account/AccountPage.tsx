@@ -209,7 +209,6 @@ export default function AccountPage() {
 
       <div className={styles.layout}>
         <section className={styles.content}>
-          <div style={{ marginBottom: 14 }}></div>
           <div style={{ padding: "0 16px" }}>
             <Tabs<TabKey>
               items={tabs}

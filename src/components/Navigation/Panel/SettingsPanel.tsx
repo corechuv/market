@@ -91,20 +91,20 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             </ul>
             <h3 className={c.subtitle}>Information</h3>
             <ul className={c.list}>
-                <li className={c.list__item} onClick={() => { nav("/account/notifications") }}>
+                <li className={c.list__item} onClick={() => { nav("/about") }}>
                     <AboutIcon className={c["list__item--icon-left"]} />
                     <span className={c["list__item--label"]} aria-label={``} title="">
                         About
                     </span>
                 </li>
-                <li className={c.list__item} onClick={() => { nav("/account") }}>
+                <li className={c.list__item} onClick={() => { nav("/help") }}>
                     <HelpSupportIcon className={c["list__item--icon-left"]} />
                     <span className={c["list__item--label"]} aria-label={``} title="">
                         Help & Support
                     </span>
                 </li>
-                <li className={c.list__item} onClick={() => { nav("/account") }}>
-                    <LegalIcon className={c["list__item--icon-left"]} />
+                <li className={c.list__item} onClick={() => { nav("/legal") }}>
+                    <svg className={c["list__item--icon-left"]}></svg>
                     <span className={c["list__item--label"]} aria-label={``} title="">
                         Legal
                     </span>
