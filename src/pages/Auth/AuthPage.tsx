@@ -5,7 +5,7 @@ import { TextField } from "../../components/UI/TextField";
 import { PasswordField } from "../../components/UI/PasswordField";
 import { CheckboxField } from "../../components/UI/CheckboxField";
 import Button from "../../components/UI/Button";
-import Logo from "../../components/logo/Logo";
+import Logo from "../../components/Footer/Logo";
 
 import {
     passwordStrength,

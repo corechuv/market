@@ -14,7 +14,8 @@
   /* Размеры */
   height: 46px;
   padding: 0 14px;
-  line-height: 46px;              /* фиксируем высоту строки = высоте кнопки */
+  line-height: 46px;
+  /* фиксируем высоту строки = высоте кнопки */
   width: auto;
 
   /* Типографика */
@@ -38,23 +39,26 @@
   transform-origin: center;
   will-change: transform;
   transition:
-    transform 180ms cubic-bezier(.2,.8,.2,1),
+    transform 180ms cubic-bezier(.2, .8, .2, 1),
     color 180ms ease,
     background-color 180ms ease;
 
-  backface-visibility: hidden;    /* сглаживает текст при скейле */
+  backface-visibility: hidden;
+  /* сглаживает текст при скейле */
 }
 
 .chip:hover,
 .chip:focus-visible {
-  transform: scale(1.1);         /* чуть больше, но высота layout остаётся 40px */
+  transform: scale(1.1);
+  /* чуть больше, но высота layout остаётся 40px */
   color: var(--text);
 }
 
 .chipActive {
   color: var(--text);
   font-weight: 600;
-  transform: scale(1.1);         /* активная — как при hover */
+  transform: scale(1.1);
+  /* активная — как при hover */
 }
 
 /* Уважение настроек «меньше анимаций» */
@@ -62,6 +66,7 @@
   .chip {
     transition: none;
   }
+
   .chip:hover,
   .chip:focus-visible,
   .chipActive {

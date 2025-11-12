@@ -45,9 +45,6 @@
   max-width: 340px;
   border-radius: 24px;
   padding: 28px;
-  backdrop-filter: saturate(180%) blur(14px);
-  background: var(--card-auth);
-  box-shadow: 0 10px 40px rgba(var(--shadow));
 }
 
 /* brand */
@@ -56,59 +53,98 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  margin: 20px 0 40px;
+  max-height: 120px;
 }
 
 /* tabs header */
 .tabs {
-  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin: 18px 0 4px;
-  padding: 6px;
-  border-radius: 14px;
-  background-color: var(--background-color-tabs);
+  gap: 0 10px;
+  border-bottom: 1px solid var(--border);
+  /* На случай крупных масштабов, чтобы не обрезать тень/скейл */
+  overflow: visible;
 
   .tab {
-    position: relative;
-    z-index: 1;
-    appearance: none;
-    border: 0;
-    background: none;
-    font-family: "Roboto", system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-    padding: 10px 0;
-    border-radius: 10px;
+    /* Размеры */
+    height: 46px;
+    padding: 0 14px;
+    line-height: 46px;
+    /* фиксируем высоту строки = высоте кнопки */
+    width: auto;
+
+    /* Типографика */
     font-size: 16px;
-    font-weight: 400;
-    color: rgb(var(--color-tab-muted));
+    font-weight: 500;
+    font-family: var(--font);
+    color: var(--muted);
+
+    /* Внешний вид */
+    border: none;
+    background: transparent;
     cursor: pointer;
 
+    /* Выравнивание текста по центру */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Анимация увеличения — не меняет раскладку */
+    transform: scale(1);
+    transform-origin: center;
+    will-change: transform;
+    transition:
+      transform 180ms cubic-bezier(.2, .8, .2, 1),
+      color 180ms ease,
+      background-color 180ms ease;
+
+    backface-visibility: hidden;
+    /* сглаживает текст при скейле */
+
     &[aria-selected="true"] {
-      color: rgb(var(--color-tab-text));
+      color: var(--text);
+      font-weight: 600;
+      transform: scale(1.1);
+      /* активная — как при hover */
+
+
+    }
+
+    /* Уважение настроек «меньше анимаций» */
+    @media (prefers-reduced-motion: reduce) {
+      .tab {
+        transition: none;
+      }
+
+      .tab:hover,
+      .tab:focus-visible,
+      &[aria-selected="true"] {
+        transform: none;
+      }
     }
   }
 
-  .pill {
-    position: absolute;
-    inset: 6px;
-    width: calc(50% - 6px);
-    border-radius: 10px;
-    background: var(--background-color-tab);
-    border: 1px solid rgba(var(--border));
-    box-shadow: 0 6px 20px rgba(var(--shadow));
-    transform: translateX(0%);
-    transition: transform .28s cubic-bezier(.2, .8, .2, 1);
+  .tab:hover,
+  .tab:focus-visible {
+    transform: scale(1.1);
+    /* чуть больше, но высота layout остаётся 40px */
+    color: var(--text);
   }
 
-  &[data-mode="login"] .pill {
-    transform: translateX(0%);
-  }
+  /* Уважение настроек «меньше анимаций» */
+  @media (prefers-reduced-motion: reduce) {
+    .tab {
+      transition: none;
+    }
 
-  &[data-mode="register"] .pill {
-    transform: translateX(100%);
+    .tab:hover,
+    .tab:focus-visible,
+    .chipActive {
+      transform: none;
+    }
   }
 }
+
 
 /* form layout-only (без инпут-стилей) */
 .form {
