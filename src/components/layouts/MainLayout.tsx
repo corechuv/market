@@ -83,7 +83,7 @@ export default function MainLayout() {
               />
             </div>
           ) : (
-            <div className={c.placeholder} title={displayName}>{initials}</div>
+            <div className={c.placeholder} title={displayName}></div>
           )
         ) : (
           <AccountIcon />
