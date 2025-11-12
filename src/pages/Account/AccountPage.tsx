@@ -209,14 +209,12 @@ export default function AccountPage() {
 
       <div className={styles.layout}>
         <section className={styles.content}>
-          <div style={{ padding: "0 16px" }}>
-            <Tabs<TabKey>
-              items={tabs}
-              activeKey={active}
-              onChange={setActive}
-              ariaLabel="Account sections"
-            />
-          </div>
+          <Tabs<TabKey>
+            items={tabs}
+            activeKey={active}
+            onChange={setActive}
+            ariaLabel="Account sections"
+          />
           {active === "videos" && (
             <MyVideos />
           )}
