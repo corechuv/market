@@ -117,7 +117,7 @@ export default function MainLayout() {
     <>
       <div className={c.m}>
         <Navigation hideOnMobile />
-        <BottomNavigation items={items} bottomOffset={12} rounded={18} visibleOnDesktop />
+        <BottomNavigation items={items} bottomOffset={12} rounded={18} visibleOnDesktop={false} />
         <Outlet />
       </div>
     </>
