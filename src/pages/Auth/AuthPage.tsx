@@ -202,14 +202,17 @@ export default function AuthPage({ onLogin, onRegister }: AuthPageProps) {
                                     defaultChecked
                                     label="Remember me"
                                 />
-                                <a className={s.mutedLink} href="#forgot">
-                                    Forgot password?
-                                </a>
                             </div>
 
                             <Button className={s.cta} type="submit" disabled={loading} size="large">
                                 {loading ? <Spinner /> : "Login"}
                             </Button>
+
+                            <div className={s.rowBetween}>
+                                <a className={s.mutedLink} href="#forgot">
+                                    Forgot password?
+                                </a>
+                            </div>
                         </form>
                     </section>
 
