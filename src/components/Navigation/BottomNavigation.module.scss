@@ -26,7 +26,8 @@
 
 /* Скрываем полностью вправо за пределы экрана */
 .hidden .bar {
-  transform: translateX(100vmax); /* гарантированно за экран, независимо от ширины панели */
+  transform: translateX(100vmax);
+  /* гарантированно за экран, независимо от ширины панели */
   opacity: 0.98;
 }
 
@@ -34,7 +35,7 @@
    Важно: на время входа отключаем transition, чтобы он не перебивал keyframes. */
 .opening .bar {
   transition: none;
-  animation: slideInFromLeft 260ms cubic-bezier(.2,.7,0,1) both;
+  animation: slideInFromLeft 260ms cubic-bezier(.2, .7, 0, 1) both;
 }
 
 @keyframes slideInFromLeft {
@@ -42,6 +43,7 @@
     transform: translateX(-100vmax);
     opacity: 0.01;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -92,6 +94,14 @@
   transform: scale(0.98);
 }
 
+.baseAvatar {
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
 .icon {
   display: grid;
   place-items: center;
@@ -101,6 +111,15 @@
     width: 27px;
     height: 27px;
   }
+
+  img {
+    @extend .baseAvatar;
+  }
+}
+
+.placeholder {
+  @extend .baseAvatar;
+  border: 1px dashed var(--border);
 }
 
 .itemActive {
@@ -113,6 +132,7 @@
   .outer {
     display: none;
   }
+
   .outer.forceDesktop {
     display: flex;
   }
@@ -120,6 +140,7 @@
 
 /* Доступность: меньше анимаций при reduce motion */
 @media (prefers-reduced-motion: reduce) {
+
   .bar,
   .hidden .bar,
   .opening .bar {
