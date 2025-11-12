@@ -127,19 +127,25 @@ const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
     {
       id: "account",
       ariaLabel: isAuthenticated ? "Profile" : "Login",
-      icon: isAuthenticated && avatarSrc && !avatarBroken ? (
-        <img
-          src={avatarSrc}
-          alt="Avatar"
-          className={cls.avatar}   // стиль ниже
-          width={24}
-          height={24}
-          loading="lazy"
-          decoding="async"
-          onError={() => setAvatarBroken(true)}
-        />
-      ) : (
-        <AccountIcon />
+      icon: (
+        isAuthenticated && avatarSrc && !avatarBroken ? (
+          <img
+            src={avatarSrc}
+            alt="Avatar"
+            width={24}
+            height={24}
+            loading="lazy"
+            decoding="async"
+            onError={() => setAvatarBroken(true)}
+          />
+        ) : isAuthenticated ? (
+          <div
+            className={cls.placeholder}
+            aria-hidden
+          ></div>
+        ) : (
+          <AccountIcon />
+        )
       ),
       action: "link",
       to: isAuthenticated ? "/account" : "/auth",

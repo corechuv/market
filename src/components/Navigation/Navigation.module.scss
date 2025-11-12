@@ -32,11 +32,7 @@
             }
 
             img {
-                width: 24px;
-                height: 24px;
-                border-radius: 50%;
-                object-fit: cover;
-                display: block;
+                @extend .baseAvatar;
             }
         }
 
@@ -49,6 +45,19 @@
             background-color: rgba(0, 0, 0, 0.12);
         }
     }
+}
+
+.baseAvatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.placeholder {
+    @extend .baseAvatar;
+    border: 1px dashed var(--border);
 }
 
 .logo {
