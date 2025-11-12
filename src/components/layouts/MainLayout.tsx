@@ -8,7 +8,7 @@ import SearchIcon from "../Icons/SearchIcon";
 import PlayIcon from "../Icons/PlayIcon";
 import BagIcon from "../Icons/BagIcon";
 import AccountIcon from "../Icons/AccountIcon";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCart } from "../../context/CartContext";
 import CounterBadge from "../Common/CounterBadge/CounterBadge";
 import HomeIcon from "../Icons/HomeIcon";
@@ -18,9 +18,19 @@ const API_ORIGIN = new URL(import.meta.env.VITE_API_BASE_URL).origin;
 const abs = (u?: string | null) =>
   !u ? "" : (u.startsWith("http") ? u : `${API_ORIGIN}${u}`);
 
+// helpers для плейсхолдера-инициалов
+const nameFromUser = (u?: any) => {
+  const f = (u?.firstName || "").trim();
+  const l = (u?.lastName || "").trim();
+  const full = `${f} ${l}`.trim();
+  return full || u?.username || u?.email || "User";
+};
+const initialsFromName = (name = "") =>
+  name.trim().split(/\s+/).slice(0, 2).map(w => w[0] || "").join("").toUpperCase();
+
 export default function MainLayout() {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { lines } = useCart();
 
   const cartCount = useMemo(
@@ -28,7 +38,10 @@ export default function MainLayout() {
     [lines]
   );
 
-  // аватар: абсолютный URL + cache-buster по updatedAt
+  const displayName = useMemo(() => nameFromUser(user), [user]);
+  const initials = useMemo(() => initialsFromName(displayName), [displayName]);
+
+  // абсолютный URL + cache-buster
   const avatarSrc = useMemo(() => {
     if (!user?.avatarUrl) return "";
     const base = abs(user.avatarUrl);
@@ -36,54 +49,49 @@ export default function MainLayout() {
     return `${base}?t=${stamp}`;
   }, [user?.avatarUrl, user?.updatedAt]);
 
-  // если картинка не загрузилась — откатимся к иконке
   const [avatarBroken, setAvatarBroken] = useState(false);
+  const [avatarLoaded, setAvatarLoaded] = useState(false);
+
+  // при смене src — заново ждём загрузку и снимаем флаг поломки
+  useEffect(() => {
+    setAvatarBroken(false);
+    setAvatarLoaded(false);
+  }, [avatarSrc]);
 
   const items = useMemo<BottomNavItem[]>(() => [
-    {
-      key: "home",
-      icon: <HomeIcon />,
-      onClick: () => navigate("/"),
-    },
-    {
-      key: "catalog",
-      icon: <GridIcon />,
-      onClick: () => navigate("/c"),
-    },
-    {
-      key: "search",
-      icon: <SearchIcon />,
-      onClick: () => navigate("/s"),
-    },
-    {
-      key: "video",
-      icon: <PlayIcon />,
-      onClick: () => navigate("/videos?sort=trending"),
-    },
+    { key: "home", icon: <HomeIcon />, onClick: () => navigate("/") },
+    { key: "catalog", icon: <GridIcon />, onClick: () => navigate("/c") },
+    { key: "search", icon: <SearchIcon />, onClick: () => navigate("/s") },
+    { key: "video", icon: <PlayIcon />, onClick: () => navigate("/videos?sort=trending") },
+
     {
       key: "profile",
       icon: (
-        isAuthenticated && avatarSrc && !avatarBroken ? (
-          <img
-            src={avatarSrc}
-            alt="Avatar"
-            width={24}
-            height={24}
-            loading="lazy"
-            decoding="async"
-            onError={() => setAvatarBroken(true)}
-          />
-        ) : isAuthenticated ? (
-          <div
-            className={c.placeholder}
-            aria-hidden
-          ></div>
+        isAuthenticated ? (
+          avatarSrc && !avatarBroken ? (
+            <div className={c.avatarWrap} title={displayName}>
+              {/* картинку рендерим ВСЕГДА, просто плавно проявляем после onLoad */}
+              <img
+                key={avatarSrc}
+                src={avatarSrc}
+                alt="Avatar"
+                decoding="async"
+                // не ленимся для иконки:
+                loading="eager"
+                onLoad={() => setAvatarLoaded(true)}
+                onError={() => setAvatarBroken(true)}
+              />
+            </div>
+          ) : (
+            <div className={c.placeholder} title={displayName}>{initials}</div>
+          )
         ) : (
           <AccountIcon />
         )
       ),
       onClick: () => navigate("/account"),
     },
+
     {
       key: "cart",
       icon: <BagIcon />,
@@ -92,18 +100,24 @@ export default function MainLayout() {
       ),
       onClick: () => navigate("/checkout"),
     },
-  ], [navigate]); // ключи уникальные!
+    // ВАЖНО: зависимости! иначе иконка не обновится
+  ], [
+    navigate,
+    isAuthenticated,
+    authLoading,
+    avatarSrc,
+    avatarBroken,
+    avatarLoaded,
+    displayName,
+    initials,
+    cartCount,
+  ]);
 
   return (
     <>
       <div className={c.m}>
         <Navigation hideOnMobile />
-        <BottomNavigation
-          items={items}
-          bottomOffset={12}
-          rounded={18}
-          visibleOnDesktop={true}
-        />
+        <BottomNavigation items={items} bottomOffset={12} rounded={18} visibleOnDesktop />
         <Outlet />
       </div>
     </>

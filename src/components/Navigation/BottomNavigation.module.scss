@@ -113,13 +113,10 @@
   }
 
   img {
+    position: absolute;
+    inset: 0;
     @extend .baseAvatar;
   }
-}
-
-.placeholder {
-  @extend .baseAvatar;
-  border: 1px dashed var(--border);
 }
 
 .itemActive {

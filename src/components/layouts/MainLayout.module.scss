@@ -2,3 +2,25 @@
     display: flex;
 }
 
+.avatarWrap {
+    position: relative;
+    width: 27px;
+    height: 27px;
+}
+
+.baseAvatar {
+    position: absolute;
+    inset: 0;
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: flex;
+}
+
+.placeholder {
+    @extend .baseAvatar;
+    width: 27px;
+    height: 27px;
+    background-color: var(--border);
+}
