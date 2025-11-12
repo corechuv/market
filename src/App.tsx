@@ -64,6 +64,7 @@ import ReturnsRefundsPage from "./pages/Help/ReturnsRefundsPage";
 import AboutPage from "./pages/About/AboutPage";
 import CareersPage from "./pages/About/CareersPage";
 import PressPage from "./pages/About/PressPage";
+import ProfileEditPage from "./pages/Account/ProfileEditPage";
 
 export default function App() {
 
@@ -88,6 +89,7 @@ export default function App() {
             <Route path="/videos/me" element={<MyVideosPage />} />
 
             <Route path="/account" element={<AccountPage />} />
+            <Route path="/account/profile/edit" element={<ProfileEditPage />} />
             <Route path="/account/addresses/new" element={<AddressEditOrAddPage />} />
             <Route path="/account/addresses/:id" element={<AddressEditOrAddPage />} />
             <Route path="/account/order/:id" element={<OrderDetails />} />

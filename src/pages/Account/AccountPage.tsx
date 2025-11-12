@@ -1,22 +1,11 @@
 // src/pages/Account/AccountPage.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./AccountPage.module.scss";
 import Button from "../../components/UI/Button";
-import { TextField } from "../../components/UI/TextField";
 import { Tabs, type TabItem } from "../../components/UI/Tabs";
-import { AvatarField } from "../../components/UI/AvatarField";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../lib/api";
-
-import {
-  required,
-  validatePhone,
-  validateEmail,
-  validateForm,
-  compose,
-  type FieldErrors,
-} from "../../utils/validate/fields";
 
 import PlusIcon from "../../components/Icons/PlusIcon";
 import CloseIcon from "../../components/Icons/CloseIcon";
@@ -30,10 +19,9 @@ const abs = (u?: string | null) =>
   !u ? "" : (u.startsWith("http") ? u : `${API_ORIGIN}${u}`);
 
 /* ================= types ================= */
-type TabKey = "videos" | "profile" | "addresses" | "orders" | "settings";
+type TabKey = "videos" | "addresses" | "orders" | "settings";
 const tabs: TabItem<TabKey>[] = [
   { key: "videos", label: "Videos" },
-  { key: "profile", label: "Profile" },
   { key: "addresses", label: "Addresses" },
   { key: "orders", label: "Orders" },
   { key: "settings", label: "Settings" },
@@ -71,13 +59,6 @@ type Me = {
   addresses?: Address[];
 };
 
-type ProfileFormState = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-};
-
 const fmtCountry = (code: string) => {
   const c = EUROPE_COUNTRIES.find((x) => x.code === (code || "").toUpperCase());
   return c ? `${c.name} (${c.code})` : (code || "");
@@ -90,18 +71,6 @@ export default function AccountPage() {
 
   const [me, setMe] = useState<Me | null>((user ?? null) as Me | null);
   const [active, setActive] = useState<TabKey>("videos");
-  const [loading, setLoading] = useState(false);
-
-  async function refreshMeAndCache() {
-    const { data } = await api.get("/auth/me");
-    setMe(data as Me);
-    try {
-      localStorage.setItem("mp_auth_user", JSON.stringify(data));
-      sessionStorage.setItem("mp_auth_user", JSON.stringify(data));
-    } catch {
-      /* ignore */
-    }
-  }
 
   // <<< ждём окончания инициализации auth, прежде чем дёргать /auth/me
   useEffect(() => {
@@ -205,6 +174,15 @@ export default function AccountPage() {
         photoUrl={abs(me.avatarUrl) + `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`}
         fullname={displayName}
         username={displayUsername}
+        action={
+          <Button
+            size="small"
+            variant="secondary"
+            onClick={() => navigate(`/account/profile/edit?back=${backSettings}`)}
+          >
+            Edit profile
+          </Button>
+        }
       />
 
       <div className={styles.layout}>
@@ -217,58 +195,6 @@ export default function AccountPage() {
           />
           {active === "videos" && (
             <MyVideos />
-          )}
-          {active === "profile" && (
-            <ProfileForm
-              me={me}
-              saving={loading}
-              onSave={async (patch, avatar) => {
-                setLoading(true);
-                try {
-                  // 1) Сохраняем текстовые поля
-                  await api.put(`/customers/${me.id}`, {
-                    email: patch.email || null,
-                    phone: patch.phone || null,
-                    firstName: patch.firstName || null,
-                    lastName: patch.lastName || null,
-                  });
-
-                  // 2) Если пользователь менял аватар — применяем
-                  if (avatar?.removed) {
-                    await api.delete("/customers/me/avatar");
-                  } else if (avatar?.file) {
-                    const fd = new FormData();
-                    fd.append(
-                      "file",
-                      avatar.file,
-                      avatar.file.name || "avatar.jpg",
-                    );
-                    await api.post("/customers/me/avatar", fd, {
-                      // убираем возможный глобальный JSON-заголовок
-                      transformRequest: [
-                        (data, headers) => {
-                          if (headers) {
-                            delete (headers as any)["Content-Type"];
-                          }
-                          return data as any;
-                        },
-                      ],
-                    });
-                  }
-
-                  // 3) Обновляем профиль в состоянии и кэше
-                  await refreshMeAndCache();
-                } catch (e: any) {
-                  const status = e?.response?.status;
-                  const msg =
-                    e?.response?.data?.message || "Failed to save profile";
-                  if (status === 409) throw { email: "Email already exists" };
-                  throw { _form: msg };
-                } finally {
-                  setLoading(false);
-                }
-              }}
-            />
           )}
           {active === "addresses" && (
             <AddressesSection
@@ -290,180 +216,6 @@ export default function AccountPage() {
         </section>
       </div>
     </Page>
-  );
-}
-
-/** ================== Profile ================== */
-function ProfileForm({
-  me,
-  saving,
-  onSave,
-}: {
-  me: Me;
-  saving: boolean;
-  onSave: (
-    p: ProfileFormState,
-    avatar?: { file?: File | null; removed?: boolean },
-  ) => Promise<void>;
-}) {
-  const [form, setForm] = useState<ProfileFormState>({
-    firstName: me.firstName ?? "",
-    lastName: me.lastName ?? "",
-    email: me.email ?? "",
-    phone: me.phone ?? "",
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const [avatarDraft, setAvatarDraft] =
-    useState<{ file?: File | null; removed?: boolean } | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string>(
-    me.avatarUrl
-      ? abs(me.avatarUrl) +
-      `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`
-      : "",
-  );
-
-  // если прилетел новый me (после сохранения) — обновим превью
-  useEffect(() => {
-    setAvatarPreview(
-      me.avatarUrl
-        ? abs(me.avatarUrl) +
-        `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`
-        : "",
-    );
-  }, [me.avatarUrl, me.updatedAt]);
-
-  useEffect(() => {
-    setForm({
-      firstName: me.firstName ?? "",
-      lastName: me.lastName ?? "",
-      email: me.email ?? "",
-      phone: me.phone ?? "",
-    });
-  }, [me]);
-
-  function validate(): boolean {
-    const rules = {
-      firstName: required("Required"),
-      lastName: required("Required"),
-      email: compose(required("Required"), validateEmail),
-      phone: validatePhone,
-    } as const;
-    const errs = validateForm(form, rules) as FieldErrors<ProfileFormState>;
-    setErrors(errs as Record<string, string>);
-    return Object.keys(errs).length === 0;
-  }
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setErrors({});
-    if (!validate()) return;
-
-    try {
-      await onSave(form, avatarDraft || undefined);
-      // при успехе можно сбросить драфт
-      setAvatarDraft(null);
-    } catch (fe: any) {
-      setErrors(fe || { _form: "Failed to save" });
-    }
-  }
-
-  return (
-    <div className={styles.card}>
-      <div className={styles.cardHeader}>
-        <h2 className={styles.titlePage}>Profile</h2>
-      </div>
-
-      <form className={styles.form} onSubmit={submit} noValidate>
-        <div className={styles.grid2}>
-          <AvatarField
-            label="Avatar"
-            value={avatarPreview} // показываем либо текущий, либо выбранный превью
-            maxSizeMb={8}
-            accept="image/jpeg,image/png,image/webp,image/gif"
-            onChange={({ file, dataUrl }) => {
-              if (dataUrl === null) {
-                // пользователь нажал Delete
-                setAvatarDraft({ file: undefined, removed: true });
-                setAvatarPreview(""); // очистим превью
-              } else if (file) {
-                // проверка типа — чтобы не словить 415 на бэке
-                if (!/^image\/(jpeg|png|webp|gif)$/i.test(file.type)) {
-                  alert(
-                    "Unsupported image type. Please upload JPG, PNG, WEBP or GIF.",
-                  );
-                  return;
-                }
-                // выбран новый файл
-                setAvatarDraft({ file, removed: false });
-                setAvatarPreview(dataUrl || ""); // локальный dataURL
-              }
-            }}
-          />
-          <div></div>
-          <TextField
-            label="First name *"
-            name="firstName"
-            value={form.firstName}
-            onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-            error={errors.firstName}
-            autoComplete="given-name"
-          />
-          <TextField
-            label="Last name *"
-            name="lastName"
-            value={form.lastName}
-            onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-            error={errors.lastName}
-            autoComplete="family-name"
-          />
-          <TextField
-            label="Email *"
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            error={errors.email}
-            autoComplete="email"
-          />
-          <TextField
-            label="Phone"
-            name="phone"
-            value={form.phone}
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            error={errors.phone}
-            autoComplete="tel"
-          />
-        </div>
-
-        {errors._form && (
-          <div className={styles.formError} role="alert">
-            {errors._form}
-          </div>
-        )}
-
-        <div className={styles.formActions}>
-          <Button type="submit" variant="primary" size="small" disabled={saving}>
-            {saving ? "Saving…" : "Save"}
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            size="small"
-            onClick={() =>
-              setForm({
-                firstName: me.firstName ?? "",
-                lastName: me.lastName ?? "",
-                email: me.email ?? "",
-                phone: me.phone ?? "",
-              })
-            }
-          >
-            Cancel
-          </Button>
-        </div>
-      </form>
-    </div>
   );
 }
 

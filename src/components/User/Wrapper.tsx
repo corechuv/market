@@ -6,9 +6,10 @@ interface UserProps {
     photoUrl?: string;
     fullname?: string;
     username?: string | null | undefined;
+    action?: React.ReactNode;
 }
 
-const Wrapper: React.FC<UserProps> = ({ photoUrl, fullname, username }) => {
+const Wrapper: React.FC<UserProps> = ({ photoUrl, fullname, username, action }) => {
 
     return (
         <section className={s.profile}>
@@ -24,17 +25,20 @@ const Wrapper: React.FC<UserProps> = ({ photoUrl, fullname, username }) => {
                 }
 
             </div>
-            <div className={s.profile__identity}>
-                {fullname &&
-                    <h1 className={s["profile__identity--fullname"]}>
-                        {fullname}
-                    </h1>
-                }
-                {username &&
-                    <div className={s["profile__identity--username"]}>
-                        @{username}
-                    </div>
-                }
+            <div className={s.profile__row}>
+                <div className={s.profile__identity}>
+                    {fullname &&
+                        <h1 className={s["profile__identity--fullname"]}>
+                            {fullname}
+                        </h1>
+                    }
+                    {username &&
+                        <div className={s["profile__identity--username"]}>
+                            @{username}
+                        </div>
+                    }
+                </div>
+                {action && <div className={s.profile__actions}>{action}</div>}
             </div>
         </section>
     );

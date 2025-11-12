@@ -39,6 +39,13 @@
         }
     }
 
+    &__row {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+    }
+
     &__identity {
         display: flex;
         flex-direction: column;
@@ -53,5 +60,11 @@
         &--username {
             font-size: 16px;
         }
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 }
