@@ -162,7 +162,7 @@ export default function AuthPage({ onLogin, onRegister }: AuthPageProps) {
                             className={s.tab}
                             onClick={() => setMode("register")}
                         >
-                            Registration
+                            Sign Up
                         </button>
                         <div className={s.pill} aria-hidden />
                     </nav>
