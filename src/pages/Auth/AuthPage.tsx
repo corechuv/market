@@ -219,10 +219,8 @@ export default function AuthPage({ onLogin, onRegister }: AuthPageProps) {
                     {/* Register */}
                     <section id="panel-register" role="tabpanel" aria-labelledby="tab-register" hidden={mode !== "register"}>
                         <form ref={registerRef} className={s.form} onSubmit={handleRegister} noValidate>
-                            <div className={s.row2}>
-                                <TextField name="firstName" label="First name" placeholder="Markus" error={errors.firstName} />
-                                <TextField name="lastName" label="Last name" placeholder="Müller" error={errors.lastName} />
-                            </div>
+                            <TextField name="firstName" label="First name" placeholder="Markus" error={errors.firstName} />
+                            <TextField name="lastName" label="Last name" placeholder="Müller" error={errors.lastName} />
                             <TextField
                                 name="email"
                                 inputMode="email"
