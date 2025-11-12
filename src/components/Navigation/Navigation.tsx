@@ -39,9 +39,13 @@ type NavItem =
   | (BaseItem & { action: "panel"; panel: PanelId })
   | (BaseItem & { action: "link"; to: string });
 
+const API_ORIGIN = new URL(import.meta.env.VITE_API_BASE_URL).origin;
+const abs = (u?: string | null) =>
+  !u ? "" : (u.startsWith("http") ? u : `${API_ORIGIN}${u}`);
+
 const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
   const nav = useNavigate();
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { lines } = useCart();
 
   const cartCount = useMemo(
@@ -51,6 +55,17 @@ const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
 
   const [activePanel, setActivePanel] = useState<PanelId | null>(null);
   useLockBodyScroll(Boolean(activePanel));
+
+  // аватар: абсолютный URL + cache-buster по updatedAt
+  const avatarSrc = useMemo(() => {
+    if (!user?.avatarUrl) return "";
+    const base = abs(user.avatarUrl);
+    const stamp = encodeURIComponent(user.updatedAt || String(Date.now()));
+    return `${base}?t=${stamp}`;
+  }, [user?.avatarUrl, user?.updatedAt]);
+
+  // если картинка не загрузилась — откатимся к иконке
+  const [avatarBroken, setAvatarBroken] = useState(false);
 
   // закрыть по клику вне
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -112,7 +127,20 @@ const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
     {
       id: "account",
       ariaLabel: isAuthenticated ? "Profile" : "Login",
-      icon: <AccountIcon />,
+      icon: isAuthenticated && avatarSrc && !avatarBroken ? (
+        <img
+          src={avatarSrc}
+          alt="Avatar"
+          className={cls.avatar}   // стиль ниже
+          width={24}
+          height={24}
+          loading="lazy"
+          decoding="async"
+          onError={() => setAvatarBroken(true)}
+        />
+      ) : (
+        <AccountIcon />
+      ),
       action: "link",
       to: isAuthenticated ? "/account" : "/auth",
       disabled: authLoading,

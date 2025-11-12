@@ -17,7 +17,7 @@
             position: relative;
             display: flex;
             padding: 10px;
-            border: none;  
+            border: none;
             border-radius: 50%;
             color: var(--text);
             background: transparent;
@@ -29,6 +29,14 @@
                 height: 24px;
                 stroke-width: 1.5;
                 transition: 0.3s;
+            }
+
+            img {
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                object-fit: cover;
+                display: block;
             }
         }
 
@@ -114,7 +122,8 @@
 }
 
 @media (max-width: 768px) {
-  .f[data-hide-mobile] {
-    display: none !important; /* чтобы не занимал var(--nav-vw) */
-  }
+    .f[data-hide-mobile] {
+        display: none !important;
+        /* чтобы не занимал var(--nav-vw) */
+    }
 }
