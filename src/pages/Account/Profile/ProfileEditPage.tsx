@@ -1,10 +1,10 @@
 // src/pages/Account/ProfileEditPage.tsx
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import PageLayout from "../../components/layouts/PageLayout";
-import Page from "../../components/UI/Page/Page";
-import ProfileForm, { type Me, type ProfileFormState } from "../../components/User/Forms/ProfileForm";
-import api from "../../lib/api";
+import PageLayout from "../../../components/layouts/PageLayout";
+import Page from "../../../components/UI/Page/Page";
+import ProfileForm, { type Me, type ProfileFormState } from "../../../components/User/Forms/ProfileForm";
+import api from "../../../lib/api";
 
 export default function ProfileEditPage() {
     const nav = useNavigate();

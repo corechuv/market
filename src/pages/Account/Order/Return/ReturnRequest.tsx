@@ -1,22 +1,22 @@
 // src/pages/Account/ReturnRequest.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import styles from "./AccountPage.module.scss";
+import styles from "../../AccountPage.module.scss";
 import cls from "./ReturnRequest.module.scss";
 
-import Button from "../../components/UI/Button";
-import { SelectField } from "../../components/UI/SelectField";
-import QtyStepper from "../../components/UI/QtyStepper";
-import { TextareaField } from "../../components/UI/TextareaField";
-import { UploadField } from "../../components/UI/UploadField";
-import CloseIcon from "../../components/Icons/CloseIcon";
-import PageLayout from "../../components/layouts/PageLayout";
-import DefinitionList from "../../components/UI/DefinitionList";
-import type { Currency } from "../../types/currency";
+import Button from "../../../../components/UI/Button";
+import { SelectField } from "../../../../components/UI/SelectField";
+import QtyStepper from "../../../../components/UI/QtyStepper";
+import { TextareaField } from "../../../../components/UI/TextareaField";
+import { UploadField } from "../../../../components/UI/UploadField";
+import CloseIcon from "../../../../components/Icons/CloseIcon";
+import PageLayout from "../../../../components/layouts/PageLayout";
+import DefinitionList from "../../../../components/UI/DefinitionList";
+import type { Currency } from "../../../../types/currency";
 
-import api from "../../lib/api";
-import type { Totals } from "../../types/order";
-import Page from "../../components/UI/Page/Page";
+import api from "../../../../lib/api";
+import type { Totals } from "../../../../types/order";
+import Page from "../../../../components/UI/Page/Page";
 
 /* ========= локальные типы/константы под UI причин ========= */
 type ReturnKind = "withdrawal" | "defect"; // mixed не нужен фронту

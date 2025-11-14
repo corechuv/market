@@ -1,11 +1,11 @@
 // src/pages/Account/VerifyEmailPage.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
-import styles from "./AccountPage.module.scss";
-import Button from "../../components/UI/Button";
-import api from "../../lib/api";
-import PageLayout from "../../components/layouts/PageLayout";
-import Page from "../../components/UI/Page/Page";
+import styles from "../AccountPage.module.scss";
+import Button from "../../../components/UI/Button";
+import api from "../../../lib/api";
+import PageLayout from "../../../components/layouts/PageLayout";
+import Page from "../../../components/UI/Page/Page";
 
 export default function VerifyEmailPage() {
     const navigate = useNavigate();

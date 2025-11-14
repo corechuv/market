@@ -7,9 +7,6 @@ import { Tabs, type TabItem } from "../../components/UI/Tabs";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../lib/api";
 
-import PlusIcon from "../../components/Icons/PlusIcon";
-import CloseIcon from "../../components/Icons/CloseIcon";
-import { EUROPE_COUNTRIES } from "../../utils/country";
 import MyVideos from "./MyVideos";
 import Page from "../../components/UI/Page/Page";
 import Wrapper from "../../components/User/Wrapper";
@@ -19,30 +16,11 @@ const abs = (u?: string | null) =>
   !u ? "" : (u.startsWith("http") ? u : `${API_ORIGIN}${u}`);
 
 /* ================= types ================= */
-type TabKey = "videos" | "addresses" | "orders" | "settings";
+type TabKey = "videos";
+
 const tabs: TabItem<TabKey>[] = [
   { key: "videos", label: "Videos" },
-  { key: "addresses", label: "Addresses" },
-  { key: "orders", label: "Orders" },
-  { key: "settings", label: "Settings" },
 ];
-
-type Address = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  company?: string | null;
-  country: string; // ISO-2
-  postalCode: string;
-  region?: string | null;
-  city: string;
-  line1: string;
-  line2?: string | null;
-  phone?: string | null;
-  email?: string | null;
-  isDefault: boolean;
-  createdAt: string;
-};
 
 type Me = {
   id: string;
@@ -56,12 +34,6 @@ type Me = {
   createdAt?: string | null;
   updatedAt?: string | null;
   role?: string;
-  addresses?: Address[];
-};
-
-const fmtCountry = (code: string) => {
-  const c = EUROPE_COUNTRIES.find((x) => x.code === (code || "").toUpperCase());
-  return c ? `${c.name} (${c.code})` : (code || "");
 };
 
 /* ================= page ================= */
@@ -72,7 +44,7 @@ export default function AccountPage() {
   const [me, setMe] = useState<Me | null>((user ?? null) as Me | null);
   const [active, setActive] = useState<TabKey>("videos");
 
-  // <<< ждём окончания инициализации auth, прежде чем дёргать /auth/me
+  // ждём окончания инициализации auth, прежде чем дёргать /auth/me
   useEffect(() => {
     if (authLoading) return;
     let mounted = true;
@@ -89,7 +61,6 @@ export default function AccountPage() {
     };
   }, [authLoading, navigate]);
 
-  // <<< можно без useMemo, чтобы не ловить порядок хуков
   const displayName = (() => {
     const f = me?.firstName?.trim() || "";
     const l = me?.lastName?.trim() || "";
@@ -98,12 +69,12 @@ export default function AccountPage() {
   })();
 
   const displayUsername = (() => {
-    if (me?.username || null)
-      return me?.username
+    if (me?.username || null) return me?.username;
   })();
 
   const verified = !!me?.isEmailVerified;
-  const backSettings = encodeURIComponent("/account?tab=settings");
+  // теперь просто ведём назад в /account после действий (edit / verify)
+  const backAfter = encodeURIComponent("/account");
 
   // редирект неавторизованных — когда точно знаем, что auth инициализирован
   useEffect(() => {
@@ -131,39 +102,45 @@ export default function AccountPage() {
   if (!verified) {
     return (
       <Page>
-        <main className={styles.page}>
-          <Wrapper
-            photoUrl={abs(me.avatarUrl) + `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`}
-            fullname={displayName}
-            username={displayUsername}
-          />
+        <Wrapper
+          photoUrl={
+            abs(me.avatarUrl) +
+            `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`
+          }
+          fullname={displayName}
+          username={displayUsername}
+        />
 
-          <div className={styles.layout}>
-            <section className={styles.content}>
-              <div className={styles.card}>
-                <div className={styles.cardHeader}>
-                  <h2 className={styles.titlePage}>Email verification required</h2>
-                  <p className={styles.muted}>
-                    We sent you a link. You can resend it or open the verification screen.
-                  </p>
-                </div>
-
-                <div className={styles.formActions}>
-                  <Button
-                    variant="primary"
-                    size="small"
-                    onClick={() => navigate(`/account/settings/verify-email?back=${backSettings}`)}
-                  >
-                    Open verification screen
-                  </Button>
-                  <Button variant="secondary" size="small" onClick={resendVerify}>
-                    Resend link
-                  </Button>
-                </div>
+        <div className={styles.layout}>
+          <section className={styles.content}>
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.titlePage}>Email verification required</h2>
+                <p className={styles.muted}>
+                  We sent you a link. You can resend it or open the verification
+                  screen.
+                </p>
               </div>
-            </section>
-          </div>
-        </main>
+
+              <div className={styles.formActions}>
+                <Button
+                  variant="primary"
+                  size="small"
+                  onClick={() =>
+                    navigate(
+                      `/account/settings/verify-email?back=${backAfter}`,
+                    )
+                  }
+                >
+                  Open verification screen
+                </Button>
+                <Button variant="secondary" size="small" onClick={resendVerify}>
+                  Resend link
+                </Button>
+              </div>
+            </div>
+          </section>
+        </div>
       </Page>
     );
   }
@@ -171,14 +148,19 @@ export default function AccountPage() {
   return (
     <Page padding={false}>
       <Wrapper
-        photoUrl={abs(me.avatarUrl) + `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`}
+        photoUrl={
+          abs(me.avatarUrl) +
+          `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}`
+        }
         fullname={displayName}
         username={displayUsername}
         action={
           <Button
             size="small"
             variant="secondary"
-            onClick={() => navigate(`/account/profile/edit?back=${backSettings}`)}
+            onClick={() =>
+              navigate(`/account/profile/edit?back=${backAfter}`)
+            }
           >
             Edit profile
           </Button>
@@ -193,450 +175,10 @@ export default function AccountPage() {
             onChange={setActive}
             ariaLabel="Account sections"
           />
-          {active === "videos" && (
-            <MyVideos />
-          )}
-          {active === "addresses" && (
-            <AddressesSection
-              me={me}
-              onMeRefresh={async () => {
-                const { data } = await api.get("/auth/me");
-                setMe(data as Me);
-                try {
-                  localStorage.setItem("mp_auth_user", JSON.stringify(data));
-                  sessionStorage.setItem("mp_auth_user", JSON.stringify(data));
-                } catch {
-                  /* ignore */
-                }
-              }}
-            />
-          )}
-          {active === "orders" && <OrdersSection />}
-          {active === "settings" && <SettingsSection me={me} />}
+
+          {active === "videos" && <MyVideos />}
         </section>
       </div>
     </Page>
-  );
-}
-
-/** ================== Addresses (list-only; edit on separate page) ================== */
-function AddressesSection({
-  me,
-  onMeRefresh,
-}: {
-  me: Me;
-  onMeRefresh: () => Promise<void>;
-}) {
-  const navigate = useNavigate();
-  const [items, setItems] = useState<Address[]>(me.addresses ?? []);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  // первичная загрузка / синхронизация
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      setLoading(true);
-      try {
-        const { data } = await api.get<Address[]>("/addresses/my");
-        if (mounted) setItems(data);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (me.addresses) setItems(me.addresses);
-  }, [me.addresses]);
-
-  const back = encodeURIComponent("/account?tab=addresses");
-
-  async function reloadAll() {
-    const { data } = await api.get<Address[]>("/addresses/my");
-    setItems(data);
-    await onMeRefresh();
-  }
-
-  async function removeAddress(id?: string) {
-    if (!id) return;
-    if (!confirm("Delete this address?")) return;
-    setLoading(true);
-    try {
-      await api.delete(`/addresses/${id}`);
-      await reloadAll();
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function makeDefault(id?: string) {
-    if (!id) return;
-    setLoading(true);
-    try {
-      await api.post(`/addresses/${id}/make-default`, {});
-      await reloadAll();
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <div className={styles.stackLg}>
-      <div className={styles.card}>
-        <div className={styles.cardHeader}>
-          <h2 className={styles.titlePage}>Addresses</h2>
-        </div>
-
-        <div className={styles.toolbar}>
-          <Button
-            type="button"
-            size="small"
-            variant="secondary"
-            className={styles.addBtn}
-            onClick={() => navigate(`/account/addresses/new?back=${back}`)}
-            aria-label="Add address"
-          >
-            <PlusIcon />
-          </Button>
-        </div>
-
-        {loading && <div className={styles.loadingWrap}>Loading…</div>}
-
-        {!loading && (
-          <div className={styles.listGrid}>
-            {items.length === 0 && (
-              <div className={styles.muted}>No addresses yet.</div>
-            )}
-
-            {items.map((a) => (
-              <article key={a.id} className={styles.addrCard}>
-                <div className={styles.addrHeader}>
-                  <strong className={styles.addrLabel}>
-                    {a.firstName} {a.lastName}
-                    {a.company ? ` · ${a.company}` : ""}
-                    {a.isDefault && <span className={styles.badge}>Default</span>}
-                  </strong>
-                  <div className={styles.addrActions}>
-                    <CloseIcon onClick={() => removeAddress(a.id)} />
-                  </div>
-                </div>
-
-                <div className={styles.addrBody}>
-                  <div>
-                    {a.line1}
-                    {a.line2 ? `, ${a.line2}` : ""}
-                  </div>
-                  <div>
-                    {a.city}
-                    {a.region ? `, ${a.region}` : ""}, {a.postalCode}
-                  </div>
-                  <div>{fmtCountry(a.country)}</div>
-                  {(a.phone || a.email) && (
-                    <>
-                      <div className={styles.muted}>
-                        {a.phone ? `${a.phone}` : ""}
-                      </div>
-                      <div className={styles.muted}>
-                        {a.email ? `${a.email}` : ""}
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {!a.isDefault && (
-                  <Button
-                    variant="primary"
-                    size="small"
-                    onClick={() => makeDefault(a.id)}
-                  >
-                    Make default
-                  </Button>
-                )}
-                <Button
-                  variant="secondary"
-                  size="small"
-                  onClick={() =>
-                    navigate(`/account/addresses/${a.id}?back=${back}`)
-                  }
-                >
-                  Edit
-                </Button>
-              </article>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function OrdersSection() {
-  const navigate = useNavigate();
-  const back = encodeURIComponent("/account?tab=orders");
-
-  type OrderPreviewItem = {
-    sku: string;
-    name: string;
-    qty: number;
-    priceCents: number;
-    imageUrl?: string;
-  };
-
-  type OrderListItem = {
-    id: string;
-    number: string;
-    createdAt: string;
-    status: string;
-    currency: string;
-    totalCents: number;
-    shippingCents: number;
-    itemsCount: number;
-    itemsPreview: OrderPreviewItem[];
-  };
-
-  const [items, setItems] = useState<OrderListItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const { data } = await api.get<OrderListItem[]>("/orders/my?limit=50");
-        if (mounted) setItems(data);
-      } catch (e: any) {
-        if (mounted)
-          setError(e?.response?.data?.detail || "Failed to load orders");
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const fmtMoney = (cents: number, cur = "EUR") =>
-    new Intl.NumberFormat("de-DE", { style: "currency", currency: cur }).format(
-      (cents || 0) / 100,
-    );
-
-  const fmtDate = (iso?: string) => {
-    if (!iso) return "";
-    const d = new Date(iso);
-    return new Intl.DateTimeFormat("de-DE", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(d);
-  };
-
-  const statusBadgeClass = (st: string) => {
-    // мапа под ваши стили: st_awaiting_payment, st_paid, st_shipped, st_delivered, st_exception...
-    const key = `st_${(st || "").toLowerCase()}`;
-    return `${styles.badge} ${styles[key] || ""}`;
-  };
-
-  return (
-    <div className={styles.card}>
-      <div className={styles.cardHeader}>
-        <h2 className={styles.titlePage}>Orders</h2>
-        <a href="account/returns">Returns</a>
-      </div>
-
-      {loading && <div className={styles.loadingWrap}>Loading…</div>}
-      {error && (
-        <div className={styles.formError} role="alert">
-          {error}
-        </div>
-      )}
-
-      {!loading && !error && (
-        <div className={styles.ordersList}>
-          {items.length === 0 && (
-            <div className={styles.muted}>You don't have any orders yet.</div>
-          )}
-
-          {items.map((o) => {
-            const titles = o.itemsPreview.map((it) => it.name).slice(0, 3);
-            const more = Math.max(0, o.itemsCount - o.itemsPreview.length);
-            const skuCount = o.itemsPreview.length; // быстрая метрика для превью
-
-            return (
-              <article key={o.id} className={styles.orderCard}>
-                <div className={styles.orderHead}>
-                  <div className={styles.orderId}>
-                    <div className={styles.orderNumber}>{o.number}</div>
-                    <div className={styles.orderDate}>{fmtDate(o.createdAt)}</div>
-                  </div>
-                  <span className={statusBadgeClass(o.status)}>{o.status}</span>
-                </div>
-
-                <div className={styles.orderBody}>
-                  <div className={styles.orderThumbs}>
-                    {o.itemsPreview.map((it, idx) =>
-                      it.imageUrl ? (
-                        <img
-                          key={`${it.sku}-${idx}`}
-                          src={it.imageUrl}
-                          alt={it.name}
-                          className={styles.orderThumb}
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div
-                          key={`${it.sku}-${idx}`}
-                          className={styles.orderThumb}
-                          title={it.name}
-                        >
-                          {it.name?.[0]?.toUpperCase() || "•"}
-                        </div>
-                      ),
-                    )}
-                    {more > 0 && (
-                      <div className={styles.orderThumb + " " + styles.orderMore}>
-                        +{more}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className={styles.orderMeta}>
-                    <div className={styles.orderTitles}>
-                      {titles.join(" • ")}
-                      {o.itemsCount > titles.length ? " …" : ""}
-                    </div>
-                    <div className={styles.muted}>
-                      {o.itemsCount} item{o.itemsCount !== 1 ? "s" : ""} • {skuCount}{" "}
-                      SKU
-                      {o.shippingCents > 0
-                        ? ` • Shipping ${fmtMoney(o.shippingCents, o.currency)}`
-                        : " • Free shipping"}
-                    </div>
-                  </div>
-
-                  <div className={styles.orderTotal}>
-                    {fmtMoney(o.totalCents, o.currency)}
-                  </div>
-                </div>
-
-                <div className={styles.orderActions}>
-                  <Button
-                    size="small"
-                    variant="secondary"
-                    onClick={() =>
-                      navigate(`/account/orders/${o.id}?back=${back}`)
-                    }
-                  >
-                    Details
-                  </Button>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/** ================== Settings (nav list) ================== */
-function SettingsSection({ me }: { me: Me }) {
-  const navigate = useNavigate();
-  const back = encodeURIComponent("/account?tab=settings");
-
-  const { logout } = useAuth();
-
-  async function onLogout() {
-    try {
-      await logout();
-    } finally {
-      navigate("/auth", { replace: true });
-    }
-  }
-
-  return (
-    <div className={styles.card}>
-      <div className={styles.cardHeader}>
-        <h2 className={styles.titlePage}>Settings</h2>
-        <p className={styles.muted}>Security, notifications, language, etc.</p>
-      </div>
-
-      <div className={styles.list}>
-        <div
-          className={styles.listItem}
-          role="button"
-          tabIndex={0}
-          onClick={() =>
-            navigate(`/account/settings/change-password?back=${back}`)
-          }
-          onKeyDown={(e) =>
-            e.key === "Enter" &&
-            navigate(`/account/settings/change-password?back=${back}`)
-          }
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: 12,
-            border: "1px solid var(--border, #e5e7eb)",
-            borderRadius: 8,
-            cursor: "pointer",
-            marginBottom: 8,
-          }}
-        >
-          <div>
-            <div style={{ fontWeight: 600 }}>Change password</div>
-            <div className={styles.muted}>
-              Reset via email link or apply token
-            </div>
-          </div>
-          <span aria-hidden>›</span>
-        </div>
-
-        {!me.isEmailVerified && (
-          <div
-            className={styles.listItem}
-            role="button"
-            tabIndex={0}
-            onClick={() =>
-              navigate(`/account/settings/verify-email?back=${back}`)
-            }
-            onKeyDown={(e) =>
-              e.key === "Enter" &&
-              navigate(`/account/settings/verify-email?back=${back}`)
-            }
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: 12,
-              border: "1px solid var(--border, #e5e7eb)",
-              borderRadius: 8,
-              cursor: "pointer",
-              marginBottom: 8,
-            }}
-          >
-            <div>
-              <div style={{ fontWeight: 600 }}>Verify email</div>
-              <div className={styles.muted}>
-                Confirm your address to secure your account
-              </div>
-            </div>
-            <span aria-hidden>›</span>
-          </div>
-        )}
-      </div>
-
-      <div className={styles.formActions}>
-        <Button size="small" variant="primary" onClick={() => onLogout()}>
-          Logout
-        </Button>
-      </div>
-    </div>
   );
 }

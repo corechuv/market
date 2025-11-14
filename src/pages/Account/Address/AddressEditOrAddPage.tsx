@@ -1,14 +1,14 @@
 // src/pages/Account/AddressEditOrAddPage.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import styles from "./AccountPage.module.scss";
-import PageLayout from "../../components/layouts/PageLayout";
+import c from "./AddressForm.module.scss";
+import PageLayout from "../../../components/layouts/PageLayout";
 
-import Button from "../../components/UI/Button";
-import { TextField } from "../../components/UI/TextField";
-import { SelectField } from "../../components/UI/SelectField";
+import Button from "../../../components/UI/Button";
+import { TextField } from "../../../components/UI/TextField";
+import { SelectField } from "../../../components/UI/SelectField";
 
-import api from "../../lib/api";
+import api from "../../../lib/api";
 
 // валидаторы
 import {
@@ -18,9 +18,9 @@ import {
     validateForm,
     type FieldErrors,
     type Validator,
-} from "../../utils/validate/fields";
-import { EUROPE_COUNTRIES } from "../../utils/country";
-import Page from "../../components/UI/Page/Page";
+} from "../../../utils/validate/fields";
+import { EUROPE_COUNTRIES } from "../../../utils/country";
+import Page from "../../../components/UI/Page/Page";
 
 /** ================= helpers / data ================= */
 
@@ -245,139 +245,137 @@ export default function AddressEditOrAddPage() {
         <Page>
             <PageLayout title={isNew ? "New address" : "Edit address"} onBack={() => navigate(backTo)}>
                 {loading ? (
-                    <div className={styles.loadingWrap}>Loading…</div>
+                    <div className={c.loadingWrap}>Loading…</div>
                 ) : (
-                    <form className={styles.form} onSubmit={onSubmit} noValidate>
-                        <div className={styles.grid2}>
-                            <TextField
-                                label="First name *"
-                                value={form.firstName}
-                                onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                                error={errs.firstName}
-                                name="firstName"
-                                autoComplete="given-name"
-                            />
+                    <form className={c.form} onSubmit={onSubmit} noValidate>
+                        <TextField
+                            label="First name *"
+                            value={form.firstName}
+                            onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                            error={errs.firstName}
+                            name="firstName"
+                            autoComplete="given-name"
+                        />
 
-                            <TextField
-                                label="Last name *"
-                                value={form.lastName}
-                                onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                                error={errs.lastName}
-                                name="lastName"
-                                autoComplete="family-name"
-                            />
+                        <TextField
+                            label="Last name *"
+                            value={form.lastName}
+                            onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                            error={errs.lastName}
+                            name="lastName"
+                            autoComplete="family-name"
+                        />
 
-                            <TextField
-                                label="Company"
-                                value={form.company || ""}
-                                onChange={(e) => setForm({ ...form, company: e.target.value })}
-                                name="organization"
-                                autoComplete="organization"
-                            />
+                        <TextField
+                            label="Company"
+                            value={form.company || ""}
+                            onChange={(e) => setForm({ ...form, company: e.target.value })}
+                            name="organization"
+                            autoComplete="organization"
+                        />
 
-                            {/* Country (Europe) */}
+                        {/* Country (Europe) */}
+                        <SelectField
+                            label="Country (Europe) *"
+                            value={(form.country || "").toUpperCase()}
+                            onChange={(v) => setForm({ ...form, country: (v || "").toUpperCase() })}
+                            options={[{ value: "", label: "— select —" }, ...countryOptions]}
+                            error={errs.country}
+                        />
+
+                        {/* Region */}
+                        {isGermany(form.country) ? (
                             <SelectField
-                                label="Country (Europe) *"
-                                value={(form.country || "").toUpperCase()}
-                                onChange={(v) => setForm({ ...form, country: (v || "").toUpperCase() })}
-                                options={[{ value: "", label: "— select —" }, ...countryOptions]}
-                                error={errs.country}
+                                label="Region / Bundesland"
+                                value={form.region || ""}
+                                onChange={(v) => setForm({ ...form, region: v })}
+                                options={[
+                                    { value: "", label: "— select —" },
+                                    ...DE_STATES.map((s) => ({ value: s, label: s })),
+                                ]}
                             />
+                        ) : (
+                            <TextField
+                                label="Region / State"
+                                value={form.region || ""}
+                                onChange={(e) => setForm({ ...form, region: e.target.value })}
+                                name="region"
+                                autoComplete="address-level1"
+                            />
+                        )}
 
-                            {/* Region */}
-                            {isGermany(form.country) ? (
-                                <SelectField
-                                    label="Region / Bundesland"
-                                    value={form.region || ""}
-                                    onChange={(v) => setForm({ ...form, region: v })}
-                                    options={[
-                                        { value: "", label: "— select —" },
-                                        ...DE_STATES.map((s) => ({ value: s, label: s })),
-                                    ]}
+                        <TextField
+                            label="City *"
+                            value={form.city}
+                            onChange={(e) => setForm({ ...form, city: e.target.value })}
+                            error={errs.city}
+                            name="city"
+                            autoComplete="address-level2"
+                        />
+
+                        <TextField
+                            label="Address line 1 *"
+                            value={form.line1}
+                            onChange={(e) => setForm({ ...form, line1: e.target.value })}
+                            error={errs.line1}
+                            name="line1"
+                            autoComplete="address-line1"
+                        />
+
+                        <TextField
+                            label="Address line 2"
+                            value={form.line2 || ""}
+                            onChange={(e) => setForm({ ...form, line2: e.target.value })}
+                            name="line2"
+                            autoComplete="address-line2"
+                        />
+
+                        <TextField
+                            label="Postal code *"
+                            value={form.postalCode}
+                            onChange={(e) => setForm({ ...form, postalCode: e.target.value })}
+                            error={errs.postalCode}
+                            name="postalCode"
+                            autoComplete="postal-code"
+                        />
+
+                        <TextField
+                            label="Phone"
+                            value={form.phone || ""}
+                            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                            error={errs.phone}
+                            name="tel"
+                            autoComplete="tel"
+                        />
+
+                        <TextField
+                            label="Email"
+                            type="email"
+                            value={form.email || ""}
+                            onChange={(e) => setForm({ ...form, email: e.target.value })}
+                            error={errs.email}
+                            name="email"
+                            autoComplete="email"
+                        />
+
+                        <div className={c.gridColSpan2}>
+                            <label className={c.switch}>
+                                <input
+                                    type="checkbox"
+                                    checked={!!form.isDefault}
+                                    onChange={(e) => setForm({ ...form, isDefault: e.target.checked })}
                                 />
-                            ) : (
-                                <TextField
-                                    label="Region / State"
-                                    value={form.region || ""}
-                                    onChange={(e) => setForm({ ...form, region: e.target.value })}
-                                    name="region"
-                                    autoComplete="address-level1"
-                                />
-                            )}
-
-                            <TextField
-                                label="City *"
-                                value={form.city}
-                                onChange={(e) => setForm({ ...form, city: e.target.value })}
-                                error={errs.city}
-                                name="city"
-                                autoComplete="address-level2"
-                            />
-
-                            <TextField
-                                label="Address line 1 *"
-                                value={form.line1}
-                                onChange={(e) => setForm({ ...form, line1: e.target.value })}
-                                error={errs.line1}
-                                name="line1"
-                                autoComplete="address-line1"
-                            />
-
-                            <TextField
-                                label="Address line 2"
-                                value={form.line2 || ""}
-                                onChange={(e) => setForm({ ...form, line2: e.target.value })}
-                                name="line2"
-                                autoComplete="address-line2"
-                            />
-
-                            <TextField
-                                label="Postal code *"
-                                value={form.postalCode}
-                                onChange={(e) => setForm({ ...form, postalCode: e.target.value })}
-                                error={errs.postalCode}
-                                name="postalCode"
-                                autoComplete="postal-code"
-                            />
-
-                            <TextField
-                                label="Phone"
-                                value={form.phone || ""}
-                                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                                error={errs.phone}
-                                name="tel"
-                                autoComplete="tel"
-                            />
-
-                            <TextField
-                                label="Email"
-                                type="email"
-                                value={form.email || ""}
-                                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                error={errs.email}
-                                name="email"
-                                autoComplete="email"
-                            />
-
-                            <div className={styles.gridColSpan2}>
-                                <label className={styles.switch}>
-                                    <input
-                                        type="checkbox"
-                                        checked={!!form.isDefault}
-                                        onChange={(e) => setForm({ ...form, isDefault: e.target.checked })}
-                                    />
-                                    <span>Make it the default address</span>
-                                </label>
-                            </div>
+                                <span>Make it the default address</span>
+                            </label>
                         </div>
 
                         {errs._form && (
-                            <div className={styles.formError} role="alert">
+                            <div className={c.formError} role="alert">
                                 {errs._form}
                             </div>
                         )}
 
-                        <div className={styles.formActions}>
+                        <div className={c.form__actions}>
                             <Button type="submit" variant="primary" size="small" disabled={saving}>
                                 {saving ? "Saving…" : "Save"}
                             </Button>

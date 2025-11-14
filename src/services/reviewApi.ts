@@ -189,3 +189,24 @@ export function toAvatarSrc(r: ReviewOut): string {
   const t = r.authorUpdatedAt || r.createdAt || "";
   return t ? `${url}?t=${encodeURIComponent(t)}` : url;
 }
+
+export async function listUserReels(opts: {
+  username: string;
+  limit?: number;
+  offset?: number;
+}): Promise<ReviewOut[]> {
+  const query = qs({
+    limit: opts.limit ?? 50,
+    offset: opts.offset ?? 0,
+  });
+
+  const r = await fetch(
+    `${API}/reviews/users/${encodeURIComponent(opts.username)}/reels?${query}`,
+    {
+      headers: buildHeaders(),      // можно с Authorization, но не обязательно
+      credentials: "omit",
+    }
+  );
+  if (!r.ok) throw new Error(`Failed to load user reels: ${r.status}`);
+  return r.json();
+}

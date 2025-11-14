@@ -1,15 +1,15 @@
 // src/pages/Account/OrderDetails.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import styles from "./AccountPage.module.scss";
+import styles from "../AccountPage.module.scss";
 import cls from "./OrderDetails.module.scss";
-import Button from "../../components/UI/Button";
-import PageLayout from "../../components/layouts/PageLayout";
-import DefinitionList from "../../components/UI/DefinitionList";
-import Accordion from "../../components/UI/Accordion";
-import api from "../../lib/api";
-import type { Totals } from "../../types/order";
-import Page from "../../components/UI/Page/Page";
+import Button from "../../../components/UI/Button";
+import PageLayout from "../../../components/layouts/PageLayout";
+import DefinitionList from "../../../components/UI/DefinitionList";
+import Accordion from "../../../components/UI/Accordion";
+import api from "../../../lib/api";
+import type { Totals } from "../../../types/order";
+import Page from "../../../components/UI/Page/Page";
 
 function classNames(...xs: Array<string | false | undefined | null>) {
     return xs.filter(Boolean).join(" ");

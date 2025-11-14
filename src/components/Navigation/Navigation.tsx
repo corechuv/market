@@ -46,6 +46,12 @@ const abs = (u?: string | null) =>
 const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
   const nav = useNavigate();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
+
+  const username =
+    (user as any)?.username
+      ? String((user as any).username).trim().toLowerCase()
+      : "";
+
   const { lines } = useCart();
 
   const cartCount = useMemo(
@@ -148,7 +154,7 @@ const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
         )
       ),
       action: "link",
-      to: isAuthenticated ? "/account" : "/auth",
+      to: isAuthenticated ? (username && `/u/${username}/videos`) : "/auth",
       disabled: authLoading,
       align: "top",
     },

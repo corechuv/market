@@ -31,6 +31,10 @@ const initialsFromName = (name = "") =>
 export default function MainLayout() {
   const navigate = useNavigate();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const username =
+    (user as any)?.username
+      ? String((user as any).username).trim().toLowerCase()
+      : "";
   const { lines } = useCart();
 
   const cartCount = useMemo(
@@ -89,7 +93,14 @@ export default function MainLayout() {
           <AccountIcon />
         )
       ),
-      onClick: () => navigate("/account"),
+      onClick: () => {
+        if (!isAuthenticated) {
+          navigate("/auth");
+        } else if (username) {
+          // публичный профиль с вкладкой видео
+          navigate(`/u/${username}/videos`);
+        }
+      },
     },
 
     {

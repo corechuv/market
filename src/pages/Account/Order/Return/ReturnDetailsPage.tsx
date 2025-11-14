@@ -1,13 +1,13 @@
 // src/pages/Account/ReturnDetailsPage.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import styles from "./AccountPage.module.scss";
-import PageLayout from "../../components/layouts/PageLayout";
-import Button from "../../components/UI/Button";
-import api from "../../lib/api";
-import DefinitionList from "../../components/UI/DefinitionList";
+import styles from "../../AccountPage.module.scss";
+import PageLayout from "../../../../components/layouts/PageLayout";
+import Button from "../../../../components/UI/Button";
+import api from "../../../../lib/api";
+import DefinitionList from "../../../../components/UI/DefinitionList";
 import cls from "./ReturnDetails.module.scss";
-import Page from "../../components/UI/Page/Page";
+import Page from "../../../../components/UI/Page/Page";
 
 function classNames(...xs: Array<string | false | undefined | null>) {
     return xs.filter(Boolean).join(" ");

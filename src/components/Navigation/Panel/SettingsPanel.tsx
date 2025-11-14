@@ -9,6 +9,7 @@ import NotificationIcon from "../../Icons/NotificationIcon";
 import MasterBar from "../../UI/Bars/MasterBar";
 import AboutIcon from "../../Icons/AboutIcon";
 import HelpSupportIcon from "../../Icons/HelpSupportIcon";
+import { useAuth } from "../../../context/AuthContext";
 
 interface SettingsPanelProps {
     /** Управление видимостью извне (Navigation) */
@@ -33,6 +34,16 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
 
     const nav = useNavigate()
+
+    const { logout } = useAuth();
+
+    async function onLogout() {
+        try {
+            await logout();
+        } finally {
+            nav("/auth", { replace: true });
+        }
+    }
 
     // Инициализация темы и сохранение в localStorage
     const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -72,6 +83,24 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         Edit profile
                     </span>
                 </li>
+                <li className={c.list__item} onClick={() => { nav("/account/orders") }}>
+                    <svg className={c["list__item--icon-left"]}></svg>
+                    <span className={c["list__item--label"]} aria-label={``} title="">
+                        Orders
+                    </span>
+                </li>
+                <li className={c.list__item} onClick={() => { nav("/account/addresses") }}>
+                    <svg className={c["list__item--icon-left"]}></svg>
+                    <span className={c["list__item--label"]} aria-label={``} title="">
+                        Addresses
+                    </span>
+                </li>
+                <li className={c.list__item} onClick={() => { nav("/account/security") }}>
+                    <svg className={c["list__item--icon-left"]}></svg>
+                    <span className={c["list__item--label"]} aria-label={``} title="">
+                        Security
+                    </span>
+                </li>
             </ul>
             <h3 className={c.subtitle}>Theme</h3>
             <ul className={c.list}>
@@ -106,6 +135,16 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     <svg className={c["list__item--icon-left"]}></svg>
                     <span className={c["list__item--label"]} aria-label={``} title="">
                         Legal
+                    </span>
+                </li>
+            </ul>
+            <h3 className={c.subtitle}></h3>
+
+            <ul className={c.list}>
+                <li className={c.list__item} onClick={onLogout}>
+                    <svg className={c["list__item--icon-left"]}></svg>
+                    <span className={c["list__item--label"]} aria-label={``} title="">
+                        Logout
                     </span>
                 </li>
             </ul>

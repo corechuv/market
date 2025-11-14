@@ -1,11 +1,11 @@
 // src/pages/Account/ChangePasswordPage.tsx
 import React, { useMemo, useState } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
-import styles from "./AccountPage.module.scss";
-import Button from "../../components/UI/Button";
-import { TextField } from "../../components/UI/TextField";
-import { useAuth } from "../../context/AuthContext";
-import api from "../../lib/api";
+import styles from "../AccountPage.module.scss";
+import Button from "../../../components/UI/Button";
+import { TextField } from "../../../components/UI/TextField";
+import { useAuth } from "../../../context/AuthContext";
+import api from "../../../lib/api";
 
 import {
   required,
@@ -13,9 +13,9 @@ import {
   minLength,
   sameAs,
   type FieldErrors,
-} from "../../utils/validate/fields";
-import PageLayout from "../../components/layouts/PageLayout";
-import Page from "../../components/UI/Page/Page";
+} from "../../../utils/validate/fields";
+import PageLayout from "../../../components/layouts/PageLayout";
+import Page from "../../../components/UI/Page/Page";
 
 export default function ChangePasswordPage() {
   const navigate = useNavigate();
