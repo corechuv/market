@@ -271,6 +271,7 @@ export default function ProductPage() {
 
   return (
     <Page padding={false}>
+      <ProductImages images={images} />
       <div className={cls.product}>
         {/*
         <Breadcrumbs crumbs={categoryCrumbs as any} />
@@ -289,7 +290,6 @@ export default function ProductPage() {
 
           {activeTab === "details" && (
             <>
-              <ProductImages images={images} />
               <div className={cls.productInfo}>
                 <div className={cls.productTitle}>
                   <h1 className={cls.productName}>{product.name}</h1>
