@@ -271,13 +271,13 @@ export default function ProductPage() {
 
   return (
     <Page padding={false}>
-      <ProductImages images={images} />
       <div className={cls.product}>
         {/*
         <Breadcrumbs crumbs={categoryCrumbs as any} />
         */}
 
         <div className={cls.productDetails}>
+          <ProductImages images={images} />
 
           <div style={{ display: "none" }}>
             <Tabs<TabKey>
