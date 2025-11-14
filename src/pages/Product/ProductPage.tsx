@@ -270,7 +270,7 @@ export default function ProductPage() {
   const ratingValue = reviewAvg !== null ? Math.round(reviewAvg * 10) / 10 : null;
 
   return (
-    <Page padding>
+    <Page padding={false}>
       <div className={cls.product}>
         {/*
         <Breadcrumbs crumbs={categoryCrumbs as any} />

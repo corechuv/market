@@ -101,8 +101,6 @@
 /* горизонтальная карусель со snap */
 .carousel {
   position: relative;
-  border-radius: var(--radius);
-  border: 1px dashed var(--border, rgba(0, 0, 0, 0.08));
 
   display: flex;
   overflow-x: auto;
@@ -110,6 +108,7 @@
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  background-color: white;
   /* Firefox */
 }
 
