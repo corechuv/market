@@ -139,7 +139,7 @@
 
 /* миниатюры под каруселью — горизонтальный скролл */
 .thumbsMobile {
-  display: flex;
+  display: none;
   gap: 1px;
   overflow-x: auto;
   overflow-y: hidden;
