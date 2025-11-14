@@ -273,99 +273,101 @@ export default function ProductPage() {
     <Page padding>
       <div className={cls.product}>
         <Breadcrumbs crumbs={categoryCrumbs as any} />
-        <Tabs<TabKey>
-          items={productTabs}
-          activeKey={activeTab}
-          onChange={handleTabChange}
-          ariaLabel="Product sections"
-        />
 
         <div className={cls.productDetails}>
-          <ProductImages images={images} />
-          <div className={cls.productInfo}>
-            <div className={cls.productTitle}>
-              <h1 className={cls.productName}>{product.name}</h1>
 
-              <div className={cls.productMeta}>
-                <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
-                <div className={cls.productMeta__articleNumber}>Art.-Nr.: {articleNumber}</div>
-              </div>
-
-              <div className={cls.productPrice}>
-                <div className={cls.meta__container}>
-                  <div className={"cls.meta_container--item"}>
-                    <div className={cls.price}>
-                      {!!discountPercent && compareAt && (
-                        <div className={cls.price__old}>
-                          <span className={cls.price__discount}>-{discountPercent}%</span>
-                          <span className={cls.price__compareAt}>{compareAt}</span>
-                        </div>
-                      )}
-                      <span className={cls.price__current}>{price}</span>
-                    </div>
-                    <div className={cls.product__infoBelow}>
-                      <span className={cls.productVat}>inkl. MwSt.</span>&nbsp;
-                      <span className={cls.productDelivery}>versandkostenfrei</span>
-                    </div>
-                  </div>
-
-                  <div className={"cls.meta_container--item"}>
-                    <div className={cls.product__info}>
-                      {(energyClass || energyClassArrow || datasheetUrl) && (
-                        <div className={cls.productEnergy}>
-                          {(energyClass || energyClassArrow) && (
-                            <EnergyLabel
-                              energyClassUrl={energyClass || undefined}
-                              energyClassArrowUrl={energyClassArrow || undefined}
-                              label="Energieklasse"
-                            />
-                          )}
-                          {datasheetUrl && (
-                            <ProductDatasheet pdfUrl={datasheetUrl} label="Produktdatenblatt" />
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className={cls.section}>
-                <div className={cls.section__content}>
-                  <div className={cls.available}>
-                    <span className={available ? cls.inStock : cls.outOfStock} />
-                    <span className={available ? cls.inStockText : cls.outOfStockText}>
-                      {available ? "In Stock" : "Out of Stock"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {hasVariants && (
-                <div className={cls.section}>
-                  <div className={cls.section__content}>
-                    <VariantPicker product={product} value={variant} onChange={setVariant} />
-                  </div>
-                </div>
-              )}
-
-              <div className={cls.section}>
-                <h3 className={cls.section__title}>Delivery</h3>
-                <div className={cls.section__content}>
-                  <DeliveryBadge minDays={2} maxDays={4} />
-                </div>
-              </div>
-            </div>
-
-            <div ref={actionsRef} className={cls.productActions}>
-              <Button className={cls.addToCart} disabled={!available} onClick={handleAddToCart}>
-                Add to Cart
-              </Button>
-            </div>
-          </div>
+          <Tabs<TabKey>
+            items={productTabs}
+            activeKey={activeTab}
+            onChange={handleTabChange}
+            ariaLabel="Product sections"
+          />
 
           {activeTab === "details" && (
             <>
+              <ProductImages images={images} />
+              <div className={cls.productInfo}>
+                <div className={cls.productTitle}>
+                  <h1 className={cls.productName}>{product.name}</h1>
+
+                  <div className={cls.productMeta}>
+                    <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
+                    <div className={cls.productMeta__articleNumber}>Art.-Nr.: {articleNumber}</div>
+                  </div>
+
+                  <div className={cls.productPrice}>
+                    <div className={cls.meta__container}>
+                      <div className={"cls.meta_container--item"}>
+                        <div className={cls.price}>
+                          {!!discountPercent && compareAt && (
+                            <div className={cls.price__old}>
+                              <span className={cls.price__discount}>-{discountPercent}%</span>
+                              <span className={cls.price__compareAt}>{compareAt}</span>
+                            </div>
+                          )}
+                          <span className={cls.price__current}>{price}</span>
+                        </div>
+                        <div className={cls.product__infoBelow}>
+                          <span className={cls.productVat}>inkl. MwSt.</span>&nbsp;
+                          <span className={cls.productDelivery}>versandkostenfrei</span>
+                        </div>
+                      </div>
+
+                      <div className={"cls.meta_container--item"}>
+                        <div className={cls.product__info}>
+                          {(energyClass || energyClassArrow || datasheetUrl) && (
+                            <div className={cls.productEnergy}>
+                              {(energyClass || energyClassArrow) && (
+                                <EnergyLabel
+                                  energyClassUrl={energyClass || undefined}
+                                  energyClassArrowUrl={energyClassArrow || undefined}
+                                  label="Energieklasse"
+                                />
+                              )}
+                              {datasheetUrl && (
+                                <ProductDatasheet pdfUrl={datasheetUrl} label="Produktdatenblatt" />
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={cls.section}>
+                    <div className={cls.section__content}>
+                      <div className={cls.available}>
+                        <span className={available ? cls.inStock : cls.outOfStock} />
+                        <span className={available ? cls.inStockText : cls.outOfStockText}>
+                          {available ? "In Stock" : "Out of Stock"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {hasVariants && (
+                    <div className={cls.section}>
+                      <div className={cls.section__content}>
+                        <VariantPicker product={product} value={variant} onChange={setVariant} />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className={cls.section}>
+                    <h3 className={cls.section__title}>Delivery</h3>
+                    <div className={cls.section__content}>
+                      <DeliveryBadge minDays={2} maxDays={4} />
+                    </div>
+                  </div>
+                </div>
+
+                <div ref={actionsRef} className={cls.productActions}>
+                  <Button className={cls.addToCart} disabled={!available} onClick={handleAddToCart}>
+                    Add to Cart
+                  </Button>
+                </div>
+              </div>
+
               <div className={cls.section}>
                 <h3 className={cls.section__title}>Short description</h3>
                 <div className={cls.section__content}>
