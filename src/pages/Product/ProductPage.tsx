@@ -406,7 +406,6 @@ export default function ProductPage() {
             <>
               {/* === Plain Reviews (server) — превью === */}
               <div className={cls.section}>
-                <h3 className={cls.section__title}>Reviews</h3>
                 <div className={cls.section__content}>
                   <div className={cls.reviews}>
                     <div className={cls.rating}>
