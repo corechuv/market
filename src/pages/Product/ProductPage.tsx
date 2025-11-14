@@ -278,12 +278,14 @@ export default function ProductPage() {
 
         <div className={cls.productDetails}>
 
-          <Tabs<TabKey>
-            items={productTabs}
-            activeKey={activeTab}
-            onChange={handleTabChange}
-            ariaLabel="Product sections"
-          />
+          <div style={{ display: "none" }}>
+            <Tabs<TabKey>
+              items={productTabs}
+              activeKey={activeTab}
+              onChange={handleTabChange}
+              ariaLabel="Product sections"
+            />
+          </div>
 
           {activeTab === "details" && (
             <>
@@ -291,12 +293,10 @@ export default function ProductPage() {
               <div className={cls.productInfo}>
                 <div className={cls.productTitle}>
                   <h1 className={cls.productName}>{product.name}</h1>
-
                   <div className={cls.productMeta}>
                     <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
                     <div className={cls.productMeta__articleNumber}>Art.-Nr.: {articleNumber}</div>
                   </div>
-
                   <div className={cls.productPrice}>
                     <div className={cls.meta__container}>
                       <div className={"cls.meta_container--item"}>
@@ -314,13 +314,13 @@ export default function ProductPage() {
                           <span className={cls.productDelivery}>versandkostenfrei</span>
                         </div>
                       </div>
-
                       <div className={"cls.meta_container--item"}>
                         <div className={cls.product__info}>
                           {(energyClass || energyClassArrow || datasheetUrl) && (
                             <div className={cls.productEnergy}>
                               {(energyClass || energyClassArrow) && (
                                 <EnergyLabel
+                                  className={cls.energyLabel}
                                   energyClassUrl={energyClass || undefined}
                                   energyClassArrowUrl={energyClassArrow || undefined}
                                   label="Energieklasse"
