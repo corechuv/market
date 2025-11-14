@@ -12,7 +12,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useCart } from "../../context/CartContext";
 import CounterBadge from "../Common/CounterBadge/CounterBadge";
 import HomeIcon from "../Icons/HomeIcon";
-import GridIcon from "../Icons/GridIcon";
+import HamburgerIcon from "../Icons/HamburgerIcon";
 
 const API_ORIGIN = new URL(import.meta.env.VITE_API_BASE_URL).origin;
 const abs = (u?: string | null) =>
@@ -64,7 +64,7 @@ export default function MainLayout() {
 
   const items = useMemo<BottomNavItem[]>(() => [
     { key: "home", icon: <HomeIcon />, onClick: () => navigate("/") },
-    { key: "catalog", icon: <GridIcon />, onClick: () => navigate("/c") },
+    { key: "catalog", icon: <HamburgerIcon />, onClick: () => navigate("/c") },
     { key: "search", icon: <SearchIcon />, onClick: () => navigate("/s") },
     { key: "video", icon: <PlayIcon />, onClick: () => navigate("/videos?sort=trending") },
 

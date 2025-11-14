@@ -13,10 +13,10 @@ import SearchPanel from "./Panel/SearchPanel";
 import SettingsIcon from "../Icons/SettingsIcon";
 import SettingsPanel from "./Panel/SettingsPanel";
 import { useLockBodyScroll } from "../../hooks/useLockBodyScroll";
-import GridIcon from "../Icons/GridIcon";
 import CatalogPanel from "./Panel/CatalogPanel";
 import NotificationsPanel from "./Panel/NotificationsPanel";
 import NotificationIcon from "../Icons/NotificationIcon";
+import HamburgerIcon from "../Icons/HamburgerIcon";
 
 export interface Props {
   className?: string;
@@ -98,7 +98,7 @@ const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
     {
       id: "catalog",
       ariaLabel: "Catalog",
-      icon: <GridIcon width={24} />,
+      icon: <HamburgerIcon width={24} />,
       action: "panel",
       panel: "catalog",
       controlsId: "catalog-panel",
