@@ -278,8 +278,6 @@ export default function ProductPage() {
 
         <div className={cls.productDetails}>
 
-          <ProductImages images={images} />
-
           <Tabs<TabKey>
             items={productTabs}
             activeKey={activeTab}
@@ -289,6 +287,7 @@ export default function ProductPage() {
 
           {activeTab === "details" && (
             <>
+              <ProductImages images={images} />
               <div className={cls.productInfo}>
                 <div className={cls.productTitle}>
                   <h1 className={cls.productName}>{product.name}</h1>
