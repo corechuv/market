@@ -279,7 +279,7 @@ export default function AddressEditOrAddPage() {
                             label="Country (Europe) *"
                             value={(form.country || "").toUpperCase()}
                             onChange={(v) => setForm({ ...form, country: (v || "").toUpperCase() })}
-                            options={[{ value: "", label: "— select —" }, ...countryOptions]}
+                            options={[{ value: "", label: "Select" }, ...countryOptions]}
                             error={errs.country}
                         />
 
@@ -290,7 +290,7 @@ export default function AddressEditOrAddPage() {
                                 value={form.region || ""}
                                 onChange={(v) => setForm({ ...form, region: v })}
                                 options={[
-                                    { value: "", label: "— select —" },
+                                    { value: "", label: "Select" },
                                     ...DE_STATES.map((s) => ({ value: s, label: s })),
                                 ]}
                             />
@@ -370,13 +370,18 @@ export default function AddressEditOrAddPage() {
                         </div>
 
                         {errs._form && (
-                            <div className={c.formError} role="alert">
+                            <div className={c.form__error} role="alert">
                                 {errs._form}
                             </div>
                         )}
 
                         <div className={c.form__actions}>
-                            <Button type="submit" variant="primary" size="small" disabled={saving}>
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                size="small"
+                                disabled={saving}
+                            >
                                 {saving ? "Saving…" : "Save"}
                             </Button>
                             <Button

@@ -7,6 +7,7 @@ import { buildSpecs, getInitialVariant } from "../../specs/builders";
 import { parseMoney } from "../../types/helpers/parseMoney";
 import type { Product, ProductVariant } from "../../types/product";
 import { listProductReviews } from "../../services/reviewApi";
+import { Tabs, type TabItem } from "../../components/UI/Tabs";
 
 import cls from "./ProductPage.module.scss";
 
@@ -30,9 +31,32 @@ import Page from "../../components/UI/Page/Page";
 import Footer from "../../components/Footer/Footer";
 import ProductVideos from "../../components/Product/Review/ProductVideos";
 
+type TabKey = "details" | "reviews";
+
+const productTabs: TabItem<TabKey>[] = [
+  { key: "details", label: "Details" },
+  { key: "reviews", label: "Reviews" },
+];
+
+const normalizeTab = (tabParam?: string): TabKey => {
+  switch (tabParam) {
+    case "reviews":
+      return "reviews";
+    default:
+      return "details";
+  }
+};
+
 export default function ProductPage() {
   const nav = useNavigate();
-  const { productId } = useParams<{ productId: string }>();
+  const { productId, tab } = useParams<{ productId: string; tab?: string }>();
+
+  // --- табы ---
+  const [activeTab, setActiveTab] = React.useState<TabKey>(normalizeTab(tab));
+
+  React.useEffect(() => {
+    setActiveTab(normalizeTab(tab));
+  }, [tab]);
 
   // --- загрузка товара ---
   const [product, setProduct] = React.useState<Product | undefined>(undefined);
@@ -191,6 +215,18 @@ export default function ProductPage() {
     );
   }
 
+  const handleTabChange = (key: TabKey) => {
+    setActiveTab(key);
+    if (!product) return;
+
+    if (key === "reviews") {
+      nav(`/product/${product.id}/reviews`, { replace: false });
+    } else {
+      // details по умолчанию без суффикса
+      nav(`/product/${product.id}`, { replace: false });
+    }
+  };
+
   // --- вычисления под UI (теперь товар точно есть) ---
   const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
 
@@ -237,6 +273,13 @@ export default function ProductPage() {
     <Page padding>
       <div className={cls.product}>
         <Breadcrumbs crumbs={categoryCrumbs as any} />
+        <Tabs<TabKey>
+          items={productTabs}
+          activeKey={activeTab}
+          onChange={handleTabChange}
+          ariaLabel="Product sections"
+        />
+
         <div className={cls.productDetails}>
           <ProductImages images={images} />
           <div className={cls.productInfo}>
@@ -321,53 +364,71 @@ export default function ProductPage() {
             </div>
           </div>
 
-          <div className={cls.section}>
-            <h3 className={cls.section__title}>Short description</h3>
-            <div className={cls.section__content}>
-              <ul className={cls.list}>
-                {product.shortDescription?.length ? (
-                  product.shortDescription.map((line, idx) => <li key={idx}>{line}</li>)
-                ) : (
-                  <li>No short description available for this product.</li>
-                )}
-              </ul>
-            </div>
-          </div>
-
-          <div className={cls.section}>
-            <h3 className={cls.section__title}>Specifications</h3>
-            <div className={cls.section__content}>
-              <SpecTable
-                specs={entries}
-                dictionary={dictionary}
-                showEmpty="dash"
-                mergeStrategy="dict-first"
-              />
-            </div>
-          </div>
-
-          <div className={cls.section}>
-            <h3 className={cls.section__title}>Description</h3>
-            <div className={cls.section__content}>
-              <p>{product.description || "No description available for this product."}</p>
-            </div>
-          </div>
-
-          {/* === Plain Reviews (server) — превью === */}
-          <div className={cls.section}>
-            <h3 className={cls.section__title}>Reviews</h3>
-            <div className={cls.section__content}>
-              <div className={cls.reviews}>
-                <div className={cls.rating}>
-                  <RatingBadge size="default" ratingValue={ratingValue} reviewCount={reviewCount} />
-                  <Button variant="secondary" size="small" onClick={() => setIsOpenUpload(true)}>Add review</Button>
+          {activeTab === "details" && (
+            <>
+              <div className={cls.section}>
+                <h3 className={cls.section__title}>Short description</h3>
+                <div className={cls.section__content}>
+                  <ul className={cls.list}>
+                    {product.shortDescription?.length ? (
+                      product.shortDescription.map((line, idx) => <li key={idx}>{line}</li>)
+                    ) : (
+                      <li>No short description available for this product.</li>
+                    )}
+                  </ul>
                 </div>
-                <ProductPlainReviews productId={product.id} limit={5} />
               </div>
-            </div>
-          </div>
 
-          <ProductVideos label="Video reviews" limit={10} productId={product.id} />
+              <div className={cls.section}>
+                <h3 className={cls.section__title}>Specifications</h3>
+                <div className={cls.section__content}>
+                  <SpecTable
+                    specs={entries}
+                    dictionary={dictionary}
+                    showEmpty="dash"
+                    mergeStrategy="dict-first"
+                  />
+                </div>
+              </div>
+
+              <div className={cls.section}>
+                <h3 className={cls.section__title}>Description</h3>
+                <div className={cls.section__content}>
+                  <p>{product.description || "No description available for this product."}</p>
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeTab === "reviews" && (
+            <>
+              {/* === Plain Reviews (server) — превью === */}
+              <div className={cls.section}>
+                <h3 className={cls.section__title}>Reviews</h3>
+                <div className={cls.section__content}>
+                  <div className={cls.reviews}>
+                    <div className={cls.rating}>
+                      <RatingBadge
+                        size="default"
+                        ratingValue={ratingValue}
+                        reviewCount={reviewCount}
+                      />
+                      <Button
+                        variant="secondary"
+                        size="small"
+                        onClick={() => setIsOpenUpload(true)}
+                      >
+                        Add review
+                      </Button>
+                    </div>
+                    <ProductPlainReviews productId={product.id} limit={5} />
+                  </div>
+                </div>
+              </div>
+
+              <ProductVideos label="Video reviews" limit={10} productId={product.id} />
+            </>
+          )}
 
           <ProductCarousel
             products={moreProducts}

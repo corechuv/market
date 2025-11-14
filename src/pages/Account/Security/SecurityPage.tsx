@@ -1,11 +1,12 @@
 // src/pages/Account/SecurityPage.tsx
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import styles from "../AccountPage.module.scss";
+import c from "./SecurityPage.module.scss";
 import PageLayout from "../../../components/layouts/PageLayout";
 import Page from "../../../components/UI/Page/Page";
 import { useAuth } from "../../../context/AuthContext";
 import api from "../../../lib/api";
+import Right from "../../../components/Icons/ChevronRightIcon";
 
 type Me = {
   id: string;
@@ -13,7 +14,7 @@ type Me = {
 };
 
 export default function SecurityPage() {
-  const navigate = useNavigate();
+  const nav = useNavigate();
   const [searchParams] = useSearchParams();
   const backTo = searchParams.get("back") || "/account";
 
@@ -25,7 +26,7 @@ export default function SecurityPage() {
     if (authLoading) return;
 
     if (!user) {
-      navigate("/auth", { replace: true });
+      nav("/auth", { replace: true });
       return;
     }
 
@@ -43,15 +44,15 @@ export default function SecurityPage() {
     return () => {
       mounted = false;
     };
-  }, [authLoading, user, navigate]);
+  }, [authLoading, user, nav]);
 
   const back = encodeURIComponent("/account/security");
 
   if (authLoading || loading) {
     return (
       <Page>
-        <PageLayout title="Security" onBack={() => navigate(backTo)}>
-          <div className={styles.loadingWrap}>Loading…</div>
+        <PageLayout title="Security" onBack={() => nav(backTo)}>
+          <div className={c.loading}>Loading…</div>
         </PageLayout>
       </Page>
     );
@@ -60,8 +61,8 @@ export default function SecurityPage() {
   if (!me) {
     return (
       <Page>
-        <PageLayout title="Security" onBack={() => navigate(backTo)}>
-          <div className={styles.formError}>Failed to load account info.</div>
+        <PageLayout title="Security" onBack={() => nav(backTo)}>
+          <div className={c.form___error}>Failed to load account info.</div>
         </PageLayout>
       </Page>
     );
@@ -69,83 +70,41 @@ export default function SecurityPage() {
 
   return (
     <Page>
-      <PageLayout title="Security" onBack={() => navigate(backTo)}>
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <h2 className={styles.titlePage}>Security</h2>
-            <p className={styles.muted}>
-              Security, password, email verification.
-            </p>
-          </div>
-
-          <div className={styles.list}>
-            {/* Change password */}
-            <div
-              className={styles.listItem}
-              role="button"
-              tabIndex={0}
+      <PageLayout title="Security" onBack={() => nav(backTo)}>
+        <ul className={c.list}>
+          <li
+            className={c.list__item}
+            onClick={() =>
+              nav(`/account/settings/change-password?back=${back}`)
+            }
+            onKeyDown={(e) =>
+              e.key === "Enter" &&
+              nav(`/account/settings/change-password?back=${back}`)
+            }
+          >
+            <span className={c["list__item--label"]} aria-label={``} title="">
+              Change password
+            </span>
+            <Right className={c["list__item--icon-right"]} />
+          </li>
+          {!me.isEmailVerified && (
+            <li
+              className={c.list__item}
               onClick={() =>
-                navigate(`/account/settings/change-password?back=${back}`)
+                nav(`/account/settings/verify-email?back=${back}`)
               }
               onKeyDown={(e) =>
                 e.key === "Enter" &&
-                navigate(`/account/settings/change-password?back=${back}`)
+                nav(`/account/settings/verify-email?back=${back}`)
               }
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: 12,
-                border: "1px solid var(--border, #e5e7eb)",
-                borderRadius: 8,
-                cursor: "pointer",
-                marginBottom: 8,
-              }}
             >
-              <div>
-                <div style={{ fontWeight: 600 }}>Change password</div>
-                <div className={styles.muted}>
-                  Reset via email link or apply token
-                </div>
-              </div>
-              <span aria-hidden>›</span>
-            </div>
-
-            {/* Verify email — только если не верифицирован */}
-            {!me.isEmailVerified && (
-              <div
-                className={styles.listItem}
-                role="button"
-                tabIndex={0}
-                onClick={() =>
-                  navigate(`/account/settings/verify-email?back=${back}`)
-                }
-                onKeyDown={(e) =>
-                  e.key === "Enter" &&
-                  navigate(`/account/settings/verify-email?back=${back}`)
-                }
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: 12,
-                  border: "1px solid var(--border, #e5e7eb)",
-                  borderRadius: 8,
-                  cursor: "pointer",
-                  marginBottom: 8,
-                }}
-              >
-                <div>
-                  <div style={{ fontWeight: 600 }}>Verify email</div>
-                  <div className={styles.muted}>
-                    Confirm your address to secure your account
-                  </div>
-                </div>
-                <span aria-hidden>›</span>
-              </div>
-            )}
-          </div>
-        </div>
+              <span className={c["list__item--label"]} aria-label={``} title="">
+                Verify email
+              </span>
+              <Right className={c["list__item--icon-right"]} />
+            </li>
+          )}
+        </ul>
       </PageLayout>
     </Page>
   );

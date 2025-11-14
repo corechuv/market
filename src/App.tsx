@@ -88,6 +88,8 @@ export default function App() {
 
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/product/:productId" element={<ProductPage />} />
+            <Route path="/product/:productId/:tab" element={<ProductPage />} />
+            
             <Route path="/category/*" element={<CategoryPage />} />
 
             <Route path="/videos" element={<ReelsPage />} />
