@@ -3,7 +3,7 @@
   position: relative;
   --img-size: 460px;
   --img-size-thumb-l: 104px;
-  --img-size-thumb-s: 56px;
+  --img-size-thumb-s: 90px;
   --radius: 20px;
   --radius-s: 12px;
 }
@@ -12,8 +12,8 @@
 .thumbBtn {
   display: flex;
   border: none;
-  padding: 1px;
-  margin: 2px;
+  padding: 0;
+  margin: 0;
   background: none;
   outline: none;
   cursor: pointer;
@@ -27,8 +27,6 @@
 }
 
 .active img {
-  outline: 1px dashed var(--primary, var(--border));
-  outline-offset: 2px;
 }
 
 /* ============= ДЕСКТОП ============= */
@@ -93,8 +91,9 @@
 
   .wrapperMobile {
     display: grid;
-    gap: 0.75rem;
+    gap: 1px;
     position: relative;
+    background-color: white;
   }
 }
 
@@ -134,18 +133,20 @@
   object-fit: contain;
   user-select: none;
   pointer-events: none;
+  border-radius: 0;
   /* предотвращает «залипание» при свайпе */
 }
 
 /* миниатюры под каруселью — горизонтальный скролл */
 .thumbsMobile {
   display: flex;
-  gap: 0.75rem;
+  gap: 1px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 0.25rem 0.125rem;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
   scrollbar-width: none;
-  display: none;
 }
 
 .thumbsMobile::-webkit-scrollbar {
@@ -155,5 +156,5 @@
 .thumbsMobile .thumbBtn img {
   width: var(--img-size-thumb-s);
   height: var(--img-size-thumb-s);
-  border-radius: var(--radius-s);
+  border-radius: 0;
 }
