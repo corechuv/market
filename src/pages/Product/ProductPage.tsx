@@ -11,7 +11,6 @@ import { Tabs, type TabItem } from "../../components/UI/Tabs";
 
 import cls from "./ProductPage.module.scss";
 
-import ProductImages from "../../components/Product/ProductImages";
 import Button from "../../components/UI/Button";
 import Modal from "../../components/Modal/Modal";
 import Breadcrumbs from "../../components/Common/Breadcrumbs";
@@ -30,6 +29,7 @@ import RatingBadge from "../../components/Rating/RatingBadge";
 import Page from "../../components/UI/Page/Page";
 import Footer from "../../components/Footer/Footer";
 import ProductVideos from "../../components/Product/Review/ProductVideos";
+import ProductImages from "../../components/Product/Details/ProductImages";
 
 type TabKey = "details" | "reviews";
 
@@ -244,6 +244,12 @@ export default function ProductPage() {
     return merged;
   })();
 
+  const bannerImages = images.map((src, idx) => ({
+    src,
+    alt: product.name ? `${product.name} – фото ${idx + 1}` : `Фото ${idx + 1}`,
+    // caption: можно добавить при желании
+  }));
+
   const price = variant?.price ?? product.price;
   const compareAt = variant?.compareAtPrice;
   const available = (variant?.available ?? product.available) ?? false;
@@ -272,12 +278,24 @@ export default function ProductPage() {
   return (
     <Page padding={true}>
       <div className={cls.product}>
-        {/*
-        <Breadcrumbs crumbs={categoryCrumbs as any} />
-        */}
+        {/*<Breadcrumbs crumbs={categoryCrumbs as any} />*/}
 
         <div className={cls.productDetails}>
-          <ProductImages images={images} />
+
+          {/*<ProductImages images={images} />*/}
+          <ProductImages
+            images={bannerImages}
+            interval={4500}
+            autoPlay={false}
+            loop
+            pauseOnHover
+            showControls
+            showDots
+            rounded
+            overlay="gradient"
+            aspectRatio="16 / 9"
+            fit="contain"
+          />
 
           <div style={{ display: "none" }}>
             <Tabs<TabKey>
