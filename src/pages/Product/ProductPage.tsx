@@ -286,14 +286,14 @@ export default function ProductPage() {
           <ProductImages
             images={bannerImages}
             interval={4500}
-            autoPlay={false}
+            autoPlay={true}
             loop
             pauseOnHover
             showControls
             showDots
             rounded
             overlay="gradient"
-            aspectRatio="16 / 9"
+            aspectRatio="16 / 10"
             fit="contain"
           />
 
