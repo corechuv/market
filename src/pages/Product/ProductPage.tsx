@@ -276,6 +276,15 @@ export default function ProductPage() {
         <Breadcrumbs crumbs={categoryCrumbs as any} />
         */}
 
+        <div>
+
+          <h1 className={cls.productName}>{product.name}</h1>
+          <div className={cls.productMeta}>
+            <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
+            <div className={cls.productMeta__articleNumber}>Art.-Nr.: {articleNumber}</div>
+          </div>
+        </div>
+
         <div className={cls.productDetails}>
           <ProductImages images={images} />
 
@@ -292,11 +301,6 @@ export default function ProductPage() {
             <>
               <div className={cls.productInfo}>
                 <div className={cls.productTitle}>
-                  <h1 className={cls.productName}>{product.name}</h1>
-                  <div className={cls.productMeta}>
-                    <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
-                    <div className={cls.productMeta__articleNumber}>Art.-Nr.: {articleNumber}</div>
-                  </div>
                   <div className={cls.productPrice}>
                     <div className={cls.meta__container}>
                       <div className={"cls.meta_container--item"}>
