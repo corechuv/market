@@ -10,7 +10,6 @@
   flex-wrap: wrap;
   justify-content: space-around;
   gap: 10px;
-  border-bottom: 1px solid var(--border);
   /* На случай крупных масштабов, чтобы не обрезать тень/скейл */
   overflow: visible;
 }
