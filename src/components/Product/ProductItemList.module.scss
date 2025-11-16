@@ -9,7 +9,7 @@ $bp-lg: 1024px;
   gap: var(--gap) var(--gap);
 
   @media (max-width: $bp-lg) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   @media (max-width: $bp-sm) {
