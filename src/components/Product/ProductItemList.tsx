@@ -12,7 +12,6 @@ type Props = {
     className?: string;
 };
 
-// 🔧 БОЛЬШЕ НЕ ХУК — чистая функция, без React.useMemo и т.п.
 function computeProductComputed(product: Product) {
     const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
     const variant: ProductVariant | undefined = hasVariants ? getInitialVariant(product) : undefined;
