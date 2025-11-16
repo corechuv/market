@@ -1,7 +1,6 @@
 // src/components/Product/ProductItemList.tsx
 import React from "react";
 import cls from "./ProductItemList.module.scss";
-import type { ViewMode } from "../../components/Product/ToggleViewSwitch";
 import type { Product, ProductVariant } from "../../types/product";
 import { parseMoney } from "../../types/helpers/parseMoney";
 import { getInitialVariant } from "../../specs/builders";
@@ -9,7 +8,6 @@ import ProductCard from "./ProductCard";
 
 type Props = {
     products: Product[];
-    view: ViewMode; // 'grid' | 'list'
     onItemClick?: (product: Product) => void;
     className?: string;
 };
@@ -56,37 +54,35 @@ function computeProductComputed(product: Product) {
     };
 }
 
-const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, className }) => {
+const ProductItemList: React.FC<Props> = ({ products, onItemClick, className }) => {
 
     return (
-        <div className={[cls.productList, className].filter(Boolean).join(" ")}>
-            <div className={view === "grid" ? cls.grid : cls.list}>
-                {products.map((product) => {
-                    const {
-                        imageSrc,
-                        price,
-                        compareAt,
-                        available,
-                        discountPercent,
-                        energyClassArrow,
-                        energyClass,
-                    } = computeProductComputed(product);
+        <div className={[cls.grid, className].filter(Boolean).join(" ")}>
+            {products.map((product) => {
+                const {
+                    imageSrc,
+                    price,
+                    compareAt,
+                    available,
+                    discountPercent,
+                    energyClassArrow,
+                    energyClass,
+                } = computeProductComputed(product);
 
-                    return (
-                        <ProductCard
-                            name={product.name}
-                            discountPercent={discountPercent}
-                            compareAt={compareAt}
-                            price={price}
-                            imageUrl={imageSrc}
-                            available={available}
-                            energyClass={energyClass}
-                            energyClassArrow={energyClassArrow}
-                            onClick={() => onItemClick?.(product)}
-                        />
-                    );
-                })}
-            </div>
+                return (
+                    <ProductCard
+                        name={product.name}
+                        discountPercent={discountPercent}
+                        compareAt={compareAt}
+                        price={price}
+                        imageUrl={imageSrc}
+                        available={available}
+                        energyClass={energyClass}
+                        energyClassArrow={energyClassArrow}
+                        onClick={() => onItemClick?.(product)}
+                    />
+                );
+            })}
         </div>
     );
 };
