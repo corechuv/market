@@ -124,7 +124,7 @@ export default function ProductsMain({ query = "", showCategories = true, catego
           ) : error ? (
             <div style={{ padding: 24, color: "var(--danger, #c00)" }}>{error}</div>
           ) : (
-            <ProductItemList products={products} view={view} onItemClick={(p) => nav(`/product/${p.id}`)} />
+            <ProductItemList products={products} onItemClick={(p) => nav(`/product/${p.id}`)} />
           )}
 
           <Modal
