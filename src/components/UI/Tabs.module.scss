@@ -1,5 +1,10 @@
 // src/components/UI/Tabs.module.scss
-/* Mobile tabs */
+.tabs {
+  position: sticky;
+  top: 0;
+  background-color: var(--bg);
+  z-index: 20000;
+}
 .tabsMobile {
   display: flex;
   flex-wrap: wrap;

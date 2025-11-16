@@ -1,5 +1,5 @@
 // src/pages/Home/Home.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import cls from "./Home.module.scss";
 
 import Banner from "../../components/Home/Banner";
@@ -12,7 +12,7 @@ import Footer from "../../components/Footer/Footer";
 
 import { getProducts } from "../../services/productService";
 import type { Product } from "../../types/product";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import apple_light from "@/assets/brand_logos/Apple_Logo_black.png";
 import apple_dark from "@/assets/brand_logos/Apple_Logo_white.png";
@@ -26,6 +26,7 @@ import nvidia_light from "@/assets/brand_logos/NVIDIA_Logo_black.png";
 import nvidia_dark from "@/assets/brand_logos/NVIDIA_Logo_white.png";
 import hp_light from "@/assets/brand_logos/HP_Logo_color.svg";
 import hp_dark from "@/assets/brand_logos/HP_Logo_color.svg";
+import { Tabs, type TabItem } from "../../components/UI/Tabs";
 
 const demoImages = [
     { src: "https://www.apple.com/v/iphone-17-pro/a/images/overview/highlights/highlights_apple_intelligence__bs20h6298f36_medium_2x.jpg", alt: "1", caption: "" },
@@ -50,11 +51,35 @@ const brandLogos = [
     { name: "HP", light: { svg: hp_light }, dark: { svg: hp_dark } },
 ];
 
+type TabKey = "home" | "new_arrivals" | "electronics";
+
+const tabs: TabItem<TabKey>[] = [
+    { key: "home", label: "Home" },
+    { key: "new_arrivals", label: "New Arrivals" },
+    { key: "electronics", label: "Electronics" },
+];
+
+const normalizeTab = (tabParam?: string): TabKey => {
+    switch (tabParam) {
+        case "new_arrivals":
+            return "new_arrivals";
+        case "electronics":
+            return "electronics";
+        case "home":
+        case undefined:
+        default:
+            return "home";
+    }
+};
+
 export default function Home() {
+    const { tab } = useParams<{ tab?: string; }>();
     const nav = useNavigate();
     const [products, setProducts] = React.useState<Product[]>([]);
-    const [loading, setLoading] = React.useState(true);        // ✅ теперь используем
-    const [error, setError] = React.useState<string | null>(null);
+    const [loading, setLoading] = React.useState(true);
+    const [, setError] = React.useState<string | null>(null);
+
+    const active = normalizeTab(tab);
 
     React.useEffect(() => {
         let cancelled = false;
@@ -79,6 +104,10 @@ export default function Home() {
         return () => { cancelled = true; };
     }, []);
 
+    const handleTabChange = (key: TabKey) => {
+        nav(`/${key}`, { replace: false });
+    };
+
     return (
         <Page>
             <div className="container">
@@ -95,19 +124,23 @@ export default function Home() {
                         overlay="gradient"
                     />
 
-                    <CategoryGrid
-                        title="Customer Favorites"
-                        categories={demo}
-                        onSelect={(cat) => console.log("Выбрано:", cat)}
+                    <Tabs<TabKey>
+                        items={tabs}
+                        activeKey={active}
+                        onChange={handleTabChange}
+                        ariaLabel="Profile sections"
                     />
 
-                    <HomeVideos limit={4} sort="trending" label="Trending videos" />
-
-                    {error ? (
-                        <div style={{ padding: 16, color: "var(--danger, #c00)" }}>{error}</div>
-                    ) : (
+                    {active === "home" && (
                         <>
-                            {/* Во время загрузки ProductCarousel сам покажет скелеты */}
+
+                            <CategoryGrid
+                                title="Customer Favorites"
+                                categories={demo}
+                                onSelect={(cat) => console.log("Выбрано:", cat)}
+                            />
+                            <HomeVideos limit={4} sort="trending" label="Trending videos" />
+
                             <ProductCarousel
                                 label="New Arrivals"
                                 products={products}
@@ -131,10 +164,17 @@ export default function Home() {
                                 skeletonCount={10}
                                 onItemClick={(p) => nav(`/product/${p.id}`)}
                             />
+
+
+                            <BrandCarousel label="Brands" images={brandLogos} />
                         </>
                     )}
-
-                    <BrandCarousel label="Brands" images={brandLogos} />
+                    {active === "new_arrivals" && (
+                        <>2</>
+                    )}
+                    {active === "electronics" && (
+                        <>3</>
+                    )}
                 </div>
             </div>
             <Footer />

@@ -93,7 +93,7 @@ export function Tabs<K extends string = string>({
         </div>
     );
     return (
-        <div>
+        <div className={cls.tabs}>
             {Chips}
         </div>
     );

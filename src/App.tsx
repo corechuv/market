@@ -78,6 +78,7 @@ export default function App() {
         <Routes>
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
+            <Route path="/:tab" element={<Home />} />
 
             <Route path="/search" element={<SearchPage />} />
             <Route path="/s" element={<MobileSearchPage />} />
