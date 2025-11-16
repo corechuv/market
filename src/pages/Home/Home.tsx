@@ -195,6 +195,8 @@ export default function Home() {
                             <div style={{ padding: "0 var(--gap)" }}>
                                 <ProductItemList
                                     products={newArrivals}
+                                    isLoading={loading}
+                                    skeletonCount={12}
                                     onItemClick={(p) => nav(`/product/${p.id}`)}
                                 />
                             </div>
@@ -214,6 +216,8 @@ export default function Home() {
                             <div style={{ padding: "0 var(--gap)" }}>
                                 <ProductItemList
                                     products={saleProducts}
+                                    isLoading={loading}
+                                    skeletonCount={12}
                                     onItemClick={(p) => nav(`/product/${p.id}`)}
                                 />
                             </div>

@@ -5,16 +5,22 @@ import type { Product, ProductVariant } from "../../types/product";
 import { parseMoney } from "../../types/helpers/parseMoney";
 import { getInitialVariant } from "../../specs/builders";
 import ProductCard from "./ProductCard";
+import ProductCardSkeleton from "./ProductCard.Skeleton";
 
 type Props = {
     products: Product[];
     onItemClick?: (product: Product) => void;
     className?: string;
+    isLoading?: boolean;
+    skeletonCount?: number;
 };
 
 function computeProductComputed(product: Product) {
-    const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
-    const variant: ProductVariant | undefined = hasVariants ? getInitialVariant(product) : undefined;
+    const hasVariants =
+        Array.isArray(product.variants) && product.variants.length > 0;
+    const variant: ProductVariant | undefined = hasVariants
+        ? getInitialVariant(product)
+        : undefined;
 
     const images = (variant?.images?.length ? variant.images : product.images) ?? [];
 
@@ -32,7 +38,8 @@ function computeProductComputed(product: Product) {
             ? Math.round(((compareAtNum! - priceNum!) / compareAtNum!) * 100)
             : null;
 
-    const energyClassArrow = variant?.energyClassArrowUrl ?? product.energyClassArrowUrl;
+    const energyClassArrow =
+        variant?.energyClassArrowUrl ?? product.energyClassArrowUrl;
     const energyClass = variant?.energyClassUrl ?? product.energyClassUrl;
 
     const imageSrc =
@@ -53,11 +60,29 @@ function computeProductComputed(product: Product) {
     };
 }
 
-const ProductItemList: React.FC<Props> = ({ products, onItemClick, className }) => {
+const ProductItemList: React.FC<Props> = ({
+    products,
+    onItemClick,
+    className,
+    isLoading = false,
+    skeletonCount = 8,
+}) => {
+    if (isLoading) {
+        const placeholders = Array.from({ length: skeletonCount }, (_, i) => i);
 
+        return (
+            <div className={[cls.grid, className].filter(Boolean).join(" ")}>
+                {placeholders.map((n) => (
+                    <ProductCardSkeleton key={`skeleton-${n}`} />
+                ))}
+            </div>
+        );
+    }
+
+    // Обычный режим
     return (
         <div className={[cls.grid, className].filter(Boolean).join(" ")}>
-            {products.map((product) => {
+            {products.map((product, i) => {
                 const {
                     imageSrc,
                     price,
@@ -70,6 +95,7 @@ const ProductItemList: React.FC<Props> = ({ products, onItemClick, className }) 
 
                 return (
                     <ProductCard
+                        key={(product as any).id ?? (product as any).slug ?? `${product.name}-${i}`}
                         name={product.name}
                         discountPercent={discountPercent}
                         compareAt={compareAt}
