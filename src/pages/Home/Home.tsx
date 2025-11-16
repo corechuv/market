@@ -3,7 +3,6 @@ import React from "react";
 import cls from "./Home.module.scss";
 
 import Banner from "../../components/Home/Banner";
-import CategoryGrid from "../../components/Home/CategoryGrid/CategoryGrid";
 import ProductCarousel from "../../components/Product/ProductCarousel";
 import BrandCarousel from "../../components/Home/BrandCarousel";
 import HomeVideos from "../../components/Home/HomeVideos";
