@@ -52,7 +52,7 @@ $bg-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.15)
 /* Tablet (<=1024px) */
 @media (max-width: 1024px) {
   .banner {
-    --ar: 21 / 8;
+    --ar: 21 / 9;
     --ar-w: 21;
     --ar-h: 8;
   }
