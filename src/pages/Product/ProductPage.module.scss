@@ -289,7 +289,9 @@
         padding-bottom: 30px;
         flex-direction: column;
         gap: 10px;
-
+        button {
+            width: 100%;
+        }
     }
 }
 
