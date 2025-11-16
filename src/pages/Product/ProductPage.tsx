@@ -295,13 +295,12 @@ export default function ProductPage() {
 
           {activeTab === "details" && (
             <>
-
-              <div style={{ }}>
-                <h1 className={cls.productName}>{product.name}</h1>
+              <div style={{ marginBottom: 10 }}>
                 <div className={cls.productMeta}>
                   <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
                   <div className={cls.productMeta__articleNumber}>Art.-Nr.: {articleNumber}</div>
                 </div>
+                <h1 className={cls.productName}>{product.name}</h1>
               </div>
               <ProductImages
                 images={bannerImages}
