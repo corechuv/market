@@ -284,12 +284,12 @@ export default function ProductPage() {
 
           {/*<ProductImages images={images} />*/}
 
-            <Tabs<TabKey>
-              items={productTabs}
-              activeKey={activeTab}
-              onChange={handleTabChange}
-              ariaLabel="Product sections"
-            />
+          <Tabs<TabKey>
+            items={productTabs}
+            activeKey={activeTab}
+            onChange={handleTabChange}
+            ariaLabel="Product sections"
+          />
 
           {activeTab === "details" && (
             <>
