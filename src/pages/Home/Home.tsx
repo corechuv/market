@@ -43,20 +43,20 @@ const brandLogos = [
     { name: "HP", light: { svg: hp_light }, dark: { svg: hp_dark } },
 ];
 
-type TabKey = "home" | "new_arrivals" | "electronics";
+type TabKey = "home" | "new_arrivals" | "sale";
 
 const tabs: TabItem<TabKey>[] = [
     { key: "home", label: "Home" },
     { key: "new_arrivals", label: "New Arrivals" },
-    { key: "electronics", label: "Electronics" },
+    { key: "sale", label: "Sale" },
 ];
 
 const normalizeTab = (tabParam?: string): TabKey => {
     switch (tabParam) {
         case "new_arrivals":
             return "new_arrivals";
-        case "electronics":
-            return "electronics";
+        case "sale":
+            return "sale";
         case "home":
         case undefined:
         default:
@@ -126,7 +126,7 @@ export default function Home() {
                     {active === "home" && (
                         <>
                             <BrandCarousel label="Brands" images={brandLogos} />
-                            
+
                             <ProductCarousel
                                 label="New Arrivals"
                                 products={products}
@@ -156,10 +156,28 @@ export default function Home() {
                         </>
                     )}
                     {active === "new_arrivals" && (
-                        <>2</>
+                        <>
+                            <BrandCarousel label="Brands" images={brandLogos} />
+                            <ProductCarousel
+                                label="New Arrivals"
+                                products={products}
+                                isLoading={loading}
+                                skeletonCount={10}
+                                onItemClick={(p) => nav(`/product/${p.id}`)}
+                            />
+                        </>
                     )}
-                    {active === "electronics" && (
-                        <>3</>
+                    {active === "sale" && (
+                        <>
+                            <BrandCarousel label="Brands" images={brandLogos} />
+                            <ProductCarousel
+                                label="Sale"
+                                products={products}
+                                isLoading={loading}
+                                skeletonCount={10}
+                                onItemClick={(p) => nav(`/product/${p.id}`)}
+                            />
+                        </>
                     )}
                 </div>
             </div>
