@@ -31,11 +31,11 @@ import Footer from "../../components/Footer/Footer";
 import ProductVideos from "../../components/Product/Review/ProductVideos";
 import ProductImages from "../../components/Product/Details/ProductImages";
 
-type TabKey = "details" | "reviews" | "videos";
+type TabKey = "details" | "reviews" | "other";
 
 const productTabs: TabItem<TabKey>[] = [
   { key: "details", label: "Details" },
-  { key: "videos", label: "Videos" },
+  { key: "other", label: "Other" },
   { key: "reviews", label: "Reviews" },
 ];
 
@@ -43,8 +43,8 @@ const normalizeTab = (tabParam?: string): TabKey => {
   switch (tabParam) {
     case "reviews":
       return "reviews";
-    case "videos":
-      return "videos";
+    case "other":
+      return "other";
     default:
       return "details";
   }
@@ -224,8 +224,8 @@ export default function ProductPage() {
 
     if (key === "reviews") {
       nav(`/product/${product.id}/reviews`, { replace: false });
-    } else if (key === "videos") {
-      nav(`/product/${product.id}/videos`, { replace: false });
+    } else if (key === "other") {
+      nav(`/product/${product.id}/other`, { replace: false });
     } else {
       nav(`/product/${product.id}`, { replace: false });
     }
@@ -280,7 +280,7 @@ export default function ProductPage() {
   const ratingValue = reviewAvg !== null ? Math.round(reviewAvg * 10) / 10 : null;
 
   return (
-    <Page padding={true}>
+    <Page padding={false}>
       <div className={cls.product}>
         {/*<Breadcrumbs crumbs={categoryCrumbs as any} />*/}
 
@@ -297,27 +297,29 @@ export default function ProductPage() {
 
           {activeTab === "details" && (
             <>
-              <div style={{ marginBottom: 10 }}>
+              <div style={{ marginBottom: 10, padding: "0 var(--gap)" }}>
                 <div className={cls.productMeta}>
                   <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
                   <div className={cls.productMeta__articleNumber}>Art.-Nr.: {articleNumber}</div>
                 </div>
                 <h1 className={cls.productName}>{product.name}</h1>
               </div>
-              <ProductImages
-                images={bannerImages}
-                interval={4500}
-                autoPlay={true}
-                loop
-                pauseOnHover
-                showControls
-                showDots
-                rounded
-                overlay="gradient"
-                aspectRatio="16 / 9"
-                fit="contain"
-              />
-              <div className={cls.productInfo}>
+              <div style={{padding: "0 var(--gap)"}}>
+                <ProductImages
+                  images={bannerImages}
+                  interval={4500}
+                  autoPlay={true}
+                  loop
+                  pauseOnHover
+                  showControls
+                  showDots
+                  rounded
+                  overlay="gradient"
+                  aspectRatio="16 / 9"
+                  fit="contain"
+                />
+              </div>
+              <div className={cls.productInfo} style={{padding: "0 var(--gap)"}}>
                 <div className={cls.productTitle}>
                   <div className={cls.productPrice}>
                     <div className={cls.meta__container}>
@@ -392,7 +394,7 @@ export default function ProductPage() {
                 </div>
               </div>
 
-              <div className={cls.section}>
+              <div className={cls.section} style={{padding: "0 var(--gap)"}}>
                 <h3 className={cls.section__title}>Short description</h3>
                 <div className={cls.section__content}>
                   <ul className={cls.list}>
@@ -405,7 +407,7 @@ export default function ProductPage() {
                 </div>
               </div>
 
-              <div className={cls.section}>
+              <div className={cls.section} style={{padding: "0 var(--gap)"}}>
                 <h3 className={cls.section__title}>Specifications</h3>
                 <div className={cls.section__content}>
                   <SpecTable
@@ -417,7 +419,7 @@ export default function ProductPage() {
                 </div>
               </div>
 
-              <div className={cls.section}>
+              <div className={cls.section} style={{padding: "0 var(--gap)"}}>
                 <h3 className={cls.section__title}>Description</h3>
                 <div className={cls.section__content}>
                   <p>{product.description || "No description available for this product."}</p>
@@ -426,32 +428,8 @@ export default function ProductPage() {
             </>
           )}
 
-          {activeTab === "videos" && (
+          {activeTab === "other" && (
             <>
-              {/* === Plain Reviews (server) — превью === */}
-              <div className={cls.section}>
-                <div className={cls.section__content}>
-                  <div className={cls.reviews}>
-                    <div className={cls.rating}>
-                      <RatingBadge
-                        size="default"
-                        ratingValue={ratingValue}
-                        reviewCount={reviewCount}
-                      />
-                      <Button
-                        variant="secondary"
-                        size="small"
-                        onClick={() => setIsOpenUpload(true)}
-                      >
-                        Add review
-                      </Button>
-                    </div>
-                    <ProductPlainReviews productId={product.id} limit={5} />
-                  </div>
-                </div>
-              </div>
-
-              <ProductVideos label="Video reviews" limit={10} productId={product.id} />
             </>
           )}
 
@@ -475,12 +453,11 @@ export default function ProductPage() {
                         Add review
                       </Button>
                     </div>
+                    <ProductVideos label="Video reviews" limit={10} productId={product.id} />
                     <ProductPlainReviews productId={product.id} limit={5} />
                   </div>
                 </div>
               </div>
-
-              <ProductVideos label="Video reviews" limit={10} productId={product.id} />
             </>
           )}
 
