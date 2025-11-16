@@ -19,6 +19,8 @@ $bp-lg: 1024px;
   gap: 10px;
   justify-content: space-between;
   align-items: center;
+  padding-left: var(--gap);
+  padding-right: var(--gap);
 
   &--title {
     font-size: 1.8rem;
@@ -94,6 +96,14 @@ $bp-lg: 1024px;
 .track {
   display: flex;
   gap: var(--gap);
+
+  > .itemWrap:first-child {
+    padding-left: var(--gap);
+  }
+
+  > .itemWrap:last-child {
+    padding-right: var(--gap);
+  }
 }
 
 /* Slot width = 100% row / --visible (with gap accounted) */

@@ -12,6 +12,10 @@ $bg-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.15)
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   color-scheme: light dark;
+
+
+  margin-left: var(--gap);
+   margin-right: var(--gap);
 }
 
 .rounded {

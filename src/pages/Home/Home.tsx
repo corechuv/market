@@ -100,7 +100,7 @@ export default function Home() {
     };
 
     return (
-        <Page>
+        <Page padding={false}>
             <div className="container">
                 <div className={cls.homeContent}>
                     <Tabs<TabKey>
@@ -110,17 +110,19 @@ export default function Home() {
                         ariaLabel="Profile sections"
                     />
 
-                    <Banner
-                        images={demoImages}
-                        interval={4500}
-                        autoPlay
-                        loop
-                        pauseOnHover
-                        showControls
-                        showDots
-                        rounded
-                        overlay="gradient"
-                    />
+                    <div style={{padding: "0 var(--gap)"}}>
+                        <Banner
+                            images={demoImages}
+                            interval={4500}
+                            autoPlay
+                            loop
+                            pauseOnHover
+                            showControls
+                            showDots
+                            rounded
+                            overlay="gradient"
+                        />
+                    </div>
 
                     {active === "home" && (
                         <>
