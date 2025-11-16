@@ -296,21 +296,21 @@ export default function ProductPage() {
           {activeTab === "details" && (
             <>
               <div className={cls.productInfo}>
-                <ProductImages
-                  images={bannerImages}
-                  interval={4500}
-                  autoPlay={true}
-                  loop
-                  pauseOnHover
-                  showControls
-                  showDots
-                  rounded
-                  overlay="gradient"
-                  aspectRatio="16 / 9"
-                  fit="contain"
-                />
                 <div className={cls.productTitle}>
-                  <div style={{ marginBottom: "10px" }}>
+                  <ProductImages
+                    images={bannerImages}
+                    interval={4500}
+                    autoPlay={true}
+                    loop
+                    pauseOnHover
+                    showControls
+                    showDots
+                    rounded
+                    overlay="gradient"
+                    aspectRatio="16 / 9"
+                    fit="contain"
+                  />
+                  <div style={{ marginBottom: 10, marginTop: 16 }}>
                     <h1 className={cls.productName}>{product.name}</h1>
                     <div className={cls.productMeta}>
                       <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
