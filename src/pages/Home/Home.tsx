@@ -1,5 +1,5 @@
 // src/pages/Home/Home.tsx
-import React, { useEffect, useState } from "react";
+import React from "react";
 import cls from "./Home.module.scss";
 
 import Banner from "../../components/Home/Banner";
