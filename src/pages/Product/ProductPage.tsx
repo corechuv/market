@@ -283,19 +283,6 @@ export default function ProductPage() {
         <div className={cls.productDetails}>
 
           {/*<ProductImages images={images} />*/}
-          <ProductImages
-            images={bannerImages}
-            interval={4500}
-            autoPlay={true}
-            loop
-            pauseOnHover
-            showControls
-            showDots
-            rounded
-            overlay="gradient"
-            aspectRatio="16 / 9"
-            fit="contain"
-          />
 
           <div style={{ display: "none" }}>
             <Tabs<TabKey>
@@ -309,6 +296,19 @@ export default function ProductPage() {
           {activeTab === "details" && (
             <>
               <div className={cls.productInfo}>
+                <ProductImages
+                  images={bannerImages}
+                  interval={4500}
+                  autoPlay={true}
+                  loop
+                  pauseOnHover
+                  showControls
+                  showDots
+                  rounded
+                  overlay="gradient"
+                  aspectRatio="16 / 9"
+                  fit="contain"
+                />
                 <div className={cls.productTitle}>
                   <div style={{ marginBottom: "10px" }}>
                     <h1 className={cls.productName}>{product.name}</h1>
