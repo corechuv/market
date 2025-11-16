@@ -5,7 +5,7 @@ import type { ViewMode } from "../../components/Product/ToggleViewSwitch";
 import type { Product, ProductVariant } from "../../types/product";
 import { parseMoney } from "../../types/helpers/parseMoney";
 import { getInitialVariant } from "../../specs/builders";
-import EnergyLabel from "./Details/EnergyLabel";
+import ProductCard from "./ProductCard";
 
 type Props = {
     products: Product[];
@@ -73,64 +73,17 @@ const ProductItemList: React.FC<Props> = ({ products, view, onItemClick, classNa
                     } = computeProductComputed(product);
 
                     return (
-                        <div
-                            key={product.id}
-                            className={[
-                                cls.productItem,
-                                view === "list" ? cls.itemList : cls.itemGrid,
-                                !available ? cls.itemDisabled : "",
-                            ].join(" ")}
+                        <ProductCard
+                            name={product.name}
+                            discountPercent={discountPercent}
+                            compareAt={compareAt}
+                            price={price}
+                            imageUrl={imageSrc}
+                            available={available}
+                            energyClass={energyClass}
+                            energyClassArrow={energyClassArrow}
                             onClick={() => onItemClick?.(product)}
-                            role="button"
-                            tabIndex={0}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter" || e.key === " ") onItemClick?.(product);
-                            }}
-                        >
-                            <div className={cls.imageWrap}>
-                                {imageSrc ? (
-                                    <img
-                                        src={imageSrc}
-                                        alt={product.name}
-                                        loading="lazy"
-                                        className={cls.productImage}
-                                    />
-                                ) : (
-                                    <div className={cls.imagePlaceholder} />
-                                )}
-                                {(energyClassArrow || energyClass) && (
-                                    <div className={cls.meta__energyClass}>
-                                        {energyClassArrow && energyClass && (
-                                            <EnergyLabel
-                                                size="small"
-                                                energyClassUrl={energyClass}
-                                                energyClassArrowUrl={energyClassArrow}
-                                                label="Energieklasse"
-                                            />
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className={cls.productDetails}>
-                                <h2 className={cls.productName}>{product.name}</h2>
-                                <div className={cls.price}>
-                                    {!!discountPercent && compareAt && (
-                                        <div className={cls.priceRow}>
-                                            <div className={cls.badgeDiscount}>-{discountPercent}%</div>
-                                            <span className={cls.priceCompareAt}>{compareAt}</span>
-                                        </div>
-                                    )}
-                                    <span className={cls.productPrice}>{price}</span>
-                                </div>
-                                <div className={cls.available}>
-                                    <span className={available ? cls.inStock : cls.outOfStock} />
-                                    <span className={available ? cls.inStockText : cls.outOfStockText}>
-                                        {available ? "In stock" : "Out of stock"}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+                        />
                     );
                 })}
             </div>
