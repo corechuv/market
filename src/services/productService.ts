@@ -11,6 +11,8 @@ export type GetProductsParams = {
   categoryFullSlug?: string;
   limit?: number;
   offset?: number;
+  newArrivalsOnly?: boolean;
+  saleOnly?: boolean;
 };
 
 function qs(params: Record<string, any>) {

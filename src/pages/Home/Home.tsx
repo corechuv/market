@@ -65,9 +65,12 @@ const normalizeTab = (tabParam?: string): TabKey => {
 };
 
 export default function Home() {
-    const { tab } = useParams<{ tab?: string; }>();
+    const { tab } = useParams<{ tab?: string }>();
     const nav = useNavigate();
+
     const [products, setProducts] = React.useState<Product[]>([]);
+    const [newArrivals, setNewArrivals] = React.useState<Product[]>([]);
+    const [saleProducts, setSaleProducts] = React.useState<Product[]>([]);
     const [loading, setLoading] = React.useState(true);
     const [, setError] = React.useState<string | null>(null);
 
@@ -75,25 +78,51 @@ export default function Home() {
 
     React.useEffect(() => {
         let cancelled = false;
+
+        const unwrap = async (maybe: any): Promise<Product[]> => {
+            const list = Array.isArray(maybe) ? maybe : await maybe;
+            return Array.isArray(list)
+                ? list
+                : (list?.items ?? list?.data ?? list?.products ?? []);
+        };
+
         (async () => {
             try {
                 setLoading(true);
-                // поддержим и старый sync, и новый async сервисы
-                const maybe = (getProducts as any)({ q: "", sort: "name" });
-                const list = Array.isArray(maybe) ? maybe : await maybe;
 
-                const arr: Product[] = Array.isArray(list)
-                    ? list
-                    : (list?.items ?? list?.data ?? list?.products ?? []);
+                const allReq = (getProducts as any)({ q: "", sort: "name" });
+                const newReq = (getProducts as any)({
+                    newArrivalsOnly: true,
+                    availableOnly: true,
+                    limit: 100,
+                });
+                const saleReq = (getProducts as any)({
+                    saleOnly: true,
+                    availableOnly: true,
+                    limit: 100,
+                });
 
-                if (!cancelled) setProducts(arr);
+                const [all, newest, sale] = await Promise.all([
+                    unwrap(allReq),
+                    unwrap(newReq),
+                    unwrap(saleReq),
+                ]);
+
+                if (!cancelled) {
+                    setProducts(all);
+                    setNewArrivals(newest);
+                    setSaleProducts(sale);
+                }
             } catch (e: any) {
                 if (!cancelled) setError(e?.message ?? "Failed to load products");
             } finally {
                 if (!cancelled) setLoading(false);
             }
         })();
-        return () => { cancelled = true; };
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     const handleTabChange = (key: TabKey) => {
@@ -129,9 +158,10 @@ export default function Home() {
                         <>
                             <BrandCarousel label="Brands" images={brandLogos} />
 
+                            {/* 🔥 New Arrivals карусель — только новинки */}
                             <ProductCarousel
                                 label="New Arrivals"
-                                products={products}
+                                products={newArrivals}
                                 isLoading={loading}
                                 skeletonCount={10}
                                 onItemClick={(p) => nav(`/product/${p.id}`)}
@@ -139,7 +169,7 @@ export default function Home() {
 
                             <HomeVideos limit={4} sort="trending" label="Trending videos" />
 
-
+                            {/* здесь можно оставить общий список как "Bestsellers" */}
                             <ProductCarousel
                                 label="Bestsellers"
                                 products={products}
@@ -148,39 +178,50 @@ export default function Home() {
                                 onItemClick={(p) => nav(`/product/${p.id}`)}
                             />
 
+                            {/* 🔥 Sale карусель — только скидки */}
                             <ProductCarousel
                                 label="Sale"
-                                products={products}
+                                products={saleProducts}
                                 isLoading={loading}
                                 skeletonCount={10}
                                 onItemClick={(p) => nav(`/product/${p.id}`)}
                             />
                         </>
                     )}
+
                     {active === "new_arrivals" && (
                         <>
                             <BrandCarousel label="Brands" images={brandLogos} />
                             <div style={{ padding: "0 var(--gap)" }}>
-                                <ProductItemList view="grid" products={products} />
+                                <ProductItemList
+                                    view="grid"
+                                    products={newArrivals}
+                                    onItemClick={(p) => nav(`/product/${p.id}`)}
+                                />
                             </div>
                             <ProductCarousel
                                 label="New Arrivals"
-                                products={products}
+                                products={newArrivals}
                                 isLoading={loading}
                                 skeletonCount={10}
                                 onItemClick={(p) => nav(`/product/${p.id}`)}
                             />
                         </>
                     )}
+
                     {active === "sale" && (
                         <>
                             <BrandCarousel label="Brands" images={brandLogos} />
                             <div style={{ padding: "0 var(--gap)" }}>
-                                <ProductItemList view="grid" products={products} />
+                                <ProductItemList
+                                    view="grid"
+                                    products={saleProducts}
+                                    onItemClick={(p) => nav(`/product/${p.id}`)}
+                                />
                             </div>
                             <ProductCarousel
                                 label="Sale"
-                                products={products}
+                                products={saleProducts}
                                 isLoading={loading}
                                 skeletonCount={10}
                                 onItemClick={(p) => nav(`/product/${p.id}`)}
