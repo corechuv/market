@@ -112,6 +112,13 @@ export default function Home() {
         <Page>
             <div className="container">
                 <div className={cls.homeContent}>
+                    <Tabs<TabKey>
+                        items={tabs}
+                        activeKey={active}
+                        onChange={handleTabChange}
+                        ariaLabel="Profile sections"
+                    />
+
                     <Banner
                         images={demoImages}
                         interval={4500}
@@ -122,13 +129,6 @@ export default function Home() {
                         showDots
                         rounded
                         overlay="gradient"
-                    />
-
-                    <Tabs<TabKey>
-                        items={tabs}
-                        activeKey={active}
-                        onChange={handleTabChange}
-                        ariaLabel="Profile sections"
                     />
 
                     {active === "home" && (
