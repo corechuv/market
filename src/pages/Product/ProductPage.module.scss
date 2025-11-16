@@ -459,4 +459,11 @@
     gap: 20px;
     align-items: center;
     margin-top: 40px;
+    padding: 0 var(--gap);
+
+    @media (max-width: 768px) {
+        button {
+            width: 100%;
+        }
+    }
 }
