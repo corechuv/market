@@ -99,9 +99,6 @@ $bp-lg: 1024px;
     padding-left: var(--gap);
   }
 
-  > .itemWrap:last-child {
-    padding-right: var(--gap);
-  }
 }
 
 /* Slot width = 100% row / --visible (with gap accounted) */
