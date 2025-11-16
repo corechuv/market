@@ -104,7 +104,7 @@ $bp-lg: 1024px;
 /* Slot width = 100% row / --visible (with gap accounted) */
 .itemWrap {
   flex: 0 0 auto;
-  width: calc((100% - ((var(--gap) + 1px) * (var(--visible) - 1))) / var(--visible));
+  width: calc((100% - (var(--gap) * (var(--visible) - 1))) / var(--visible));
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
