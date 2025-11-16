@@ -295,6 +295,14 @@ export default function ProductPage() {
 
           {activeTab === "details" && (
             <>
+
+              <div style={{ }}>
+                <h1 className={cls.productName}>{product.name}</h1>
+                <div className={cls.productMeta}>
+                  <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
+                  <div className={cls.productMeta__articleNumber}>Art.-Nr.: {articleNumber}</div>
+                </div>
+              </div>
               <ProductImages
                 images={bannerImages}
                 interval={4500}
@@ -310,13 +318,6 @@ export default function ProductPage() {
               />
               <div className={cls.productInfo}>
                 <div className={cls.productTitle}>
-                  <div style={{ marginBottom: 10, marginTop: 6 }}>
-                    <h1 className={cls.productName}>{product.name}</h1>
-                    <div className={cls.productMeta}>
-                      <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
-                      <div className={cls.productMeta__articleNumber}>Art.-Nr.: {articleNumber}</div>
-                    </div>
-                  </div>
                   <div className={cls.productPrice}>
                     <div className={cls.meta__container}>
                       <div className={"cls.meta_container--item"}>
