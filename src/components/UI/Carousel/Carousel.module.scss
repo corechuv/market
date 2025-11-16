@@ -95,9 +95,7 @@ $bp-lg: 1024px;
 
 .track {
   display: flex;
-  gap: var(--gap);
-
-  > .itemWrap:first-child {
+  > .itemWrap {
     padding-left: var(--gap);
   }
 
