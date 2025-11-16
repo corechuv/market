@@ -31,10 +31,11 @@ import Footer from "../../components/Footer/Footer";
 import ProductVideos from "../../components/Product/Review/ProductVideos";
 import ProductImages from "../../components/Product/Details/ProductImages";
 
-type TabKey = "details" | "reviews";
+type TabKey = "details" | "reviews" | "videos";
 
 const productTabs: TabItem<TabKey>[] = [
   { key: "details", label: "Details" },
+  { key: "videos", label: "Videos" },
   { key: "reviews", label: "Reviews" },
 ];
 
@@ -42,6 +43,8 @@ const normalizeTab = (tabParam?: string): TabKey => {
   switch (tabParam) {
     case "reviews":
       return "reviews";
+    case "videos":
+      return "videos";
     default:
       return "details";
   }
@@ -221,8 +224,9 @@ export default function ProductPage() {
 
     if (key === "reviews") {
       nav(`/product/${product.id}/reviews`, { replace: false });
+    } else if (key === "videos") {
+      nav(`/product/${product.id}/videos`, { replace: false });
     } else {
-      // details по умолчанию без суффикса
       nav(`/product/${product.id}`, { replace: false });
     }
   };
@@ -419,6 +423,35 @@ export default function ProductPage() {
                   <p>{product.description || "No description available for this product."}</p>
                 </div>
               </div>
+            </>
+          )}
+
+          {activeTab === "videos" && (
+            <>
+              {/* === Plain Reviews (server) — превью === */}
+              <div className={cls.section}>
+                <div className={cls.section__content}>
+                  <div className={cls.reviews}>
+                    <div className={cls.rating}>
+                      <RatingBadge
+                        size="default"
+                        ratingValue={ratingValue}
+                        reviewCount={reviewCount}
+                      />
+                      <Button
+                        variant="secondary"
+                        size="small"
+                        onClick={() => setIsOpenUpload(true)}
+                      >
+                        Add review
+                      </Button>
+                    </div>
+                    <ProductPlainReviews productId={product.id} limit={5} />
+                  </div>
+                </div>
+              </div>
+
+              <ProductVideos label="Video reviews" limit={10} productId={product.id} />
             </>
           )}
 
