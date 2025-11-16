@@ -6,6 +6,7 @@ import ScrollArea from "../UI/ScrollArea/ScrollArea";
 import type { Category as Cat } from "../../types/category";
 import c from "./CatalogScreens.module.scss";
 import Left from "../Icons/ChevronLeftIcon";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   title?: string;
@@ -37,6 +38,8 @@ interface Props {
 
 export const CatalogScreens: React.FC<Props> = (p) => {
   const lock = p.lockBody ?? true; // default: true
+
+  const nav = useNavigate();
 
   return (
     <div className={c.content}>
@@ -71,6 +74,32 @@ export const CatalogScreens: React.FC<Props> = (p) => {
               </div>
             ) : (
               <ul className={c.list}>
+                <li
+                  className={c.list__item}
+                  onClick={() =>
+                    nav("/new_arrivals")
+                  }
+                >
+                  <span
+                    className={c["list__item--label"]}
+                    title="New Arrivals"
+                  >
+                    New Arrivals
+                  </span>
+                </li>
+                <li
+                  className={c.list__item}
+                  onClick={() =>
+                    nav("/sale")
+                  }
+                >
+                  <span
+                    className={c["list__item--label"]}
+                    title="Sale"
+                  >
+                    Sale
+                  </span>
+                </li>
                 {p.roots.map((cat) => (
                   <li
                     key={cat.id}
