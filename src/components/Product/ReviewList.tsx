@@ -90,6 +90,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
     <ul
       className={cx(cls.reviewList, className)}
       aria-label={ariaLabel || "Customer reviews"}
+       style={{padding: "0 var(--gap)"}}
     >
       {reviews.map(
         ({
