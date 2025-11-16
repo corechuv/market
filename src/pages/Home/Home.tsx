@@ -111,7 +111,7 @@ export default function Home() {
                         ariaLabel="Profile sections"
                     />
 
-                    <div style={{padding: "0 var(--gap)"}}>
+                    <div style={{ padding: "0 var(--gap)" }}>
                         <Banner
                             images={demoImages}
                             interval={4500}
@@ -160,6 +160,9 @@ export default function Home() {
                     {active === "new_arrivals" && (
                         <>
                             <BrandCarousel label="Brands" images={brandLogos} />
+                            <div style={{ padding: "0 var(--gap)" }}>
+                                <ProductItemList view="grid" products={products} />
+                            </div>
                             <ProductCarousel
                                 label="New Arrivals"
                                 products={products}
@@ -172,7 +175,9 @@ export default function Home() {
                     {active === "sale" && (
                         <>
                             <BrandCarousel label="Brands" images={brandLogos} />
-                            <ProductItemList view="grid" products={products} />
+                            <div style={{ padding: "0 var(--gap)" }}>
+                                <ProductItemList view="grid" products={products} />
+                            </div>
                             <ProductCarousel
                                 label="Sale"
                                 products={products}
