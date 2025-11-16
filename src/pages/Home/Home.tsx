@@ -34,14 +34,6 @@ const demoImages = [
     { src: "https://www.apple.com/v/iphone-17-pro/a/images/overview/highlights/highlights_ios__empnwsdz698i_large_2x.jpg", alt: "3", caption: "" },
 ];
 
-const demo = [
-    { id: "1", title: "IPhone", color: "#000000", image: "/preview_categries.png" },
-    { id: "2", title: "CPU", color: "#000000", image: "/preview_categries.png" },
-    { id: "3", title: "GPU", color: "#000000", image: "/preview_categries.png" },
-    { id: "4", title: "MacBook", color: "#000000", image: "/preview_categries.png" },
-    { id: "5", title: "Case", color: "#000000", image: "/preview_categries.png" },
-];
-
 const brandLogos = [
     { name: "Apple", light: { svg: apple_light }, dark: { svg: apple_dark } },
     { name: "Samsung", light: { svg: samsung_light }, dark: { svg: samsung_dark } },
@@ -133,14 +125,8 @@ export default function Home() {
 
                     {active === "home" && (
                         <>
-
-                            <CategoryGrid
-                                title="Customer Favorites"
-                                categories={demo}
-                                onSelect={(cat) => console.log("Выбрано:", cat)}
-                            />
-                            <HomeVideos limit={4} sort="trending" label="Trending videos" />
-
+                            <BrandCarousel label="Brands" images={brandLogos} />
+                            
                             <ProductCarousel
                                 label="New Arrivals"
                                 products={products}
@@ -148,6 +134,9 @@ export default function Home() {
                                 skeletonCount={10}
                                 onItemClick={(p) => nav(`/product/${p.id}`)}
                             />
+
+                            <HomeVideos limit={4} sort="trending" label="Trending videos" />
+
 
                             <ProductCarousel
                                 label="Bestsellers"
@@ -164,9 +153,6 @@ export default function Home() {
                                 skeletonCount={10}
                                 onItemClick={(p) => nav(`/product/${p.id}`)}
                             />
-
-
-                            <BrandCarousel label="Brands" images={brandLogos} />
                         </>
                     )}
                     {active === "new_arrivals" && (
