@@ -194,7 +194,6 @@ export default function Home() {
                             <BrandCarousel label="Brands" images={brandLogos} />
                             <div style={{ padding: "0 var(--gap)" }}>
                                 <ProductItemList
-                                    view="grid"
                                     products={newArrivals}
                                     onItemClick={(p) => nav(`/product/${p.id}`)}
                                 />
@@ -214,7 +213,6 @@ export default function Home() {
                             <BrandCarousel label="Brands" images={brandLogos} />
                             <div style={{ padding: "0 var(--gap)" }}>
                                 <ProductItemList
-                                    view="grid"
                                     products={saleProducts}
                                     onItemClick={(p) => nav(`/product/${p.id}`)}
                                 />
