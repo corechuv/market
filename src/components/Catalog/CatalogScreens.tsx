@@ -34,6 +34,7 @@ interface Props {
   onOpenSlug: (slug: string) => void;
   mastbarBg?: string;
   lockBody?: boolean;
+  onCloseNav?: () => void;
 }
 
 export const CatalogScreens: React.FC<Props> = (p) => {
@@ -76,9 +77,9 @@ export const CatalogScreens: React.FC<Props> = (p) => {
               <ul className={c.list}>
                 <li
                   className={c.list__item}
-                  onClick={() =>
-                    nav("/new_arrivals")
-                  }
+                  onClick={() => {
+                    if (p.onCloseNav) { p.onCloseNav(); } nav("/new_arrivals")
+                  }}
                 >
                   <span
                     className={c["list__item--label"]}
@@ -89,9 +90,9 @@ export const CatalogScreens: React.FC<Props> = (p) => {
                 </li>
                 <li
                   className={c.list__item}
-                  onClick={() =>
-                    nav("/sale")
-                  }
+                  onClick={() => {
+                    if (p.onCloseNav) { p.onCloseNav(); } nav("/sale")
+                  }}
                 >
                   <span
                     className={c["list__item--label"]}
