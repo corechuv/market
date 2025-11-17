@@ -49,7 +49,6 @@ $bp-lg: 1024px;
   }
 
   @media (min-width: $bp-md) {
-    // базовая конфигурация, но всё ещё скрыта
     width: 320px;
     flex-shrink: 0;
   }
@@ -67,9 +66,13 @@ $bp-lg: 1024px;
   flex: 1 1 auto;
 }
 
-/* больше не двигаем контент transform'ом */
+/* 💥 ВАЖНО: когда фильтры открыты — фиксируем список (sticky) */
 .filtersOpen .productListContent {
-  // оставлено пустым намеренно
+  @media (min-width: $bp-md) {
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+  }
 }
 
 .title {

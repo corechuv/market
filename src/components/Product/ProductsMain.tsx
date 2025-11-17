@@ -1,4 +1,3 @@
-// src/components/Product/ProductsMain.tsx
 import React, { useMemo, useState } from "react";
 import cls from "./ProductsMain.module.scss";
 import { useNavigate } from "react-router-dom";
@@ -67,7 +66,9 @@ export default function ProductsMain({
       try {
         const res = await getProducts({
           q: query,
-          sort: (["price", "-price", "name", "-name"] as const).includes(sort as any)
+          sort: (["price", "-price", "name", "-name"] as const).includes(
+            sort as any
+          )
             ? (sort as any)
             : "name",
           categoryId: cat?.id,
@@ -99,7 +100,7 @@ export default function ProductsMain({
       <Breadcrumbs crumbs={crumbs as any} />*/}
 
       <div className={cls.productListPage}>
-        {/* Десктопный сайдбар */}
+        {/* Десктопный сайдбар (НЕ fixed) */}
         <aside className={cls.desktopSidebarWrapper}>
           <SidebarItems
             variant="desktop"
