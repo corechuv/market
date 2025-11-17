@@ -9,7 +9,6 @@ import {
   syncFromApi,
   getStatus,
 } from "../../services/categoryService";
-import Page from "../../components/UI/Page/Page";
 
 export default function CategoryPage() {
   const { pathname } = useLocation();
@@ -50,8 +49,6 @@ export default function CategoryPage() {
 
   // можно передавать и id, и fullSlug (на будущее удобно иметь id)
   return (
-    <Page>
-      <ProductsMain categoryFullSlug={full} />
-    </Page>
+    <ProductsMain categoryFullSlug={full} />
   )
 }
