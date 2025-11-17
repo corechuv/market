@@ -5,10 +5,12 @@ import ProductItemList from "../../components/Product/ProductItemList";
 import SidebarItems from "../../components/Product/SidebarItems";
 import { getProducts } from "../../services/productService";
 import { getCategoryByFullSlug } from "../../services/categoryService";
+// import Breadcrumbs from "../Common/Breadcrumbs";
 import type { Product } from "../../types/product";
 import { SelectField } from "../UI/SelectField";
 import IconFilters from "../Icons/IconFilters";
 
+// Разрешённые API-сортировки
 const sortOptions = [
   { value: "price", label: "Price: Low to high" },
   { value: "-price", label: "Price: High to low" },
@@ -19,7 +21,7 @@ const sortOptions = [
 type ProductsMainProps = {
   query?: string;
   showCategories?: boolean;
-  categoryFullSlug?: string;
+  categoryFullSlug?: string; // "/electronics/computers/cpu"
 };
 
 const offerings = [
@@ -44,28 +46,20 @@ export default function ProductsMain({
   const nav = useNavigate();
 
   const cat = useMemo(
-    () =>
-      categoryFullSlug ? getCategoryByFullSlug(categoryFullSlug) : undefined,
+    () => (categoryFullSlug ? getCategoryByFullSlug(categoryFullSlug) : undefined),
     [categoryFullSlug]
   );
+  // const crumbs = useMemo(() => (cat ? getBreadcrumbs(cat.id) : []), [cat]);
 
-  const [isFiltersOpenDesktop, setIsFiltersOpenDesktop] =
-    React.useState(false);
+  // 👉 это теперь ТОЛЬКО мобильное открытие фильтров (bottom-sheet)
+  const [isFiltersOpen, setIsFiltersOpen] = React.useState(false);
   const [sort, setSort] = useState<string>("");
 
   const [products, setProducts] = React.useState<Product[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [, setError] = React.useState<string | null>(null);
 
-  // ref на секцию со списком
-  const listRef = React.useRef<HTMLElement | null>(null);
-
-  // 👉 фиксируем и высоту, и ширину
-  const [fixedListSize, setFixedListSize] = useState<{
-    height: number;
-    width: number;
-  } | null>(null);
-
+  // Загрузка продуктов
   React.useEffect(() => {
     let cancelled = false;
     async function run() {
@@ -94,71 +88,42 @@ export default function ProductsMain({
     };
   }, [query, sort, cat?.id]);
 
-  const toggleDesktopFilters = () => {
-    setIsFiltersOpenDesktop((prev) => {
-      const next = !prev;
+  const openMobileFilters = () => setIsFiltersOpen(true);
+  const closeMobileFilters = () => setIsFiltersOpen(false);
 
-      // Открываем фильтры → замеряем текущую ширину и высоту
-      if (!prev && listRef.current) {
-        const rect = listRef.current.getBoundingClientRect();
-        setFixedListSize({
-          height: rect.height,
-          width: rect.width,
-        });
-      }
-
-      // Закрываем фильтры → сбрасываем фиксированные значения
-      if (prev) {
-        setFixedListSize(null);
-      }
-
-      return next;
-    });
-  };
+  // вынес рендер сайдбара, чтобы не дублировать пропсы
+  const renderSidebar = () => (
+    <SidebarItems
+      variant="desktop" // если есть вариант "mobile", можно сюда подставить его
+      showCategories={showCategories}
+      currentCategoryFullSlug={cat?.fullSlug}
+      showSort={false}
+      sort={sort}
+      sortOptions={sortOptions}
+      onChangeSort={setSort}
+      offerings={offerings}
+      stars={stars}
+      priceRange={{
+        min: 0,
+        max: 5_000_000,
+        step: 50,
+        defaultValue: [651_650, 4_493_750],
+      }}
+      onResetFilters={() => console.log("Reset filters")}
+    />
+  );
 
   return (
-    <div
-      className={`${cls.productsMain} ${
-        isFiltersOpenDesktop ? cls.filtersOpen : ""
-      }`}
-    >
-      <div className={cls.productListPage}>
-        {/* Сайдбар */}
-        <aside className={cls.desktopSidebarWrapper}>
-          <SidebarItems
-            variant="desktop"
-            showCategories={showCategories}
-            currentCategoryFullSlug={cat?.fullSlug}
-            showSort={false}
-            sort={sort}
-            sortOptions={sortOptions}
-            onChangeSort={setSort}
-            offerings={offerings}
-            stars={stars}
-            priceRange={{
-              min: 0,
-              max: 5_000_000,
-              step: 50,
-              defaultValue: [651_650, 4_493_750],
-            }}
-            onResetFilters={() => console.log("Reset filters")}
-          />
-        </aside>
+    <div className={cls.productsMain}>
+      {/* Крошки
+      <Breadcrumbs crumbs={crumbs as any} />*/}
 
-        <section
-          ref={listRef}
-          className={cls.productListContent}
-          style={
-            isFiltersOpenDesktop && fixedListSize
-              ? {
-                  height: fixedListSize.height,
-                  width: fixedListSize.width,
-                  flex: "0 0 auto", // не даём flex-у сжать ширину
-                  overflowY: "auto",
-                }
-              : undefined
-          }
-        >
+      <div className={cls.productListPage}>
+        {/* Сайдбар слева на десктопе (всегда виден) */}
+        <aside className={cls.desktopSidebarWrapper}>{renderSidebar()}</aside>
+
+        {/* Секция со списком товаров */}
+        <section className={cls.productListContent}>
           <div className={cls.productsHeader}>
             <h4 className={cls.title}>
               {query ? `Results for “${query}”` : cat?.name || "All products"}
@@ -174,7 +139,8 @@ export default function ProductsMain({
                 disabled={loading}
                 showTitleOnHover={false}
               />
-              <IconFilters onClick={toggleDesktopFilters} />
+              {/* Иконка фильтров видна только на мобилке (через CSS) */}
+              <IconFilters onClick={openMobileFilters} />
             </div>
           </div>
 
@@ -185,6 +151,31 @@ export default function ProductsMain({
             onItemClick={(p) => nav(`/product/${p.id}`)}
           />
         </section>
+
+        {/* Мобильный сайдбар: bottom-sheet на весь экран */}
+        <div
+          className={`${cls.mobileSidebar} ${
+            isFiltersOpen ? cls.mobileSidebarOpen : ""
+          }`}
+        >
+          <div
+            className={cls.mobileSidebarBackdrop}
+            onClick={closeMobileFilters}
+          />
+          <aside className={cls.mobileSidebarSheet}>
+            <div className={cls.mobileSidebarHeader}>
+              <span>Фильтры</span>
+              <button
+                type="button"
+                className={cls.mobileSidebarClose}
+                onClick={closeMobileFilters}
+              >
+                Закрыть
+              </button>
+            </div>
+            {renderSidebar()}
+          </aside>
+        </div>
       </div>
     </div>
   );

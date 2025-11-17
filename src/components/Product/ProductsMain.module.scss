@@ -16,9 +16,6 @@ $bp-lg: 1024px;
   }
 }
 
-/* флаг для открытого сайдбара с фильтрами */
-.filtersOpen {}
-
 /* ====== Лэйаут ====== */
 .productListPage {
   display: flex;
@@ -26,34 +23,30 @@ $bp-lg: 1024px;
   gap: var(--gap);
   position: relative;
   align-items: flex-start;
+
+  @media (max-width: $bp-md) {
+    flex-direction: column;
+  }
 }
 
-/* сайдбар — НЕ fixed, часть лэйаута, показываем при открытых фильтрах */
+/* сайдбар слева на десктопе — всегда показываем */
 .desktopSidebarWrapper {
   background-color: var(--bg, #fff);
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
   border-radius: 12px;
-  display: none; // по умолчанию скрыт
-}
-
-/* когда фильтры открыты – показываем сайдбар на всех устройствах */
-.filtersOpen .desktopSidebarWrapper {
-  display: block;
+  display: none;
 
   @media (min-width: $bp-md) {
+    display: block;
     flex-shrink: 0;
+    flex-basis: 280px; // подгони под свою ширину
+    align-self: stretch;
   }
 }
 
 .productListContent {
   width: 100%;
   flex: 1 1 auto;
-}
-
-/* 💥 При открытых фильтрах теперь список НЕ sticky,
-   высота фиксируется через inline-style из компонента */
-.filtersOpen .productListContent {
-  align-self: flex-start;
 }
 
 .title {
@@ -99,5 +92,81 @@ $bp-lg: 1024px;
     width: 24px;
     height: 24px;
     cursor: pointer;
+
+    /* Иконка фильтров только на мобилке */
+    @media (min-width: $bp-md) {
+      display: none;
+    }
+  }
+}
+
+/* ====== Мобильный bottom-sheet для фильтров ====== */
+
+.mobileSidebar {
+  display: none;
+}
+
+/* только на мобилке */
+@media (max-width: $bp-md) {
+  .mobileSidebar {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: stretch;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 1000;
+  }
+
+  .mobileSidebarOpen {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mobileSidebarBackdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+
+  .mobileSidebarSheet {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%; // на весь экран
+    max-height: 100vh;
+    background-color: var(--bg, #fff);
+    border-radius: 16px 16px 0 0;
+    padding: 16px;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.25s ease;
+
+    // если есть миксин скроллбара — можно включить
+    // @include scrollbar.scrollbarY;
+  }
+
+  .mobileSidebarOpen .mobileSidebarSheet {
+    transform: translateY(0);
+  }
+
+  .mobileSidebarHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-weight: 500;
+    font-size: 1rem;
+  }
+
+  .mobileSidebarClose {
+    border: none;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+    padding: 4px 8px;
   }
 }
