@@ -117,9 +117,8 @@ export default function ProductsMain({
 
   return (
     <div
-      className={`${cls.productsMain} ${
-        isFiltersOpenDesktop ? cls.filtersOpen : ""
-      }`}
+      className={`${cls.productsMain} ${isFiltersOpenDesktop ? cls.filtersOpen : ""
+        }`}
     >
       {/* Крошки 
       <Breadcrumbs crumbs={crumbs as any} />*/}
@@ -154,14 +153,6 @@ export default function ProductsMain({
             </h4>
 
             <div className={cls.productsHeaderRight}>
-              {/* Кнопка открыть/закрыть фильтр (только десктоп) */}
-              <button
-                type="button"
-                className={cls.filtersToggle}
-                onClick={toggleDesktopFilters}
-              >
-                {isFiltersOpenDesktop ? "Close filter" : "Open filter"}
-              </button>
 
               <div className={cls.sortWrap}>
                 <SelectField
@@ -175,6 +166,14 @@ export default function ProductsMain({
                 />
               </div>
             </div>
+            {/* Кнопка открыть/закрыть фильтр (только десктоп) */}
+            <button
+              type="button"
+              className={cls.filtersToggle}
+              onClick={toggleDesktopFilters}
+            >
+              {isFiltersOpenDesktop ? "Close filter" : "Open filter"}
+            </button>
           </div>
 
           <ProductItemList
