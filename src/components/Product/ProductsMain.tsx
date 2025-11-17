@@ -8,6 +8,7 @@ import { getCategoryByFullSlug } from "../../services/categoryService";
 // import Breadcrumbs from "../Common/Breadcrumbs";
 import type { Product } from "../../types/product";
 import { SelectField } from "../UI/SelectField";
+import IconFilters from "../Icons/IconFilters";
 
 // Разрешённые API-сортировки
 const sortOptions = [
@@ -92,9 +93,8 @@ export default function ProductsMain({
 
   return (
     <div
-      className={`${cls.productsMain} ${
-        isFiltersOpenDesktop ? cls.filtersOpen : ""
-      }`}
+      className={`${cls.productsMain} ${isFiltersOpenDesktop ? cls.filtersOpen : ""
+        }`}
     >
       {/* Крошки 
       <Breadcrumbs crumbs={crumbs as any} />*/}
@@ -129,26 +129,16 @@ export default function ProductsMain({
             </h4>
 
             <div className={cls.productsHeaderRight}>
-              <div className={cls.sortWrap}>
-                <SelectField
-                  id="products-sort"
-                  placeholder="Sort by…"
-                  value={sort}
-                  onChange={setSort}
-                  options={sortOptions}
-                  disabled={loading}
-                  showTitleOnHover={false}
-                />
-              </div>
-
-              {/* Кнопка открыть/закрыть фильтр (на всех устройствах) */}
-              <button
-                type="button"
-                className={cls.filtersToggle}
-                onClick={toggleDesktopFilters}
-              >
-                {isFiltersOpenDesktop ? "Close filter" : "Open filter"}
-              </button>
+              <SelectField
+                id="products-sort"
+                placeholder="Sort by…"
+                value={sort}
+                onChange={setSort}
+                options={sortOptions}
+                disabled={loading}
+                showTitleOnHover={false}
+              />
+              <IconFilters onClick={toggleDesktopFilters} />
             </div>
           </div>
 

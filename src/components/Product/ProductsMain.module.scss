@@ -17,8 +17,7 @@ $bp-lg: 1024px;
 }
 
 /* флаг для открытого сайдбара с фильтрами */
-.filtersOpen {
-}
+.filtersOpen {}
 
 /* ====== Лэйаут ====== */
 .productListPage {
@@ -61,7 +60,7 @@ $bp-lg: 1024px;
 /* 💥 При открытых фильтрах список делаем "фиксированным" через sticky */
 .filtersOpen .productListContent {
   position: sticky;
-  top: 0;             // если есть фикс-хедер, подставь его высоту, например 72px
+  top: 0; // если есть фикс-хедер, подставь его высоту, например 72px
   align-self: flex-start;
 }
 
@@ -96,32 +95,17 @@ $bp-lg: 1024px;
 .productsHeaderRight {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
+  color: var(--text);
 
   @media (max-width: $bp-md) {
     width: 100%;
-    justify-content: flex-end;
+    justify-content: center;
   }
-}
 
-/* ❗ НЕ прячем кнопку ни на каких устройствах */
-.filtersToggle {
-  margin-left: 16px;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: transparent;
-  border: 1px solid var(--border-subtle, #d0d0d0);
-  font-size: 0.9rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-}
-
-/* обёртка селекта сортировки */
-.sortWrap {
-  @media screen and (max-width: $bp-md) {
-    display: none;
+  svg {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
   }
 }
