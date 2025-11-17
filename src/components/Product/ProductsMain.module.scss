@@ -40,10 +40,8 @@ $bp-lg: 1024px;
 /* когда фильтры открыты – показываем сайдбар на всех устройствах */
 .filtersOpen .desktopSidebarWrapper {
   display: block;
-  width: 100%;
 
   @media (min-width: $bp-md) {
-    width: 320px;
     flex-shrink: 0;
   }
 }
