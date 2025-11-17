@@ -76,9 +76,7 @@ $bp-md: 768px;
 
 /* скрываем десктопный сайдбар на мобильных */
 .desktop {
-    @media (max-width: $bp-md) {
-        display: none;
-    }
+
 }
 
 .modal {
