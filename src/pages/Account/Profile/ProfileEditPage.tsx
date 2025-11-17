@@ -13,7 +13,7 @@ export default function ProfileEditPage() {
     const [me, setMe] = useState<Me | null>(null);
     const [saving, setSaving] = useState(false);
 
-    const backTo = new URLSearchParams(search).get("back") ?? `/u/${me?.username}?tab=settings`;
+    const backTo = new URLSearchParams(search).get("back") ?? `/u/account/settings`;
 
     async function refreshMeAndCache() {
         const { data } = await api.get("/auth/me");
