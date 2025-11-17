@@ -52,7 +52,6 @@ $bp-lg: 1024px;
   // @include scrollbar.yourMixinNameHere();
 
   @media (max-width: $bp-md) {
-    display: none;
   }
 }
 
@@ -116,10 +115,6 @@ $bp-lg: 1024px;
   align-items: center;
   gap: 8px;
   white-space: nowrap;
-
-  @media (max-width: $bp-md) {
-    display: none;
-  }
 }
 
 /* обёртка селекта сортировки */

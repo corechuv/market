@@ -2,7 +2,6 @@
 import React, { useMemo, useState } from "react";
 import cls from "./ProductsMain.module.scss";
 import { useNavigate } from "react-router-dom";
-import Modal from "../../components/Modal/Modal";
 import ProductItemList from "../../components/Product/ProductItemList";
 import SidebarItems from "../../components/Product/SidebarItems";
 import { getProducts } from "../../services/productService";
@@ -54,7 +53,6 @@ export default function ProductsMain({
   );
   // const crumbs = useMemo(() => (cat ? getBreadcrumbs(cat.id) : []), [cat]);
 
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [isFiltersOpenDesktop, setIsFiltersOpenDesktop] = React.useState(false);
   const [sort, setSort] = useState<string>("");
 
@@ -182,33 +180,6 @@ export default function ProductsMain({
             skeletonCount={12}
             onItemClick={(p) => nav(`/product/${p.id}`)}
           />
-
-          {/* Мобильный фильтр по-старому через модалку */}
-          <Modal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            variant="left"
-            header="Filter"
-            headerBorder={false}
-          >
-            <SidebarItems
-              variant="modal"
-              showCategories={false}
-              showSort
-              sort={sort}
-              sortOptions={sortOptions}
-              onChangeSort={setSort}
-              offerings={offerings}
-              stars={stars}
-              priceRange={{
-                min: 0,
-                max: 5_000_000,
-                step: 50,
-                defaultValue: [651_650, 4_493_750],
-              }}
-              onResetFilters={() => console.log("Reset filters")}
-            />
-          </Modal>
         </section>
       </div>
     </div>
