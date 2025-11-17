@@ -9,10 +9,11 @@ import api from "../../../lib/api";
 export default function ProfileEditPage() {
     const nav = useNavigate();
     const { search } = useLocation();
-    const backTo = new URLSearchParams(search).get("back") ?? "/account?tab=settings";
 
     const [me, setMe] = useState<Me | null>(null);
     const [saving, setSaving] = useState(false);
+
+    const backTo = new URLSearchParams(search).get("back") ?? `/u/${me?.username}?tab=settings`;
 
     async function refreshMeAndCache() {
         const { data } = await api.get("/auth/me");
