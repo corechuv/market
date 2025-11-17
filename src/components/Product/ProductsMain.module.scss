@@ -31,7 +31,6 @@ $bp-lg: 1024px;
 /* сайдбар — НЕ fixed, часть лэйаута, показываем при открытых фильтрах */
 .desktopSidebarWrapper {
   background-color: var(--bg, #fff);
-  padding: 24px 24px 32px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
   border-radius: 12px;
   display: none; // по умолчанию скрыт
