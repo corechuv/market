@@ -3,7 +3,6 @@ import React, { useMemo, useState } from "react";
 import cls from "./ProductsMain.module.scss";
 import { useNavigate } from "react-router-dom";
 import Modal from "../../components/Modal/Modal";
-import ToggleViewSwitch, { type ViewMode } from "../../components/Product/ToggleViewSwitch";
 import ProductItemList from "../../components/Product/ProductItemList";
 import SidebarItems from "../../components/Product/SidebarItems";
 import { getProducts } from "../../services/productService";
@@ -14,10 +13,10 @@ import { SelectField } from "../UI/SelectField";
 
 // Разрешённые API-сортировки
 const sortOptions = [
-  { value: "name", label: "Name: A → Z" },
-  { value: "-name", label: "Name: Z → A" },
   { value: "price", label: "Price: Low to high" },
   { value: "-price", label: "Price: High to low" },
+  { value: "name", label: "Name: A → Z" },
+  { value: "-name", label: "Name: Z → A" },
 ];
 
 type ProductsMainProps = {
@@ -47,12 +46,11 @@ export default function ProductsMain({ query = "", showCategories = true, catego
   const crumbs = useMemo(() => (cat ? getBreadcrumbs(cat.id) : []), [cat]);
 
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [view, setView] = useState<ViewMode>("grid");
-  const [sort, setSort] = useState<string>("name");
+  const [sort, setSort] = useState<string>("");
 
   const [products, setProducts] = React.useState<Product[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
-  const [error, setError] = React.useState<string | null>(null);
+  const [, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -62,7 +60,7 @@ export default function ProductsMain({ query = "", showCategories = true, catego
       try {
         const res = await getProducts({
           q: query,
-          sort: (["name", "-name", "price", "-price"] as const).includes(sort as any) ? (sort as any) : "name",
+          sort: (["price", "-price", "name", "-name"] as const).includes(sort as any) ? (sort as any) : "name",
           categoryId: cat?.id,
         });
         if (!cancelled) setProducts(res);
@@ -80,8 +78,25 @@ export default function ProductsMain({ query = "", showCategories = true, catego
 
   return (
     <div className={cls.productsMain}>
-      {/* Крошки */}
-      <Breadcrumbs crumbs={crumbs as any} />
+      {/* Крошки 
+      <Breadcrumbs crumbs={crumbs as any} />*/}
+
+
+      <div className={cls.productsHeader}>
+        <h4 className={cls.title}>{query ? `Results for “${query}”` : cat?.name || "All products"}</h4>
+
+        <div className={cls.sortWrap}>
+          <SelectField
+            id="products-sort"
+            placeholder="Sort by…"
+            value={sort}
+            onChange={setSort}
+            options={sortOptions}
+            disabled={loading}
+            showTitleOnHover={false}
+          />
+        </div>
+      </div>
 
       <div className={cls.productListPage}>
         <SidebarItems
@@ -99,33 +114,13 @@ export default function ProductsMain({ query = "", showCategories = true, catego
         />
 
         <section className={cls.productListContent}>
-          <div className={cls.productsHeader}>
-            <h4 className={cls.title}>{query ? `Results for “${query}”` : cat?.name || "All products"}</h4>
 
-            <div className={cls.sortWrap}>
-              <SelectField
-                id="products-sort"
-                placeholder="Sort by…"
-                value={sort}
-                onChange={setSort}
-                options={sortOptions}
-                disabled={loading}
-                showTitleOnHover={false}
-              />
-            </div>
-          </div>
-
-          <div className={cls.productListActions}>
-            <ToggleViewSwitch view={view} onChangeView={setView} openModal={() => setIsModalOpen(true)} />
-          </div>
-
-          {loading ? (
-            <div style={{ padding: 24 }}>Loading…</div>
-          ) : error ? (
-            <div style={{ padding: 24, color: "var(--danger, #c00)" }}>{error}</div>
-          ) : (
-            <ProductItemList products={products} onItemClick={(p) => nav(`/product/${p.id}`)} />
-          )}
+          <ProductItemList
+            products={products}
+            isLoading={loading}
+            skeletonCount={12}
+            onItemClick={(p) => nav(`/product/${p.id}`)}
+          />
 
           <Modal
             isOpen={isModalOpen}

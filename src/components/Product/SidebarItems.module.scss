@@ -7,7 +7,7 @@ $bp-md: 768px;
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    min-width: 290px;
+    min-width: 200px;
     background-color: var(--bg);
 
     &__list {
@@ -32,7 +32,6 @@ $bp-md: 768px;
 
         li {
             margin-bottom: 5px;
-            color: var(--text-secondary);
             cursor: pointer;
 
             &:hover {
@@ -48,6 +47,9 @@ $bp-md: 768px;
         transition: color 0.2s;
 
         a {
+            color: var(--text);
+            font-size: 16px;
+            font-weight: 400;
             display: -webkit-box;
             -webkit-line-clamp: 1;
             line-clamp: 1;

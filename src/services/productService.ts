@@ -5,7 +5,7 @@ const API = import.meta.env.VITE_API_BASE_URL;
 
 export type GetProductsParams = {
   q?: string;
-  sort?: "name" | "-name" | "price" | "-price";
+  sort?: "price" | "-price" | "name" | "-name";
   availableOnly?: boolean;
   categoryId?: string;
   categoryFullSlug?: string;
