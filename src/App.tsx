@@ -69,6 +69,7 @@ import AboutPage from "./pages/About/AboutPage";
 import CareersPage from "./pages/About/CareersPage";
 import PressPage from "./pages/About/PressPage";
 import ProfilePage from "./pages/User/ProfilePage";
+import SettingsPage from "./pages/Settings/SettingsPage";
 
 export default function App() {
 
@@ -104,6 +105,9 @@ export default function App() {
             <Route path="/account/addresses" element={<AddressesPage />} />
             <Route path="/account/orders" element={<OrdersPage />} />
             <Route path="/account/security" element={<SecurityPage />} />
+
+
+            <Route path="/account/settings" element={<SettingsPage />} />
 
             <Route path="/account/addresses/new" element={<AddressEditOrAddPage />} />
             <Route path="/account/addresses/:id" element={<AddressEditOrAddPage />} />

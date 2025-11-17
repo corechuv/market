@@ -138,15 +138,26 @@ export default function ProfilePage() {
                 username={displayUsername}
                 action={
                     isMe && (
-                        <Button
-                            size="small"
-                            variant="secondary"
-                            onClick={() =>
-                                navigate(`/account/profile/edit?back=${backAfter}`)
-                            }
-                        >
-                            Edit profile
-                        </Button>
+                        <>
+                            <Button
+                                size="small"
+                                variant="secondary"
+                                onClick={() =>
+                                    navigate(`/account/profile/edit?back=${backAfter}`)
+                                }
+                            >
+                                Edit profile
+                            </Button>
+                            <Button
+                                size="small"
+                                variant="secondary"
+                                onClick={() =>
+                                    navigate(`/account/settings?back=${backAfter}`)
+                                }
+                            >
+                                Settings
+                            </Button>
+                        </>
                     )
                 }
             />
