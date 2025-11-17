@@ -23,13 +23,9 @@ $bp-lg: 1024px;
 .productListPage {
   display: flex;
   flex-direction: row;
-  gap: 40px;
+  gap: var(--gap);
   position: relative;
   align-items: flex-start;
-
-  @media (max-width: $bp-md) {
-    gap: 16px;
-  }
 }
 
 /* сайдбар — НЕ fixed, часть лэйаута, показываем при открытых фильтрах */
