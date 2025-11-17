@@ -5,12 +5,10 @@ import ProductItemList from "../../components/Product/ProductItemList";
 import SidebarItems from "../../components/Product/SidebarItems";
 import { getProducts } from "../../services/productService";
 import { getCategoryByFullSlug } from "../../services/categoryService";
-// import Breadcrumbs from "../Common/Breadcrumbs";
 import type { Product } from "../../types/product";
 import { SelectField } from "../UI/SelectField";
 import IconFilters from "../Icons/IconFilters";
 
-// Разрешённые API-сортировки
 const sortOptions = [
   { value: "price", label: "Price: Low to high" },
   { value: "-price", label: "Price: High to low" },
@@ -21,7 +19,7 @@ const sortOptions = [
 type ProductsMainProps = {
   query?: string;
   showCategories?: boolean;
-  categoryFullSlug?: string; // "/electronics/computers/cpu"
+  categoryFullSlug?: string;
 };
 
 const offerings = [
@@ -46,19 +44,28 @@ export default function ProductsMain({
   const nav = useNavigate();
 
   const cat = useMemo(
-    () => (categoryFullSlug ? getCategoryByFullSlug(categoryFullSlug) : undefined),
+    () =>
+      categoryFullSlug ? getCategoryByFullSlug(categoryFullSlug) : undefined,
     [categoryFullSlug]
   );
-  // const crumbs = useMemo(() => (cat ? getBreadcrumbs(cat.id) : []), [cat]);
 
-  const [isFiltersOpenDesktop, setIsFiltersOpenDesktop] = React.useState(false);
+  const [isFiltersOpenDesktop, setIsFiltersOpenDesktop] =
+    React.useState(false);
   const [sort, setSort] = useState<string>("");
 
   const [products, setProducts] = React.useState<Product[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [, setError] = React.useState<string | null>(null);
 
-  // Загрузка продуктов
+  // ref на секцию со списком
+  const listRef = React.useRef<HTMLElement | null>(null);
+
+  // 👉 фиксируем и высоту, и ширину
+  const [fixedListSize, setFixedListSize] = useState<{
+    height: number;
+    width: number;
+  } | null>(null);
+
   React.useEffect(() => {
     let cancelled = false;
     async function run() {
@@ -88,17 +95,33 @@ export default function ProductsMain({
   }, [query, sort, cat?.id]);
 
   const toggleDesktopFilters = () => {
-    setIsFiltersOpenDesktop((prev) => !prev);
+    setIsFiltersOpenDesktop((prev) => {
+      const next = !prev;
+
+      // Открываем фильтры → замеряем текущую ширину и высоту
+      if (!prev && listRef.current) {
+        const rect = listRef.current.getBoundingClientRect();
+        setFixedListSize({
+          height: rect.height,
+          width: rect.width,
+        });
+      }
+
+      // Закрываем фильтры → сбрасываем фиксированные значения
+      if (prev) {
+        setFixedListSize(null);
+      }
+
+      return next;
+    });
   };
 
   return (
     <div
-      className={`${cls.productsMain} ${isFiltersOpenDesktop ? cls.filtersOpen : ""
-        }`}
+      className={`${cls.productsMain} ${
+        isFiltersOpenDesktop ? cls.filtersOpen : ""
+      }`}
     >
-      {/* Крошки 
-      <Breadcrumbs crumbs={crumbs as any} />*/}
-
       <div className={cls.productListPage}>
         {/* Сайдбар */}
         <aside className={cls.desktopSidebarWrapper}>
@@ -122,7 +145,20 @@ export default function ProductsMain({
           />
         </aside>
 
-        <section className={cls.productListContent}>
+        <section
+          ref={listRef}
+          className={cls.productListContent}
+          style={
+            isFiltersOpenDesktop && fixedListSize
+              ? {
+                  height: fixedListSize.height,
+                  width: fixedListSize.width,
+                  flex: "0 0 auto", // не даём flex-у сжать ширину
+                  overflowY: "auto",
+                }
+              : undefined
+          }
+        >
           <div className={cls.productsHeader}>
             <h4 className={cls.title}>
               {query ? `Results for “${query}”` : cat?.name || "All products"}

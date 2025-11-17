@@ -50,10 +50,9 @@ $bp-lg: 1024px;
   flex: 1 1 auto;
 }
 
-/* 💥 При открытых фильтрах список делаем "фиксированным" через sticky */
+/* 💥 При открытых фильтрах теперь список НЕ sticky,
+   высота фиксируется через inline-style из компонента */
 .filtersOpen .productListContent {
-  position: sticky;
-  top: 0; // если есть фикс-хедер, подставь его высоту, например 72px
   align-self: flex-start;
 }
 
