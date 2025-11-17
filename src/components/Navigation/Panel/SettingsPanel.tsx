@@ -10,6 +10,8 @@ import MasterBar from "../../UI/Bars/MasterBar";
 import AboutIcon from "../../Icons/AboutIcon";
 import HelpSupportIcon from "../../Icons/HelpSupportIcon";
 import { useAuth } from "../../../context/AuthContext";
+import OrdersIcon from "../../Icons/OrdersIcon";
+import AddressIcon from "../../Icons/AddressIcon";
 
 interface SettingsPanelProps {
     /** Управление видимостью извне (Navigation) */
@@ -84,13 +86,13 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     </span>
                 </li>
                 <li className={c.list__item} onClick={() => { nav("/account/orders") }}>
-                    <svg className={c["list__item--icon-left"]}></svg>
+                    <OrdersIcon className={c["list__item--icon-left"]} />
                     <span className={c["list__item--label"]} aria-label={``} title="">
                         Orders
                     </span>
                 </li>
                 <li className={c.list__item} onClick={() => { nav("/account/addresses") }}>
-                    <svg className={c["list__item--icon-left"]}></svg>
+                    <AddressIcon className={c["list__item--icon-left"]} />
                     <span className={c["list__item--label"]} aria-label={``} title="">
                         Addresses
                     </span>

@@ -13,6 +13,8 @@ import AboutIcon from "../../components/Icons/AboutIcon"
 import HelpSupportIcon from "../../components/Icons/HelpSupportIcon"
 import { useEffect, useState } from "react"
 import { useAuth } from "../../context/AuthContext"
+import OrdersIcon from "../../components/Icons/OrdersIcon"
+import AddressIcon from "../../components/Icons/AddressIcon"
 
 
 export default function SettingsPage() {
@@ -58,13 +60,13 @@ export default function SettingsPage() {
                         </span>
                     </li>
                     <li className={c.list__item} onClick={() => { nav("/account/orders") }}>
-                        <svg className={c["list__item--icon-left"]}></svg>
+                        <OrdersIcon className={c["list__item--icon-left"]} />
                         <span className={c["list__item--label"]} aria-label={``} title="">
                             Orders
                         </span>
                     </li>
                     <li className={c.list__item} onClick={() => { nav("/account/addresses") }}>
-                        <svg className={c["list__item--icon-left"]}></svg>
+                        <AddressIcon className={c["list__item--icon-left"]} />
                         <span className={c["list__item--label"]} aria-label={``} title="">
                             Addresses
                         </span>
