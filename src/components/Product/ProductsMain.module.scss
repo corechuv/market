@@ -26,6 +26,7 @@ $bp-lg: 1024px;
   flex-direction: row;
   gap: 40px;
   position: relative;
+  align-items: flex-start;
 
   @media (max-width: $bp-md) {
     flex-direction: column;
@@ -33,39 +34,42 @@ $bp-lg: 1024px;
   }
 }
 
-/* выезжающий сайдбар только для десктопа */
+/* десктопный сайдбар — НЕ fixed, часть лэйаута */
 .desktopSidebarWrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 320px;
   background-color: var(--bg, #fff);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-  overflow-y: auto;
   padding: 24px 24px 32px;
-  z-index: 30; // чтобы быть поверх контента
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+
+  // по умолчанию не показываем (пока фильтры закрыты)
+  display: none;
+
+  @media (max-width: $bp-md) {
+    display: none; // скрываем на мобилке
+  }
+
+  @media (min-width: $bp-md) {
+    // базовая конфигурация, но всё ещё скрыта
+    width: 320px;
+    flex-shrink: 0;
+  }
 }
 
-/* когда фильтры открыты – показываем сайдбар */
+/* когда фильтры открыты – показываем сайдбар на десктопе */
 .filtersOpen .desktopSidebarWrapper {
-  transform: translateX(0);
+  @media (min-width: $bp-md) {
+    display: block;
+  }
 }
 
 .productListContent {
   width: 100%;
-  transition: transform 0.3s ease;
-
-  @media (max-width: $bp-md) {
-    transform: none !important;
-  }
+  flex: 1 1 auto;
 }
 
-/* когда фильтры открыты – сдвигаем контент вправо */
+/* больше не двигаем контент transform'ом */
 .filtersOpen .productListContent {
-  transform: translateX(320px);
+  // оставлено пустым намеренно
 }
 
 .title {
@@ -87,6 +91,12 @@ $bp-lg: 1024px;
   align-items: center;
   width: 100%;
   margin-bottom: 20px;
+
+  @media (max-width: $bp-md) {
+    align-items: flex-start;
+    gap: 12px;
+    flex-direction: column;
+  }
 }
 
 /* правая часть хедера: кнопка + сортировка */
@@ -94,6 +104,11 @@ $bp-lg: 1024px;
   display: flex;
   align-items: center;
   gap: 12px;
+
+  @media (max-width: $bp-md) {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 
 /* кнопка открыть/закрыть фильтр (только десктоп) */
@@ -109,11 +124,15 @@ $bp-lg: 1024px;
   align-items: center;
   gap: 8px;
   white-space: nowrap;
+
+  @media (max-width: $bp-md) {
+    display: none; // на мобилке другая логика фильтров
+  }
 }
 
 /* обёртка селекта сортировки */
 .sortWrap {
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: $bp-md) {
     display: none;
   }
 }

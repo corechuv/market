@@ -38,8 +38,6 @@ const stars = [
   { value: "1", label: "" },
 ];
 
-const DESKTOP_MIN_WIDTH = 768; // совпадает с $bp-md
-
 export default function ProductsMain({
   query = "",
   showCategories = true,
@@ -87,42 +85,21 @@ export default function ProductsMain({
     };
   }, [query, sort, cat?.id]);
 
-  // Блокируем скролл страницы, когда открыт десктопный фильтр
-  React.useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const updateOverflow = () => {
-      const isDesktop = window.innerWidth >= DESKTOP_MIN_WIDTH;
-      if (isFiltersOpenDesktop && isDesktop) {
-        document.body.style.overflow = "hidden";
-      } else {
-        document.body.style.overflow = "";
-      }
-    };
-
-    updateOverflow();
-    window.addEventListener("resize", updateOverflow);
-
-    return () => {
-      window.removeEventListener("resize", updateOverflow);
-      document.body.style.overflow = "";
-    };
-  }, [isFiltersOpenDesktop]);
-
   const toggleDesktopFilters = () => {
     setIsFiltersOpenDesktop((prev) => !prev);
   };
 
   return (
     <div
-      className={`${cls.productsMain} ${isFiltersOpenDesktop ? cls.filtersOpen : ""
-        }`}
+      className={`${cls.productsMain} ${
+        isFiltersOpenDesktop ? cls.filtersOpen : ""
+      }`}
     >
       {/* Крошки 
       <Breadcrumbs crumbs={crumbs as any} />*/}
 
       <div className={cls.productListPage}>
-        {/* Десктопный сайдбар, который выезжает слева */}
+        {/* Десктопный сайдбар */}
         <aside className={cls.desktopSidebarWrapper}>
           <SidebarItems
             variant="desktop"
@@ -151,7 +128,6 @@ export default function ProductsMain({
             </h4>
 
             <div className={cls.productsHeaderRight}>
-
               <div className={cls.sortWrap}>
                 <SelectField
                   id="products-sort"
@@ -163,15 +139,16 @@ export default function ProductsMain({
                   showTitleOnHover={false}
                 />
               </div>
+
+              {/* Кнопка открыть/закрыть фильтр (только десктоп) */}
+              <button
+                type="button"
+                className={cls.filtersToggle}
+                onClick={toggleDesktopFilters}
+              >
+                {isFiltersOpenDesktop ? "Close filter" : "Open filter"}
+              </button>
             </div>
-            {/* Кнопка открыть/закрыть фильтр (только десктоп) */}
-            <button
-              type="button"
-              className={cls.filtersToggle}
-              onClick={toggleDesktopFilters}
-            >
-              {isFiltersOpenDesktop ? "Close filter" : "Open filter"}
-            </button>
           </div>
 
           <ProductItemList
