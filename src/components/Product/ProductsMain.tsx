@@ -6,8 +6,8 @@ import Modal from "../../components/Modal/Modal";
 import ProductItemList from "../../components/Product/ProductItemList";
 import SidebarItems from "../../components/Product/SidebarItems";
 import { getProducts } from "../../services/productService";
-import { getCategoryByFullSlug, getBreadcrumbs } from "../../services/categoryService";
-import Breadcrumbs from "../Common/Breadcrumbs";
+import { getCategoryByFullSlug } from "../../services/categoryService";
+// import Breadcrumbs from "../Common/Breadcrumbs";
 import type { Product } from "../../types/product";
 import { SelectField } from "../UI/SelectField";
 
@@ -43,7 +43,7 @@ export default function ProductsMain({ query = "", showCategories = true, catego
   const nav = useNavigate();
 
   const cat = useMemo(() => (categoryFullSlug ? getCategoryByFullSlug(categoryFullSlug) : undefined), [categoryFullSlug]);
-  const crumbs = useMemo(() => (cat ? getBreadcrumbs(cat.id) : []), [cat]);
+  // const crumbs = useMemo(() => (cat ? getBreadcrumbs(cat.id) : []), [cat]);
 
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [sort, setSort] = useState<string>("");
