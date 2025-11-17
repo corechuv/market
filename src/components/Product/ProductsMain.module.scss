@@ -16,7 +16,7 @@ $bp-lg: 1024px;
   }
 }
 
-/* флаг для открытого сайдбара с фильтрами на десктопе */
+/* флаг для открытого сайдбара с фильтрами */
 .filtersOpen {
 }
 
@@ -29,35 +29,27 @@ $bp-lg: 1024px;
   align-items: flex-start;
 
   @media (max-width: $bp-md) {
-    flex-direction: column;
     gap: 16px;
   }
 }
 
-/* десктопный сайдбар — НЕ fixed, часть лэйаута */
+/* сайдбар — НЕ fixed, часть лэйаута, показываем при открытых фильтрах */
 .desktopSidebarWrapper {
   background-color: var(--bg, #fff);
   padding: 24px 24px 32px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
   border-radius: 12px;
+  display: none; // по умолчанию скрыт
+}
 
-  // по умолчанию не показываем (пока фильтры закрыты)
-  display: none;
-
-  @media (max-width: $bp-md) {
-    display: none; // скрываем на мобилке
-  }
+/* когда фильтры открыты – показываем сайдбар на всех устройствах */
+.filtersOpen .desktopSidebarWrapper {
+  display: block;
+  width: 100%;
 
   @media (min-width: $bp-md) {
     width: 320px;
     flex-shrink: 0;
-  }
-}
-
-/* когда фильтры открыты – показываем сайдбар на десктопе */
-.filtersOpen .desktopSidebarWrapper {
-  @media (min-width: $bp-md) {
-    display: block;
   }
 }
 
@@ -66,13 +58,11 @@ $bp-lg: 1024px;
   flex: 1 1 auto;
 }
 
-/* 💥 ВАЖНО: когда фильтры открыты — фиксируем список (sticky) */
+/* 💥 При открытых фильтрах список делаем "фиксированным" через sticky */
 .filtersOpen .productListContent {
-  @media (min-width: $bp-md) {
-    position: sticky;
-    top: 0;
-    align-self: flex-start;
-  }
+  position: sticky;
+  top: 0;             // если есть фикс-хедер, подставь его высоту, например 72px
+  align-self: flex-start;
 }
 
 .title {
@@ -114,7 +104,7 @@ $bp-lg: 1024px;
   }
 }
 
-/* кнопка открыть/закрыть фильтр (только десктоп) */
+/* ❗ НЕ прячем кнопку ни на каких устройствах */
 .filtersToggle {
   margin-left: 16px;
   padding: 8px 14px;
@@ -127,10 +117,6 @@ $bp-lg: 1024px;
   align-items: center;
   gap: 8px;
   white-space: nowrap;
-
-  @media (max-width: $bp-md) {
-    display: none; // на мобилке другая логика фильтров
-  }
 }
 
 /* обёртка селекта сортировки */

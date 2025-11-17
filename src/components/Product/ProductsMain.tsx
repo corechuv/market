@@ -100,7 +100,7 @@ export default function ProductsMain({
       <Breadcrumbs crumbs={crumbs as any} />*/}
 
       <div className={cls.productListPage}>
-        {/* Десктопный сайдбар (НЕ fixed) */}
+        {/* Сайдбар */}
         <aside className={cls.desktopSidebarWrapper}>
           <SidebarItems
             variant="desktop"
@@ -141,7 +141,7 @@ export default function ProductsMain({
                 />
               </div>
 
-              {/* Кнопка открыть/закрыть фильтр (только десктоп) */}
+              {/* Кнопка открыть/закрыть фильтр (на всех устройствах) */}
               <button
                 type="button"
                 className={cls.filtersToggle}
