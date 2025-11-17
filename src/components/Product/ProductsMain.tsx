@@ -39,19 +39,30 @@ const stars = [
   { value: "1", label: "" },
 ];
 
-export default function ProductsMain({ query = "", showCategories = true, categoryFullSlug }: ProductsMainProps) {
+const DESKTOP_MIN_WIDTH = 768; // совпадает с $bp-md
+
+export default function ProductsMain({
+  query = "",
+  showCategories = true,
+  categoryFullSlug,
+}: ProductsMainProps) {
   const nav = useNavigate();
 
-  const cat = useMemo(() => (categoryFullSlug ? getCategoryByFullSlug(categoryFullSlug) : undefined), [categoryFullSlug]);
+  const cat = useMemo(
+    () => (categoryFullSlug ? getCategoryByFullSlug(categoryFullSlug) : undefined),
+    [categoryFullSlug]
+  );
   // const crumbs = useMemo(() => (cat ? getBreadcrumbs(cat.id) : []), [cat]);
 
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isFiltersOpenDesktop, setIsFiltersOpenDesktop] = React.useState(false);
   const [sort, setSort] = useState<string>("");
 
   const [products, setProducts] = React.useState<Product[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [, setError] = React.useState<string | null>(null);
 
+  // Загрузка продуктов
   React.useEffect(() => {
     let cancelled = false;
     async function run() {
@@ -60,7 +71,9 @@ export default function ProductsMain({ query = "", showCategories = true, catego
       try {
         const res = await getProducts({
           q: query,
-          sort: (["price", "-price", "name", "-name"] as const).includes(sort as any) ? (sort as any) : "name",
+          sort: (["price", "-price", "name", "-name"] as const).includes(sort as any)
+            ? (sort as any)
+            : "name",
           categoryId: cat?.id,
         });
         if (!cancelled) setProducts(res);
@@ -76,44 +89,93 @@ export default function ProductsMain({ query = "", showCategories = true, catego
     };
   }, [query, sort, cat?.id]);
 
+  // Блокируем скролл страницы, когда открыт десктопный фильтр
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const updateOverflow = () => {
+      const isDesktop = window.innerWidth >= DESKTOP_MIN_WIDTH;
+      if (isFiltersOpenDesktop && isDesktop) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "";
+      }
+    };
+
+    updateOverflow();
+    window.addEventListener("resize", updateOverflow);
+
+    return () => {
+      window.removeEventListener("resize", updateOverflow);
+      document.body.style.overflow = "";
+    };
+  }, [isFiltersOpenDesktop]);
+
+  const toggleDesktopFilters = () => {
+    setIsFiltersOpenDesktop((prev) => !prev);
+  };
+
   return (
-    <div className={cls.productsMain}>
+    <div
+      className={`${cls.productsMain} ${
+        isFiltersOpenDesktop ? cls.filtersOpen : ""
+      }`}
+    >
       {/* Крошки 
       <Breadcrumbs crumbs={crumbs as any} />*/}
 
-
-      <div className={cls.productsHeader}>
-        <h4 className={cls.title}>{query ? `Results for “${query}”` : cat?.name || "All products"}</h4>
-
-        <div className={cls.sortWrap}>
-          <SelectField
-            id="products-sort"
-            placeholder="Sort by…"
-            value={sort}
-            onChange={setSort}
-            options={sortOptions}
-            disabled={loading}
-            showTitleOnHover={false}
-          />
-        </div>
-      </div>
-
       <div className={cls.productListPage}>
-        <SidebarItems
-          variant="desktop"
-          showCategories={showCategories}
-          currentCategoryFullSlug={cat?.fullSlug}
-          showSort={false}
-          sort={sort}
-          sortOptions={sortOptions}
-          onChangeSort={setSort}
-          offerings={offerings}
-          stars={stars}
-          priceRange={{ min: 0, max: 5_000_000, step: 50, defaultValue: [651_650, 4_493_750] }}
-          onResetFilters={() => console.log("Reset filters")}
-        />
+        {/* Десктопный сайдбар, который выезжает слева */}
+        <aside className={cls.desktopSidebarWrapper}>
+          <SidebarItems
+            variant="desktop"
+            showCategories={showCategories}
+            currentCategoryFullSlug={cat?.fullSlug}
+            showSort={false}
+            sort={sort}
+            sortOptions={sortOptions}
+            onChangeSort={setSort}
+            offerings={offerings}
+            stars={stars}
+            priceRange={{
+              min: 0,
+              max: 5_000_000,
+              step: 50,
+              defaultValue: [651_650, 4_493_750],
+            }}
+            onResetFilters={() => console.log("Reset filters")}
+          />
+        </aside>
 
         <section className={cls.productListContent}>
+          <div className={cls.productsHeader}>
+            <h4 className={cls.title}>
+              {query ? `Results for “${query}”` : cat?.name || "All products"}
+            </h4>
+
+            <div className={cls.productsHeaderRight}>
+              {/* Кнопка открыть/закрыть фильтр (только десктоп) */}
+              <button
+                type="button"
+                className={cls.filtersToggle}
+                onClick={toggleDesktopFilters}
+              >
+                {isFiltersOpenDesktop ? "Close filter" : "Open filter"}
+              </button>
+
+              <div className={cls.sortWrap}>
+                <SelectField
+                  id="products-sort"
+                  placeholder="Sort by…"
+                  value={sort}
+                  onChange={setSort}
+                  options={sortOptions}
+                  disabled={loading}
+                  showTitleOnHover={false}
+                />
+              </div>
+            </div>
+          </div>
 
           <ProductItemList
             products={products}
@@ -122,6 +184,7 @@ export default function ProductsMain({ query = "", showCategories = true, catego
             onItemClick={(p) => nav(`/product/${p.id}`)}
           />
 
+          {/* Мобильный фильтр по-старому через модалку */}
           <Modal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
@@ -138,7 +201,12 @@ export default function ProductsMain({ query = "", showCategories = true, catego
               onChangeSort={setSort}
               offerings={offerings}
               stars={stars}
-              priceRange={{ min: 0, max: 5_000_000, step: 50, defaultValue: [651_650, 4_493_750] }}
+              priceRange={{
+                min: 0,
+                max: 5_000_000,
+                step: 50,
+                defaultValue: [651_650, 4_493_750],
+              }}
               onResetFilters={() => console.log("Reset filters")}
             />
           </Modal>

@@ -16,11 +16,16 @@ $bp-lg: 1024px;
   }
 }
 
+/* флаг для открытого сайдбара с фильтрами на десктопе */
+.filtersOpen {
+}
+
 /* ====== Лэйаут ====== */
 .productListPage {
   display: flex;
   flex-direction: row;
   gap: 40px;
+  position: relative;
 
   @media (max-width: $bp-md) {
     flex-direction: column;
@@ -28,8 +33,46 @@ $bp-lg: 1024px;
   }
 }
 
+/* выезжающий сайдбар только для десктопа */
+.desktopSidebarWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 320px;
+  background-color: var(--bg, #fff);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+  padding: 24px 24px 32px;
+  z-index: 30; // чтобы быть поверх контента
+
+  // если хочешь свой скролл, раскомментируй и подставь нужный mixin
+  // @include scrollbar.yourMixinNameHere();
+
+  @media (max-width: $bp-md) {
+    display: none;
+  }
+}
+
+/* когда фильтры открыты – показываем сайдбар */
+.filtersOpen .desktopSidebarWrapper {
+  transform: translateX(0);
+}
+
 .productListContent {
   width: 100%;
+  transition: transform 0.3s ease;
+
+  @media (max-width: $bp-md) {
+    transform: none !important;
+  }
+}
+
+/* когда фильтры открыты – сдвигаем контент вправо */
+.filtersOpen .productListContent {
+  transform: translateX(320px);
 }
 
 .title {
@@ -50,6 +93,33 @@ $bp-lg: 1024px;
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  margin-bottom: 20px;
+}
+
+/* правая часть хедера: кнопка + сортировка */
+.productsHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* кнопка открыть/закрыть фильтр (только десктоп) */
+.filtersToggle {
+  margin-left: 16px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--border-subtle, #d0d0d0);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+
+  @media (max-width: $bp-md) {
+    display: none;
+  }
 }
 
 /* обёртка селекта сортировки */
