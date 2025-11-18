@@ -121,10 +121,10 @@ export default function ProductsMain({
 
       {/* Секция со списком товаров */}
       <section className={cls.content}>
-        <MasterBar
-          title={query ? `Results for “${query}”` : cat?.name || "All products"}
-          includeBars
-        >
+        <div className={cls.mastbar}>
+          <h2 className={cls.title}>
+           {query ? `Results for “${query}”` : cat?.name || "All products"}
+          </h2>
           <div className={cls.topbar}>
             <SelectField
               className={cls.selectField}
@@ -140,7 +140,7 @@ export default function ProductsMain({
               <IconFilters />
             </div>
           </div>
-        </MasterBar>
+        </div>
 
         <section className={cls.items}>
           <ProductItemList

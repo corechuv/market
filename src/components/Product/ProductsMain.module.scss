@@ -1,5 +1,24 @@
 @use "../../styles/scrollbar.module.scss" as scrollbar;
-@use "../../styles/mastbar.module.scss";
+
+.titlebase {
+    color: var(--text);
+    margin: 0;
+    font-size: 1.75rem;
+    line-height: 1;
+    font-weight: 600;
+}
+
+.mastbar {
+    width: 100%;
+    z-index: 1;
+    padding: 1.5rem 1.2rem 0;
+    background: var(--bg);
+
+    &__title {
+        @extend .titlebase;
+    }
+}
+
 
 $bp-sm: 480px;
 $bp-md: 768px;
