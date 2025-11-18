@@ -9,6 +9,8 @@ import { getCategoryByFullSlug } from "../../services/categoryService";
 import type { Product } from "../../types/product";
 import { SelectField } from "../UI/SelectField";
 import IconFilters from "../Icons/IconFilters";
+import MasterBar from "../UI/Bars/MasterBar";
+import CloseIcon from "../Icons/CloseIcon";
 
 // Разрешённые API-сортировки
 const sortOptions = [
@@ -166,17 +168,11 @@ export default function ProductsMain({
             onClick={closeMobileFilters}
           />
           <aside className={cls.mobileSidebarSheet}>
-            <div className={cls.mobileSidebarHeader}>
-              <span>Фильтры</span>
-              <button
-                type="button"
-                className={cls.mobileSidebarClose}
-                onClick={closeMobileFilters}
-              >
-                Закрыть
-              </button>
+            <MasterBar title="Filters" />
+            <CloseIcon className={cls.close} onClick={closeMobileFilters} />
+            <div className={cls.sidebar}>
+              {renderSidebar()}
             </div>
-            {renderSidebar()}
           </aside>
         </div>
       </div>
