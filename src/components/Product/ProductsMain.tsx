@@ -27,8 +27,7 @@ type ProductsMainProps = {
 };
 
 const offerings = [
-  { value: "discounted", label: "Discounted" },
-  { value: "In stock", label: "In stock" },
+  { value: "sale", label: "Sale" },
 ];
 
 const stars = [
