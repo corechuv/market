@@ -11,7 +11,6 @@ import { SelectField } from "../UI/SelectField";
 import IconFilters from "../Icons/IconFilters";
 
 import ScrollArea from "../../components/UI/ScrollArea/ScrollArea";
-import { useVisualViewport } from "../../hooks/useViewportUnits";
 
 // Разрешённые API-сортировки
 const sortOptions = [
@@ -47,9 +46,6 @@ export default function ProductsMain({
   categoryFullSlug,
 }: ProductsMainProps) {
   const nav = useNavigate();
-
-  // следим за visualViewport (обновляет CSS-переменные --vv-h, --kb и т.п.)
-  useVisualViewport();
 
   const cat = useMemo(
     () =>
