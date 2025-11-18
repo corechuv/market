@@ -120,15 +120,13 @@ export default function ProductsMain({
       <Breadcrumbs crumbs={crumbs as any} />*/}
 
       <div className={cls.productListPage}>
-
         {/* Секция со списком товаров */}
-        <section className={cls.productListContent}>
-          <div className={cls.productsHeader}>
-            <h4 className={cls.title}>
-              {query ? `Results for “${query}”` : cat?.name || "All products"}
-            </h4>
-
-            <div className={cls.productsHeaderRight}>
+        <section className={cls.content}>
+          <MasterBar
+            title={query ? `Results for “${query}”` : cat?.name || "All products"}
+            includeBars
+          >
+            <div className={cls.topbar}>
               <SelectField
                 className={cls.selectField}
                 id="products-sort"
@@ -145,18 +143,20 @@ export default function ProductsMain({
                 onClick={openMobileFilters}
               />
             </div>
-          </div>
+          </MasterBar>
 
-          <ProductItemList
-            products={products}
-            isLoading={loading}
-            skeletonCount={12}
-            onItemClick={(p) => nav(`/product/${p.id}`)}
-          />
+          <section className={cls.items}>
+            <ProductItemList
+              products={products}
+              isLoading={loading}
+              skeletonCount={12}
+              onItemClick={(p) => nav(`/product/${p.id}`)}
+            />
+          </section>
         </section>
         <aside className={cls.desktopSidebarWrapper}>
           <h2 className={cls.title}>Filters</h2>
-            {renderSidebar()}
+          {renderSidebar()}
         </aside>
 
         {/* Мобильный сайдбар: bottom-sheet на весь экран */}
