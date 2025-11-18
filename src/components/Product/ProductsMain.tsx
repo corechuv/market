@@ -137,10 +137,8 @@ export default function ProductsMain({
                 disabled={loading}
                 showTitleOnHover={false}
               />
-              <div className={cls.field}>
-                <IconFilters
-                  onClick={openMobileFilters}
-                />
+              <div className={cls.field} onClick={openMobileFilters}>
+                <IconFilters />
               </div>
             </div>
           </MasterBar>
