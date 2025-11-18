@@ -21,7 +21,7 @@ $bp-lg: 1024px;
 .topbar {
   padding: 1rem 0 0.5rem;
   display: flex;
-  gap: 20px;
+  gap: 16px;
   align-items: center;
 
   div {
@@ -84,8 +84,18 @@ $bp-lg: 1024px;
   overflow: hidden;
 }
 
-.selectField {
+.field {
+  display: flex;
+  height: 43px;
+  background: rgba(var(--background-color-input));
+  border-radius: 12px;
+  justify-content: center;
+  align-items: center;
 
+  svg {
+    width: 28px;
+    height: 28px;
+  }
   @media (max-width: $bp-md) {
     width: 100%;
   }

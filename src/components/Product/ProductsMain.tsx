@@ -137,11 +137,11 @@ export default function ProductsMain({
                 disabled={loading}
                 showTitleOnHover={false}
               />
-              {/* Иконка фильтров видна только на мобилке (через CSS) */}
-              <IconFilters
-                className={cls.selectField}
-                onClick={openMobileFilters}
-              />
+              <div className={cls.field}>
+                <IconFilters
+                  onClick={openMobileFilters}
+                />
+              </div>
             </div>
           </MasterBar>
 
