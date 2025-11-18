@@ -115,66 +115,64 @@ export default function ProductsMain({
   );
 
   return (
-    <div className={cls.productsMain}>
+    <div className={cls.main}>
       {/* Крошки
       <Breadcrumbs crumbs={crumbs as any} />*/}
 
-      <div className={cls.productListPage}>
-        {/* Секция со списком товаров */}
-        <section className={cls.content}>
-          <MasterBar
-            title={query ? `Results for “${query}”` : cat?.name || "All products"}
-            includeBars
-          >
-            <div className={cls.topbar}>
-              <SelectField
-                className={cls.selectField}
-                id="products-sort"
-                placeholder="Sort by…"
-                value={sort}
-                onChange={setSort}
-                options={sortOptions}
-                disabled={loading}
-                showTitleOnHover={false}
-              />
-              <div className={cls.field} onClick={openMobileFilters}>
-                <IconFilters />
-              </div>
-            </div>
-          </MasterBar>
-
-          <section className={cls.items}>
-            <ProductItemList
-              products={products}
-              isLoading={loading}
-              skeletonCount={12}
-              onItemClick={(p) => nav(`/product/${p.id}`)}
-            />
-          </section>
-        </section>
-        <aside className={cls.desktopSidebarWrapper}>
-          <h2 className={cls.title}>Filters</h2>
-          {renderSidebar()}
-        </aside>
-
-        {/* Мобильный сайдбар: bottom-sheet на весь экран */}
-        <div
-          className={`${cls.mobileSidebar} ${isFiltersOpen ? cls.mobileSidebarOpen : ""
-            }`}
+      {/* Секция со списком товаров */}
+      <section className={cls.content}>
+        <MasterBar
+          title={query ? `Results for “${query}”` : cat?.name || "All products"}
+          includeBars
         >
-          <div
-            className={cls.mobileSidebarBackdrop}
-            onClick={closeMobileFilters}
-          />
-          <aside className={cls.mobileSidebarSheet}>
-            <MasterBar title="Filters">
-              <CloseIcon className={cls.close} onClick={closeMobileFilters} />
-            </MasterBar>
-            <div className={cls.sidebar}>
-              {renderSidebar()}
+          <div className={cls.topbar}>
+            <SelectField
+              className={cls.selectField}
+              id="products-sort"
+              placeholder="Sort by…"
+              value={sort}
+              onChange={setSort}
+              options={sortOptions}
+              disabled={loading}
+              showTitleOnHover={false}
+            />
+            <div className={cls.field} onClick={openMobileFilters}>
+              <IconFilters />
             </div>
-          </aside>
-        </div>
+          </div>
+        </MasterBar>
+
+        <section className={cls.items}>
+          <ProductItemList
+            products={products}
+            isLoading={loading}
+            skeletonCount={12}
+            onItemClick={(p) => nav(`/product/${p.id}`)}
+          />
+        </section>
+      </section>
+      <aside className={cls.desktopSidebarWrapper}>
+        <h2 className={cls.title}>Filters</h2>
+        {renderSidebar()}
+      </aside>
+
+      {/* Мобильный сайдбар: bottom-sheet на весь экран */}
+      <div
+        className={`${cls.mobileSidebar} ${isFiltersOpen ? cls.mobileSidebarOpen : ""
+          }`}
+      >
+        <div
+          className={cls.mobileSidebarBackdrop}
+          onClick={closeMobileFilters}
+        />
+        <aside className={cls.mobileSidebarSheet}>
+          <MasterBar title="Filters">
+            <CloseIcon className={cls.close} onClick={closeMobileFilters} />
+          </MasterBar>
+          <div className={cls.sidebar}>
+            {renderSidebar()}
+          </div>
+        </aside>
       </div>
     </div>
   );

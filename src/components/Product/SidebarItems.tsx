@@ -85,9 +85,11 @@ const SidebarItems: React.FC<SidebarItemsProps> = ({
 
     return (
         <aside className={[cls.sidebar, cls[variant]].join(" ")}>
-            <Button className={cls.resetButton} variant="secondary" size="small" onClick={onResetFilters}>
-                Reset filters
-            </Button>
+            <div className={cls.actions}>
+                <Button className={cls.resetButton} variant="secondary" size="small" onClick={onResetFilters}>
+                    Reset filters
+                </Button>
+            </div>
 
             {showSort && (
                 <Accordion title="Sort by" defaultOpen>

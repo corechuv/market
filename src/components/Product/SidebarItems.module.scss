@@ -75,16 +75,22 @@ $bp-md: 768px;
 }
 
 /* скрываем десктопный сайдбар на мобильных */
-.desktop {
-
-}
+.desktop {}
 
 .modal {
     min-width: 250px;
 }
 
+.actions {
+    padding: 1rem 0 0.5rem;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
 /* Кнопка сброса */
 .resetButton {
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
