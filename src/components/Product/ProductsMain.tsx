@@ -168,8 +168,9 @@ export default function ProductsMain({
             onClick={closeMobileFilters}
           />
           <aside className={cls.mobileSidebarSheet}>
-            <MasterBar title="Filters" />
-            <CloseIcon className={cls.close} onClick={closeMobileFilters} />
+            <MasterBar title="Filters">
+              <CloseIcon className={cls.close} onClick={closeMobileFilters} />
+            </MasterBar>
             <div className={cls.sidebar}>
               {renderSidebar()}
             </div>
