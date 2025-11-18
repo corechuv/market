@@ -121,8 +121,6 @@ export default function ProductsMain({
       <Breadcrumbs crumbs={crumbs as any} />*/}
 
       <div className={cls.productListPage}>
-        {/* Сайдбар слева на десктопе (всегда виден) */}
-        <aside className={cls.desktopSidebarWrapper}>{renderSidebar()}</aside>
 
         {/* Секция со списком товаров */}
         <section className={cls.productListContent}>
@@ -157,6 +155,10 @@ export default function ProductsMain({
             onItemClick={(p) => nav(`/product/${p.id}`)}
           />
         </section>
+        <aside className={cls.desktopSidebarWrapper}>
+          <h2 className={cls.title}>Filters</h2>
+            {renderSidebar()}
+        </aside>
 
         {/* Мобильный сайдбар: bottom-sheet на весь экран */}
         <div
