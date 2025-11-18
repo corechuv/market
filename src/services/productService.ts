@@ -5,14 +5,17 @@ const API = import.meta.env.VITE_API_BASE_URL;
 
 export type GetProductsParams = {
   q?: string;
-  sort?: "price" | "-price" | "name" | "-name";
+  sort?: "price" | "-price" | "discount" | "-discount" | "rating" | "-rating" | "new";
   availableOnly?: boolean;
   categoryId?: string;
   categoryFullSlug?: string;
   limit?: number;
   offset?: number;
-  newArrivalsOnly?: boolean;
-  saleOnly?: boolean;
+  newArrivalsOnly?: boolean;  // фильтр "только новинки"
+  saleOnly?: boolean;         // фильтр "только со скидкой"
+  minPriceCents?: number;     // нижняя граница цены в центах
+  maxPriceCents?: number;     // верхняя граница цены в центах
+  minRating?: number;         // минимальный рейтинг (1–5)
 };
 
 function qs(params: Record<string, any>) {
@@ -57,9 +60,10 @@ export async function getMoreProducts(options?: {
     if (!r.ok) throw new Error(`Failed to fetch similar: ${r.status}`);
     return r.json();
   }
+
   // Без currentId — просто list по категории/фильтрам
   return getProducts({
-    sort: "name",
+    sort: "new", // раньше было "name" – сортировка по имени больше не используется
     availableOnly: options?.availableOnly ?? true,
     categoryId: options?.categoryId,
     categoryFullSlug: options?.categoryFullSlug,

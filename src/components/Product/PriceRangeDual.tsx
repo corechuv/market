@@ -1,31 +1,16 @@
-import React, { useCallback, useId, useState } from "react";
+// src/components/Product/PriceRangeDual.tsx
+import React, { useCallback, useEffect, useId, useState } from "react";
 import cls from "./PriceRangeDual.module.scss";
 
-/**
- * Dual‑thumb price range slider (min ⇄ max) on a *single* track.
- *
- * — Accessible (keyboard & screen‑reader)
- * — No external dependencies
- * — Pure CSS Module styling (no Tailwind)
- */
 export interface PriceRangeDualProps {
-    /** Lowest selectable value (defaults to 0) */
     min?: number;
-    /** Highest selectable value (defaults to 1000) */
     max?: number;
-    /** Slider step (defaults to 1) */
     step?: number;
-    /** Controlled value tuple ([min, max]) */
     value?: [number, number];
-    /** Uncontrolled initial value */
     defaultValue?: [number, number];
-    /** ISO‑4217 currency code or symbol (defaults to €) */
     currency?: string;
-    /** Fires on every user interaction */
     onChange?: (value: [number, number]) => void;
-    /** Visible label text (defaults to “Price Range”) */
     label?: string;
-    /** Optional extra class(es) */
     className?: string;
 }
 
@@ -39,19 +24,30 @@ const PriceRangeDual: React.FC<PriceRangeDualProps> = ({
     onChange,
     className,
 }) => {
-    /* ───────── State & controlled mode detection ───────── */
     const isControlled = value !== undefined;
+
     const [internal, setInternal] = useState<[number, number]>(
         defaultValue ?? [min, max],
     );
+
+    // если компонент используют в неконтролируемом режиме —
+    // обновляем внутреннее состояние, когда меняется defaultValue/min/max
+    useEffect(() => {
+        if (!isControlled) {
+            if (defaultValue) {
+                setInternal(defaultValue);
+            } else {
+                setInternal([min, max]);
+            }
+        }
+    }, [defaultValue, min, max, isControlled]);
+
     const [lower, upper] = isControlled ? (value as [number, number]) : internal;
 
-    /* ───────── Accessible range ids ───────── */
     const id = useId();
     const lowerId = `${id}-low`;
     const upperId = `${id}-high`;
 
-    /* ───────── Helpers ───────── */
     const clamp = (val: number, low: number, high: number) =>
         Math.min(Math.max(val, low), high);
 
@@ -63,7 +59,6 @@ const PriceRangeDual: React.FC<PriceRangeDualProps> = ({
         [isControlled, onChange],
     );
 
-    /* ───────── Handlers ───────── */
     const handleLower = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
             const raw = Number(e.currentTarget.value);
@@ -82,8 +77,10 @@ const PriceRangeDual: React.FC<PriceRangeDualProps> = ({
         [lower, commit, max],
     );
 
-    /* ───────── Dynamic track fill ───────── */
-    const pct = (v: number) => ((v - min) / (max - min)) * 100;
+    // защита от деления на ноль
+    const range = max - min || 1;
+    const pct = (v: number) => ((clamp(v, min, max) - min) / range) * 100;
+
     const trackBackground = `linear-gradient(to right,
       var(--bg-range-track) 0%,
       var(--bg-range-track) ${pct(lower)}%,
@@ -92,19 +89,17 @@ const PriceRangeDual: React.FC<PriceRangeDualProps> = ({
       var(--bg-range-track) ${pct(upper)}%,
       var(--bg-range-track) 100%)`;
 
-    /* ───────── Currency formatter ───────── */
+    // n — ЦЕНТЫ, показываем в валюте
     const fmt = (n: number) =>
         Intl.NumberFormat(undefined, {
             style: "currency",
             currency: currency === "€" ? "EUR" : currency,
             maximumFractionDigits: 0,
-        }).format(n);
+        }).format(n / 100);
 
-    /* ───────── Markup ───────── */
     return (
         <div className={`${cls.priceRangeDual} ${className ?? ""}`}>
             <div className={cls.rangeWrapper} style={{ background: trackBackground }}>
-                {/* Lower thumb */}
                 <input
                     id={lowerId}
                     type="range"
@@ -119,7 +114,6 @@ const PriceRangeDual: React.FC<PriceRangeDualProps> = ({
                     aria-valuenow={lower}
                 />
 
-                {/* Upper thumb */}
                 <input
                     id={upperId}
                     type="range"
