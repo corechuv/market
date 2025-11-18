@@ -198,7 +198,7 @@ const SidebarItems: React.FC<SidebarItemsProps> = ({
             <div className={cls.actions}>
                 <Button
                     className={cls.resetButton}
-                    variant="secondary"
+                    variant="primary"
                     size="small"
                     onClick={onResetFilters}
                 >
