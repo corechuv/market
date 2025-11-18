@@ -37,15 +37,14 @@ $bp-lg: 1024px;
 
 /* сайдбар слева на десктопе — всегда показываем */
 .desktopSidebarWrapper {
-  background-color: var(--bg, #fff);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  background-color: var(--bg);
   border-radius: 12px;
   display: none;
 
   @media (min-width: $bp-md) {
     display: block;
     flex-shrink: 0;
-    flex-basis: 220px; // подгони под свою ширину
+    flex-basis: 200px; // подгони под свою ширину
     align-self: stretch;
   }
 }
@@ -65,6 +64,13 @@ $bp-lg: 1024px;
   line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.selectField {
+
+  @media (max-width: $bp-md) {
+    width: 100%;
+  }
 }
 
 .productsHeader {
@@ -134,7 +140,6 @@ $bp-lg: 1024px;
   .mobileSidebarBackdrop {
     position: absolute;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.4);
   }
 
   .mobileSidebarSheet {

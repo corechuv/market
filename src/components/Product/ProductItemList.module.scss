@@ -2,11 +2,16 @@
 $bp-sm: 480px;
 $bp-md: 768px;
 $bp-lg: 1024px;
+$bp-bg: 1200px;
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: var(--gap) var(--gap);
+
+  @media (max-width: $bp-bg) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 
   @media (max-width: $bp-lg) {
     grid-template-columns: repeat(3, minmax(0, 1fr));

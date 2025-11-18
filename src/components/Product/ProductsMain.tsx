@@ -131,6 +131,7 @@ export default function ProductsMain({
 
             <div className={cls.productsHeaderRight}>
               <SelectField
+                className={cls.selectField}
                 id="products-sort"
                 placeholder="Sort by…"
                 value={sort}
@@ -140,7 +141,10 @@ export default function ProductsMain({
                 showTitleOnHover={false}
               />
               {/* Иконка фильтров видна только на мобилке (через CSS) */}
-              <IconFilters onClick={openMobileFilters} />
+              <IconFilters
+                className={cls.selectField}
+                onClick={openMobileFilters}
+              />
             </div>
           </div>
 
@@ -154,9 +158,8 @@ export default function ProductsMain({
 
         {/* Мобильный сайдбар: bottom-sheet на весь экран */}
         <div
-          className={`${cls.mobileSidebar} ${
-            isFiltersOpen ? cls.mobileSidebarOpen : ""
-          }`}
+          className={`${cls.mobileSidebar} ${isFiltersOpen ? cls.mobileSidebarOpen : ""
+            }`}
         >
           <div
             className={cls.mobileSidebarBackdrop}
