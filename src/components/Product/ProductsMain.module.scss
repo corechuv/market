@@ -1,4 +1,4 @@
-// @use "../../styles/scrollbar.module.scss" as scrollbar; // ❌ убрали, больше не нужно
+@use "../../styles/scrollbar.module.scss" as scrollbar;
 
 $bp-sm: 480px;
 $bp-md: 768px;
@@ -14,6 +14,7 @@ $bp-lg: 1024px;
   padding-top: 1.5rem;
   padding-bottom: 1.5rem;
   margin: 0 auto;
+  width: 100%;
 
   @media screen and (max-width: $bp-md) {
     gap: 1rem;
@@ -141,17 +142,16 @@ $bp-lg: 1024px;
     left: 0;
     right: 0;
     bottom: 0;
-
-    /* используем visualViewport: --vv-h и высоту клавы --kb */
-    height: var(--vv-h, 100vh);
-    max-height: var(--vv-h, 100vh);
-
+    height: 100%; // на весь экран
+    max-height: 100vh;
     background-color: var(--bg, #fff);
     padding: 16px;
-    padding-bottom: calc(16px + var(--kb, 0px));
     overflow-y: auto;
     transform: translateY(100%);
     transition: transform 0.25s ease;
+
+    // если есть миксин скроллбара — можно включить
+    // @include scrollbar.scrollbarY;
   }
 
   .mobileSidebarOpen .mobileSidebarSheet {

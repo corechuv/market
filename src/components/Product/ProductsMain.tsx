@@ -10,8 +10,6 @@ import type { Product } from "../../types/product";
 import { SelectField } from "../UI/SelectField";
 import IconFilters from "../Icons/IconFilters";
 
-import ScrollArea from "../../components/UI/ScrollArea/ScrollArea";
-
 // Разрешённые API-сортировки
 const sortOptions = [
   { value: "price", label: "Price: Low to high" },
@@ -48,8 +46,7 @@ export default function ProductsMain({
   const nav = useNavigate();
 
   const cat = useMemo(
-    () =>
-      categoryFullSlug ? getCategoryByFullSlug(categoryFullSlug) : undefined,
+    () => (categoryFullSlug ? getCategoryByFullSlug(categoryFullSlug) : undefined),
     [categoryFullSlug]
   );
   // const crumbs = useMemo(() => (cat ? getBreadcrumbs(cat.id) : []), [cat]);
@@ -97,7 +94,7 @@ export default function ProductsMain({
   // вынес рендер сайдбара, чтобы не дублировать пропсы
   const renderSidebar = () => (
     <SidebarItems
-      variant="desktop" // если сделаешь вариант "mobile" — сюда можно подставить его
+      variant="desktop" // если есть вариант "mobile", можно сюда подставить его
       showCategories={showCategories}
       currentCategoryFullSlug={cat?.fullSlug}
       showSort={false}
@@ -113,9 +110,6 @@ export default function ProductsMain({
         defaultValue: [651_650, 4_493_750],
       }}
       onResetFilters={() => console.log("Reset filters")}
-      // если хочешь закрывать по любому клику/выбору внутри фильтров —
-      // можешь добавить проп в SidebarItems и вызвать там closeMobileFilters()
-      // onAnyFilterChange={closeMobileFilters}
     />
   );
 
@@ -168,15 +162,7 @@ export default function ProductsMain({
             className={cls.mobileSidebarBackdrop}
             onClick={closeMobileFilters}
           />
-          {/* 
-            ScrollArea:
-            - регистрирует область как скроллируемую
-            - при lockBody={true} лочит body, а при false/анмаунте разлочивает
-          */}
-          <ScrollArea
-            lockBody={isFiltersOpen}
-            className={cls.mobileSidebarSheet}
-          >
+          <aside className={cls.mobileSidebarSheet}>
             <div className={cls.mobileSidebarHeader}>
               <span>Фильтры</span>
               <button
@@ -188,7 +174,7 @@ export default function ProductsMain({
               </button>
             </div>
             {renderSidebar()}
-          </ScrollArea>
+          </aside>
         </div>
       </div>
     </div>
