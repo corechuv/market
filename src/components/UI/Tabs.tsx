@@ -17,6 +17,7 @@ export type TabsProps<K extends string = string> = {
     onChange: (key: K) => void;
     /** Optional ARIA label(s) */
     ariaLabel?: string;
+    background?: React.CSSProperties["background"];
 };
 
 function classNames(...xs: Array<string | false | undefined | null>) {
@@ -27,7 +28,8 @@ export function Tabs<K extends string = string>({
     items,
     activeKey,
     onChange,
-    ariaLabel
+    ariaLabel,
+    background,
 }: TabsProps<K>) {
     const normalized = useMemo(() => items.filter(Boolean), [items]);
     const keys = useMemo(() => normalized.map((i) => i.key), [normalized]);
@@ -66,9 +68,14 @@ export function Tabs<K extends string = string>({
         }
     }
 
+    const style: React.CSSProperties = {
+        ...(background ? { background } : {})
+    };
+
     const Chips = (
         <div
-            className={cls.tabsMobile}
+            className={`${cls.tabsMobile}`}
+            style={style}
             role="tablist"
             aria-label={ariaLabel || "Tabs"}
         >

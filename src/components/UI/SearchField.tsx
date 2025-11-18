@@ -93,7 +93,7 @@ const SearchField = React.forwardRef<HTMLInputElement, SearchFieldProps>(
                     )}
                 </div>
 
-                {!hideStatus && (
+                {hideStatus && (
                     <section
                         className={c.topbar__meta}
                         data-search="status"

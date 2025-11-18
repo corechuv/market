@@ -113,6 +113,7 @@ export async function listReelsFeed(opts: {
   sort?: "new" | "popular" | "trending";
   productId?: string;
   days?: number;
+  q?: string;
   limit?: number;
   offset?: number;
 } = {}) {
@@ -120,6 +121,7 @@ export async function listReelsFeed(opts: {
     sort: opts.sort ?? "trending",
     productId: opts.productId,
     days: opts.days,
+    q: opts.q,
     limit: opts.limit ?? 40,
     offset: opts.offset ?? 0,
   });
@@ -130,6 +132,7 @@ export async function listReelsFeed(opts: {
   if (!r.ok) throw new Error(`Failed to load reels feed: ${r.status}`);
   return (await r.json()) as ReviewOut[];
 }
+
 
 export async function getReviewById(reviewId: string): Promise<ReviewOut> {
   const r = await fetch(`${API}/reviews/${reviewId}`, {

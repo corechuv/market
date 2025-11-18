@@ -2,7 +2,6 @@
 .tabs {
   position: sticky;
   top: 0;
-  background-color: var(--bg);
   z-index: 1000;
 }
 
@@ -18,7 +17,7 @@
 .chip {
   /* Размеры */
   height: 46px;
-  padding: 0 14px;
+  padding: 0 10px;
   line-height: 46px;
   /* фиксируем высоту строки = высоте кнопки */
   width: auto;
