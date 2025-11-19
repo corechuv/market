@@ -6,14 +6,16 @@ import c from "./MasterBar.module.scss";
 export interface MasterBarProps extends React.HTMLAttributes<HTMLDivElement> {
     title?: string;
     includeBars?: boolean;
+    bar?: React.ReactNode;
     background?: React.CSSProperties["background"];
 }
 
 export default function MasterBar({
     children,
     className,
-    title = "text",
+    title,
     includeBars = false,
+    bar,
     background,
     ...divProps
 }: MasterBarProps) {
@@ -23,9 +25,20 @@ export default function MasterBar({
         ...divProps.style,
     };
 
+    const w: React.CSSProperties = {
+        gap: includeBars ? "1rem" : "0",
+    };
+
     return (
         <div className={clsx(c.mastbar, className)} style={style} {...divProps}>
-            {title && <h2 className={c.mastbar__title}>{title}</h2>}
+            <div className={c.mastbar__w} style={w}>
+                {title && <h2 className={c.mastbar__title}>{title}</h2>}
+                {includeBars &&
+                    <div className={c.mastbar__bar}>
+                        {bar}
+                    </div>
+                }
+            </div>
             {children}
         </div>
     );

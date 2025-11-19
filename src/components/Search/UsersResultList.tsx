@@ -99,7 +99,9 @@ function UserResultsList<T extends BaseUserListItem>({
                                     className={c["list__item--photo"]}
                                     alt=""
                                 />
-                            ) : (<div className={c["list__item--placeholder"]}></div>)}
+                            ) : (
+                                <div className={c["list__item--placeholder"]}></div>
+                            )}
                             <div className={c["list__item--col"]}>
                                 <span
                                     className={c["list__item--label"]}

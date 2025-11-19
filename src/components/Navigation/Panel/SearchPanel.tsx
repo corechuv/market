@@ -375,28 +375,34 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
       className={c.g}
     >
       <div className={c.content}>
-        <MasterBar title="Search" includeBars background="var(--n-bg-desktop)">
-          <SearchField
-            ref={inputRef}
-            value={query}
-            onChange={(value: string) => {
-              setQuery(value);
-              // при наборе всегда сбрасываем activeIndex текущей вкладки
-              setActiveIndexForTab(activeTab, -1);
-            }}
-            onKeyDown={onKeyDown}
-            placeholder="Start typing..."
-            aria-label="Search bar"
-            aria-controls={listboxId}
-            aria-expanded={searchLoading || activeResultsLength > 0}
-            aria-autocomplete="list"
-            aria-activedescendant={
-              activeIndex >= 0 ? `${listboxId}-opt-${activeIndex}` : undefined
-            }
-            loading={searchLoading}
-            error={searchError}
-            resultsLength={activeResultsLength}
-          />
+        <MasterBar
+          title="Search"
+          includeBars
+          background="var(--n-bg-desktop)"
+          bar={
+            <SearchField
+              ref={inputRef}
+              value={query}
+              onChange={(value: string) => {
+                setQuery(value);
+                // при наборе всегда сбрасываем activeIndex текущей вкладки
+                setActiveIndexForTab(activeTab, -1);
+              }}
+              onKeyDown={onKeyDown}
+              placeholder="Start typing..."
+              aria-label="Search bar"
+              aria-controls={listboxId}
+              aria-expanded={searchLoading || activeResultsLength > 0}
+              aria-autocomplete="list"
+              aria-activedescendant={
+                activeIndex >= 0 ? `${listboxId}-opt-${activeIndex}` : undefined
+              }
+              loading={searchLoading}
+              error={searchError}
+              resultsLength={activeResultsLength}
+            />
+          }
+        >
           <Tabs<SearchTabKey>
             items={tabItems}
             activeKey={activeTab}

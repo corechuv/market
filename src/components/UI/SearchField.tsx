@@ -73,12 +73,12 @@ const SearchField = React.forwardRef<HTMLInputElement, SearchFieldProps>(
                 });
 
         return (
-            <div className={c.topbar}>
-                <div className={c.topbar__panel}>
-                    <SearchIcon className={c["topbar__panel--icon"]} />
+            <div className={c.bar}>
+                <div className={c.bar__panel}>
+                    <SearchIcon className={c["bar__panel--icon"]} />
                     <input
                         ref={ref}
-                        className={c["topbar__panel--input"]}
+                        className={c["bar__panel--input"]}
                         value={value}
                         onChange={(e) => onChange(e.target.value)}
                         onKeyDown={handleKeyDown}
@@ -89,13 +89,13 @@ const SearchField = React.forwardRef<HTMLInputElement, SearchFieldProps>(
                         {...inputProps}
                     />
                     {value && (
-                        <CloseIcon onClick={clear} className={c["topbar__panel--clear"]} />
+                        <CloseIcon onClick={clear} className={c["bar__panel--clear"]} />
                     )}
                 </div>
 
                 {hideStatus && (
                     <section
-                        className={c.topbar__meta}
+                        className={c.bar__meta}
                         data-search="status"
                         role="status"
                         aria-live={statusAriaLive}

@@ -278,30 +278,34 @@ export default function MobileSearchPage() {
     return (
         <Page padding={false}>
             <div className={c.content} role="search">
-                <MasterBar title="Search" includeBars>
-                    <SearchField
-                        ref={inputRef}
-                        value={query}
-                        onChange={setQuery}
-                        placeholder="Start typing..."
-                        aria-label="Search"
-                        aria-controls={listboxId}
-                        aria-expanded={searchLoading || activeResultsLength > 0}
-                        loading={searchLoading}
-                        error={searchError}
-                        resultsLength={activeResultsLength}
-                        onEnter={() => {
-                            if (!query.trim()) return;
-                            if (activeTab === "products" && productResults[0]) {
-                                onSelectProduct(productResults[0]);
-                            } else if (activeTab === "people" && peopleResults[0]) {
-                                onSelectPerson(peopleResults[0]);
-                            } else if (activeTab === "videos" && videoResults[0]) {
-                                onSelectVideo(videoResults[0]);
-                            }
-                        }}
-                        onEscape={smartBack}
-                    />
+                <MasterBar
+                    includeBars
+                    bar={
+                        <SearchField
+                            ref={inputRef}
+                            value={query}
+                            onChange={setQuery}
+                            placeholder="Start typing..."
+                            aria-label="Search"
+                            aria-controls={listboxId}
+                            aria-expanded={searchLoading || activeResultsLength > 0}
+                            loading={searchLoading}
+                            error={searchError}
+                            resultsLength={activeResultsLength}
+                            onEnter={() => {
+                                if (!query.trim()) return;
+                                if (activeTab === "products" && productResults[0]) {
+                                    onSelectProduct(productResults[0]);
+                                } else if (activeTab === "people" && peopleResults[0]) {
+                                    onSelectPerson(peopleResults[0]);
+                                } else if (activeTab === "videos" && videoResults[0]) {
+                                    onSelectVideo(videoResults[0]);
+                                }
+                            }}
+                            onEscape={smartBack}
+                        />
+                    }
+                >
                     <Tabs<SearchTabKey>
                         items={tabItems}
                         activeKey={activeTab}
