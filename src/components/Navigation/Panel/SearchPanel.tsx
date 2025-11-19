@@ -458,10 +458,10 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
                   searchError
                     ? searchError
                     : videosLoading
-                      ? "Загрузка..."
+                      ? ""
                       : query.trim()
                         ? "Ничего не найдено"
-                        : "Начните вводить, чтобы найти видео-отзывы"
+                        : ""
                 }
                 onItemClick={(review) => {
                   // используем уже готовый хендлер

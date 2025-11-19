@@ -352,10 +352,10 @@ export default function MobileSearchPage() {
                                     searchError
                                         ? searchError
                                         : videosLoading
-                                            ? "Загрузка..."
+                                            ? ""
                                             : query.trim()
                                                 ? "Ничего не найдено"
-                                                : "Начните вводить, чтобы найти видео-отзывы"
+                                                : ""
                                 }
                                 onItemClick={(review) => {
                                     onSelectVideo(review);
