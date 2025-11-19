@@ -7,7 +7,7 @@ import {
     useId,
 } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import styles from "./MobileSearchPage.module.scss";
+import c from "./MobileSearchPage.module.scss";
 
 import { getProducts } from "../../services/productService";
 import SearchField from "../../components/UI/SearchField";
@@ -276,7 +276,7 @@ export default function MobileSearchPage() {
 
     return (
         <Page padding={false}>
-            <div className={styles.content} role="search">
+            <div className={c.content} role="search">
                 <MasterBar title="Search" includeBars>
                     <SearchField
                         ref={inputRef}
@@ -325,21 +325,48 @@ export default function MobileSearchPage() {
                     )}
 
                     {activeTab === "people" && (
-                        <SearchResultsList
-                            items={peopleResults}
-                            getKey={(p) => p.id || p.username}
-                            getLabel={(p) =>
-                                p.username
-                                    ? `${p.name} (@${p.username})`
-                                    : p.name
-                            }
-                            onSelect={onSelectPerson}
-                            loading={peopleLoading}
+                        <ul
+                            className={c.list}
+                            id={listboxId}
                             role="listbox"
-                            ariaLabel="Search results: people"
-                            listId={listboxId}
-                            skeletonRows={6}
-                        />
+                            aria-label="Search results: people"
+                        >
+                            {peopleLoading && !peopleResults.length && (
+                                <li>Загрузка...</li>
+                            )}
+                            {!peopleLoading && !searchError && query.trim() && !peopleResults.length && (
+                                <li>Ничего не найдено</li>
+                            )}
+                            {searchError && <li>{searchError}</li>}
+
+                            {peopleResults.map((p, i) => (
+                                <li
+                                    key={p.id || p.username}
+                                    id={`${listboxId}-opt-${i}`}
+                                    className={c.list__item}
+                                    role="option"
+                                    onMouseDown={(ev) => {
+                                        ev.preventDefault();
+                                        onSelectPerson(p);
+                                    }}
+                                >
+                                    {p.avatarUrl && (
+                                        <img
+                                            className={c["list__item--photo"]}
+                                            alt=""
+                                        />
+                                    )}
+                                    <div className={c["list__item--col"]}>
+                                        <span className={c["list__item--label"]}
+                                            data-search="item-label" title={p.name}>{p.name}</span>
+                                        {p.username && (
+                                            <span className={c["list__item--label--s"]}
+                                                data-search="item-label" title={p.username}>@{p.username}</span>
+                                        )}
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
                     )}
 
                     {activeTab === "videos" && (

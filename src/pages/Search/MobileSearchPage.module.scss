@@ -1,4 +1,6 @@
 // src/pages/Search/ModileSearchPage.module.scss
+@use "../../styles/default_list.module.scss";
+
 .content {
   /* Привязываемся к visualViewport */
   position: absolute; 
