@@ -326,27 +326,17 @@ export default function MobileSearchPage() {
                     )}
 
                     {activeTab === "people" && (
-                        <>
-                            {peopleLoading && !peopleResults.length && (
-                                <li>Загрузка...</li>
-                            )}
-                            {!peopleLoading && !searchError && query.trim() && !peopleResults.length && (
-                                <li>Ничего не найдено</li>
-                            )}
-                            {searchError && <li>{searchError}</li>}
-
-                            <UserResultsList<PersonSearchItem>
-                                items={peopleResults}
-                                getKey={(p) => p.id || p.username}
-                                onSelect={onSelectPerson}
-                                // скелетоны — только когда уже есть результаты и идёт новая загрузка
-                                loading={peopleLoading && !!peopleResults.length}
-                                role="listbox"
-                                ariaLabel="Search results: people"
-                                listId={listboxId}
-                                skeletonRows={6}
-                            />
-                        </>
+                        <UserResultsList<PersonSearchItem>
+                            items={peopleResults}
+                            getKey={(p) => p.id || p.username}
+                            onSelect={onSelectPerson}
+                            // скелетоны — только когда уже есть результаты и идёт новая загрузка
+                            loading={peopleLoading && !!peopleResults.length}
+                            role="listbox"
+                            ariaLabel="Search results: people"
+                            listId={listboxId}
+                            skeletonRows={6}
+                        />
                     )}
 
                     {activeTab === "videos" && (

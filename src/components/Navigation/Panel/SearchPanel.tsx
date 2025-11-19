@@ -429,30 +429,21 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
           )}
 
           {activeTab === "people" && (
-            <>
-              {!peopleLoading &&
-                !searchError &&
-                query.trim() &&
-                !peopleResults.length && <div>Ничего не найдено</div>}
-
-              {searchError && <div>{searchError}</div>}
-
-              <UserResultsList<PersonSearchItem>
-                items={peopleResults}
-                getKey={(p) => p.id || p.username}
-                onSelect={(item) => {
-                  onSelectPerson(item);
-                }}
-                // скелетоны — только когда уже есть результаты и идёт новая загрузка
-                loading={peopleLoading && !!peopleResults.length}
-                role="listbox"
-                ariaLabel="Search results: people"
-                listId={listboxId}
-                skeletonRows={6}
-                activeIndex={activeIndexByTab.people}
-                onActiveIndexChange={(idx) => setActiveIndexForTab("people", idx)}
-              />
-            </>
+            <UserResultsList<PersonSearchItem>
+              items={peopleResults}
+              getKey={(p) => p.id || p.username}
+              onSelect={(item) => {
+                onSelectPerson(item);
+              }}
+              // скелетоны — только когда уже есть результаты и идёт новая загрузка
+              loading={peopleLoading && !!peopleResults.length}
+              role="listbox"
+              ariaLabel="Search results: people"
+              listId={listboxId}
+              skeletonRows={6}
+              activeIndex={activeIndexByTab.people}
+              onActiveIndexChange={(idx) => setActiveIndexForTab("people", idx)}
+            />
           )}
 
           {activeTab === "videos" && (
