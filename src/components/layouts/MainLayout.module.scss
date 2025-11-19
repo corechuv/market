@@ -9,8 +9,6 @@
 }
 
 .baseAvatar {
-    position: absolute;
-    inset: 0;
     width: 27px;
     height: 27px;
     border-radius: 50%;
@@ -20,7 +18,7 @@
 
 .placeholder {
     @extend .baseAvatar;
-    width: 27px;
-    height: 27px;
-    background-color: var(--border);
+    width: 24px;
+    height: 24px;
+    border: 1px dashed var(--border);
 }

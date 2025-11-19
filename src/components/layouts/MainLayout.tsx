@@ -102,7 +102,7 @@ export default function MainLayout() {
             </div>
           ) : (
             <div className={c.placeholder} title={displayName}>
-              {initials}
+              {/*{initials}*/}
             </div>
           )
         ) : (
