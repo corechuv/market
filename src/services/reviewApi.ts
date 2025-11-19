@@ -1,9 +1,8 @@
 // src/services/reviewApi.ts
 import type { ReviewOut, ReviewType } from "../types/review/review";
+import { buildAvatarSrc } from "../utils/avatar";
 
 const API = import.meta.env.VITE_API_BASE_URL;
-
-const API_ORIGIN = new URL(API).origin;
 
 function qs(params: Record<string, any>) {
   const q = new URLSearchParams();
@@ -180,17 +179,11 @@ export async function listMyReels(opts: {
   return data;
 }
 
-export function abs(u?: string | null): string {
-  if (!u) return "";
-  return u.startsWith("http") ? u : `${API_ORIGIN}${u}`;
-}
-
-// Абсолютный URL аватара с меткой "t=" для борьбы с кешем
 export function toAvatarSrc(r: ReviewOut): string {
-  const url = r.authorAvatarUrl ? abs(r.authorAvatarUrl) : "";
-  if (!url) return "";
-  const t = r.authorUpdatedAt || r.createdAt || "";
-  return t ? `${url}?t=${encodeURIComponent(t)}` : url;
+  return buildAvatarSrc(
+    r.authorAvatarUrl ?? undefined,
+    r.authorUpdatedAt || r.createdAt || ""
+  );
 }
 
 export async function listUserReels(opts: {
