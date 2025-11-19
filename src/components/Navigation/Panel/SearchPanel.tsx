@@ -406,6 +406,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
               setActiveIndexForTab(k, -1);
             }}
             ariaLabel="Search type"
+            background="transparent"
           />
         </MasterBar>
 

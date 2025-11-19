@@ -69,7 +69,7 @@ export function Tabs<K extends string = string>({
     }
 
     const style: React.CSSProperties = {
-        ...(background ? { background } : {})
+        background: background ?? "var(--bg)",
     };
 
     const Chips = (

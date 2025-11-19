@@ -307,6 +307,7 @@ export default function MobileSearchPage() {
                         activeKey={activeTab}
                         onChange={setActiveTab}
                         ariaLabel="Search type"
+                        background="transparent"
                     />
                 </MasterBar>
 
