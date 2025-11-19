@@ -38,6 +38,7 @@ type AuthCtx = {
         remember?: boolean;
     }) => Promise<void>;
     logout: () => Promise<void>;
+    reloadMe: () => Promise<void>;
 };
 
 const Ctx = createContext<AuthCtx | undefined>(undefined);
@@ -131,7 +132,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return task;
     }, [clearAuth, persistAuth]);
 
-    // === Инициализация: подхват токена/пользователя, догрузка me при необходимости
     useEffect(() => {
         const access =
             localStorage.getItem(ACCESS_KEY) ||
@@ -143,6 +143,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (access) {
             api.defaults.headers.common.Authorization = `Bearer ${access}`;
         }
+
+        // Показать что-то сразу из кэша (чтобы не моргало)
         if (cachedUser) {
             try {
                 setUser(JSON.parse(cachedUser));
@@ -153,7 +155,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         (async () => {
             try {
-                if (access && !cachedUser) {
+                if (access) {
                     const { data } = await api.get("/auth/me");
                     setUser(data);
                     localStorage.setItem(USER_KEY, JSON.stringify(data));
@@ -297,6 +299,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         clearAuth();
     }, [clearAuth]);
 
+    const reloadMe = useCallback(async () => {
+        try {
+            const { data } = await api.get("/auth/me");
+            setUser(data);
+            const json = JSON.stringify(data);
+            try {
+                localStorage.setItem(USER_KEY, json);
+                sessionStorage.setItem(USER_KEY, json);
+            } catch { /* ignore */ }
+        } catch {
+            clearAuth();
+        }
+    }, [clearAuth]);
+
     const value = useMemo<AuthCtx>(
         () => ({
             user,
@@ -305,8 +321,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             login,
             register,
             logout,
+            reloadMe,
         }),
-        [user, loading, login, register, logout]
+        [user, loading, login, register, logout, reloadMe]
     );
 
     return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

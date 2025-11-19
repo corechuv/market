@@ -24,6 +24,7 @@ import { listReelsFeed } from "../../services/reviewApi";
 import type { ReviewOut } from "../../types/review/review";
 import ReelsGrid from "../../components/User/Tabs/ReelsGrid";
 import UserResultsList from "../../components/Search/UsersResultList";
+import { buildAvatarSrc } from "../../utils/avatar";
 
 type SearchItem = {
     id: string;
@@ -170,7 +171,11 @@ export default function MobileSearchPage() {
                             id: String(p.id),
                             username: String(p.username || ""),
                             name: fullName || p.username || "",
-                            avatarUrl: p.avatarUrl ?? null,
+                            avatarUrl:
+                                buildAvatarSrc(
+                                    p.avatarUrl,
+                                    `${p.id}-${p.avatarUrl || ""}`
+                                ) ?? null,
                         };
                     })
                     .filter((x) => x.username);

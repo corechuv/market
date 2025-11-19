@@ -12,9 +12,7 @@ import {
     compose,
     type FieldErrors,
 } from "../../../utils/validate/fields";
-
-const API_ORIGIN = new URL(import.meta.env.VITE_API_BASE_URL).origin;
-const abs = (u?: string | null) => (!u ? "" : (u.startsWith("http") ? u : `${API_ORIGIN}${u}`));
+import { buildAvatarSrc } from "../../../utils/avatar";
 
 export type Address = {
     id: string;
@@ -78,12 +76,12 @@ export default function ProfileForm({
     const [avatarDraft, setAvatarDraft] =
         useState<{ file?: File | null; removed?: boolean } | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string>(
-        me.avatarUrl ? abs(me.avatarUrl) + `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}` : "",
+        buildAvatarSrc(me.avatarUrl, me.updatedAt || String(Date.now())) ?? ""
     );
 
     useEffect(() => {
         setAvatarPreview(
-            me.avatarUrl ? abs(me.avatarUrl) + `?t=${encodeURIComponent(me.updatedAt || String(Date.now()))}` : "",
+            buildAvatarSrc(me.avatarUrl, me.updatedAt || String(Date.now())) ?? ""
         );
     }, [me.avatarUrl, me.updatedAt]);
 

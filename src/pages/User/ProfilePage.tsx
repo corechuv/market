@@ -11,10 +11,7 @@ import api from "../../lib/api";
 
 import styles from "../Account/AccountPage.module.scss";
 import Videos from "../../components/User/Tabs/Videos";
-
-const API_ORIGIN = new URL(import.meta.env.VITE_API_BASE_URL).origin;
-const abs = (u?: string | null) =>
-    !u ? "" : (u.startsWith("http") ? u : `${API_ORIGIN}${u}`);
+import { buildAvatarSrc } from "../../utils/avatar";
 
 type TabKey = "videos";
 
@@ -120,9 +117,10 @@ export default function ProfilePage() {
         );
     }
 
-    const avatarUrl =
-        abs(profile.avatarUrl) +
-        `?t=${encodeURIComponent(profile.id + "-" + (profile.avatarUrl || ""))}`;
+    const avatarUrl = buildAvatarSrc(
+        profile.avatarUrl,
+        `${profile.id}-${profile.avatarUrl || ""}`
+    );
 
     const handleTabChange = (key: TabKey) => {
         setActive(key);

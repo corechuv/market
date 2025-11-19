@@ -1,5 +1,12 @@
 // src/components/Navigation/Navigation.tsx
-import { useMemo, useRef, useState, useEffect } from "react";
+import {
+  useMemo,
+  useRef,
+  useState,
+  useEffect,
+  type ReactNode,
+  type FC,
+} from "react";
 import cls from "./Navigation.module.scss";
 import AccountIcon from "../Icons/AccountIcon";
 import SearchIcon from "../Icons/SearchIcon";
@@ -16,6 +23,7 @@ import CatalogPanel from "./Panel/CatalogPanel";
 import NotificationsPanel from "./Panel/NotificationsPanel";
 import NotificationIcon from "../Icons/NotificationIcon";
 import HamburgerIcon from "../Icons/HamburgerIcon";
+import { buildAvatarSrc } from "../../utils/avatar";
 
 export interface Props {
   className?: string;
@@ -27,31 +35,26 @@ type PanelId = "search" | "catalog" | "notifications" | "settings";
 type BaseItem = {
   id: string;
   ariaLabel: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   disabled?: boolean;
-  renderAfterIcon?: React.ReactNode;
-  align?: "top" | "bottom";       // куда положить кнопку
-  controlsId?: string;            // id панели для aria-controls
+  renderAfterIcon?: ReactNode;
+  align?: "top" | "bottom"; // куда положить кнопку
+  controlsId?: string; // id панели для aria-controls
 };
 
 type NavItem =
   | (BaseItem & { action: "panel"; panel: PanelId })
   | (BaseItem & { action: "link"; to: string });
 
-const API_ORIGIN = new URL(import.meta.env.VITE_API_BASE_URL).origin;
-const abs = (u?: string | null) =>
-  !u ? "" : (u.startsWith("http") ? u : `${API_ORIGIN}${u}`);
-
-const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
+const Navigation: FC<Props> = ({ className, hideOnMobile }) => {
   const nav = useNavigate();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
-
-  const username =
-    (user as any)?.username
-      ? String((user as any).username).trim().toLowerCase()
-      : "";
-
   const { lines } = useCart();
+
+  const username = useMemo(() => {
+    const uname = (user as any)?.username;
+    return uname ? String(uname).trim().toLowerCase() : "";
+  }, [user]);
 
   const cartCount = useMemo(
     () => lines.reduce((sum, l) => sum + l.qty, 0),
@@ -60,18 +63,20 @@ const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
 
   const [activePanel, setActivePanel] = useState<PanelId | null>(null);
 
-  // аватар: абсолютный URL + cache-buster по updatedAt
-  const avatarSrc = useMemo(() => {
-    if (!user?.avatarUrl) return "";
-    const base = abs(user.avatarUrl);
-    const stamp = encodeURIComponent(user.updatedAt || String(Date.now()));
-    return `${base}?t=${stamp}`;
-  }, [user?.avatarUrl, user?.updatedAt]);
+  // абсолютный URL аватара + cache-buster по updatedAt
+  const avatarSrc = useMemo(
+    () => buildAvatarSrc(user?.avatarUrl, user?.updatedAt),
+    [user?.avatarUrl, user?.updatedAt]
+  );
 
-  // если картинка не загрузилась — откатимся к иконке
   const [avatarBroken, setAvatarBroken] = useState(false);
 
-  // закрыть по клику вне
+  // если src поменялся (новый аватар) — сбрасываем флаг поломки
+  useEffect(() => {
+    setAvatarBroken(false);
+  }, [avatarSrc]);
+
+  // закрыть панели по клику вне
   const wrapperRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const onDocDown = (e: MouseEvent) => {
@@ -131,28 +136,27 @@ const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
     {
       id: "account",
       ariaLabel: isAuthenticated ? "Profile" : "Login",
-      icon: (
-        isAuthenticated && avatarSrc && !avatarBroken ? (
-          <img
-            src={avatarSrc}
-            alt="Avatar"
-            width={24}
-            height={24}
-            loading="lazy"
-            decoding="async"
-            onError={() => setAvatarBroken(true)}
-          />
-        ) : isAuthenticated ? (
-          <div
-            className={cls.placeholder}
-            aria-hidden
-          ></div>
-        ) : (
-          <AccountIcon />
-        )
+      icon: isAuthenticated && avatarSrc && !avatarBroken ? (
+        <img
+          src={avatarSrc}
+          alt="Avatar"
+          width={24}
+          height={24}
+          loading="lazy"
+          decoding="async"
+          onError={() => setAvatarBroken(true)}
+        />
+      ) : isAuthenticated ? (
+        <div className={cls.placeholder} aria-hidden />
+      ) : (
+        <AccountIcon />
       ),
       action: "link",
-      to: isAuthenticated ? (username && `/u/${username}/videos`) : "/auth",
+      to: isAuthenticated
+        ? username
+          ? `/u/${username}/videos`
+          : "/account"
+        : "/auth",
       disabled: authLoading,
       align: "top",
     },
@@ -167,7 +171,6 @@ const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
       ),
       align: "top",
     },
-    // Settings — такой же item, рендерится внизу
     {
       id: "settings",
       ariaLabel: "Settings",
@@ -179,22 +182,21 @@ const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
     },
   ];
 
-  // единый обработчик
   const onItemClick = (item: NavItem) => {
     if (item.disabled) return;
     if (item.action === "link") {
       setActivePanel(null);
-      nav(item.to);
+      if (item.to) nav(item.to);
       return;
     }
-    setActivePanel(prev => (prev === item.panel ? null : item.panel));
+    setActivePanel((prev) => (prev === item.panel ? null : item.panel));
   };
 
   const renderGroup = (where: "top" | "bottom") => (
     <div className={cls.nav__container}>
       {items
-        .filter(i => (i.align ?? "top") === where)
-        .map(item => (
+        .filter((i) => (i.align ?? "top") === where)
+        .map((item) => (
           <button
             key={item.id}
             className={cls["nav__container--btn"]}
@@ -202,7 +204,9 @@ const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
             onClick={() => onItemClick(item)}
             disabled={item.disabled}
             data-active={
-              item.action === "panel" && activePanel === item.panel ? true : undefined
+              item.action === "panel" && activePanel === item.panel
+                ? true
+                : undefined
             }
             aria-expanded={
               item.action === "panel" ? activePanel === item.panel : undefined
@@ -224,8 +228,8 @@ const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
     <div
       className={cls.f}
       ref={wrapperRef}
-      data-has-open={activePanel ? true : undefined}   // для затемнения фона
-      data-hide-mobile={hideOnMobile ? true : undefined}  // ← добавили
+      data-has-open={activePanel ? true : undefined}
+      data-hide-mobile={hideOnMobile ? true : undefined}
     >
       <nav className={`${cls.nav} ${className || ""}`}>
         {renderGroup("top")}
@@ -236,7 +240,6 @@ const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
         className={cls.f__main}
         data-open={activePanel ? true : undefined}
         aria-hidden={!activePanel}
-        // закрытие по Esc
         onKeyDown={(e) => {
           if (e.key === "Escape") closePanels();
         }}
@@ -250,7 +253,11 @@ const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
             <CatalogPanel open onClose={closePanels} anchorRole="catalog" />
           )}
           {activePanel === "notifications" && (
-            <NotificationsPanel open onClose={closePanels} anchorRole="notifications" />
+            <NotificationsPanel
+              open
+              onClose={closePanels}
+              anchorRole="notifications"
+            />
           )}
           {activePanel === "settings" && (
             <SettingsPanel open onClose={closePanels} anchorRole="settings" />
