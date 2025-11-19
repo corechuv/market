@@ -210,9 +210,8 @@ export default function MobileSearchPage() {
 
         const timeoutId = window.setTimeout(async () => {
             try {
-                // Сейчас бекенд не поддерживает текстовый поиск по роликам,
-                // поэтому q здесь только триггерит загрузку, а сам не передаётся.
-                const data = await listReelsFeed({ sort: "trending", limit: 40 });
+                const q = query.trim();
+                const data = await listReelsFeed({ q, sort: "trending", limit: 40 });
                 if (!cancelled) setVideos(data);
             } catch {
                 if (!cancelled) {
