@@ -34,12 +34,21 @@
             transition: transform 0.2s;
         }
 
-        &--photo {
+        .photobase {
             width: 32px;
             height: 32px;
             border-radius: 50%;
             aspect-ratio: 1/1;
             object-fit: cover;
+        }
+
+        &--photo {
+            @extend .photobase;
+        }
+
+        &--placeholder {
+            @extend .photobase;
+            border: 1px dashed var(--border);
         }
 
         &--icon-left {

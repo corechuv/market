@@ -23,6 +23,7 @@ import { Tabs, type TabItem } from "../../components/UI/Tabs";
 import { listReelsFeed } from "../../services/reviewApi";
 import type { ReviewOut } from "../../types/review/review";
 import ReelsGrid from "../../components/User/Tabs/ReelsGrid";
+import UserResultsList from "../../components/Search/UsersResultList";
 
 type SearchItem = {
     id: string;
@@ -325,12 +326,7 @@ export default function MobileSearchPage() {
                     )}
 
                     {activeTab === "people" && (
-                        <ul
-                            className={c.list}
-                            id={listboxId}
-                            role="listbox"
-                            aria-label="Search results: people"
-                        >
+                        <>
                             {peopleLoading && !peopleResults.length && (
                                 <li>Загрузка...</li>
                             )}
@@ -339,34 +335,18 @@ export default function MobileSearchPage() {
                             )}
                             {searchError && <li>{searchError}</li>}
 
-                            {peopleResults.map((p, i) => (
-                                <li
-                                    key={p.id || p.username}
-                                    id={`${listboxId}-opt-${i}`}
-                                    className={c.list__item}
-                                    role="option"
-                                    onMouseDown={(ev) => {
-                                        ev.preventDefault();
-                                        onSelectPerson(p);
-                                    }}
-                                >
-                                    {p.avatarUrl && (
-                                        <img
-                                            className={c["list__item--photo"]}
-                                            alt=""
-                                        />
-                                    )}
-                                    <div className={c["list__item--col"]}>
-                                        <span className={c["list__item--label"]}
-                                            data-search="item-label" title={p.name}>{p.name}</span>
-                                        {p.username && (
-                                            <span className={c["list__item--label--s"]}
-                                                data-search="item-label" title={p.username}>@{p.username}</span>
-                                        )}
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
+                            <UserResultsList<PersonSearchItem>
+                                items={peopleResults}
+                                getKey={(p) => p.id || p.username}
+                                onSelect={onSelectPerson}
+                                // скелетоны — только когда уже есть результаты и идёт новая загрузка
+                                loading={peopleLoading && !!peopleResults.length}
+                                role="listbox"
+                                ariaLabel="Search results: people"
+                                listId={listboxId}
+                                skeletonRows={6}
+                            />
+                        </>
                     )}
 
                     {activeTab === "videos" && (
