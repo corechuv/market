@@ -15,12 +15,13 @@ import SearchResultsList from "../../Search/SearchResultsList";
 import MasterBar from "../../UI/Bars/MasterBar";
 import ScrollArea from "../../UI/ScrollArea/ScrollArea";
 import { useVisualViewport } from "../../../hooks/useViewportUnits";
-import api from "../../..//lib/api"; // путь подправь под свою структуру
+import api from "../../../lib/api";
 import { listReelsFeed } from "../../../services/reviewApi";
 import type { ReviewOut } from "../../../types/review/review";
 import { Tabs, type TabItem } from "../../UI/Tabs";
 import ReelsGrid from "../../User/Tabs/ReelsGrid";
 import UserResultsList from "../../Search/UsersResultList";
+import { buildAvatarSrc } from "../../../utils/avatar";
 
 export interface SearchItem {
   id: string;
@@ -33,7 +34,7 @@ type PersonSearchItem = {
   id: string;
   username: string;
   name: string;
-  avatarUrl?: string | null;
+  photoUrl?: string | null;
 };
 
 interface SearchPanelProps {
@@ -42,6 +43,27 @@ interface SearchPanelProps {
   anchorRole?: "search";
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+}
+
+// такой же маппер, как в MobileSearchPage,
+// чтобы и десктопный поиск показывал аватары
+function mapProfileToPerson(p: any): PersonSearchItem {
+  const fullName = [p.firstName, p.lastName].filter(Boolean).join(" ").trim();
+
+  const rawAvatar: string | null =
+    p.avatarUrl || p.avatar || p.avatarPath || null;
+
+  const cacheKey: string | null =
+    p.avatarUpdatedAt || p.updatedAt || null;
+
+  return {
+    id: String(p.id),
+    username: String(p.username || ""),
+    name: fullName || String(p.username || ""),
+    photoUrl: rawAvatar
+      ? buildAvatarSrc(rawAvatar, cacheKey || `${p.id}-${rawAvatar}`)
+      : null,
+  };
 }
 
 const SearchPanel: React.FC<SearchPanelProps> = ({
@@ -59,7 +81,9 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
   // ----- ТОВАРЫ -----
   const [items, setItems] = useState<SearchItem[]>([]);
   const [productsLoading, setProductsLoading] = useState(false);
-  const [productsLoadError, setProductsLoadError] = useState<string | null>(null);
+  const [productsLoadError, setProductsLoadError] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -155,7 +179,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
     });
   }, [onClose]);
 
-  // ==== сетка загрузки для people / videos (дебаунс по query) ====
+  // ==== загрузка people / videos (дебаунс по query) ====
 
   // ЛЮДИ
   useEffect(() => {
@@ -179,20 +203,11 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
           params: { q, limit: 20 },
         });
         if (cancelled) return;
+
         const mapped: PersonSearchItem[] = (Array.isArray(data) ? data : [])
-          .map((p: any) => {
-            const fullName = [p.firstName, p.lastName]
-              .filter(Boolean)
-              .join(" ")
-              .trim();
-            return {
-              id: String(p.id),
-              username: String(p.username || ""),
-              name: fullName || p.username || "",
-              avatarUrl: p.avatarUrl ?? null,
-            };
-          })
+          .map(mapProfileToPerson)
           .filter((x) => x.username);
+
         setPeople(mapped);
       } catch {
         if (!cancelled) {
@@ -278,7 +293,6 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
 
   const onSelectPerson = useCallback(
     (item: PersonSearchItem) => {
-      // TODO: подправь под свой роут профиля
       navigate(`/u/${item.username}`);
       resetAndClose();
     },
@@ -287,7 +301,6 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
 
   const onSelectVideo = useCallback(
     (item: ReviewOut) => {
-      // TODO: подправь под свой роут просмотра ролика
       navigate(`/reels/${item.id}`);
       resetAndClose();
     },
@@ -442,14 +455,15 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
               onSelect={(item) => {
                 onSelectPerson(item);
               }}
-              // скелетоны — только когда уже есть результаты и идёт новая загрузка
               loading={peopleLoading && !!peopleResults.length}
               role="listbox"
               ariaLabel="Search results: people"
               listId={listboxId}
               skeletonRows={6}
               activeIndex={activeIndexByTab.people}
-              onActiveIndexChange={(idx) => setActiveIndexForTab("people", idx)}
+              onActiveIndexChange={(idx) =>
+                setActiveIndexForTab("people", idx)
+              }
             />
           )}
 
@@ -471,7 +485,6 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
                         : ""
                 }
                 onItemClick={(review) => {
-                  // используем уже готовый хендлер
                   onSelectVideo(review);
                 }}
                 layout="search"

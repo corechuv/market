@@ -37,7 +37,7 @@ type PersonSearchItem = {
     id: string;
     username: string;
     name: string;
-    avatarUrl?: string | null;
+    photoUrl?: string | null;
 };
 
 const tabItems: TabItem<SearchTabKey>[] = [
@@ -45,6 +45,28 @@ const tabItems: TabItem<SearchTabKey>[] = [
     { key: "people", label: "People" },
     { key: "videos", label: "Videos" },
 ];
+
+// Унифицированное преобразование профиля от бэка → PersonSearchItem
+function mapProfileToPerson(p: any): PersonSearchItem {
+    const fullName = [p.firstName, p.lastName].filter(Boolean).join(" ").trim();
+
+    // какие поля может отдать бэк под аватар
+    const rawAvatar: string | null =
+        p.avatarUrl || p.avatar || p.avatarPath || null;
+
+    // чем будем бить кэш — что есть, то и используем
+    const cacheKey: string | null =
+        p.avatarUpdatedAt || p.updatedAt || null;
+
+    return {
+        id: String(p.id),
+        username: String(p.username || ""),
+        name: fullName || String(p.username || ""),
+        photoUrl: rawAvatar
+            ? buildAvatarSrc(rawAvatar, cacheKey || `${p.id}-${rawAvatar}`)
+            : null,
+    };
+}
 
 export default function MobileSearchPage() {
     useVisualViewport();
@@ -162,22 +184,7 @@ export default function MobileSearchPage() {
                 if (cancelled) return;
 
                 const mapped: PersonSearchItem[] = (Array.isArray(data) ? data : [])
-                    .map((p: any) => {
-                        const fullName = [p.firstName, p.lastName]
-                            .filter(Boolean)
-                            .join(" ")
-                            .trim();
-                        return {
-                            id: String(p.id),
-                            username: String(p.username || ""),
-                            name: fullName || p.username || "",
-                            avatarUrl:
-                                buildAvatarSrc(
-                                    p.avatarUrl,
-                                    `${p.id}-${p.avatarUrl || ""}`
-                                ) ?? null,
-                        };
-                    })
+                    .map(mapProfileToPerson)
                     .filter((x) => x.username);
 
                 setPeople(mapped);
@@ -239,9 +246,7 @@ export default function MobileSearchPage() {
     const productResults = useMemo(() => {
         const q = query.trim().toLowerCase();
         if (!q) return [];
-        return items
-            .filter((i) => i.label.toLowerCase().includes(q))
-            .slice(0, 50);
+        return items.filter((i) => i.label.toLowerCase().includes(q)).slice(0, 50);
     }, [items, query]);
 
     const peopleResults = people;
@@ -339,7 +344,6 @@ export default function MobileSearchPage() {
                             items={peopleResults}
                             getKey={(p) => p.id || p.username}
                             onSelect={onSelectPerson}
-                            // скелетоны — только когда уже есть результаты и идёт новая загрузка
                             loading={peopleLoading && !!peopleResults.length}
                             role="listbox"
                             ariaLabel="Search results: people"

@@ -8,9 +8,9 @@ export function absUrl(u?: string | null): string {
 
 export function buildAvatarSrc(
   rawUrl?: string | null,
-  cacheKey?: string | null | undefined
-): string {
-  if (!rawUrl) return "";
+  cacheKey?: string | null | undefined,
+): string | undefined {
+  if (!rawUrl) return undefined;
   const base = absUrl(rawUrl);
   if (!cacheKey) return base;
   return `${base}?t=${encodeURIComponent(cacheKey)}`;
