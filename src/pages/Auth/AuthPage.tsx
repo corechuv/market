@@ -19,7 +19,9 @@ import {
     compose,
 } from "../../utils/validate/fields";
 
-type Mode = "login" | "register";
+import { Tabs, type TabItem } from "../../components/UI/Tabs";
+
+export type Mode = "login" | "register";
 
 type LoginPayload = {
     email: string;
@@ -37,14 +39,25 @@ type RegisterPayload = {
 };
 
 export interface AuthPageProps {
+    /** какой таб активен: login | register */
+    mode: Mode;
+    /** смена таба (сюда пробрасываем router) */
+    onModeChange: (mode: Mode) => void;
+
     onLogin?: (data: LoginPayload) => Promise<void> | void;
-    onRegister?: (data: Omit<RegisterPayload, "confirm" | "agree">) => Promise<void> | void; // только то, что нужно серверу
+    onRegister?: (
+        data: Omit<RegisterPayload, "confirm" | "agree">
+    ) => Promise<void> | void;
 }
 
 const Spinner = () => <span className={s.spinner} aria-label="Loading" />;
 
-export default function AuthPage({ onLogin, onRegister }: AuthPageProps) {
-    const [mode, setMode] = useState<Mode>("login");
+export default function AuthPage({
+    mode,
+    onModeChange,
+    onLogin,
+    onRegister,
+}: AuthPageProps) {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -73,7 +86,10 @@ export default function AuthPage({ onLogin, onRegister }: AuthPageProps) {
         } as const;
 
         const errs = validateForm(payload, loginRules) as FieldErrors<LoginPayload>;
-        if (Object.keys(errs).length) { setErrors(errs as Record<string, string>); return; }
+        if (Object.keys(errs).length) {
+            setErrors(errs as Record<string, string>);
+            return;
+        }
 
         setLoading(true);
         try {
@@ -101,16 +117,31 @@ export default function AuthPage({ onLogin, onRegister }: AuthPageProps) {
         };
 
         const registerRules = {
-            firstName: compose(required("First name is required"), minLength(2, "Too short")),
-            lastName: compose(required("Last name is required"), minLength(2, "Too short")),
+            firstName: compose(
+                required("First name is required"),
+                minLength(2, "Too short"),
+            ),
+            lastName: compose(
+                required("Last name is required"),
+                minLength(2, "Too short"),
+            ),
             email: compose(required("Email is required"), validateEmail),
-            password: compose(required("Password is required"), minLength(8, "Password must be at least 8 characters")),
-            confirm: sameAs<string>((all) => all.password, "Passwords do not match"),
+            password: compose(
+                required("Password is required"),
+                minLength(8, "Password must be at least 8 characters"),
+            ),
+            confirm: sameAs<string>(
+                (all) => all.password,
+                "Passwords do not match",
+            ),
             agree: requiredTrue("Needs to be accepted"),
         } as const;
 
         const errs = validateForm(payload, registerRules) as FieldErrors<RegisterPayload>;
-        if (Object.keys(errs).length) { setErrors(errs as Record<string, string>); return; }
+        if (Object.keys(errs).length) {
+            setErrors(errs as Record<string, string>);
+            return;
+        }
 
         setLoading(true);
         try {
@@ -130,6 +161,11 @@ export default function AuthPage({ onLogin, onRegister }: AuthPageProps) {
 
     const strength = (val: string) => passwordStrength(val);
 
+    const tabs: TabItem<Mode>[] = [
+        { key: "login", label: "Login" },
+        { key: "register", label: "Sign Up" },
+    ];
+
     return (
         <div className={s.page}>
             <div className={s.center}>
@@ -138,34 +174,15 @@ export default function AuthPage({ onLogin, onRegister }: AuthPageProps) {
                         <Logo />
                     </header>
 
-                    <nav
-                        className={s.tabs}
-                        role="tablist"
-                        aria-label="Auth tabs"
-                        data-mode={mode}
-                    >
-                        <button
-                            role="tab"
-                            aria-selected={mode === "login"}
-                            aria-controls="panel-login"
-                            id="tab-login"
-                            className={s.tab}
-                            onClick={() => setMode("login")}
-                        >
-                            Login
-                        </button>
-                        <button
-                            role="tab"
-                            aria-selected={mode === "register"}
-                            aria-controls="panel-register"
-                            id="tab-register"
-                            className={s.tab}
-                            onClick={() => setMode("register")}
-                        >
-                            Sign Up
-                        </button>
-                        <div className={s.pill} aria-hidden />
-                    </nav>
+                    {/* Табы c общим UI-компонентом */}
+                    <div className={s.tabs}>
+                        <Tabs<Mode>
+                            items={tabs}
+                            activeKey={mode}
+                            onChange={onModeChange}
+                            ariaLabel="Auth tabs"
+                        />
+                    </div>
 
                     {/* Login */}
                     <section
@@ -204,7 +221,12 @@ export default function AuthPage({ onLogin, onRegister }: AuthPageProps) {
                                 />
                             </div>
 
-                            <Button className={s.cta} type="submit" disabled={loading} size="large">
+                            <Button
+                                className={s.cta}
+                                type="submit"
+                                disabled={loading}
+                                size="large"
+                            >
                                 {loading ? <Spinner /> : "Login"}
                             </Button>
 
@@ -217,10 +239,30 @@ export default function AuthPage({ onLogin, onRegister }: AuthPageProps) {
                     </section>
 
                     {/* Register */}
-                    <section id="panel-register" role="tabpanel" aria-labelledby="tab-register" hidden={mode !== "register"}>
-                        <form ref={registerRef} className={s.form} onSubmit={handleRegister} noValidate>
-                            <TextField name="firstName" label="First name" placeholder="Markus" error={errors.firstName} />
-                            <TextField name="lastName" label="Last name" placeholder="Müller" error={errors.lastName} />
+                    <section
+                        id="panel-register"
+                        role="tabpanel"
+                        aria-labelledby="tab-register"
+                        hidden={mode !== "register"}
+                    >
+                        <form
+                            ref={registerRef}
+                            className={s.form}
+                            onSubmit={handleRegister}
+                            noValidate
+                        >
+                            <TextField
+                                name="firstName"
+                                label="First name"
+                                placeholder="Markus"
+                                error={errors.firstName}
+                            />
+                            <TextField
+                                name="lastName"
+                                label="Last name"
+                                placeholder="Müller"
+                                error={errors.lastName}
+                            />
                             <TextField
                                 name="email"
                                 inputMode="email"
@@ -249,12 +291,28 @@ export default function AuthPage({ onLogin, onRegister }: AuthPageProps) {
                             <div className={s.rowBetween}>
                                 <CheckboxField
                                     name="agree"
-                                    label={<>I <a className={s.mutedLink} href="#terms">agree to the terms</a></>}
+                                    label={
+                                        <>
+                                            I{" "}
+                                            <a className={s.mutedLink} href="#terms">
+                                                agree to the terms
+                                            </a>
+                                        </>
+                                    }
                                 />
-                                {errors.agree && <div className={s.formError} role="alert">{errors.agree}</div>}
+                                {errors.agree && (
+                                    <div className={s.formError} role="alert">
+                                        {errors.agree}
+                                    </div>
+                                )}
                             </div>
 
-                            <Button className={s.cta} type="submit" disabled={loading} size="large">
+                            <Button
+                                className={s.cta}
+                                type="submit"
+                                disabled={loading}
+                                size="large"
+                            >
                                 {loading ? <Spinner /> : "Register"}
                             </Button>
                         </form>

@@ -1,6 +1,6 @@
 import "react";
 import "./App.css";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import Home from "./pages/Home/Home";
 import SearchPage from "./pages/Search/SearchPage";
 import ProductsPage from "./pages/Product/ProductsPage";
@@ -11,12 +11,25 @@ import AccountPage from "./pages/Account/AccountPage";
 import AuthPage from "./pages/Auth/AuthPage";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
+type AuthMode = "login" | "register";
+
 function AuthScreen() {
   const { login, register } = useAuth();
   const navigate = useNavigate();
+  const { tab } = useParams<{ tab?: string }>();
+
+  const mode: AuthMode = tab === "register" ? "register" : "login";
+
+  const handleModeChange = (next: AuthMode) => {
+    if (next !== mode) {
+      navigate(`/auth/${next}`, { replace: true });
+    }
+  };
 
   return (
     <AuthPage
+      mode={mode}
+      onModeChange={handleModeChange}
       onLogin={async ({ email, password, remember }) => {
         await login({ email, password, remember });
         navigate("/account");
@@ -91,7 +104,7 @@ export default function App() {
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/product/:productId" element={<ProductPage />} />
             <Route path="/product/:productId/:tab" element={<ProductPage />} />
-            
+
             <Route path="/category/*" element={<CategoryPage />} />
 
             <Route path="/videos" element={<ReelsPage />} />
@@ -141,7 +154,8 @@ export default function App() {
           </Route>
 
           <Route element={<AuthLayout />}>
-            <Route path="/auth" element={<AuthScreen />} />
+            <Route path="/auth" element={<Navigate to="/auth/login" replace />} />
+            <Route path="/auth/:tab" element={<AuthScreen />} />
             <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
           </Route>
 
