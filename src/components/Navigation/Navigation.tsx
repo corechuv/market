@@ -12,7 +12,6 @@ import PlayIcon from "../Icons/PlayIcon";
 import SearchPanel from "./Panel/SearchPanel";
 import SettingsIcon from "../Icons/SettingsIcon";
 import SettingsPanel from "./Panel/SettingsPanel";
-import { useLockBodyScroll } from "../../hooks/useLockBodyScroll";
 import CatalogPanel from "./Panel/CatalogPanel";
 import NotificationsPanel from "./Panel/NotificationsPanel";
 import NotificationIcon from "../Icons/NotificationIcon";
@@ -60,7 +59,6 @@ const Navigation: React.FC<Props> = ({ className, hideOnMobile }) => {
   );
 
   const [activePanel, setActivePanel] = useState<PanelId | null>(null);
-  useLockBodyScroll(Boolean(activePanel));
 
   // аватар: абсолютный URL + cache-buster по updatedAt
   const avatarSrc = useMemo(() => {

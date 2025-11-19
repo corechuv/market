@@ -416,7 +416,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
           />
         </MasterBar>
 
-        <ScrollArea>
+        <ScrollArea lockBody={false}>
           {activeTab === "products" && (
             <SearchResultsList
               items={productResults}
