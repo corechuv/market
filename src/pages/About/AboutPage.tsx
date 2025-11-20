@@ -16,5 +16,5 @@ export default function AboutPage() {
 
     if (lang === "en") return <AboutPageEn />;
     if (lang === "ru") return <AboutPageRu />;
-    return <AboutPageDe />;
+    if (lang === "de") return <AboutPageDe />;
 }
