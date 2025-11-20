@@ -160,6 +160,7 @@ export default function ProfilePage() {
                     )
                 }
             />
+                <WrapperSkeleton />
 
             <div className={styles.layout}>
                 <section className={styles.content}>

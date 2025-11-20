@@ -314,7 +314,7 @@ body[data-theme='dark'] {
 
   /* Skeleton */
   --bg-skeleton: linear-gradient(90deg, transparent, rgba(54, 54, 54, 0.2), transparent);
-  --bg-skeleton_v2: linear-gradient(90deg, rgba(54, 54, 54, 0.2) 25%, rgb(20, 20, 20) 37%, rgba(54, 54, 54, 0.2) 63%);
+  --bg-skeleton_v2: linear-gradient(90deg, rgba(50, 50, 50, 0.1) 25%, rgb(14, 14, 14) 37%, rgba(50, 50, 50, 0.1) 63%);
 
   color-scheme: dark;
 }
