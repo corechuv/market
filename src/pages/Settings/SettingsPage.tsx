@@ -15,6 +15,8 @@ import { useEffect, useState } from "react"
 import { useAuth } from "../../context/AuthContext"
 import OrdersIcon from "../../components/Icons/OrdersIcon"
 import AddressIcon from "../../components/Icons/AddressIcon"
+import { applyLanguage, getInitialLanguage, type AppLanguage } from "../../utils/lang/lang"
+import { applyTheme, getInitialTheme, type Theme } from "../../utils/theme/theme"
 
 
 export default function SettingsPage() {
@@ -30,17 +32,21 @@ export default function SettingsPage() {
         }
     }
 
-    const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-        if (typeof window === 'undefined') return 'light';
-        const saved = (localStorage.getItem('theme') as 'light' | 'dark' | null);
-        if (saved) return saved;
-        return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    });
+    // Тема
+    const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
 
     useEffect(() => {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
+        applyTheme(theme);
     }, [theme]);
+
+    // Язык
+    const [language, setLanguage] = useState<AppLanguage>(() => getInitialLanguage());
+
+    const handleChangeLanguage = (lang: AppLanguage) => {
+        setLanguage(lang);
+        applyLanguage(lang);
+        window.location.reload();
+    };
 
     return (
         <Page padding={false}>
@@ -90,6 +96,39 @@ export default function SettingsPage() {
                         <MoonIcon className={c["list__item--icon-left"]} />
                         <span className={c["list__item--label"]} aria-label={`Dark`} title="dark">
                             Dark
+                        </span>
+                    </li>
+                </ul>
+                <h3 className={c.subtitle}>Language</h3>
+                <ul className={c.list}>
+                    <li
+                        className={c.list__item}
+                        aria-checked={language === "en"}
+                        onClick={() => handleChangeLanguage("en")}
+                    >
+                        <svg className={c["list__item--icon-left"]}></svg>
+                        <span className={c["list__item--label"]} aria-label="English" title="English">
+                            English
+                        </span>
+                    </li>
+                    <li
+                        className={c.list__item}
+                        aria-checked={language === "ru"}
+                        onClick={() => handleChangeLanguage("ru")}
+                    >
+                        <svg className={c["list__item--icon-left"]}></svg>
+                        <span className={c["list__item--label"]} aria-label="Russian" title="Russian">
+                            Russian
+                        </span>
+                    </li>
+                    <li
+                        className={c.list__item}
+                        aria-checked={language === "de"}
+                        onClick={() => handleChangeLanguage("de")}
+                    >
+                        <svg className={c["list__item--icon-left"]}></svg>
+                        <span className={c["list__item--label"]} aria-label="German" title="German">
+                            German
                         </span>
                     </li>
                 </ul>
