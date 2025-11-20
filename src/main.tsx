@@ -7,17 +7,20 @@ import './index.css'
 import "./styles/theme.module.scss" // Import global styles
 import { CartProvider } from './context/CartContext.tsx'
 import ScrollToTop from './components/ScrollToTop.tsx'
+import { LangProvider } from './context/LangContext.tsx'
 // import { AccountProvider } from './context/AccountContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     {/*<AccountProvider>*/}
-    <CartProvider>
-      <BrowserRouter>
-        <ScrollToTop />
-        <App />
-      </BrowserRouter>
-    </CartProvider>
+    <LangProvider>
+      <CartProvider>
+        <BrowserRouter>
+          <ScrollToTop />
+          <App />
+        </BrowserRouter>
+      </CartProvider>
+    </LangProvider>
     {/*</AccountProvider>*/}
   </StrictMode>,
 )

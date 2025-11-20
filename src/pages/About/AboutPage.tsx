@@ -2,19 +2,12 @@
 import AboutPageDe from "./de/AboutPage.de";
 import AboutPageEn from "./en/AboutPage.en";
 import AboutPageRu from "./ru/AboutPage.ru";
-import type { AppLanguage } from "../../utils/lang/lang";
-
-function getLangFromHtml(): AppLanguage {
-    if (typeof document === "undefined") return "de";
-    const lang = document.documentElement.lang as AppLanguage;
-    if (lang === "en" || lang === "ru" || lang === "de") return lang;
-    return "de";
-}
+import { useLang } from "../../context/LangContext";
 
 export default function AboutPage() {
-    const lang = getLangFromHtml();
+  const { lang } = useLang();
 
-    if (lang === "en") return <AboutPageEn />;
-    if (lang === "ru") return <AboutPageRu />;
-    if (lang === "de") return <AboutPageDe />;
+  if (lang === "en") return <AboutPageEn />;
+  if (lang === "ru") return <AboutPageRu />;
+  return <AboutPageDe />; // de по умолчанию
 }

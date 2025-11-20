@@ -15,8 +15,9 @@ import { useEffect, useState } from "react"
 import { useAuth } from "../../context/AuthContext"
 import OrdersIcon from "../../components/Icons/OrdersIcon"
 import AddressIcon from "../../components/Icons/AddressIcon"
-import { applyLanguage, getInitialLanguage, type AppLanguage } from "../../utils/lang/lang"
 import { applyTheme, getInitialTheme, type Theme } from "../../utils/theme/theme"
+import { useLang } from "../../context/LangContext"
+import type { AppLanguage } from "../../utils/lang/lang"
 
 
 export default function SettingsPage() {
@@ -40,13 +41,15 @@ export default function SettingsPage() {
     }, [theme]);
 
     // Язык
-    const [language, setLanguage] = useState<AppLanguage>(() => getInitialLanguage());
+    const { lang, setLang } = useLang();
 
-    const handleChangeLanguage = (lang: AppLanguage) => {
-        setLanguage(lang);
-        applyLanguage(lang);
+    const handleChangeLanguage = (next: AppLanguage) => {
+        if (next === lang) return;
+        setLang(next);      // это триггерит applyLanguage() в провайдере
+        // по желанию, если хочешь полный перерендер всего SPA:
         window.location.reload();
     };
+
 
     return (
         <Page padding={false}>
@@ -103,33 +106,29 @@ export default function SettingsPage() {
                 <ul className={c.list}>
                     <li
                         className={c.list__item}
-                        aria-checked={language === "en"}
+                        aria-checked={lang === "en"}
                         onClick={() => handleChangeLanguage("en")}
                     >
                         <svg className={c["list__item--icon-left"]}></svg>
-                        <span className={c["list__item--label"]} aria-label="English" title="English">
-                            English
-                        </span>
+                        <span className={c["list__item--label"]}>English</span>
                     </li>
+
                     <li
                         className={c.list__item}
-                        aria-checked={language === "ru"}
+                        aria-checked={lang === "ru"}
                         onClick={() => handleChangeLanguage("ru")}
                     >
                         <svg className={c["list__item--icon-left"]}></svg>
-                        <span className={c["list__item--label"]} aria-label="Russian" title="Russian">
-                            Russian
-                        </span>
+                        <span className={c["list__item--label"]}>Russian</span>
                     </li>
+
                     <li
                         className={c.list__item}
-                        aria-checked={language === "de"}
+                        aria-checked={lang === "de"}
                         onClick={() => handleChangeLanguage("de")}
                     >
                         <svg className={c["list__item--icon-left"]}></svg>
-                        <span className={c["list__item--label"]} aria-label="German" title="German">
-                            German
-                        </span>
+                        <span className={c["list__item--label"]}>German</span>
                     </li>
                 </ul>
                 <h3 className={c.subtitle}>Information</h3>

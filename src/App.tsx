@@ -97,14 +97,8 @@ import CareersPage from "./pages/About/CareersPage";
 import PressPage from "./pages/About/PressPage";
 import ProfilePage from "./pages/User/ProfilePage";
 import SettingsPage from "./pages/Settings/SettingsPage";
-import { useEffect } from "react";
 
 export default function App() {
-  const currentLang = "de";
-
-  useEffect(() => {
-    document.documentElement.lang = currentLang;
-  }, [currentLang]);
 
   return (
     <>
