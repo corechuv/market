@@ -1,20 +1,13 @@
 // src/pages/About/CareersPage.tsx
-import CareersPageDe from "./de/CareersPage.de";
-import CareersPageEn from "./en/CareersPage.en";
-import CareersPageRu from "./ru/CareersPage.ru";
-import type { AppLanguage } from "../../utils/lang/lang";
-
-function getLangFromHtml(): AppLanguage {
-    if (typeof document === "undefined") return "de";
-    const lang = document.documentElement.lang as AppLanguage;
-    if (lang === "en" || lang === "ru" || lang === "de") return lang;
-    return "de";
-}
+import De from "./de/CareersPage.de";
+import En from "./en/CareersPage.en";
+import Ru from "./ru/CareersPage.ru";
+import { useLang } from "../../context/LangContext";
 
 export default function CareersPage() {
-    const lang = getLangFromHtml();
+    const { lang } = useLang();
 
-    if (lang === "en") return <CareersPageEn />;
-    if (lang === "ru") return <CareersPageRu />;
-    return <CareersPageDe />;
+    if (lang === "en") return <En />;
+    if (lang === "ru") return <Ru />;
+    return <De />; // de по умолчанию
 }

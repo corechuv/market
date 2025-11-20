@@ -1,137 +1,180 @@
 // src/pages/About/en/CareersPage.en.tsx
-import "react"
-import Page from "../../../components/UI/Page/Page"
-import s from "../About.module.scss"
+import "react";
+import Page from "../../../components/UI/Page/Page";
+import s from "../About.module.scss";
 import Logo from "../../../components/Footer/Logo";
 
 export default function CareersPageEn() {
     const pageJsonLd = {
         "@context": "https://schema.org",
         "@type": "WebPage",
-        "name": "Karriere",
+        "name": "Careers",
         "url": "https://dashedo.com/about/careers",
         "dateModified": "2025-11-11",
         "breadcrumb": {
             "@type": "BreadcrumbList",
             "itemListElement": [
-                { "@type": "ListItem", "position": 1, "name": "Startseite", "item": "https://dashedo.com/" },
-                { "@type": "ListItem", "position": 2, "name": "Über uns", "item": "https://dashedo.com/about" },
-                { "@type": "ListItem", "position": 3, "name": "Karriere", "item": "https://dashedo.com/about/careers" }
+                { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://dashedo.com/" },
+                { "@type": "ListItem", "position": 2, "name": "About us", "item": "https://dashedo.com/about" },
+                { "@type": "ListItem", "position": 3, "name": "Careers", "item": "https://dashedo.com/about/careers" }
             ]
         }
     };
 
-    // Beispielhafte Job-Postings für SEO (JSON-LD):
+    // Example job postings for SEO (JSON-LD):
     const jobsJsonLd = [
         {
             "@context": "https://schema.org",
             "@type": "JobPosting",
-            "title": "Frontend Engineer (m/w/d)",
+            "title": "Frontend Engineer (m/f/d)",
             "datePosted": "2025-11-11",
             "employmentType": "FULL_TIME",
             "hiringOrganization": {
                 "@type": "Organization",
-                "name": "⟨Dashedo GmbH⟩",
+                "name": "Dashedo GmbH",
                 "sameAs": "https://dashedo.com/"
             },
             "industry": "Software",
             "jobLocationType": "TELECOMMUTE",
-            "applicantLocationRequirements": { "@type": "Country", "name": "Deutschland" },
-            "jobLocation": { "@type": "Place", "address": { "@type": "PostalAddress", "addressLocality": "Berlin", "addressCountry": "DE" } },
-            "description": "Baue moderne Interfaces für Dashedo. Tech: ⟨React/TypeScript/Tailwind⟩.",
-            "responsibilities": "UI-Entwicklung, Performance, Tests, Code-Reviews.",
-            "qualifications": "3+ Jahre Erfahrung, sehr gute Kenntnisse in React/TS.",
+            "applicantLocationRequirements": { "@type": "Country", "name": "Germany" },
+            "jobLocation": {
+                "@type": "Place",
+                "address": {
+                    "@type": "PostalAddress",
+                    "addressLocality": "Berlin",
+                    "addressCountry": "DE"
+                }
+            },
+            "description": "Build modern interfaces for Dashedo. Tech stack: ⟨React/TypeScript/Tailwind⟩.",
+            "responsibilities": "UI development, performance, tests, code reviews.",
+            "qualifications": "3+ years of experience, strong knowledge of React/TypeScript.",
             "incentiveCompensation": "⟨vs.⟩",
-            "baseSalary": { "@type": "MonetaryAmount", "currency": "EUR", "value": { "@type": "QuantitativeValue", "value": "⟨xx⟩", "unitText": "YEAR" } },
-            "applicantLocationRequirementsDescription": "Remote in DE/EU-Zeitzonen."
+            "baseSalary": {
+                "@type": "MonetaryAmount",
+                "currency": "EUR",
+                "value": {
+                    "@type": "QuantitativeValue",
+                    "value": "⟨xx⟩",
+                    "unitText": "YEAR"
+                }
+            },
+            "applicantLocationRequirementsDescription": "Remote within DE / EU time zones."
         },
         {
             "@context": "https://schema.org",
             "@type": "JobPosting",
-            "title": "Account Executive DACH (m/w/d)",
+            "title": "Account Executive DACH (m/f/d)",
             "datePosted": "2025-11-11",
             "employmentType": "FULL_TIME",
-            "hiringOrganization": { "@type": "Organization", "name": "⟨Dashedo GmbH⟩" },
+            "hiringOrganization": {
+                "@type": "Organization",
+                "name": "Dashedo GmbH"
+            },
             "industry": "Software",
-            "jobLocation": { "@type": "Place", "address": { "@type": "PostalAddress", "addressLocality": "Berlin", "addressCountry": "DE" } },
-            "description": "Skaliere unser Wachstum im DACH-Markt. Fokus: Mid-Market/Enterprise.",
-            "qualifications": "2–4 Jahre SaaS-Sales, Deutsch/Englisch fließend.",
-            "baseSalary": { "@type": "MonetaryAmount", "currency": "EUR", "value": { "@type": "QuantitativeValue", "value": "⟨xx⟩", "unitText": "YEAR" } }
+            "jobLocation": {
+                "@type": "Place",
+                "address": {
+                    "@type": "PostalAddress",
+                    "addressLocality": "Berlin",
+                    "addressCountry": "DE"
+                }
+            },
+            "description": "Scale our growth in the DACH market. Focus: mid-market / enterprise.",
+            "qualifications": "2–4 years of SaaS sales experience, fluent in German and English.",
+            "baseSalary": {
+                "@type": "MonetaryAmount",
+                "currency": "EUR",
+                "value": {
+                    "@type": "QuantitativeValue",
+                    "value": "⟨xx⟩",
+                    "unitText": "YEAR"
+                }
+            }
         }
     ];
 
     return (
         <Page>
             <div className={s.content}>
-                
                 <Logo />
 
-                <nav aria-label="Brotkrumen">
-                    <a href="/">Startseite</a> &nbsp;/&nbsp; <a href="/about">Über uns</a> &nbsp;/&nbsp; <span>Karriere</span>
+                <nav aria-label="Breadcrumb">
+                    <a href="/">Home</a> &nbsp;/&nbsp; <a href="/about">About us</a> &nbsp;/&nbsp; <span>Careers</span>
                 </nav>
 
-                <h1 className={s.content__title}>Karriere bei Dashedo</h1>
-                <p><strong>Zuletzt aktualisiert:</strong> 11.11.2025</p>
+                <h1 className={s.content__title}>Careers at Dashedo</h1>
+                <p><strong>Last updated:</strong> 11.11.2025</p>
 
-                <h2>Warum Dashedo?</h2>
+                <h2>Why Dashedo?</h2>
                 <p>
-                    Wir sind ein produktgetriebenes Team und bauen Software, die täglich echte Probleme löst.
-                    Bei uns bekommst du Ownership, klare Ziele und ein Umfeld, in dem <em>Impact</em> zählt.
+                    We are a product-driven team building software that solves real problems every day.
+                    With us, you get ownership, clear goals, and an environment where <em>impact</em> matters.
                 </p>
 
-                <h2>Was wir bieten</h2>
+                <h2>What we offer</h2>
                 <ul>
-                    <li>Remote-first (EU-Zeitzonen) &amp; flexibles Arbeiten</li>
-                    <li>Top-Equipment &amp; persönliches Lernbudget ⟨x €/Jahr⟩</li>
-                    <li>🔒 Fokus auf Qualität: Code-Reviews, Tests, CI/CD</li>
-                    <li>30 Tage Urlaub &amp; ⟨Benefits, z.&nbsp;B. BVG-Ticket, Sport⟩</li>
-                    <li>Transparente Karrierepfade und faire Gehälter</li>
+                    <li>Remote-first (EU time zones) &amp; flexible working</li>
+                    <li>Top equipment &amp; personal learning budget ⟨x €/year⟩</li>
+                    <li>🔒 Focus on quality: code reviews, tests, CI/CD</li>
+                    <li>30 days of vacation &amp; ⟨benefits, e.g. public transport, sports⟩</li>
+                    <li>Transparent career paths and fair compensation</li>
                 </ul>
 
-                <h2>Wie wir arbeiten</h2>
+                <h2>How we work</h2>
                 <ul>
-                    <li>Kleine, autonome Squads mit klaren Metriken</li>
-                    <li>Async-Kommunikation, wöchentliche Demos, Quartals-Roadmaps</li>
-                    <li>Kundennähe: User-Interviews, Beta-Programme, Feature-Flags</li>
+                    <li>Small, autonomous squads with clear metrics</li>
+                    <li>Async communication, weekly demos, quarterly roadmaps</li>
+                    <li>Close to our users: interviews, beta programs, feature flags</li>
                 </ul>
 
-                <h2 id="open-roles">Offene Stellen</h2>
+                <h2 id="open-roles">Open roles</h2>
                 <article>
-                    <h3>Frontend Engineer (m/w/d) – Berlin/Remote</h3>
-                    <p>Tech-Stack: ⟨React, TypeScript, Node, Cloud⟩ · Vollzeit</p>
-                    <p><a href="#bewerbung">Jetzt bewerben</a></p>
+                    <h3>Frontend Engineer (m/f/d) – Berlin/Remote</h3>
+                    <p>Tech stack: ⟨React, TypeScript, Node, Cloud⟩ · Full-time</p>
+                    <p><a href="#bewerbung">Apply now</a></p>
                 </article>
                 <article>
-                    <h3>Account Executive DACH (m/w/d) – Berlin/Remote</h3>
-                    <p>Mid-Market/Enterprise · Vollzeit</p>
-                    <p><a href="#bewerbung">Jetzt bewerben</a></p>
+                    <h3>Account Executive DACH (m/f/d) – Berlin/Remote</h3>
+                    <p>Mid-market / Enterprise · Full-time</p>
+                    <p><a href="#bewerbung">Apply now</a></p>
                 </article>
-                <p>Keine passende Rolle? <strong>Initiativbewerbung</strong> an <a href="mailto:jobs@dashedo.com">jobs@dashedo.com</a>.</p>
+                <p>
+                    No suitable role? Send a <strong>speculative application</strong> to{" "}
+                    <a href="mailto:jobs@dashedo.com">jobs@dashedo.com</a>.
+                </p>
 
-                <h2 id="prozess">Bewerbungsprozess</h2>
+                <h2 id="prozess">Hiring process</h2>
                 <ol>
-                    <li><strong>Intro-Call</strong> (30 Min.) – gegenseitiges Kennenlernen</li>
-                    <li><strong>Fachgespräch</strong> – Deep-Dive in Erfahrung &amp; Arbeitsweise</li>
-                    <li><strong>Praktische Aufgabe</strong> – realitätsnah, zeitlich begrenzt</li>
-                    <li><strong>Team-Interview</strong> – Kultur &amp; Zusammenarbeit</li>
-                    <li><strong>Angebot</strong> – transparent &amp; schnell</li>
+                    <li><strong>Intro call</strong> (30 min) – get to know each other</li>
+                    <li><strong>Technical interview</strong> – deep dive into your experience &amp; way of working</li>
+                    <li><strong>Practical task</strong> – realistic and time-boxed</li>
+                    <li><strong>Team interview</strong> – culture &amp; collaboration</li>
+                    <li><strong>Offer</strong> – transparent &amp; fast</li>
                 </ol>
 
-                <h2 id="bewerbung">So bewirbst du dich</h2>
+                <h2 id="bewerbung">How to apply</h2>
                 <p>
-                    Sende CV/Profil (LinkedIn/GitHub) an <a href="mailto:jobs@dashedo.com">jobs@dashedo.com</a> und
-                    nenne die gewünschte Rolle, Startdatum und Gehaltsrahmen.
+                    Send your CV/profile (LinkedIn/GitHub) to{" "}
+                    <a href="mailto:jobs@dashedo.com">jobs@dashedo.com</a> and
+                    include the role you are applying for, your earliest start date, and salary expectations.
                 </p>
 
-                <h2>Vielfalt &amp; Inklusion</h2>
+                <h2>Diversity &amp; inclusion</h2>
                 <p>
-                    Wir begrüßen Bewerbungen unabhängig von Herkunft, Geschlecht, Identität, Religion, Behinderung
-                    oder Alter. Wichtig sind Neugier, Ownership und Teamgeist.
+                    We welcome applications regardless of background, gender, identity, religion,
+                    disability, or age. What matters to us is curiosity, ownership, and team spirit.
                 </p>
 
-                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(pageJsonLd) }} />
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(pageJsonLd) }}
+                />
                 {jobsJsonLd.map((j, i) => (
-                    <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(j) }} />
+                    <script
+                        key={i}
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: JSON.stringify(j) }}
+                    />
                 ))}
             </div>
         </Page>

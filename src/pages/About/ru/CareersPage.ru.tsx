@@ -1,137 +1,179 @@
 // src/pages/About/ru/CareersPage.ru.tsx
-import "react"
-import Page from "../../../components/UI/Page/Page"
-import s from "../About.module.scss"
+import "react";
+import Page from "../../../components/UI/Page/Page";
+import s from "../About.module.scss";
 import Logo from "../../../components/Footer/Logo";
 
 export default function CareersPageRu() {
     const pageJsonLd = {
         "@context": "https://schema.org",
         "@type": "WebPage",
-        "name": "Karriere",
+        "name": "Карьера",
         "url": "https://dashedo.com/about/careers",
         "dateModified": "2025-11-11",
         "breadcrumb": {
             "@type": "BreadcrumbList",
             "itemListElement": [
-                { "@type": "ListItem", "position": 1, "name": "Startseite", "item": "https://dashedo.com/" },
-                { "@type": "ListItem", "position": 2, "name": "Über uns", "item": "https://dashedo.com/about" },
-                { "@type": "ListItem", "position": 3, "name": "Karriere", "item": "https://dashedo.com/about/careers" }
+                { "@type": "ListItem", "position": 1, "name": "Главная", "item": "https://dashedo.com/" },
+                { "@type": "ListItem", "position": 2, "name": "О нас", "item": "https://dashedo.com/about" },
+                { "@type": "ListItem", "position": 3, "name": "Карьера", "item": "https://dashedo.com/about/careers" }
             ]
         }
     };
 
-    // Beispielhafte Job-Postings für SEO (JSON-LD):
+    // Пример вакансий для SEO (JSON-LD):
     const jobsJsonLd = [
         {
             "@context": "https://schema.org",
             "@type": "JobPosting",
-            "title": "Frontend Engineer (m/w/d)",
+            "title": "Frontend Engineer (m/f/d)",
             "datePosted": "2025-11-11",
             "employmentType": "FULL_TIME",
             "hiringOrganization": {
                 "@type": "Organization",
-                "name": "⟨Dashedo GmbH⟩",
+                "name": "Dashedo GmbH",
                 "sameAs": "https://dashedo.com/"
             },
             "industry": "Software",
             "jobLocationType": "TELECOMMUTE",
-            "applicantLocationRequirements": { "@type": "Country", "name": "Deutschland" },
-            "jobLocation": { "@type": "Place", "address": { "@type": "PostalAddress", "addressLocality": "Berlin", "addressCountry": "DE" } },
-            "description": "Baue moderne Interfaces für Dashedo. Tech: ⟨React/TypeScript/Tailwind⟩.",
-            "responsibilities": "UI-Entwicklung, Performance, Tests, Code-Reviews.",
-            "qualifications": "3+ Jahre Erfahrung, sehr gute Kenntnisse in React/TS.",
+            "applicantLocationRequirements": { "@type": "Country", "name": "Germany" },
+            "jobLocation": {
+                "@type": "Place",
+                "address": {
+                    "@type": "PostalAddress",
+                    "addressLocality": "Berlin",
+                    "addressCountry": "DE"
+                }
+            },
+            "description": "Разрабатывай современные интерфейсы для Dashedo. Технологии: ⟨React/TypeScript/Tailwind⟩.",
+            "responsibilities": "Разработка UI, производительность, тесты, code review.",
+            "qualifications": "3+ лет опыта, отличные знания React/TypeScript.",
             "incentiveCompensation": "⟨vs.⟩",
-            "baseSalary": { "@type": "MonetaryAmount", "currency": "EUR", "value": { "@type": "QuantitativeValue", "value": "⟨xx⟩", "unitText": "YEAR" } },
-            "applicantLocationRequirementsDescription": "Remote in DE/EU-Zeitzonen."
+            "baseSalary": {
+                "@type": "MonetaryAmount",
+                "currency": "EUR",
+                "value": {
+                    "@type": "QuantitativeValue",
+                    "value": "⟨xx⟩",
+                    "unitText": "YEAR"
+                }
+            },
+            "applicantLocationRequirementsDescription": "Удалённо из Германии / в европейских часовых поясах."
         },
         {
             "@context": "https://schema.org",
             "@type": "JobPosting",
-            "title": "Account Executive DACH (m/w/d)",
+            "title": "Account Executive DACH (m/f/d)",
             "datePosted": "2025-11-11",
             "employmentType": "FULL_TIME",
-            "hiringOrganization": { "@type": "Organization", "name": "⟨Dashedo GmbH⟩" },
+            "hiringOrganization": { "@type": "Organization", "name": "Dashedo GmbH" },
             "industry": "Software",
-            "jobLocation": { "@type": "Place", "address": { "@type": "PostalAddress", "addressLocality": "Berlin", "addressCountry": "DE" } },
-            "description": "Skaliere unser Wachstum im DACH-Markt. Fokus: Mid-Market/Enterprise.",
-            "qualifications": "2–4 Jahre SaaS-Sales, Deutsch/Englisch fließend.",
-            "baseSalary": { "@type": "MonetaryAmount", "currency": "EUR", "value": { "@type": "QuantitativeValue", "value": "⟨xx⟩", "unitText": "YEAR" } }
+            "jobLocation": {
+                "@type": "Place",
+                "address": {
+                    "@type": "PostalAddress",
+                    "addressLocality": "Berlin",
+                    "addressCountry": "DE"
+                }
+            },
+            "description": "Масштабируй наш рост на рынке DACH. Фокус: Mid-Market/Enterprise.",
+            "qualifications": "2–4 года опыта в SaaS-продажах, свободный немецкий и английский.",
+            "baseSalary": {
+                "@type": "MonetaryAmount",
+                "currency": "EUR",
+                "value": {
+                    "@type": "QuantitativeValue",
+                    "value": "⟨xx⟩",
+                    "unitText": "YEAR"
+                }
+            }
         }
     ];
 
     return (
         <Page>
             <div className={s.content}>
-                
                 <Logo />
 
-                <nav aria-label="Brotkrumen">
-                    <a href="/">Startseite</a> &nbsp;/&nbsp; <a href="/about">Über uns</a> &nbsp;/&nbsp; <span>Karriere</span>
+                <nav aria-label="Хлебные крошки">
+                    <a href="/">Главная</a> &nbsp;/&nbsp; <a href="/about">О нас</a> &nbsp;/&nbsp; <span>Карьера</span>
                 </nav>
 
-                <h1 className={s.content__title}>Karriere bei Dashedo</h1>
-                <p><strong>Zuletzt aktualisiert:</strong> 11.11.2025</p>
+                <h1 className={s.content__title}>Карьера в Dashedo</h1>
+                <p><strong>Последнее обновление:</strong> 11.11.2025</p>
 
-                <h2>Warum Dashedo?</h2>
+                <h2>Почему Dashedo?</h2>
                 <p>
-                    Wir sind ein produktgetriebenes Team und bauen Software, die täglich echte Probleme löst.
-                    Bei uns bekommst du Ownership, klare Ziele und ein Umfeld, in dem <em>Impact</em> zählt.
+                    Мы — продуктовая команда и создаём софт, который каждый день решает реальные задачи.
+                    У нас ты получаешь ответственность, понятные цели и среду, в которой важен реальный <em>impact</em>.
                 </p>
 
-                <h2>Was wir bieten</h2>
+                <h2>Что мы предлагаем</h2>
                 <ul>
-                    <li>Remote-first (EU-Zeitzonen) &amp; flexibles Arbeiten</li>
-                    <li>Top-Equipment &amp; persönliches Lernbudget ⟨x €/Jahr⟩</li>
-                    <li>🔒 Fokus auf Qualität: Code-Reviews, Tests, CI/CD</li>
-                    <li>30 Tage Urlaub &amp; ⟨Benefits, z.&nbsp;B. BVG-Ticket, Sport⟩</li>
-                    <li>Transparente Karrierepfade und faire Gehälter</li>
+                    <li>Remote-first (европейские часовые пояса) и гибкий формат работы</li>
+                    <li>Современное оборудование и личный бюджет на обучение ⟨x €/год⟩</li>
+                    <li>🔒 Фокус на качестве: code review, тесты, CI/CD</li>
+                    <li>30 дней отпуска и ⟨бенефиты, напр. проездной, спорт⟩</li>
+                    <li>Прозрачные карьерные треки и конкурентная компенсация</li>
                 </ul>
 
-                <h2>Wie wir arbeiten</h2>
+                <h2>Как мы работаем</h2>
                 <ul>
-                    <li>Kleine, autonome Squads mit klaren Metriken</li>
-                    <li>Async-Kommunikation, wöchentliche Demos, Quartals-Roadmaps</li>
-                    <li>Kundennähe: User-Interviews, Beta-Programme, Feature-Flags</li>
+                    <li>Небольшие автономные команды (squads) с чёткими метриками</li>
+                    <li>Асинхронная коммуникация, еженедельные демо, квартальные roadmaps</li>
+                    <li>Близость к пользователям: интервью, бета-программы, feature flags</li>
                 </ul>
 
-                <h2 id="open-roles">Offene Stellen</h2>
+                <h2 id="open-roles">Открытые вакансии</h2>
                 <article>
-                    <h3>Frontend Engineer (m/w/d) – Berlin/Remote</h3>
-                    <p>Tech-Stack: ⟨React, TypeScript, Node, Cloud⟩ · Vollzeit</p>
-                    <p><a href="#bewerbung">Jetzt bewerben</a></p>
+                    <h3>Frontend Engineer (m/f/d) – Берлин / удалённо</h3>
+                    <p>Стек: ⟨React, TypeScript, Node, Cloud⟩ · Полная занятость</p>
+                    <p><a href="#bewerbung">Откликнуться</a></p>
                 </article>
                 <article>
-                    <h3>Account Executive DACH (m/w/d) – Berlin/Remote</h3>
-                    <p>Mid-Market/Enterprise · Vollzeit</p>
-                    <p><a href="#bewerbung">Jetzt bewerben</a></p>
+                    <h3>Account Executive DACH (m/f/d) – Берлин / удалённо</h3>
+                    <p>Mid-Market/Enterprise · Полная занятость</p>
+                    <p><a href="#bewerbung">Откликнуться</a></p>
                 </article>
-                <p>Keine passende Rolle? <strong>Initiativbewerbung</strong> an <a href="mailto:jobs@dashedo.com">jobs@dashedo.com</a>.</p>
+                <p>
+                    Не нашли подходящую роль? Отправьте{" "}
+                    <strong>инициативное резюме</strong> на{" "}
+                    <a href="mailto:jobs@dashedo.com">jobs@dashedo.com</a>.
+                </p>
 
-                <h2 id="prozess">Bewerbungsprozess</h2>
+                <h2 id="prozess">Процесс найма</h2>
                 <ol>
-                    <li><strong>Intro-Call</strong> (30 Min.) – gegenseitiges Kennenlernen</li>
-                    <li><strong>Fachgespräch</strong> – Deep-Dive in Erfahrung &amp; Arbeitsweise</li>
-                    <li><strong>Praktische Aufgabe</strong> – realitätsnah, zeitlich begrenzt</li>
-                    <li><strong>Team-Interview</strong> – Kultur &amp; Zusammenarbeit</li>
-                    <li><strong>Angebot</strong> – transparent &amp; schnell</li>
+                    <li><strong>Intro-call</strong> (30 минут) — знакомство друг с другом</li>
+                    <li><strong>Профессиональное интервью</strong> — обсуждаем опыт и подход к работе</li>
+                    <li><strong>Практическое задание</strong> — приближено к реальности и ограничено по времени</li>
+                    <li><strong>Интервью с командой</strong> — культура и взаимодействие</li>
+                    <li><strong>Оффер</strong> — прозрачно и быстро</li>
                 </ol>
 
-                <h2 id="bewerbung">So bewirbst du dich</h2>
+                <h2 id="bewerbung">Как подать заявку</h2>
                 <p>
-                    Sende CV/Profil (LinkedIn/GitHub) an <a href="mailto:jobs@dashedo.com">jobs@dashedo.com</a> und
-                    nenne die gewünschte Rolle, Startdatum und Gehaltsrahmen.
+                    Отправьте CV/профиль (LinkedIn/GitHub) на{" "}
+                    <a href="mailto:jobs@dashedo.com">jobs@dashedo.com</a> и
+                    укажите желаемую роль, дату выхода и зарплатные ожидания.
                 </p>
 
-                <h2>Vielfalt &amp; Inklusion</h2>
+                <h2>Разнообразие и инклюзия</h2>
                 <p>
-                    Wir begrüßen Bewerbungen unabhängig von Herkunft, Geschlecht, Identität, Religion, Behinderung
-                    oder Alter. Wichtig sind Neugier, Ownership und Teamgeist.
+                    Мы приветствуем отклики независимо от происхождения, пола, идентичности, религии,
+                    инвалидности или возраста. Для нас важны любознательность, чувство ответственности
+                    и умение работать в команде.
                 </p>
 
-                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(pageJsonLd) }} />
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(pageJsonLd) }}
+                />
                 {jobsJsonLd.map((j, i) => (
-                    <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(j) }} />
+                    <script
+                        key={i}
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: JSON.stringify(j) }}
+                    />
                 ))}
             </div>
         </Page>
