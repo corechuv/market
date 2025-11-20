@@ -148,7 +148,7 @@ export default function MainLayout() {
           items={items}
           bottomOffset={12}
           rounded={18}
-          visibleOnDesktop={true}
+          visibleOnDesktop={false}
         />
         <Outlet />
       </div>
