@@ -1,4 +1,5 @@
 // src/pages/Account/AddressEdit.tsx
+/*
 import React, { useMemo, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import styles from "./AccountPage.module.scss";
@@ -19,7 +20,6 @@ import { DE_STATES, EU_COUNTRIES_RU } from "../../data/helpers/region";
 import { required, validatePhone, validateForm, type FieldErrors, } from "../../utils/validate/fields";
 
 
-/** ====== helpers ====== */
 const isGermany = (country: string) => /^(германи|deutschland)/i.test(country.trim());
 const postalVal = (country: string, v?: string) => {
     if (!v) return "Обязательное поле";
@@ -217,3 +217,4 @@ export default function AddressEdit() {
         </PageLayout>
     );
 }
+*/
