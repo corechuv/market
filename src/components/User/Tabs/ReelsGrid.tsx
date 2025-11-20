@@ -1,4 +1,4 @@
-// src/components/Videos/ReelsGrid.tsx
+// src/components/User/Tabs/ReelsGrid.tsx
 import React from "react";
 import clsx from "clsx";
 import styles from "./Videos.module.scss";

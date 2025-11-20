@@ -1,9 +1,13 @@
-// src/pages/Account/MyVideos.tsx
+// src/components/User/Tabs/Videos.tsx
 import React from "react";
 import { listUserReels } from "../../../services/reviewApi";
 import type { ReviewOut } from "../../../types/review/review";
 import ReelsGrid from "./ReelsGrid";
+import ReelsGridSkeleton from "./ReelsGrid.Skeleton";
 import styles from "./Videos.module.scss";
+
+const REELS_LIMIT = 100;
+const SKELETON_COUNT = 6;
 
 type Props = {
     username: string;
@@ -22,7 +26,7 @@ export default function Videos({ username }: Props) {
             setLoading(true);
             setError(null);
             try {
-                const res = await listUserReels({ username, limit: 100 });
+                const res = await listUserReels({ username, limit: REELS_LIMIT });
                 if (!cancelled) setItems(res);
             } catch (e: any) {
                 if (!cancelled) setError(e?.message ?? "Failed to load user reels");
@@ -36,8 +40,15 @@ export default function Videos({ username }: Props) {
         };
     }, [username]);
 
-    if (loading) return <div>Loading videos…</div>;
+    if (loading) {
+        return <ReelsGridSkeleton count={SKELETON_COUNT} />;
+    }
     if (error) return <div className={styles.error}>{error}</div>;
 
-    return <ReelsGrid items={items} emptyText="У пользователя пока нет видео-отзывов." />;
+    return (
+        <ReelsGrid
+            items={items}
+            emptyText="У пользователя пока нет видео-отзывов."
+        />
+    );
 }

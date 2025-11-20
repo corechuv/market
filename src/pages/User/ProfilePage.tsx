@@ -12,6 +12,7 @@ import api from "../../lib/api";
 import styles from "../Account/AccountPage.module.scss";
 import Videos from "../../components/User/Tabs/Videos";
 import { buildAvatarSrc } from "../../utils/avatar";
+import WrapperSkeleton from "../../components/User/Wrapper.Skeleton";
 
 type TabKey = "videos";
 
@@ -111,9 +112,9 @@ export default function ProfilePage() {
 
     if (loading || !profile) {
         return (
-            <main className={styles.page}>
-                <div className={styles.loadingWrap}>Loading…</div>
-            </main>
+            <Page padding={false}>
+                <WrapperSkeleton />
+            </Page>
         );
     }
 

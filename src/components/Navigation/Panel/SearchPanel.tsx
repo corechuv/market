@@ -22,6 +22,7 @@ import { Tabs, type TabItem } from "../../UI/Tabs";
 import ReelsGrid from "../../User/Tabs/ReelsGrid";
 import UserResultsList from "../../Search/UsersResultList";
 import { buildAvatarSrc } from "../../../utils/avatar";
+import ReelsGridSkeleton from "../../User/Tabs/ReelsGrid.Skeleton";
 
 export interface SearchItem {
   id: string;
@@ -473,22 +474,26 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
               role="listbox"
               aria-label="Search results: videos"
             >
-              <ReelsGrid
-                items={videoResults}
-                emptyText={
-                  searchError
-                    ? searchError
-                    : videosLoading
-                      ? ""
-                      : query.trim()
-                        ? "Ничего не найдено"
-                        : ""
-                }
-                onItemClick={(review) => {
-                  onSelectVideo(review);
-                }}
-                layout="search"
-              />
+              {videosLoading && query.trim() && !videosError ? (
+                <ReelsGridSkeleton layout="search" />
+              ) : (
+                <ReelsGrid
+                  items={videoResults}
+                  emptyText={
+                    searchError
+                      ? searchError
+                      : videosLoading
+                        ? ""
+                        : query.trim()
+                          ? "Ничего не найдено"
+                          : ""
+                  }
+                  onItemClick={(review) => {
+                    onSelectVideo(review);
+                  }}
+                  layout="search"
+                />
+              )}
             </div>
           )}
         </ScrollArea>

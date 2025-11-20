@@ -1,4 +1,6 @@
 // src/components/User/Wrapper.module.scss
+@use "../../styles/skeleton.module.scss";
+
 .profile {
     padding-top: 30px;
     padding-bottom: 30px;
@@ -15,11 +17,23 @@
         padding-right: 16px;
     }
 
+    &--skeleton {
+        pointer-events: none;
+        user-select: none;
+    }
+
     &__photo {
         width: clamp(80px, 30vw, 140px);
         aspect-ratio: 1 / 1;
         overflow: hidden;
         background-color: var(--bg);
+
+        &--skeleton {
+            @extend %skeleton; // берём шимер из skeleton.module.scss
+            width: clamp(80px, 30vw, 140px);
+            height: clamp(80px, 30vw, 140px);
+            border-radius: 50%;
+        }
 
         .baseAvatar {
             width: 100%;
@@ -63,6 +77,21 @@
 
         &--username {
             font-size: 16px;
+        }
+
+        &--fullnameSkeleton {
+            @extend %skeleton;
+            width: 180px;
+            height: 26px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+        }
+
+        &--usernameSkeleton {
+            @extend %skeleton;
+            width: 120px;
+            height: 22px;
+            border-radius: 6px;
         }
     }
 

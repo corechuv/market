@@ -25,6 +25,7 @@ import type { ReviewOut } from "../../types/review/review";
 import ReelsGrid from "../../components/User/Tabs/ReelsGrid";
 import UserResultsList from "../../components/Search/UsersResultList";
 import { buildAvatarSrc } from "../../utils/avatar";
+import ReelsGridSkeleton from "../../components/User/Tabs/ReelsGrid.Skeleton";
 
 type SearchItem = {
     id: string;
@@ -358,22 +359,26 @@ export default function MobileSearchPage() {
                             role="listbox"
                             aria-label="Search results: videos"
                         >
-                            <ReelsGrid
-                                items={videoResults}
-                                layout="search"
-                                emptyText={
-                                    searchError
-                                        ? searchError
-                                        : videosLoading
-                                            ? ""
-                                            : query.trim()
-                                                ? "Ничего не найдено"
-                                                : ""
-                                }
-                                onItemClick={(review) => {
-                                    onSelectVideo(review);
-                                }}
-                            />
+                            {videosLoading && query.trim() && !videosError ? (
+                                <ReelsGridSkeleton layout="search" />
+                            ) : (
+                                <ReelsGrid
+                                    items={videoResults}
+                                    layout="search"
+                                    emptyText={
+                                        searchError
+                                            ? searchError
+                                            : videosLoading
+                                                ? ""
+                                                : query.trim()
+                                                    ? "Ничего не найдено"
+                                                    : ""
+                                    }
+                                    onItemClick={(review) => {
+                                        onSelectVideo(review);
+                                    }}
+                                />
+                            )}
                         </div>
                     )}
                 </ScrollArea>
