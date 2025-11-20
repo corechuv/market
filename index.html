@@ -1,7 +1,28 @@
 <!doctype html>
-<html lang="en">
+<html lang="">
 
 <head>
+  <script>
+    (function () {
+      // читаем выбранный язык пользователя
+      var lang = null;
+      try {
+        lang = localStorage.getItem('lang');
+      } catch (e) { }
+
+      // если ничего нет — пробуем язык браузера
+      if (!lang && window.navigator && navigator.language) {
+        lang = navigator.language.slice(0, 2); // "de-DE" -> "de"
+      }
+
+      // дефолт
+      if (!['de', 'en', 'ru'].includes(lang)) {
+        lang = 'de';
+      }
+
+      document.documentElement.setAttribute('lang', lang);
+    })();
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="preconnect" href="https://fonts.googleapis.com">

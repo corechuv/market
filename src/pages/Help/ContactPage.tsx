@@ -46,7 +46,7 @@ export default function ContactPage() {
 
     return (
         <Page>
-            <div className={s.content}>
+            <section className={s.content} lang="de">
                             
                             <Logo />
                             
@@ -85,7 +85,7 @@ export default function ContactPage() {
 
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(pageJsonLd) }} />
-            </div>
+            </section>
         </Page>
     );
 }
