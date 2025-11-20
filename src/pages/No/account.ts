@@ -1,4 +1,5 @@
 // src/data/account.ts
+{/*
 import type { Account } from "../types/account";
 
 export const uid = () => Math.random().toString(36).slice(2, 10);
@@ -46,3 +47,4 @@ export const account: Account = {
     theme: "system",
   },
 };
+*/}

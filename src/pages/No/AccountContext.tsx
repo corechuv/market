@@ -1,4 +1,5 @@
 // src/context/AccountContext.tsx
+{/*
 import React, {
   createContext,
   useContext,
@@ -235,3 +236,4 @@ function makePngLabelDataUrl({
   ctx.strokeRect(30, 30, w - 60, h - 60);
   return canvas.toDataURL("image/png");
 }
+*/}
