@@ -6,7 +6,6 @@
 :root[data-theme='light'],
 html[data-theme='light'],
 body[data-theme='light'] {
-  --bg: #ffffff;
   --bg-card: #fcfcfc;
   --bg-blur: #ffffffcc;
   --bg-catalog-window: #ffffff;
@@ -39,7 +38,6 @@ body[data-theme='light'] {
 :root[data-theme='dark'],
 html[data-theme='dark'],
 body[data-theme='dark'] {
-  --bg: #131313;
   --bg-card: #000;
   --bg-blur: #131313cc;
   --bg-catalog-window: #0e0e0e;

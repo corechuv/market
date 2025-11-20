@@ -166,7 +166,8 @@ html[data-theme='dark'],
 body[data-theme='dark'] {
   --font: 'Roboto', sans-serif;
 
-  --bg: #131313;
+  /*--bg: #131313;*/
+  --bg: #0d0d0d;
   --bg-card: #000000;
   --bg-blur: #131313cc;
   --bg-catalog-window: #0e0e0e;
