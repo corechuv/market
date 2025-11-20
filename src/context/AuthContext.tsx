@@ -28,7 +28,7 @@ type AuthCtx = {
         email: string; // может быть и username
         password: string;
         remember?: boolean;
-    }) => Promise<void>;
+    }) => Promise<User>;
     register: (p: {
         firstName: string;
         lastName: string;
@@ -36,7 +36,7 @@ type AuthCtx = {
         password: string;
         username?: string; // если не передать — возьмём часть до @ из email
         remember?: boolean;
-    }) => Promise<void>;
+    }) => Promise<User>;
     logout: () => Promise<void>;
     reloadMe: () => Promise<void>;
 };
@@ -229,6 +229,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 const me = meResp.data;
                 persistAuth(access ?? null, refresh ?? null, me, remember);
                 setUser(me);
+
+                return me;
             } catch (e: any) {
                 const s = e?.response?.status;
                 const msg = e?.response?.data?.message || "Invalid email or password";
@@ -272,6 +274,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 const me = meResp.data;
                 persistAuth(access ?? null, refresh ?? null, me, remember);
                 setUser(me);
+
+                return me;
             } catch (e: any) {
                 const s = e?.response?.status;
                 const d = e?.response?.data;

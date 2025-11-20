@@ -14,7 +14,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 type AuthMode = "login" | "register";
 
 function AuthScreen() {
-  const { login, register } = useAuth();
+  const { login, register, user, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
   const { tab } = useParams<{ tab?: string }>();
 
@@ -26,17 +26,31 @@ function AuthScreen() {
     }
   };
 
+  if (!loading && isAuthenticated && user) {
+    const username = user.username ?? user.user?.username;
+
+    if (username) {
+      return <Navigate to={`/u/${username}`} replace />;
+    }
+  }
+  const redirectToProfile = (me: any) => {
+    const username = me?.username ?? me?.user?.username;
+    if (username) {
+      navigate(`/u/${username}`, { replace: true });
+    }
+  };
+
   return (
     <AuthPage
       mode={mode}
       onModeChange={handleModeChange}
       onLogin={async ({ email, password, remember }) => {
-        await login({ email, password, remember });
-        navigate("/account");
+        const me = await login({ email, password, remember });
+        redirectToProfile(me);
       }}
       onRegister={async ({ firstName, lastName, email, password }) => {
-        await register({ firstName, lastName, email, password });
-        navigate("/account");
+        const me = await register({ firstName, lastName, email, password });
+        redirectToProfile(me);
       }}
     />
   );
