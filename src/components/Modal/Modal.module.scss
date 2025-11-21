@@ -48,6 +48,7 @@ $anim-time: 0.3s;
     max-height: 92dvh;
     /* NEW: ограничиваем по вьюпорту */
     border-radius: 12px;
+    overflow: hidden;
     opacity: 0;
     transform: scale(0.9);
     animation: zoomIn $anim-time forwards;

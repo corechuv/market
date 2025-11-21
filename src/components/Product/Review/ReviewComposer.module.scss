@@ -388,8 +388,6 @@
   cursor: pointer;
   user-select: none;
 
-  /* размер: держим 9:16, по высоте не больше 438px */
-  height: min(438px, 50vh);
   aspect-ratio: 9 / 16;
 
   display: grid;
