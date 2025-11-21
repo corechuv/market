@@ -6,10 +6,6 @@ $bp-sm: 480px;
 $bp-md: 768px;
 $bp-lg: 1024px;
 
-:root {
-  --border-col: #efefef;
-}
-
 .footer {
   margin-top: 100px;
   display: flex;
@@ -83,11 +79,6 @@ $bp-lg: 1024px;
   font-weight: 300;
 
   @media (max-width: $bp-md) {
-    gap: 40px;
-    font-weight: 400;
-  }
-
-  @media (max-width: $bp-sm) {
     font-weight: 400;
   }
 }
