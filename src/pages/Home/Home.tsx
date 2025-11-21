@@ -27,6 +27,7 @@ import hp_light from "@/assets/brand_logos/HP_Logo_color.svg";
 import hp_dark from "@/assets/brand_logos/HP_Logo_color.svg";
 import { Tabs, type TabItem } from "../../components/UI/Tabs";
 import ProductItemList from "../../components/Product/ProductItemList";
+import Logo from "../../components/logo/Logo";
 
 const demoImages = [
     { src: "https://www.apple.com/v/iphone-17-pro/a/images/overview/highlights/highlights_apple_intelligence__bs20h6298f36_medium_2x.jpg", alt: "1", caption: "" },
@@ -133,6 +134,8 @@ export default function Home() {
         <Page padding={false}>
             <div className="container">
                 <div className={cls.homeContent}>
+                    <Logo />
+
                     <Tabs<TabKey>
                         items={tabs}
                         activeKey={active}
