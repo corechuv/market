@@ -3,23 +3,21 @@ import React from "react";
 import * as UpChunk from "@mux/upchunk";
 import { createMuxDirectUpload } from "../../../services/muxApi";
 import { createReview, addReviewMedia } from "../../../services/reviewApi";
-// import type { ReviewType } from "../../../types/review/review"; // больше не нужен
 import styles from "./ReviewComposer.module.scss";
-import Button from "../../UI/Button";
 import { TextareaField } from "../../UI/TextareaField";
-import Left from "../../Icons/ChevronLeftIcon";
+import { Tabs, type TabItem } from "../../UI/Tabs";
 
-type ReviewMode = "choose" | "plain" | "reel";
+type ReviewMode = "plain" | "reel";
 
 type Props = {
   productId: string;
 
   /** Перехват клика по кнопке в топбаре (вместо стандартной отправки) */
-  onTopbarPublish?: (mode: Exclude<ReviewMode, "choose">) => void;
+  onTopbarPublish?: (mode: ReviewMode) => void;
 
   /** Полный кастом правого экшена в топбаре */
   renderTopbarAction?: (ctx: {
-    mode: Exclude<ReviewMode, "choose">;
+    mode: ReviewMode;
     onDefaultClick: () => void;
     busy: boolean;
     canPublish: boolean;
@@ -27,6 +25,11 @@ type Props = {
 };
 
 const RATING_MAX = 5;
+
+const REVIEW_MODE_TABS: TabItem<ReviewMode>[] = [
+  { key: "plain", label: "Plain" },
+  { key: "reel", label: "Video" },
+];
 
 /** Цифровой рейтинг 1–5 по всей ширине (как звёзды, но цифры) */
 function NumericRating({
@@ -76,8 +79,9 @@ function NumericRating({
         <button
           key={n}
           type="button"
-          className={`${styles.ratingItem} ${n <= value ? styles.isActive : ""
-            }`}
+          className={`${styles.ratingItem} ${
+            n <= value ? styles.isActive : ""
+          }`}
           onClick={() => !disabled && onChange(n)}
           disabled={disabled}
           role="radio"
@@ -99,7 +103,7 @@ export default function ReviewComposer({
   onTopbarPublish,
   renderTopbarAction,
 }: Props) {
-  const [mode, setMode] = React.useState<ReviewMode>("choose"); // новый экран выбора
+  const [mode, setMode] = React.useState<ReviewMode>("plain");
   const [rating, setRating] = React.useState(5);
   const [text, setText] = React.useState("");
   const [file, setFile] = React.useState<File | null>(null);
@@ -234,7 +238,6 @@ export default function ReviewComposer({
   }
 
   const onSubmit = async () => {
-    if (mode === "choose") return;
     setBusy(true);
     setMsg(null);
     try {
@@ -251,7 +254,6 @@ export default function ReviewComposer({
       setFile(null);
       setPreviewUrl(null);
       setProgress(0);
-      setMode("choose"); // после удачной отправки возвращаемся к выбору
     } catch (e: any) {
       setMsg(e?.message ?? "Не удалось создать отзыв");
     } finally {
@@ -259,19 +261,9 @@ export default function ReviewComposer({
     }
   };
 
-  const onBack = () => {
-    if (busy) return;
-    setMsg(null);
-    setFile(null);
-    setPreviewUrl(null);
-    setProgress(0);
-    setMode("choose");
-  };
-
   const onTopbarPublishClick = async () => {
-    if (mode === "choose") return;
     if (onTopbarPublish) {
-      onTopbarPublish(mode as Exclude<ReviewMode, "choose">);
+      onTopbarPublish(mode);
       return;
     }
     await onSubmit();
@@ -296,79 +288,61 @@ export default function ReviewComposer({
         <NumericRating value={rating} onChange={setRating} disabled={busy} />
       </div>
     </div>
-  )
+  );
+
+  // переключение табов Plain / Video вместо кнопки Назад/экрана choose
+  const TabsTopbar = (
+    <Tabs<ReviewMode>
+      items={REVIEW_MODE_TABS}
+      activeKey={mode}
+      onChange={(nextMode) => {
+        if (busy) return;
+        setMsg(null);
+        setFile(null);
+        setPreviewUrl(null);
+        setProgress(0);
+        setMode(nextMode);
+      }}
+      ariaLabel="Тип отзыва"
+      background="transparent"
+    />
+  );
 
   return (
     <div className={styles.root}>
-      {/* Верхняя панель с кнопкой назад и Publish (видна в режимах plain|reel) */}
-      {mode !== "choose" && (
-        <div className={styles.topbar}>
-          <Button
-            variant="secondary"
-            size="small"
-            onClick={onBack}
-            disabled={busy}
-            className={styles.backBtn}
-            aria-label="Назад"
+      {/* Топбар: слева Tabs, справа Publish */}
+      <div className={styles.topbar}>
+        {TabsTopbar}
+
+        <div className={styles.topbarSpacer} />
+
+        {renderTopbarAction ? (
+          renderTopbarAction({
+            mode,
+            onDefaultClick: onTopbarPublishClick,
+            busy,
+            canPublish,
+          })
+        ) : (
+          <button
+            onClick={onTopbarPublishClick}
+            disabled={!canPublish}
+            className={styles.topbarAction}
           >
-            <Left />
-          </Button>
-
-          <div className={styles.topbarSpacer} />
-
-          {renderTopbarAction ? (
-            renderTopbarAction({
-              mode: mode as Exclude<ReviewMode, "choose">,
-              onDefaultClick: onTopbarPublishClick,
-              busy,
-              canPublish,
-            })
-          ) : (
-            <button
-              onClick={onTopbarPublishClick}
-              disabled={!canPublish}
-              className={styles.topbarAction}
-            >
-              {busy ? "Saving…" : "Publish"}
-            </button>
-          )}
-        </div>
-      )}
+            {busy ? "Saving…" : "Publish"}
+          </button>
+        )}
+      </div>
 
       <div className={styles.layout__main}>
-        {/* Экран выбора типа */}
-        {mode === "choose" ? (
-          <div className={styles.typePicker}>
-            <div className={styles.typeGrid}>
-              <button
-                type="button"
-                className={styles.typeCard}
-                onClick={() => setMode("plain")}
-                disabled={busy}
-              >
-                <div className={styles.typeIcon} aria-hidden></div>
-                <div className={styles.typeTitle}>Plain</div>
-                <div className={styles.typeHint}></div>
-              </button>
-              <button
-                type="button"
-                className={styles.typeCard}
-                onClick={() => setMode("reel")}
-                disabled={busy}
-              >
-                <div className={styles.typeIcon} aria-hidden></div>
-                <div className={styles.typeTitle}>Video</div>
-                <div className={styles.typeHint}></div>
-              </button>
-            </div>
-          </div>
-        ) : mode === "reel" ? (
+        {mode === "reel" ? (
           <div className={styles.layout__grid}>
             {SelectRatingBar}
 
             <div
-              className={`${styles.previewWrap} ${dragActive ? styles.isDragActive : ""
-                }`}
+              className={`${styles.previewWrap} ${
+                dragActive ? styles.isDragActive : ""
+              }`}
               role="button"
               tabIndex={0}
               aria-label={
@@ -425,12 +399,11 @@ export default function ReviewComposer({
               </div>
             )}
 
-            {/* Кнопку Publish снизу удалили — теперь она в топбаре */}
-
             {msg && (
               <div
-                className={`${styles.msg} ${msg.startsWith("Не удалось") ? styles.msgError : ""
-                  }`}
+                className={`${styles.msg} ${
+                  msg.startsWith("Не удалось") ? styles.msgError : ""
+                }`}
               >
                 {msg}
               </div>
@@ -443,8 +416,9 @@ export default function ReviewComposer({
             {Controls}
             {msg && (
               <div
-                className={`${styles.msg} ${msg.startsWith("Не удалось") ? styles.msgError : ""
-                  }`}
+                className={`${styles.msg} ${
+                  msg.startsWith("Не удалось") ? styles.msgError : ""
+                }`}
               >
                 {msg}
               </div>
