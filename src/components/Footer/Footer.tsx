@@ -26,8 +26,9 @@ import amex from "@/assets/svg/amex.svg"
 
 import cls from "./Footer.module.scss"
 import Accordion from "../UI/Accordion"
+import { useIsMobile } from "../../utils/useIsMobile";
 
-const NAV_GROUPS = [
+const navInfo = [
     {
         title: "About",
         links: [
@@ -67,6 +68,7 @@ const NAV_GROUPS = [
 ];
 
 export default function Footer() {
+    const isMobile = useIsMobile(768);
     /*const [theme, setTheme] = useState(() =>
         document.documentElement.getAttribute("data-theme") || "light"
     );*/
@@ -81,9 +83,56 @@ export default function Footer() {
     }, []);
     */
     return (
-        <footer className={cls.footer}>
-            <div className={cls.footer__container}>
-                {/*
+        <>
+            <footer className={cls.footer}>
+                <section className={cls.footer__section} aria-label="Footer Navigation">
+                    {isMobile ? (
+                        <nav className={cls.footer__nav}>
+                            {navInfo.map((group) => (
+                                <Accordion
+                                    key={group.title}
+                                    title={group.title}
+                                    defaultOpen={false}
+                                    margin={false}
+                                >
+                                    <ul className={cls["footer__nav--col--list"]}>
+                                        {group.links.map((l) => (
+                                            <li key={l.href} className={cls["footer__nav--col--list--item"]}>
+                                                <a href={l.href}>{l.label}</a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </Accordion>
+                            ))}
+                        </nav>
+                    ) : (
+                        <nav className={cls.footer__nav} role="list">
+                            {navInfo.map((group) => (
+                                <div
+                                    className={cls["footer__nav--col"]}
+                                    role="listitem"
+                                    key={group.title}
+                                >
+                                    <h3 className={cls["footer__nav--col--title"]}>{group.title}</h3>
+                                    <ul className={cls["footer__nav--col--list"]}>
+                                        {group.links.map((l) => (
+                                            <li key={l.href} className={cls["footer__nav--col--list--item"]}>
+                                                <a href={l.href}>{l.label}</a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ))}
+                        </nav>
+                    )}
+                </section>
+                <section className={cls.footer__section} aria-label="Footer Copyright">
+                    <p className={cls.corp}>&copy; 2025 Dashedo. All rights reserved.</p>
+                </section>
+            </footer>
+            {/*
+            <footer className={cls.footer}>
+                <div className={cls.footer__container}>
                 <div className={`${cls["footer__container--col"]}`}>
                     <section className={cls.methodContainer}>
                         <h3 className={cls.methodContainer__title}>Shipping</h3>
@@ -106,49 +155,6 @@ export default function Footer() {
                         </div>
                     </section>
                 </div>
-                */}
-                <div className={cls["footer__container--col"]}>
-                    <section className={cls.footerNav} aria-label="Footer navigation">
-                        {/* Desktop / Tablet grid */}
-                        <div className={cls.footerNavDesktop} role="list">
-                            {NAV_GROUPS.map((group) => (
-                                <div className={cls.footerNav__col} role="listitem" key={group.title}>
-                                    <h3 className={cls.footerNav__heading}>{group.title}</h3>
-                                    <ul className={cls.footerNav__list}>
-                                        {group.links.map((l) => (
-                                            <li key={l.href}>
-                                                <a href={l.href} className={cls.navLink}>{l.label}</a>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Mobile accordions */}
-                        <div className={cls.footerNavMobile}>
-                            {NAV_GROUPS.map((group) => (
-                                <div className={cls.footerNav__accordion} key={group.title}>
-                                    <Accordion title={group.title} defaultOpen={false} margin={false}>
-                                        <ul className={cls.footerNav__list}>
-                                            {group.links.map((l) => (
-                                                <li key={l.href}>
-                                                    <a href={l.href} className={cls.navLink}>{l.label}</a>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </Accordion>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                </div>
-                <div className={`${cls["footer__container--col"]}`}>
-                    <section className={cls.footerBottom}>
-                        <p className={cls.copyRight}>&copy; 2025 Dashedo. All rights reserved.</p>
-                    </section>
-                </div>
-                {/*
                 <div className={`${cls["footer__container--col"]}`}>
                     <section className={cls.footerBottom}>
                         <p className={cls.copyRight}>&copy; 2025 Dashedo. All rights reserved.</p>
@@ -171,8 +177,9 @@ export default function Footer() {
                         </div>
                     </section>
                 </div>
-                */}
-            </div>
-        </footer>
+                </div>
+            </footer>
+            */}
+        </>
     );
 }
