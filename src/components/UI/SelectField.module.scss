@@ -83,6 +83,11 @@
   pointer-events: none;
   opacity: .7;
   display: flex;
+  
+  svg {
+    width: 18px;
+    height: 18px;
+  }
 }
 
 /* когда раскрыто — крутим стрелку */
