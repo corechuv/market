@@ -6,6 +6,7 @@ import { createReview, addReviewMedia } from "../../../services/reviewApi";
 import styles from "./ReviewComposer.module.scss";
 import { TextareaField } from "../../UI/TextareaField";
 import { Tabs, type TabItem } from "../../UI/Tabs";
+import Button from "../../UI/Button";
 
 type ReviewMode = "plain" | "reel";
 
@@ -79,9 +80,8 @@ function NumericRating({
         <button
           key={n}
           type="button"
-          className={`${styles.ratingItem} ${
-            n <= value ? styles.isActive : ""
-          }`}
+          className={`${styles.ratingItem} ${n <= value ? styles.isActive : ""
+            }`}
           onClick={() => !disabled && onChange(n)}
           disabled={disabled}
           role="radio"
@@ -304,35 +304,13 @@ export default function ReviewComposer({
         setMode(nextMode);
       }}
       ariaLabel="Тип отзыва"
-      background="transparent"
+      background="var(--bg)"
     />
   );
 
   return (
     <div className={styles.root}>
-      {/* Топбар: слева Tabs, справа Publish */}
-      <div className={styles.topbar}>
-        {TabsTopbar}
-
-        <div className={styles.topbarSpacer} />
-
-        {renderTopbarAction ? (
-          renderTopbarAction({
-            mode,
-            onDefaultClick: onTopbarPublishClick,
-            busy,
-            canPublish,
-          })
-        ) : (
-          <button
-            onClick={onTopbarPublishClick}
-            disabled={!canPublish}
-            className={styles.topbarAction}
-          >
-            {busy ? "Saving…" : "Publish"}
-          </button>
-        )}
-      </div>
+      {TabsTopbar}
 
       <div className={styles.layout__main}>
         {mode === "reel" ? (
@@ -340,9 +318,8 @@ export default function ReviewComposer({
             {SelectRatingBar}
 
             <div
-              className={`${styles.previewWrap} ${
-                dragActive ? styles.isDragActive : ""
-              }`}
+              className={`${styles.previewWrap} ${dragActive ? styles.isDragActive : ""
+                }`}
               role="button"
               tabIndex={0}
               aria-label={
@@ -401,9 +378,8 @@ export default function ReviewComposer({
 
             {msg && (
               <div
-                className={`${styles.msg} ${
-                  msg.startsWith("Не удалось") ? styles.msgError : ""
-                }`}
+                className={`${styles.msg} ${msg.startsWith("Не удалось") ? styles.msgError : ""
+                  }`}
               >
                 {msg}
               </div>
@@ -416,14 +392,32 @@ export default function ReviewComposer({
             {Controls}
             {msg && (
               <div
-                className={`${styles.msg} ${
-                  msg.startsWith("Не удалось") ? styles.msgError : ""
-                }`}
+                className={`${styles.msg} ${msg.startsWith("Не удалось") ? styles.msgError : ""
+                  }`}
               >
                 {msg}
               </div>
             )}
           </div>
+        )}
+
+
+        {renderTopbarAction ? (
+          renderTopbarAction({
+            mode,
+            onDefaultClick: onTopbarPublishClick,
+            busy,
+            canPublish,
+          })
+        ) : (
+          <Button
+            onClick={onTopbarPublishClick}
+            disabled={!canPublish}
+            variant="primary"
+            size="small"
+          >
+            {busy ? "Saving…" : "Publish"}
+          </Button>
         )}
       </div>
     </div>
