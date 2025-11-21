@@ -1,0 +1,13 @@
+// src/styles/ui.module.scss
+
+/* Accordion */
+.accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    p {
+        margin: 0;
+    }
+}
+/* End Accordion */

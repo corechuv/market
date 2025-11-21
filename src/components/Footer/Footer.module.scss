@@ -1,3 +1,6 @@
+// src/components/Footer.module.scss
+@use "../../styles/ui.module.scss";
+
 /* breakpoints */
 $bp-sm: 480px;
 $bp-md: 768px;
@@ -81,15 +84,15 @@ $bp-lg: 1024px;
 /* ——— Mobile (≤767px): аккордеоны ——— */
 .footerNavMobile {
   display: none;
+  @extend .accordion;
 
   @media (max-width: $bp-md) {
     display: flex;
-    flex-direction: column;
-    gap: 20px;
   }
 }
 
 .footerNav__accordion {
+
   /* внутренний отступ содержимого аккордеона */
   .footerNav__list {
     padding: 6px 0 10px 0;

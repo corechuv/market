@@ -1,8 +1,5 @@
-.accordion {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
+// src/components/UI/Accordion.module.scss
+@use "../../styles/ui.module.scss";
 
 .header {
     width: 100%;
