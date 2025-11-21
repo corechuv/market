@@ -103,10 +103,9 @@ $bp-lg: 1024px;
   display: flex;
   align-items: center;
   padding: 2px 0;
-  /* больше тап-таргет для мобилы */
-  color: var(--color-link-primary);
+  color: var(--muted);
   font-size: 14px;
-  font-weight: 300;
+  font-weight: 400;
   text-decoration: none;
 
   &:hover {
