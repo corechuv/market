@@ -85,13 +85,11 @@ $bp-lg: 1024px;
   @media (max-width: $bp-md) {
     display: flex;
     flex-direction: column;
+    gap: 20px;
   }
 }
 
 .footerNav__accordion {
-  padding-bottom: 8px;
-  margin-bottom: 8px;
-
   /* внутренний отступ содержимого аккордеона */
   .footerNav__list {
     padding: 6px 0 10px 0;
