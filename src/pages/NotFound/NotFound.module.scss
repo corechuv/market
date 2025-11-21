@@ -7,7 +7,6 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100dvh;
   gap: clamp(16px, 3vw, 24px);
 
   &__code {
@@ -53,5 +52,32 @@
     align-items: center;
     justify-content: center;
     gap: 20px;
+  }
+}
+
+.booom {
+  display: flex;
+  height: 100dvh;
+  place-items: center;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    justify-content: space-evenly;
+  }
+}
+
+.caaat {
+  display: flex;
+
+  img {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    object-fit: cover;
+
+    @media (max-width: 768px) {
+      width: 200px;
+      height: 200px;
+    }
   }
 }
