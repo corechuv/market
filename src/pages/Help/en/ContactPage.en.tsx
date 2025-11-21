@@ -2,7 +2,6 @@
 import "react";
 import Page from "../../../components/UI/Page/Page";
 import s from "../Help.module.scss";
-import Logo from "../../../components/Footer/Logo";
 
 export default function ContactPageEn() {
     const orgJsonLd = {
@@ -47,8 +46,6 @@ export default function ContactPageEn() {
     return (
         <Page>
             <section className={s.content} lang="en">
-                <Logo />
-
                 <nav aria-label="Breadcrumb">
                     <a href="/">Home</a> &nbsp;/&nbsp; <a href="/help">Help &amp; Support</a> &nbsp;/&nbsp; <span>Contact</span>
                 </nav>

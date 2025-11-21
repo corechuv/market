@@ -52,4 +52,15 @@
         }
     }
 
+    &__accordion {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin: 20px 0;
+
+        p {
+            margin: 0;
+        }
+    }
+
 }

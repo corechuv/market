@@ -32,7 +32,6 @@ import {
 
 import { toISO2 } from "../../utils/country";
 import { vatRateFor } from "../../utils/vat";
-import Logo from "../../components/logo/Logo";
 import Button from "../../components/UI/Button";
 import { TextField } from "../../components/UI/TextField";
 import { CheckboxField } from "../../components/UI/CheckboxField";
@@ -47,6 +46,7 @@ import mastercard from "/mastercard.png";
 import paypal from "/paypal.png";
 import visa from "/visa.png";
 import amex from "@/assets/svg/amex.svg";
+import Page from "../../components/UI/Page/Page";
 
 const CARRIER_LOGOS = { dhl, hermes, dpd, gls } as const;
 
@@ -247,12 +247,12 @@ const CheckoutPage: React.FC = () => {
   const [savedAddresses, setSavedAddresses] = useState<AccountAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | "manual">("manual");
   const [manualDraft] = useState<FormAddress>(() => readCheckoutDraft());
-    /*
-  const setAddressSafe = (fa: FormAddress) => {
-    setAddress(fa);
-    if (selectedAddressId === "manual") setManualDraft(fa);
-  };
-    */
+  /*
+const setAddressSafe = (fa: FormAddress) => {
+  setAddress(fa);
+  if (selectedAddressId === "manual") setManualDraft(fa);
+};
+  */
 
   // 0 Cart, 1 Account, 2 Address, 3 Payment, 4 Success
   const [step, setStep] = useState<0 | 1 | 2 | 3 | 4>(0);
@@ -695,193 +695,173 @@ const CheckoutPage: React.FC = () => {
     return vals.length ? Math.min(...vals) : undefined;
   }, [shippingOptions]);
 
+  const renderSteps = () => {
+    return (
+      <nav className={styles.steps} aria-label="Steps to place an order">
+        {[
+          { k: 0, label: "Cart" },
+          { k: 1, label: "Account" },
+          { k: 2, label: "Delivery" },
+          { k: 3, label: "Pay" },
+          { k: 4, label: "Complete" },
+        ].map((s, i) => (
+          <div
+            key={s.k}
+            className={`${styles.steps__item} ${step === i ? `${styles["steps__item--active"]}` : step > i ? `${styles["steps__item--done"]}` : ``
+              }`}
+          >
+            <span className={styles.steps__index}>{i + 1}</span>
+            <span className={styles.steps__label}>{s.label}</span>
+          </div>
+        ))}
+      </nav>
+    );
+  };
+
   return (
-    <div className={`${styles.checkout} ${step === 4 ? styles["checkout--success"] : ""}`}>
-      <header className={styles.checkout__header}>
-        <div className={styles.checkout__brand}>
-          <Logo size="28px" />
-        </div>
-        <div className={styles.checkout__secure}>
-          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
-            <path d="M12 2l7 4v6c0 5-3.5 9.74-7 10-3.5-.26-7-5-7-10V6l7-4z" fill="currentColor" />
-          </svg>
-          <span>SSL Secure Checkout</span>
-        </div>
-      </header>
+    <Page>
+      <div className={`${styles.checkout} ${step === 4 ? styles["checkout--success"] : ""}`}>
 
-      {step !== 4 && (
-        <nav className={styles.steps} aria-label="Шаги оформления">
-          {[
-            { k: 0, label: "Cart" },
-            { k: 1, label: "Account" },
-            { k: 2, label: "Delivery" },
-            { k: 3, label: "Pay" },
-            { k: 4, label: "Complete" },
-          ].map((s, i) => (
-            <div
-              key={s.k}
-              className={`${styles.steps__item} ${step === i ? `${styles["steps__item--active"]}` : step > i ? `${styles["steps__item--done"]}` : ``
-                }`}
-            >
-              <span className={styles.steps__index}>{i + 1}</span>
-              <span className={styles.steps__label}>{s.label}</span>
-            </div>
-          ))}
-        </nav>
-      )}
+        {step !== 4 && renderSteps()}
 
-      <main className={styles.checkout__main}>
-        <section className={styles.checkout__content}>
-          {step === 0 &&
-            <CartSection
-              lines={lines}
-              inc={inc}
-              setQty={setQty}
-              onNext={() => {
-                setForceAccount(true); // хотим видеть шаг Account даже если юзер уже залогинен
-                setStep(1);
-              }}
-            />
-          }
-
-          {step === 1 && (
-            <AccountSection
-              defaultEmail={address.email}
-              onGuest={(email) => {
-                setIsGuest(true);
-                setCustomerId(null);
-                setAddress({ ...address, email });
-                setForceAccount(false);
-                setStep(2);
-              }}
-              onLogin={async ({ email, password }) => {
-                await login({ email, password, remember: true });
-                setIsGuest(false);
-                setAddress((a) => ({ ...a, email }));
-                setForceAccount(false);
-                setStep(2);
-              }}
-              onRegister={async ({ firstName, lastName, email, password }) => {
-                await register({ firstName, lastName, email, password, remember: true });
-                setIsGuest(false);
-                setAddress((a) => ({ ...a, firstName, lastName, email }));
-                setForceAccount(false);
-                setStep(2);
-              }}
-              onAuthedContinue={() => { setForceAccount(false); setStep(2); }}
-              onSwitchAccount={async () => {
-                await logout();
-                setIsGuest(true);
-                setCustomerId(null);
-                setAddress((a) => ({ ...a, email: "" })); // опционально очистить e-mail
-                setForceAccount(true); // остаёмся на шаге Account с вкладками
-              }}
-              onBack={() => setStep(0)}
-            />
-          )}
-
-          {step === 2 && (
-            <AddressSection
-              address={address}
-              setAddress={setAddress}
-              shipping={shipping}
-              setShipping={setShipping}
-              shippingOptions={shippingOptions}
-              shipLoading={shipLoading}
-              shipError={shipError}
-              onPrev={() => { setForceAccount(true); setStep(1); }}
-              onNext={() => setStep(3)}
-              canContinue={addressValid}
-              isAuthed={isAuthenticated}
-              savedAddresses={savedAddresses}
-              selectedAddrId={selectedAddressId}
-              onSelectSavedAddr={handleSelectSavedAddr}
-              fieldsDisabled={selectedAddressId !== "manual"}
-            />
-          )}
-
-          {step === 3 && (
-            <>
-              <div className="card" style={{ marginBottom: 12 }}>
-                <div className="card__head">
-                  <h2>Payment Method</h2>
-                </div>
-                <RadioCard
-                  name="pm"
-                  value={provider}
-                  onChangeValue={(id) => setProvider(id as ProviderId)}
-                  items={pmOptions.map((o) => ({
-                    id: o.id,
-                    title: o.title,
-                    caption: o.caption,
-                    icon: o.icon,
-                  }))}
-                />
-              </div>
-
-              <PaymentSection
-                displayTotal={displayTotal}
-                acceptTerms={acceptTerms}
-                setAcceptTerms={setAcceptTerms}
-                onPrev={() => setStep(2)}
-                onSubmitManual={handlePayManual}
-                onSubmitStripe={handlePayStripe}
-                disablePay={qLoading || isPaying}
-                provider={provider}
-                preparePayPalPayment={preparePayPalPayment}
-                onPayPalApproved={onPayPalApproved}
+        <main className={styles.checkout__main}>
+          <section className={styles.checkout__content}>
+            {step === 0 &&
+              <CartSection
+                lines={lines}
+                inc={inc}
+                setQty={setQty}
+                onNext={() => {
+                  setForceAccount(true); // хотим видеть шаг Account даже если юзер уже залогинен
+                  setStep(1);
+                }}
               />
-            </>
+            }
+
+            {step === 1 && (
+              <AccountSection
+                defaultEmail={address.email}
+                onGuest={(email) => {
+                  setIsGuest(true);
+                  setCustomerId(null);
+                  setAddress({ ...address, email });
+                  setForceAccount(false);
+                  setStep(2);
+                }}
+                onLogin={async ({ email, password }) => {
+                  await login({ email, password, remember: true });
+                  setIsGuest(false);
+                  setAddress((a) => ({ ...a, email }));
+                  setForceAccount(false);
+                  setStep(2);
+                }}
+                onRegister={async ({ firstName, lastName, email, password }) => {
+                  await register({ firstName, lastName, email, password, remember: true });
+                  setIsGuest(false);
+                  setAddress((a) => ({ ...a, firstName, lastName, email }));
+                  setForceAccount(false);
+                  setStep(2);
+                }}
+                onAuthedContinue={() => { setForceAccount(false); setStep(2); }}
+                onSwitchAccount={async () => {
+                  await logout();
+                  setIsGuest(true);
+                  setCustomerId(null);
+                  setAddress((a) => ({ ...a, email: "" })); // опционально очистить e-mail
+                  setForceAccount(true); // остаёмся на шаге Account с вкладками
+                }}
+                onBack={() => setStep(0)}
+              />
+            )}
+
+            {step === 2 && (
+              <AddressSection
+                address={address}
+                setAddress={setAddress}
+                shipping={shipping}
+                setShipping={setShipping}
+                shippingOptions={shippingOptions}
+                shipLoading={shipLoading}
+                shipError={shipError}
+                onPrev={() => { setForceAccount(true); setStep(1); }}
+                onNext={() => setStep(3)}
+                canContinue={addressValid}
+                isAuthed={isAuthenticated}
+                savedAddresses={savedAddresses}
+                selectedAddrId={selectedAddressId}
+                onSelectSavedAddr={handleSelectSavedAddr}
+                fieldsDisabled={selectedAddressId !== "manual"}
+              />
+            )}
+
+            {step === 3 && (
+              <>
+                <div className="card" style={{ marginBottom: 12 }}>
+                  <div className="card__head">
+                    <h2>Payment Method</h2>
+                  </div>
+                  <RadioCard
+                    name="pm"
+                    value={provider}
+                    onChangeValue={(id) => setProvider(id as ProviderId)}
+                    items={pmOptions.map((o) => ({
+                      id: o.id,
+                      title: o.title,
+                      caption: o.caption,
+                      icon: o.icon,
+                    }))}
+                  />
+                </div>
+
+                <PaymentSection
+                  displayTotal={displayTotal}
+                  acceptTerms={acceptTerms}
+                  setAcceptTerms={setAcceptTerms}
+                  onPrev={() => setStep(2)}
+                  onSubmitManual={handlePayManual}
+                  onSubmitStripe={handlePayStripe}
+                  disablePay={qLoading || isPaying}
+                  provider={provider}
+                  preparePayPalPayment={preparePayPalPayment}
+                  onPayPalApproved={onPayPalApproved}
+                />
+              </>
+            )}
+
+            {step === 4 && <SuccessSection orderNo={orderNo ?? undefined} />}
+          </section>
+
+          {step !== 4 && (
+            <aside className={styles.checkout__sidebar} aria-label="Итог заказа">
+              <OrderSummary
+                lines={lines}
+                subtotal={displaySubtotal}
+                vat={displayVat}
+                vatLabel={vatLabel}
+                discount={displayDiscount}
+                total={displayTotal}
+                promo={promo}
+                setPromo={setPromo}
+                promoApplied={promoApplied}
+                applyPromo={applyPromo}
+                freeThresholdCents={minFreeThreshold}
+                shippingCents={displayShipping}
+                loading={qLoading}
+                quoteError={qError}
+                quoteReason={serverQuote?.reason ?? null}
+              />
+            </aside>
           )}
+        </main>
 
-          {step === 4 && <SuccessSection orderNo={orderNo ?? undefined} />}
-        </section>
-
-        {step !== 4 && (
-          <aside className={styles.checkout__sidebar} aria-label="Итог заказа">
-            <OrderSummary
-              lines={lines}
-              subtotal={displaySubtotal}
-              vat={displayVat}
-              vatLabel={vatLabel}
-              discount={displayDiscount}
-              total={displayTotal}
-              promo={promo}
-              setPromo={setPromo}
-              promoApplied={promoApplied}
-              applyPromo={applyPromo}
-              freeThresholdCents={minFreeThreshold}
-              shippingCents={displayShipping}
-              loading={qLoading}
-              quoteError={qError}
-              quoteReason={serverQuote?.reason ?? null}
-            />
-          </aside>
+        {isPaying && (
+          <div className={styles.checkout__overlay} role="alert" aria-live="polite">
+            <div className={styles.spinner} />
+            <p>Processing payment…</p>
+          </div>
         )}
-      </main>
-
-      {isPaying && (
-        <div className={styles.checkout__overlay} role="alert" aria-live="polite">
-          <div className={styles.spinner} />
-          <p>Обработка платежа…</p>
-        </div>
-      )}
-
-      <footer className={styles.checkout__footer}>
-        <div className={styles["checkout__footer--corp"]}>© {new Date().getFullYear()} dashedo.com</div>
-        <ul>
-          <li>
-            <a href="/">Политика возврата</a>
-          </li>
-          <li>
-            <a href="/">Условия обслуживания</a>
-          </li>
-          <li>
-            <a href="/">Конфиденциальность</a>
-          </li>
-        </ul>
-      </footer>
-    </div>
+      </div>
+    </Page>
   );
 };
 

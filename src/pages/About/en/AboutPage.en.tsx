@@ -2,7 +2,6 @@
 import "react";
 import Page from "../../../components/UI/Page/Page";
 import s from "../About.module.scss";
-import Logo from "../../../components/Footer/Logo";
 
 export default function AboutPageEn() {
     const orgJsonLd = {
@@ -57,9 +56,6 @@ export default function AboutPageEn() {
     return (
         <Page>
             <div className={s.content}>
-
-                <Logo />
-
                 <nav aria-label="Breadcrumb">
                     <a href="/">Home</a> &nbsp;/&nbsp; <span>About us</span>
                 </nav>

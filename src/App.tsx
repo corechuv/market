@@ -97,6 +97,7 @@ import CareersPage from "./pages/About/CareersPage";
 import PressPage from "./pages/About/PressPage";
 import ProfilePage from "./pages/User/ProfilePage";
 import SettingsPage from "./pages/Settings/SettingsPage";
+import InformationLayout from "./components/layouts/InformationLayout";
 
 export default function App() {
 
@@ -148,6 +149,21 @@ export default function App() {
             <Route path="/account/settings/change-password" element={<ChangePasswordPage />} />
             <Route path="/reset-password" element={<ChangePasswordPage />} /> {/* ← алиас */}
 
+            <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
+          </Route>
+
+          <Route element={<AuthLayout />}>
+            <Route path="/auth" element={<Navigate to="/auth/login" replace />} />
+            <Route path="/auth/:tab" element={<AuthScreen />} />
+            <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
+          </Route>
+
+          <Route element={<CheckoutLayout />}>
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
+          </Route>
+
+          <Route element={<InformationLayout />}>
             {/* About */}
             <Route path="about" element={<AboutPage />} />
             <Route path="about/careers" element={<CareersPage />} />
@@ -163,18 +179,6 @@ export default function App() {
             <Route path="legal/cookies" element={<CookiePolicyPage />} />
             <Route path="legal/imprint" element={<ImprintPage />} />
             <Route path="legal/sitemap" element={<SitemapPage />} />
-
-            <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
-          </Route>
-
-          <Route element={<AuthLayout />}>
-            <Route path="/auth" element={<Navigate to="/auth/login" replace />} />
-            <Route path="/auth/:tab" element={<AuthScreen />} />
-            <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
-          </Route>
-
-          <Route element={<CheckoutLayout />}>
-            <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
           </Route>
         </Routes>

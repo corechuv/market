@@ -2,7 +2,6 @@
 import "react";
 import Page from "../../../components/UI/Page/Page";
 import s from "../Help.module.scss";
-import Logo from "../../../components/Footer/Logo";
 
 export default function ShippingPageRu() {
     const jsonLd = {
@@ -24,9 +23,6 @@ export default function ShippingPageRu() {
     return (
         <Page>
             <div className={s.content}>
-
-                <Logo />
-
                 <nav aria-label="Хлебные крошки">
                     <a href="/">Главная</a> &nbsp;/&nbsp; <a href="/help">Помощь &amp; поддержка</a> &nbsp;/&nbsp; <span>Предоставление &amp; доставка</span>
                 </nav>

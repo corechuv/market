@@ -2,7 +2,6 @@
 import "react"
 import Page from "../../../components/UI/Page/Page"
 import s from "../Help.module.scss"
-import Logo from "../../../components/Footer/Logo";
 
 export default function ContactPageDe() {
     const orgJsonLd = {
@@ -20,7 +19,7 @@ export default function ContactPageDe() {
                 "availableLanguage": ["de", "en"],
                 "hoursAvailable": {
                     "@type": "OpeningHoursSpecification",
-                    "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+                    "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
                     "opens": "09:00",
                     "closes": "18:00"
                 }
@@ -47,9 +46,6 @@ export default function ContactPageDe() {
     return (
         <Page>
             <section className={s.content} lang="de">
-                            
-                            <Logo />
-                            
                 <nav aria-label="Brotkrumen">
                     <a href="/">Startseite</a> &nbsp;/&nbsp; <a href="/help">Hilfe &amp; Support</a> &nbsp;/&nbsp; <span>Kontakt</span>
                 </nav>

@@ -2,7 +2,6 @@
 import "react"
 import Page from "../../../components/UI/Page/Page"
 import s from "../Help.module.scss"
-import Logo from "../../../components/Footer/Logo";
 
 export default function ShippingPageDe() {
     const jsonLd = {
@@ -24,9 +23,6 @@ export default function ShippingPageDe() {
     return (
         <Page>
             <div className={s.content}>
-
-                <Logo />
-
                 <nav aria-label="Brotkrumen">
                     <a href="/">Startseite</a> &nbsp;/&nbsp; <a href="/help">Hilfe &amp; Support</a> &nbsp;/&nbsp; <span>Bereitstellung &amp; Lieferung</span>
                 </nav>

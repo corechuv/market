@@ -2,7 +2,6 @@
 import "react";
 import Page from "../../../components/UI/Page/Page";
 import s from "../Legal.module.scss";
-import Logo from "../../../components/Footer/Logo";
 import Button from "../../../components/UI/Button";
 
 export default function CookiePolicyPageEn() {
@@ -37,8 +36,6 @@ export default function CookiePolicyPageEn() {
     return (
         <Page>
             <div className={s.content}>
-                <Logo />
-
                 <nav aria-label="Breadcrumb">
                     <a href="/">Home</a> &nbsp;/&nbsp; <a href="/legal">Legal</a> &nbsp;/&nbsp; <span>Cookie policy</span>
                 </nav>

@@ -1,0 +1,28 @@
+// src/components/Checkout/Header.module.scss
+.header {
+    height: 60px;
+    max-width: 1024px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 var(--gap);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &__brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        letter-spacing: .3px;
+    }
+
+    &__secure {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 300;
+    }
+}

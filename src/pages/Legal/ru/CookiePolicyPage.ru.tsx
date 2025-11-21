@@ -2,7 +2,6 @@
 import "react";
 import Page from "../../../components/UI/Page/Page";
 import s from "../Legal.module.scss";
-import Logo from "../../../components/Footer/Logo";
 import Button from "../../../components/UI/Button";
 
 export default function CookiePolicyPageRu() {
@@ -37,9 +36,6 @@ export default function CookiePolicyPageRu() {
     return (
         <Page>
             <div className={s.content}>
-
-                <Logo />
-
                 <nav aria-label="Хлебные крошки">
                     <a href="/">Главная</a> &nbsp;/&nbsp; <a href="/legal">Правовая информация</a> &nbsp;/&nbsp; <span>Политика Cookie</span>
                 </nav>

@@ -2,7 +2,6 @@
 import "react";
 import Page from "../../../components/UI/Page/Page";
 import s from "../About.module.scss";
-import Logo from "../../../components/Footer/Logo";
 
 export default function CareersPageRu() {
     const pageJsonLd = {
@@ -93,8 +92,6 @@ export default function CareersPageRu() {
     return (
         <Page>
             <div className={s.content}>
-                <Logo />
-
                 <nav aria-label="Хлебные крошки">
                     <a href="/">Главная</a> &nbsp;/&nbsp; <a href="/about">О нас</a> &nbsp;/&nbsp; <span>Карьера</span>
                 </nav>

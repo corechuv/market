@@ -3,32 +3,6 @@
 @use "../../styles/tabs.module.scss";
 
 .checkout {
-    max-width: 1160px;
-    margin: 24px auto;
-    padding: 0 16px 48px;
-
-    &__header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    &__brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 700;
-        letter-spacing: .3px;
-    }
-
-    &__secure {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        color: var(--muted);
-        font-size: 14px;
-        font-weight: 300;
-    }
 
     &__main {
         display: grid;
@@ -66,40 +40,6 @@
             margin: 12px;
             font-weight: 500;
             color: var(--text);
-        }
-    }
-
-    &__footer {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 18px;
-        color: var(--muted);
-
-        &--corp {
-            margin-right: 20px;
-            font-size: 14px;
-            font-weight: 300;
-        }
-
-        ul {
-            list-style: none;
-            display: flex;
-            gap: 14px;
-            padding: 0;
-            font-size: 14px;
-            font-weight: 300;
-
-            li {
-                a {
-                    font-weight: 300;
-                    color: var(--color-link-primary);
-                }
-            }
-
-            @media screen and (max-width: 640px) {
-                flex-direction: column;
-                gap: 6px;
-            }
         }
     }
 

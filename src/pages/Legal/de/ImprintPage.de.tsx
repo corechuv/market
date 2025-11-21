@@ -2,7 +2,6 @@
 import "react"
 import Page from "../../../components/UI/Page/Page"
 import s from "../Legal.module.scss"
-import Logo from "../../../components/Footer/Logo";
 
 export default function ImprintPageDe() {
     const orgJsonLd = {
@@ -34,9 +33,6 @@ export default function ImprintPageDe() {
     return (
         <Page>
             <div className={s.content}>
-
-                <Logo />
-
                 <nav aria-label="Brotkrumen">
                     <a href="/">Startseite</a> &nbsp;/&nbsp; <a href="/legal">Rechtliches</a> &nbsp;/&nbsp; <span>Impressum</span>
                 </nav>
