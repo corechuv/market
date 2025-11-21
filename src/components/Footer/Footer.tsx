@@ -1,6 +1,10 @@
-/*import { useEffect, useState } from "react"*/
+// src/components/Footer/Footer.tsx
 import "react";
+import cls from "./Footer.module.scss"
+import Accordion from "../UI/Accordion"
+import { useIsMobile } from "../../utils/useIsMobile";
 /*
+import { useEffect, useState } from "react"
 import instagramWhite from "@/assets/svg/instagram_white.svg"
 import instagramBlack from "@/assets/svg/instagram_black.svg"
 import metaBlack from "@/assets/svg/meta_black.svg"
@@ -23,10 +27,6 @@ import amazonWhite from "@/assets/amazonpay_white.png"
 import amazonBlack from "@/assets/amazonpay_black.png"
 import amex from "@/assets/svg/amex.svg"
 */
-
-import cls from "./Footer.module.scss"
-import Accordion from "../UI/Accordion"
-import { useIsMobile } from "../../utils/useIsMobile";
 
 const navInfo = [
     {
@@ -71,8 +71,8 @@ export default function Footer() {
     const isMobile = useIsMobile(768);
     /*const [theme, setTheme] = useState(() =>
         document.documentElement.getAttribute("data-theme") || "light"
-    );*/
-
+    );
+    */
     /*
     useEffect(() => {
         const observer = new MutationObserver(() => {
