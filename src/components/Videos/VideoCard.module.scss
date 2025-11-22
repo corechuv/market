@@ -32,18 +32,11 @@
         &::after {
             content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-
-            outline: 1px solid #12121208;
-            /* рисуется поверх */
+            inset: 0;
+            outline: 1px solid #12121210;
             outline-offset: -1px;
             border-radius: 14px;
-            /* Непрозрачный цвет фона */
             pointer-events: none;
-            /* Чтобы не блокировать события мыши на изображении */
         }
     }
 
