@@ -23,32 +23,27 @@ const NotFound: React.FC<NotFoundProps> = ({
 
   return (
     <Page>
-      <div className={s.booom}>
-        <section className={s.caaat}>
-          <img src="/caaaaaat.jpg" />
-        </section>
-        <section className={s.not} aria-live="polite" aria-label="Page not found">
-          <div className={s.not__code} aria-hidden>
-            <span>4</span>
-            <span>0</span>
-            <span>4</span>
-          </div>
-          <div className={s.not__what}>
-            <h1 className={s["not__what--title"]}>{title}</h1>
-            <p className={s["not__what--description"]}>{description}</p>
-          </div>
-          <div className={s.not__actions}>
-            <a href={homeHref}>
-              Home
+      <section className={s.not} aria-live="polite" aria-label="Page not found">
+        <div className={s.not__code} aria-hidden>
+          <span>4</span>
+          <span>0</span>
+          <span>4</span>
+        </div>
+        <div className={s.not__what}>
+          <h1 className={s["not__what--title"]}>{title}</h1>
+          <p className={s["not__what--description"]}>{description}</p>
+        </div>
+        <div className={s.not__actions}>
+          <a href={homeHref}>
+            Home
+          </a>
+          {supportHref && (
+            <a href={supportHref}>
+              Report a problem
             </a>
-            {supportHref && (
-              <a href={supportHref}>
-                Report a problem
-              </a>
-            )}
-          </div>
-        </section>
-      </div>
+          )}
+        </div>
+      </section>
     </Page>
   );
 };
