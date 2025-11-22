@@ -47,6 +47,15 @@ $bp-md: 768px;
       display: flex;
       align-items: center;
     }
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: var(--bg-overlay-product);
+      z-index: 1;
+    }
   }
 
   &__meta {
