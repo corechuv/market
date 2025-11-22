@@ -1,10 +1,8 @@
 // src/components/UI/Carousel/Carousel.module.scss
-@use "../../../styles/default.module.scss";
-/* Breakpoints aligned with your existing SCSS */
 $bp-md: 768px;
 $bp-lg: 1024px;
 
-.container {
+.carousel {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -12,99 +10,101 @@ $bp-lg: 1024px;
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
-}
 
-.container__header {
-  display: flex;
-  gap: 10px;
-  justify-content: space-between;
-  align-items: center;
-  padding-left: var(--gap);
-  padding-right: var(--gap);
-
-  &--title {
-    font-size: 1.8rem;
-    margin: 0;
-    color: var(--text);
-  }
-}
-
-.container__controls {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
-
-  &--btn {
+  &__header {
     display: flex;
+    gap: 10px;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
+    padding-left: var(--gap);
+    /*padding-right: var(--gap);*/
 
-    svg {
-      width: 1.6rem;
-      height: 1.6rem;
+    &--title {
+      font-size: 1.8rem;
+      margin: 0;
       color: var(--text);
-      pointer-events: none;
     }
   }
-}
 
-.carousel {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
+  &__controls {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
 
-/* scroll viewport + snap */
-.trackWrapper {
-  overflow-x: auto;
-  overflow-y: hidden;
-  flex: 1 1 auto;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  overscroll-behavior-inline: contain;
-  touch-action: pan-x pan-y;
-  scroll-snap-type: x mandatory;
+    &--btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      border: none;
+      background-color: transparent;
+      cursor: pointer;
 
-  &::-webkit-scrollbar {
-    display: none;
+      svg {
+        width: 1.6rem;
+        height: 1.6rem;
+        color: var(--text);
+        pointer-events: none;
+      }
+    }
   }
 
-  --visible: 2.3;
-  /* <768 — 2 */
+  &__viewport {
+    position: relative;
+    display: flex;
+    align-items: center;
 
-  /* Then media overrides */
-  @media (min-width: $bp-md) {
-    --visible: 2.5;
+    &--inner {
+      overflow-x: auto;
+      overflow-y: hidden;
+      flex: 1 1 auto;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      overscroll-behavior-inline: contain;
+      touch-action: pan-x pan-y;
+      scroll-snap-type: x mandatory;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      --visible: 2.3;
+      /* <768 — 2 */
+
+      /* Then media overrides */
+      @media (min-width: $bp-md) {
+        --visible: 2.5;
+      }
+
+      /* 768–1023 — 3 */
+      @media (min-width: $bp-lg) {
+        --visible: 3.5;
+      }
+
+      /* ≥1024 — 4 */
+    }
   }
 
-  /* 768–1023 — 3 */
-  @media (min-width: $bp-lg) {
-    --visible: 3.5;
+  &__track {
+    display: flex;
+
+    >.carousel__slide {
+      padding-left: var(--gap);
+
+      &:last-child {
+        padding-right: var(--gap);
+      }
+    }
   }
 
-  /* ≥1024 — 4 */
-}
-
-.track {
-  display: flex;
-  > .itemWrap {
-    padding-left: var(--gap);
+  &__slide {
+    flex: 0 0 auto;
+    width: calc((100% - (var(--gap) * (var(--visible) - 1))) / var(--visible));
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
-
-}
-
-/* Slot width = 100% row / --visible (with gap accounted) */
-.itemWrap {
-  flex: 0 0 auto;
-  width: calc((100% - (var(--gap) * (var(--visible) - 1))) / var(--visible));
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
 }

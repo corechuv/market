@@ -35,7 +35,6 @@ export default function Carousel<T>({
 }: CarouselProps<T>) {
     const viewportRef = useRef<HTMLDivElement>(null);
 
-    // read responsive --visible from CSS on the wrapper
     const getVisibleFromCSS = useCallback(() => {
         const vp = viewportRef.current;
         if (!vp) return 4;
@@ -44,13 +43,12 @@ export default function Carousel<T>({
         return n && n > 0 ? n : 4;
     }, []);
 
-    // compute one logical step = slot width + gap
     const computeStep = useCallback(() => {
         const vp = viewportRef.current;
         if (!vp) return { step: 0, count: 0, visible: 1 };
 
-        const track = vp.querySelector(`.${cls.track}`) as HTMLDivElement | null;
-        const firstSlot = track?.querySelector(`.${cls.itemWrap}`) as HTMLElement | null;
+        const track = vp.querySelector(`.${cls["carousel__track"]}`) as HTMLDivElement | null;
+        const firstSlot = track?.querySelector(`.${cls["carousel__slide"]}`) as HTMLElement | null;
         if (!track || !firstSlot) return { step: 0, count: 0, visible: 1 };
 
         const slotRect = firstSlot.getBoundingClientRect();
@@ -59,7 +57,7 @@ export default function Carousel<T>({
             ?? 0;
 
         const step = slotRect.width + gapPx;
-        const count = track.querySelectorAll(`.${cls.itemWrap}`).length;
+        const count = track.querySelectorAll(`.${cls["carousel__slide"]}`).length;
         const visible = getVisibleFromCSS();
         return { step, count, visible };
     }, [getVisibleFromCSS]);
@@ -79,14 +77,14 @@ export default function Carousel<T>({
     }, [computeStep]);
 
     return (
-        <div className={cls.container}>
-            <div className={cls.container__header}>
-                {label ? (<h2 className={cls["container__header--title"]}>{label}</h2>) : null}
+        <section className={cls.carousel}>
+            <div className={cls.carousel__header}>
+                {label ? (<h2 className={cls["carousel__header--title"]}>{label}</h2>) : null}
                 {controls?.show !== false && (
-                    <div className={cls.container__controls}>
+                    <div className={cls.carousel__controls}>
                         <button
                             type="button"
-                            className={cls["container__controls--btn"]}
+                            className={cls["carousel__controls--btn"]}
                             aria-label={controls?.prevAria || "Scroll left"}
                             onClick={() => scrollByCard("prev")}
                         >
@@ -94,7 +92,7 @@ export default function Carousel<T>({
                         </button>
                         <button
                             type="button"
-                            className={cls["container__controls--btn"]}
+                            className={cls["carousel__controls--btn"]}
                             aria-label={controls?.nextAria || "Scroll right"}
                             onClick={() => scrollByCard("next")}
                         >
@@ -104,18 +102,21 @@ export default function Carousel<T>({
                 )}
             </div>
 
-            <div className={`${cls.carousel} ${className}`.trim()}>
-                <div className={cls.trackWrapper} ref={viewportRef}
-                    role="region" aria-label={label || "Carousel"}>
-                    <div className={cls.track} role="list">
+            <div className={`${cls.carousel__viewport} ${className}`.trim()}>
+                <div className={cls["carousel__viewport--inner"]}
+                    ref={viewportRef}
+                    role="region"
+                    aria-label={label || "Carousel"}
+                >
+                    <div className={cls["carousel__track"]} role="list">
                         {items.map((item, i) => (
-                            <div className={cls.itemWrap} role="listitem" key={(getKey?.(item, i) ?? i).toString()}>
+                            <div className={cls["carousel__slide"]} role="listitem" key={(getKey?.(item, i) ?? i).toString()}>
                                 {renderItem({ item, index: i })}
                             </div>
                         ))}
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     );
 }
