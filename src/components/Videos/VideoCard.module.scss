@@ -1,5 +1,6 @@
 // src/components/Videos/VideoCard.module.scss
 @use "../../styles/skeleton.module.scss";
+
 .item {
     display: flex;
     flex-direction: column;
@@ -26,6 +27,23 @@
             place-items: center;
             color: #aaa;
             font-size: 12px;
+        }
+
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            outline: 1px solid #12121208;
+            /* рисуется поверх */
+            outline-offset: -1px;
+            border-radius: 14px;
+            /* Непрозрачный цвет фона */
+            pointer-events: none;
+            /* Чтобы не блокировать события мыши на изображении */
         }
     }
 
