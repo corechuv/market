@@ -1,2 +1,23 @@
 // src/components/Search/SettingsPanel.module.scss
 @use "../../../styles/default_list.module.scss";
+
+.content {
+  /* Привязываемся к visualViewport */
+  position: absolute; 
+  top: var(--vv-top, 0);
+  left: var(--vv-left, 0);
+  /* width: var(--vv-w, 100vw); */
+  width: 100%;
+  height: var(--vv-h, 100dvh);
+
+  display: flex;
+  flex-direction: column;
+
+  /* гасим «протекание» скролла наверх */
+  overscroll-behavior: none;
+
+  /* контент не уезжает под клавиатуру/чёлку */
+  padding-bottom: env(safe-area-inset-bottom);
+
+  color: var(--text);
+}

@@ -151,7 +151,8 @@ body[data-theme='light'] {
   --category-card-bg: #f6f6f6;
   --category-card-bg-title: #efefef;
 
-  --n-bg-desktop: white;
+  --n-bg-desktop: #fbfbfb;
+  --n-bg-button-active: rgba(0, 0, 0, 0.03);
 
   /* Skeleton */
   --bg-skeleton: linear-gradient(90deg, transparent, rgba(54, 54, 54, 0.2), transparent);
@@ -311,6 +312,7 @@ body[data-theme='dark'] {
 
 
   --n-bg-desktop: #0c0c0c;
+  --n-bg-button-active: rgba(255, 255, 255, 0.03);
 
   /* Skeleton */
   --bg-skeleton: linear-gradient(90deg, transparent, rgba(54, 54, 54, 0.2), transparent);

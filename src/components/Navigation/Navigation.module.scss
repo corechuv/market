@@ -42,7 +42,7 @@
 
         /* Подсветка активной кнопки панели */
         &--btn[data-active] {
-            background-color: rgba(0, 0, 0, 0.12);
+            background-color: var(--n-bg-button-active);
         }
     }
 }
