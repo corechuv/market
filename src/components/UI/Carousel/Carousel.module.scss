@@ -17,7 +17,6 @@ $bp-lg: 1024px;
     justify-content: space-between;
     align-items: center;
     padding-left: var(--gap);
-    /*padding-right: var(--gap);*/
 
     &--title {
       font-size: 1.8rem;
@@ -68,42 +67,39 @@ $bp-lg: 1024px;
       touch-action: pan-x pan-y;
       scroll-snap-type: x mandatory;
 
+      /* ОТСТУПЫ СЛЕВА/СПРАВА + scroll-padding */
+      padding-inline: var(--gap);
+      scroll-padding-inline: var(--gap);
+
       &::-webkit-scrollbar {
         display: none;
       }
 
       --visible: 2.3;
-      /* <768 — 2 */
 
-      /* Then media overrides */
       @media (min-width: $bp-md) {
         --visible: 2.5;
       }
 
-      /* 768–1023 — 3 */
       @media (min-width: $bp-lg) {
         --visible: 3.5;
       }
-
-      /* ≥1024 — 4 */
     }
   }
 
   &__track {
     display: flex;
-
-    >.carousel__slide {
-      padding-left: var(--gap);
-
-      &:last-child {
-        padding-right: var(--gap);
-      }
-    }
+    gap: var(--gap); // расстояние между карточками
   }
 
   &__slide {
     flex: 0 0 auto;
-    width: calc((100% - (var(--gap) * (var(--visible) - 1))) / var(--visible));
+
+    /* ВАЖНО: тут именно (visible + 1) * gap */
+    width: calc(
+      (100% - (var(--visible) + 1) * var(--gap)) / var(--visible)
+    );
+
     scroll-snap-align: start;
     scroll-snap-stop: always;
   }
