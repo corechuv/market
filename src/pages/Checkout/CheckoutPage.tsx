@@ -50,6 +50,7 @@ import Page from "../../components/UI/Page/Page";
 import { useLocation, useNavigate } from "react-router-dom";
 import Wrapper from "../../components/Checkout/User/Wrapper";
 import { buildAvatarSrc } from "../../utils/avatar";
+import WrapperSkeleton from "../../components/Checkout/User/Wrapper.Skeleton";
 
 const CARRIER_LOGOS = { dhl, hermes, dpd, gls } as const;
 
@@ -953,8 +954,16 @@ const AccountSection: React.FC<{
   onSwitchAccount: () => void | Promise<void>;
   onGuestContinue: () => void;
 }> = ({ onBack, onAuthedContinue, onSwitchAccount, onGuestContinue }) => {
-  const { isAuthenticated, user, loading: authLoading } = useAuth();
+  const { isAuthenticated, user, logout, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+
+  async function onLogout() {
+    try {
+      await logout();
+    } finally {
+      navigate("/checkout", { replace: true });
+    }
+  }
 
   if (authLoading) {
     return (
@@ -962,8 +971,8 @@ const AccountSection: React.FC<{
         <div className="card__head">
           <h2>Account</h2>
         </div>
-        <div className="muted">Checking session…</div>
-        <div className="actions" style={{ marginTop: 8 }}>
+        <WrapperSkeleton />
+        <div className="actions" style={{ marginTop: 20 }}>
           <Button size="small" variant="secondary" onClick={onBack} type="button">
             Back
           </Button>
@@ -995,16 +1004,25 @@ const AccountSection: React.FC<{
           fullname={nameOrEmail}
           username={username}
           action={(
-            <Button
-              size="small"
-              variant="ghost"
-              onClick={async () => {
-                await onSwitchAccount();
-                navigate(`/auth/login?next=${encodeURIComponent("/checkout?from=auth")}`);
-              }}
-            >
-              Switch account
-            </Button>
+            <>
+              <Button
+                size="small"
+                variant="secondary"
+                onClick={async () => {
+                  await onSwitchAccount();
+                  navigate(`/auth/login?next=${encodeURIComponent("/checkout?from=auth")}`);
+                }}
+              >
+                Switch account
+              </Button>
+              <Button
+                size="small"
+                variant="ghost"
+                onClick={onLogout}
+              >
+                Logout
+              </Button>
+            </>
           )}
         />
         <div className="actions" style={{ gap: 8, display: "flex", flexWrap: "wrap", marginTop: 20 }}>

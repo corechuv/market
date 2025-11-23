@@ -25,15 +25,15 @@
     }
 
     &__photo {
-        width: clamp(80px, 30vw, 120px);
+        width: clamp(60px, 30vw, 80px);
         aspect-ratio: 1 / 1;
         overflow: hidden;
         background-color: var(--bg);
 
         &--skeleton {
             @extend %skeleton; // берём шимер из skeleton.module.scss
-            width: clamp(80px, 30vw, 120px);
-            height: clamp(80px, 30vw, 120px);
+            width: clamp(60px, 30vw, 80px);
+            height: clamp(60px, 30vw, 80px);
             border-radius: 50%;
         }
 
@@ -55,33 +55,32 @@
         }
     }
 
-    &__column {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
+    &__row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 16px;
     }
 
     &__identity {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
         width: 100%;
 
         &--fullname {
             margin: 0;
-            font-size: 28px;
+            font-size: 24px;
         }
 
         &--username {
-            font-size: 16px;
+            font-size: 15px;
         }
 
         &--fullnameSkeleton {
             @extend %skeleton;
-            width: 180px;
-            height: 26px;
+            width: 150px;
+            height: 24px;
             margin-bottom: 6px;
             border-radius: 6px;
         }
@@ -89,7 +88,7 @@
         &--usernameSkeleton {
             @extend %skeleton;
             width: 120px;
-            height: 22px;
+            height: 15px;
             border-radius: 6px;
         }
     }
@@ -100,10 +99,8 @@
         align-items: center;
         gap: 8px;
 
-        @media (max-width: "768px") {
-            button {
-                width: 100%;
-            }
+        button {
+            width: 100%;
         }
     }
 }

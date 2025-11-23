@@ -13,19 +13,19 @@ const Wrapper: React.FC<UserProps> = ({ photoUrl, fullname, username, action }) 
 
     return (
         <section className={s.profile}>
-            <div className={s.profile__photo}>
-                {photoUrl ?
-                    <img
-                        className={s["profile__photo--img"]}
-                        src={photoUrl}
-                        alt=""
-                        loading="lazy"
-                    /> :
-                    <div className={s["profile__photo--no"]}></div>
-                }
+            <div className={s.profile__row}>
+                <div className={s.profile__photo}>
+                    {photoUrl ?
+                        <img
+                            className={s["profile__photo--img"]}
+                            src={photoUrl}
+                            alt=""
+                            loading="lazy"
+                        /> :
+                        <div className={s["profile__photo--no"]}></div>
+                    }
 
-            </div>
-            <div className={s.profile__column}>
+                </div>
                 <div className={s.profile__identity}>
                     {fullname &&
                         <h1 className={s["profile__identity--fullname"]}>
@@ -38,8 +38,8 @@ const Wrapper: React.FC<UserProps> = ({ photoUrl, fullname, username, action }) 
                         </div>
                     }
                 </div>
-                {action && <div className={s.profile__actions}>{action}</div>}
             </div>
+            {action && <div className={s.profile__actions}>{action}</div>}
         </section>
     );
 };

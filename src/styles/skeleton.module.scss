@@ -1,7 +1,12 @@
 // src/styles/skeleton.module.scss
 @keyframes skeleton-shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 %skeleton {
@@ -13,9 +18,13 @@
 }
 
 .item {
-  &--skeleton { pointer-events: none; user-select: none; }
+  &--skeleton {
+    pointer-events: none;
+    user-select: none;
+  }
 
   &__preview {
+
     /* отдельный класс, чтобы соблюсти aspect-ratio */
     &--skeleton {
       @extend %skeleton;
