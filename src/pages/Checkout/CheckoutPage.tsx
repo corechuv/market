@@ -1,4 +1,4 @@
-// src/pages/CheckoutPage.tsx
+// src/pages/Checkout/CheckoutPage.tsx
 import React, { useMemo, useState, useEffect } from "react";
 import "./Checkout.scss";
 import styles from "./Checkout.module.scss";
@@ -47,6 +47,9 @@ import paypal from "/paypal.png";
 import visa from "/visa.png";
 import amex from "@/assets/svg/amex.svg";
 import Page from "../../components/UI/Page/Page";
+import { useLocation, useNavigate } from "react-router-dom";
+import Wrapper from "../../components/Checkout/User/Wrapper";
+import { buildAvatarSrc } from "../../utils/avatar";
 
 const CARRIER_LOGOS = { dhl, hermes, dpd, gls } as const;
 
@@ -92,7 +95,7 @@ const accountToForm = (a: AccountAddress, u?: any): FormAddress => ({
   line2: a.line2 || "",
   city: a.city || "",
   postalCode: a.postalCode || "",
-  country: a.country || "DE", // ок: дальше в коде toISO2 всё нормализует
+  country: a.country || "DE",
 });
 
 // Вариант доставки для UI
@@ -182,6 +185,12 @@ const CheckoutPage: React.FC = () => {
   type ProviderId = "stripe" | "paypal" | "invoice";
   const [provider, setProvider] = useState<ProviderId>("stripe");
 
+  const location = useLocation();
+  const fromAuth = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get("from") === "auth";
+  }, [location.search]);
+
   const [theme, setTheme] = useState(() => document.documentElement.getAttribute("data-theme") || "light");
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -228,7 +237,7 @@ const CheckoutPage: React.FC = () => {
   const { lines, inc, setQty, clear } = useCart();
 
   // ACCOUNT step
-  const { user, isAuthenticated, loading: authLoading, login, register, logout } = useAuth();
+  const { user, isAuthenticated, loading: authLoading, logout } = useAuth();
   const [, setIsGuest] = useState<boolean>(() => !isAuthenticated);
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [forceAccount, setForceAccount] = useState(false);
@@ -247,12 +256,6 @@ const CheckoutPage: React.FC = () => {
   const [savedAddresses, setSavedAddresses] = useState<AccountAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | "manual">("manual");
   const [manualDraft] = useState<FormAddress>(() => readCheckoutDraft());
-  /*
-const setAddressSafe = (fa: FormAddress) => {
-  setAddress(fa);
-  if (selectedAddressId === "manual") setManualDraft(fa);
-};
-  */
 
   // 0 Cart, 1 Account, 2 Address, 3 Payment, 4 Success
   const [step, setStep] = useState<0 | 1 | 2 | 3 | 4>(0);
@@ -284,7 +287,7 @@ const setAddressSafe = (fa: FormAddress) => {
           const list = Array.isArray(data) ? data : [];
           setSavedAddresses(list);
 
-          const def = list.find(x => x.isDefault) || list[0];
+          const def = list.find((x) => x.isDefault) || list[0];
           if (def) {
             setSelectedAddressId(def.id);
             setAddress(accountToForm(def, user));
@@ -293,7 +296,10 @@ const setAddressSafe = (fa: FormAddress) => {
             // чистый ручной ввод, но с ФИО/email/phone из аккаунта:
             setAddress((a) => ({
               ...a,
-              line1: "", line2: "", city: "", postalCode: "",
+              line1: "",
+              line2: "",
+              city: "",
+              postalCode: "",
               country: a.country || "Deutschland",
             }));
           }
@@ -304,7 +310,14 @@ const setAddressSafe = (fa: FormAddress) => {
         }
       })();
 
-      if (step === 1 && !forceAccount) setStep(2);
+      if (fromAuth && (step === 0 || step === 1)) {
+        // вернулись из /auth после логина/регистрации/смены акка
+        setForceAccount(false);
+        setStep(2);
+      } else if (step === 1 && !forceAccount) {
+        // если шаг Account не обязателен — можно пропустить его
+        setStep(2);
+      }
     } else {
       // logout/гость — возвращаемся к черновику
       setCustomerId(null);
@@ -313,14 +326,14 @@ const setAddressSafe = (fa: FormAddress) => {
       setSelectedAddressId("manual");
       setAddress(readCheckoutDraft());
     }
-  }, [authLoading, isAuthenticated, user, step, forceAccount]);
+  }, [authLoading, isAuthenticated, user, step, forceAccount, fromAuth]);
 
   const handleSelectSavedAddr = (id: string | "manual") => {
     setSelectedAddressId(id);
     if (id === "manual") {
       setAddress(manualDraft);
     } else {
-      const found = savedAddresses.find(a => a.id === id);
+      const found = savedAddresses.find((a) => a.id === id);
       if (found) setAddress(accountToForm(found, user));
     }
   };
@@ -332,7 +345,10 @@ const setAddressSafe = (fa: FormAddress) => {
   }, [address]);
 
   // Totals
-  const subtotal = useMemo(() => lines.reduce((s, l) => s + l.priceCents * l.qty, 0), [lines]);
+  const subtotal = useMemo(
+    () => lines.reduce((s, l) => s + l.priceCents * l.qty, 0),
+    [lines]
+  );
 
   // страна доставки (для VAT и тарифов)
   const countryISO2 = useMemo(() => toISO2(address.country || "DE"), [address.country]);
@@ -442,17 +458,18 @@ const setAddressSafe = (fa: FormAddress) => {
     return 0;
   }, [promoApplied, subtotal, baseShippingCents]);
 
-  const total = useMemo(() => clamp(subtotal - discount + baseShippingCents, 0, Number.MAX_SAFE_INTEGER), [
-    subtotal,
-    discount,
-    baseShippingCents,
-  ]);
+  const total = useMemo(
+    () => clamp(subtotal - discount + baseShippingCents, 0, Number.MAX_SAFE_INTEGER),
+    [subtotal, discount, baseShippingCents]
+  );
 
   // VAT
   const fallbackVatRate = vatRateFor(countryISO2);
   const vat = useMemo(() => {
     if (serverQuote?.vat != null) return serverQuote.vat;
-    return PRICES_INCLUDE_VAT ? Math.round(total - total / (1 + fallbackVatRate)) : Math.round(total * fallbackVatRate);
+    return PRICES_INCLUDE_VAT
+      ? Math.round(total - total / (1 + fallbackVatRate))
+      : Math.round(total * fallbackVatRate);
   }, [serverQuote, total, fallbackVatRate]);
 
   const vatLabel = useMemo(() => {
@@ -478,10 +495,16 @@ const setAddressSafe = (fa: FormAddress) => {
   // --- Validation (simple)
   const addressValid = useMemo(() => {
     const emailOk = /.+@.+\..+/.test(address.email.trim());
-    const requiredOk = [address.firstName, address.lastName, address.line1, address.city, address.postalCode, address.country]
-      .every((x) => x.trim().length > 1);
+    const requiredOk = [
+      address.firstName,
+      address.lastName,
+      address.line1,
+      address.city,
+      address.postalCode,
+      address.country,
+    ].every((x) => x.trim().length > 1);
     const phoneLen = address.phone.trim().length;
-    const phoneOk = phoneLen === 0 || phoneLen >= 6;   // ← теперь можно без телефона
+    const phoneOk = phoneLen === 0 || phoneLen >= 6;
     return emailOk && requiredOk && phoneOk;
   }, [address]);
 
@@ -498,12 +521,14 @@ const setAddressSafe = (fa: FormAddress) => {
     try {
       const customer =
         customerId ||
-        (await upsertCustomer({
-          email: address.email,
-          phone: address.phone,
-          firstName: address.firstName,
-          lastName: address.lastName,
-        }).catch(() => ({ id: undefined } as any)))?.id ||
+        (
+          await upsertCustomer({
+            email: address.email,
+            phone: address.phone,
+            firstName: address.firstName,
+            lastName: address.lastName,
+          }).catch(() => ({ id: undefined } as any))
+        )?.id ||
         null;
 
       const clientSubtotal = subtotal;
@@ -556,12 +581,14 @@ const setAddressSafe = (fa: FormAddress) => {
     try {
       const customer =
         customerId ||
-        (await upsertCustomer({
-          email: address.email,
-          phone: address.phone,
-          firstName: address.firstName,
-          lastName: address.lastName,
-        }).catch(() => ({ id: undefined } as any)))?.id ||
+        (
+          await upsertCustomer({
+            email: address.email,
+            phone: address.phone,
+            firstName: address.firstName,
+            lastName: address.lastName,
+          }).catch(() => ({ id: undefined } as any))
+        )?.id ||
         null;
 
       const clientSubtotal = subtotal;
@@ -624,12 +651,14 @@ const setAddressSafe = (fa: FormAddress) => {
 
     const customer =
       customerId ||
-      (await upsertCustomer({
-        email: address.email,
-        phone: address.phone,
-        firstName: address.firstName,
-        lastName: address.lastName,
-      }).catch(() => ({ id: undefined } as any)))?.id ||
+      (
+        await upsertCustomer({
+          email: address.email,
+          phone: address.phone,
+          firstName: address.firstName,
+          lastName: address.lastName,
+        }).catch(() => ({ id: undefined } as any))
+      )?.id ||
       null;
 
     const clientSubtotal = subtotal;
@@ -707,7 +736,11 @@ const setAddressSafe = (fa: FormAddress) => {
         ].map((s, i) => (
           <div
             key={s.k}
-            className={`${styles.steps__item} ${step === i ? `${styles["steps__item--active"]}` : step > i ? `${styles["steps__item--done"]}` : ``
+            className={`${styles.steps__item} ${step === i
+              ? `${styles["steps__item--active"]}`
+              : step > i
+                ? `${styles["steps__item--done"]}`
+                : ``
               }`}
           >
             <span className={styles.steps__index}>{i + 1}</span>
@@ -726,7 +759,7 @@ const setAddressSafe = (fa: FormAddress) => {
 
         <main className={styles.checkout__main}>
           <section className={styles.checkout__content}>
-            {step === 0 &&
+            {step === 0 && (
               <CartSection
                 lines={lines}
                 inc={inc}
@@ -736,39 +769,26 @@ const setAddressSafe = (fa: FormAddress) => {
                   setStep(1);
                 }}
               />
-            }
+            )}
 
             {step === 1 && (
               <AccountSection
-                defaultEmail={address.email}
-                onGuest={(email) => {
-                  setIsGuest(true);
-                  setCustomerId(null);
-                  setAddress({ ...address, email });
+                onAuthedContinue={() => {
                   setForceAccount(false);
                   setStep(2);
                 }}
-                onLogin={async ({ email, password }) => {
-                  await login({ email, password, remember: true });
-                  setIsGuest(false);
-                  setAddress((a) => ({ ...a, email }));
-                  setForceAccount(false);
-                  setStep(2);
-                }}
-                onRegister={async ({ firstName, lastName, email, password }) => {
-                  await register({ firstName, lastName, email, password, remember: true });
-                  setIsGuest(false);
-                  setAddress((a) => ({ ...a, firstName, lastName, email }));
-                  setForceAccount(false);
-                  setStep(2);
-                }}
-                onAuthedContinue={() => { setForceAccount(false); setStep(2); }}
                 onSwitchAccount={async () => {
                   await logout();
                   setIsGuest(true);
                   setCustomerId(null);
                   setAddress((a) => ({ ...a, email: "" })); // опционально очистить e-mail
-                  setForceAccount(true); // остаёмся на шаге Account с вкладками
+                  setForceAccount(true);
+                }}
+                onGuestContinue={() => {
+                  setIsGuest(true);
+                  setCustomerId(null);
+                  setForceAccount(false);
+                  setStep(2);
                 }}
                 onBack={() => setStep(0)}
               />
@@ -783,7 +803,10 @@ const setAddressSafe = (fa: FormAddress) => {
                 shippingOptions={shippingOptions}
                 shipLoading={shipLoading}
                 shipError={shipError}
-                onPrev={() => { setForceAccount(true); setStep(1); }}
+                onPrev={() => {
+                  setForceAccount(true);
+                  setStep(1);
+                }}
                 onNext={() => setStep(3)}
                 canContinue={addressValid}
                 isAuthed={isAuthenticated}
@@ -831,7 +854,8 @@ const setAddressSafe = (fa: FormAddress) => {
             {step === 4 && <SuccessSection orderNo={orderNo ?? undefined} />}
           </section>
 
-          {step !== 4 && (
+          {/* Summary НЕ показываем на шаге Account (step === 1) */}
+          {step !== 4 && step !== 1 && (
             <aside className={styles.checkout__sidebar} aria-label="Итог заказа">
               <OrderSummary
                 lines={lines}
@@ -924,47 +948,25 @@ const CartSection: React.FC<CartSectionProps> = ({ lines, inc, /* setQty, */ onN
 };
 
 const AccountSection: React.FC<{
-  defaultEmail?: string;
-  onGuest: (email: string) => void;
-  onLogin: (data: { email: string; password: string }) => Promise<void> | void;
-  onRegister: (data: { firstName: string; lastName: string; email: string; password: string }) => Promise<void> | void;
   onBack: () => void;
   onAuthedContinue: () => void;
   onSwitchAccount: () => void | Promise<void>;
-}> = ({ defaultEmail = "", onGuest, onLogin, onRegister, onBack, onAuthedContinue, onSwitchAccount }) => {
-  // ВСЕ хуки — только тут, в самом верху компонента
+  onGuestContinue: () => void;
+}> = ({ onBack, onAuthedContinue, onSwitchAccount, onGuestContinue }) => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
 
-  const [tab, setTab] = useState<"guest" | "login" | "register">("guest");
-
-  // Guest
-  const [guestEmail, setGuestEmail] = useState(defaultEmail);
-
-  // Login
-  const [loginEmail, setLoginEmail] = useState(defaultEmail);
-  const [loginPass, setLoginPass] = useState("");
-
-  // Register
-  const [rFirst, setRFirst] = useState("");
-  const [rLast, setRLast] = useState("");
-  const [rEmail, setREmail] = useState(defaultEmail);
-  const [rPass, setRPass] = useState("");
-
-  // если defaultEmail меняется (например после логаута/префила) — обновим поля
-  useEffect(() => {
-    setGuestEmail(defaultEmail);
-    setLoginEmail(defaultEmail);
-    setREmail(defaultEmail);
-  }, [defaultEmail]);
-
-  // --- дальше уже можно делать ранние возвраты
   if (authLoading) {
     return (
       <div className="card">
-        <div className="card__head"><h2>Account</h2></div>
+        <div className="card__head">
+          <h2>Account</h2>
+        </div>
         <div className="muted">Checking session…</div>
         <div className="actions" style={{ marginTop: 8 }}>
-          <Button size="small" variant="secondary" onClick={onBack} type="button">Back</Button>
+          <Button size="small" variant="secondary" onClick={onBack} type="button">
+            Back
+          </Button>
         </div>
       </div>
     );
@@ -975,142 +977,105 @@ const AccountSection: React.FC<{
       (user as any)?.firstName || (user as any)?.lastName
         ? `${(user as any)?.firstName ?? ""} ${(user as any)?.lastName ?? ""}`.trim()
         : (user as any)?.email ?? "Account";
+
+    const username = (user as any)?.username;
+
+    const avatarUrl = buildAvatarSrc(
+      user.avatarUrl,
+      `${user.id}-${user.avatarUrl || ""}`
+    );
+
     return (
       <div className="card">
-        <div className="card__head"><h2>Account</h2></div>
-        <div className="info" style={{ marginBottom: 12 }}>
-          You are signed in as <strong>{nameOrEmail}</strong>.
+        <div className="card__head">
+          <h2>Account</h2>
         </div>
-        <div className="actions">
-          <Button size="small" variant="secondary" onClick={onBack} type="button">Back</Button>
-          <Button size="small" className="btn" onClick={onAuthedContinue} type="button">
-            Continue to delivery
+        <Wrapper
+          photoUrl={avatarUrl}
+          fullname={nameOrEmail}
+          username={username}
+          action={(
+            <Button
+              size="small"
+              variant="ghost"
+              onClick={async () => {
+                await onSwitchAccount();
+                navigate(`/auth/login?next=${encodeURIComponent("/checkout?from=auth")}`);
+              }}
+            >
+              Switch account
+            </Button>
+          )}
+        />
+        <div className="actions" style={{ gap: 8, display: "flex", flexWrap: "wrap", marginTop: 20 }}>
+          <Button
+            size="small"
+            variant="secondary"
+            onClick={onBack}
+          >
+            Back
           </Button>
-          <Button size="small" className="btn btn--ghost" onClick={onSwitchAccount} type="button">
-            Switch account
+          <Button
+            size="small"
+            onClick={onAuthedContinue}
+          >
+            Continue to delivery
           </Button>
         </div>
       </div>
     );
   }
 
+  // Не авторизован — гость: только кнопки, без форм
   return (
-    <div className="grid-2">
-      <div className="card">
-        <div className="card__head">
-          <h2>Account</h2>
-        </div>
-        <nav className={styles.tabs}>
-          <button className={`${styles.tabs__tab} ${tab === "guest" ? `${styles["tabs__tab--active"]}` : ``}`} onClick={() => setTab("guest")}>
-            Continue as guest
-          </button>
-          <button className={`${styles.tabs__tab} ${tab === "login" ? `${styles["tabs__tab--active"]}` : ``}`} onClick={() => setTab("login")}>
-            Sign in
-          </button>
-          <button className={`${styles.tabs__tab} ${tab === "register" ? `${styles["tabs__tab--active"]}` : ``}`} onClick={() => setTab("register")}>
-            Register
-          </button>
-          <div className={styles.pill} aria-hidden />
-        </nav>
-
-        {tab === "guest" && (
-          <form
-            className="form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!/.+@.+\..+/.test(guestEmail)) return;
-              onGuest(guestEmail.trim());
-            }}
-          >
-            <TextField
-              label="Email"
-              type="email"
-              value={guestEmail}
-              onChange={(e) => setGuestEmail(e.target.value)}
-              placeholder="name@mail.com"
-              required
-            />
-            <div className="actions">
-              <Button size="small" variant="secondary" onClick={onBack} type="button">
-                Back
-              </Button>
-              <Button size="small" className="btn" type="submit" disabled={!/.+@.+\..+/.test(guestEmail)}>
-                Continue to delivery
-              </Button>
-            </div>
-          </form>
-        )}
-
-        {tab === "login" && (
-          <form
-            className="form"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              if (!/.+@.+\..+/.test(loginEmail) || loginPass.length < 6) return;
-              await onLogin({ email: loginEmail.trim(), password: loginPass });
-            }}
-          >
-            <TextField label="Email" type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required />
-            <TextField label="Password" type="password" value={loginPass} onChange={(e) => setLoginPass(e.target.value)} required />
-            <div className="actions">
-              <Button size="small" variant="secondary" onClick={onBack} type="button">
-                Back
-              </Button>
-              <Button size="small" className="btn" type="submit" disabled={!/.+@.+\..+/.test(loginEmail) || loginPass.length < 6}>
-                Sign in & continue
-              </Button>
-            </div>
-          </form>
-        )}
-
-        {tab === "register" && (
-          <form
-            className="form"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              if (!/.+@.+\..+/.test(rEmail) || rPass.length < 6 || rFirst.trim().length < 2 || rLast.trim().length < 2) return;
-              await onRegister({ firstName: rFirst.trim(), lastName: rLast.trim(), email: rEmail.trim(), password: rPass });
-            }}
-          >
-            <div className="form__row">
-              <TextField label="First Name" value={rFirst} onChange={(e) => setRFirst(e.target.value)} required />
-              <TextField label="Last Name" value={rLast} onChange={(e) => setRLast(e.target.value)} required />
-            </div>
-            <TextField label="Email" type="email" value={rEmail} onChange={(e) => setREmail(e.target.value)} required />
-            <TextField label="Password" type="password" value={rPass} onChange={(e) => setRPass(e.target.value)} required />
-            <div className="actions">
-              <Button size="small" variant="secondary" onClick={onBack} type="button">
-                Back
-              </Button>
-              <Button
-                size="small"
-                className="btn"
-                type="submit"
-                disabled={
-                  !/.+@.+\..+/.test(rEmail) || rPass.length < 6 || rFirst.trim().length < 2 || rLast.trim().length < 2
-                }
-              >
-                Create account & continue
-              </Button>
-            </div>
-          </form>
-        )}
+    <div className="card">
+      <div className="card__head">
+        <h2>Account</h2>
       </div>
-
-      <div className="card">
-        <div className="card__head">
-          <h2>Why create an account?</h2>
-        </div>
-        <ul className="bullets">
-          <li>Faster checkout next time</li>
-          <li>Track orders and returns</li>
-          <li>Exclusive offers</li>
-        </ul>
+      <p className="muted" style={{ marginBottom: 16 }}>
+        You can checkout as a guest or sign in / register for a faster experience.
+      </p>
+      <div className="actions" style={{ gap: 8, display: "flex", flexWrap: "wrap" }}>
+        <Button
+          size="small"
+          className="btn"
+          type="button"
+          onClick={onGuestContinue}
+        >
+          Continue as guest
+        </Button>
+        <Button
+          size="small"
+          className="btn btn--ghost"
+          type="button"
+          onClick={() =>
+            navigate(`/auth/login?next=${encodeURIComponent("/checkout?from=auth")}`)
+          }
+        >
+          Login
+        </Button>
+        <Button
+          size="small"
+          className="btn btn--ghost"
+          type="button"
+          onClick={() =>
+            navigate(`/auth/register?next=${encodeURIComponent("/checkout?from=auth")}`)
+          }
+        >
+          Register
+        </Button>
+        <Button
+          size="small"
+          variant="secondary"
+          type="button"
+          onClick={onBack}
+        >
+          Back
+        </Button>
       </div>
     </div>
   );
 };
-
 
 type AddressSectionProps = {
   address: FormAddress;
@@ -1135,10 +1100,21 @@ type AddressSectionProps = {
 };
 
 const AddressSection: React.FC<AddressSectionProps> = ({
-  address, setAddress,
-  shipping, setShipping, shippingOptions, shipLoading, shipError,
-  onPrev, onNext, canContinue,
-  isAuthed = false, savedAddresses, selectedAddrId, onSelectSavedAddr, fieldsDisabled = false,
+  address,
+  setAddress,
+  shipping,
+  setShipping,
+  shippingOptions,
+  shipLoading,
+  shipError,
+  onPrev,
+  onNext,
+  canContinue,
+  isAuthed = false,
+  savedAddresses,
+  selectedAddrId,
+  onSelectSavedAddr,
+  fieldsDisabled = false,
 }) => {
   const set =
     (k: keyof FormAddress) =>
@@ -1149,7 +1125,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({
 
   const addrOptions = [
     { value: "manual", label: "— Enter a new address —" },
-    ...savedAddresses.map(a => ({
+    ...savedAddresses.map((a) => ({
       value: a.id,
       label: `${a.isDefault ? "Default • " : ""}${a.firstName} ${a.lastName}, ${a.city}, ${a.country}`,
     })),
@@ -1174,7 +1150,8 @@ const AddressSection: React.FC<AddressSectionProps> = ({
             />
             {selectedAddrId !== "manual" && (
               <div className="muted" style={{ marginTop: 6 }}>
-                This address comes from your account. Edit it in <a href="/account?tab=addresses">Addresses</a>.
+                This address comes from your account. Edit it in{" "}
+                <a href="/account?tab=addresses">Addresses</a>.
               </div>
             )}
           </div>
@@ -1182,23 +1159,86 @@ const AddressSection: React.FC<AddressSectionProps> = ({
 
         <form className="form" onSubmit={(e) => e.preventDefault()}>
           <div className="form__row">
-            <TextField label="First Name" value={address.firstName} onChange={set("firstName")} placeholder="John" required disabled={fieldsDisabled} />
-            <TextField label="Last Name" value={address.lastName} onChange={set("lastName")} placeholder="Doe" required disabled={fieldsDisabled} />
+            <TextField
+              label="First Name"
+              value={address.firstName}
+              onChange={set("firstName")}
+              placeholder="John"
+              required
+              disabled={fieldsDisabled}
+            />
+            <TextField
+              label="Last Name"
+              value={address.lastName}
+              onChange={set("lastName")}
+              placeholder="Doe"
+              required
+              disabled={fieldsDisabled}
+            />
           </div>
           <div className="form__row">
-            <TextField label="Email" type="email" value={address.email} onChange={set("email")} placeholder="name@mail.com" required disabled={fieldsDisabled} />
-            <TextField label="Phone" value={address.phone} onChange={set("phone")} placeholder="+49 170 000000" required disabled={fieldsDisabled} />
+            <TextField
+              label="Email"
+              type="email"
+              value={address.email}
+              onChange={set("email")}
+              placeholder="name@mail.com"
+              required
+              disabled={fieldsDisabled}
+            />
+            <TextField
+              label="Phone"
+              value={address.phone}
+              onChange={set("phone")}
+              placeholder="+49 170 000000"
+              required
+              disabled={fieldsDisabled}
+            />
           </div>
           <div className="form__row">
-            <TextField label="Address 1" value={address.line1} onChange={set("line1")} placeholder="Unter den Linden 1" required disabled={fieldsDisabled} />
-            <TextField label="Address 2 (optional)" value={address.line2 ?? ""} onChange={set("line2")} placeholder="Apt, suite, etc." disabled={fieldsDisabled} />
+            <TextField
+              label="Address 1"
+              value={address.line1}
+              onChange={set("line1")}
+              placeholder="Unter den Linden 1"
+              required
+              disabled={fieldsDisabled}
+            />
+            <TextField
+              label="Address 2 (optional)"
+              value={address.line2 ?? ""}
+              onChange={set("line2")}
+              placeholder="Apt, suite, etc."
+              disabled={fieldsDisabled}
+            />
           </div>
           <div className="form__row">
-            <TextField label="City" value={address.city} onChange={set("city")} placeholder="Berlin" required disabled={fieldsDisabled} />
-            <TextField label="Country" value={address.country} onChange={set("country")} placeholder="Deutschland" required disabled={fieldsDisabled} />
+            <TextField
+              label="City"
+              value={address.city}
+              onChange={set("city")}
+              placeholder="Berlin"
+              required
+              disabled={fieldsDisabled}
+            />
+            <TextField
+              label="Country"
+              value={address.country}
+              onChange={set("country")}
+              placeholder="Deutschland"
+              required
+              disabled={fieldsDisabled}
+            />
           </div>
           <div className="form__row">
-            <TextField label="Postal Code" value={address.postalCode} onChange={set("postalCode")} placeholder="10115" required disabled={fieldsDisabled} />
+            <TextField
+              label="Postal Code"
+              value={address.postalCode}
+              onChange={set("postalCode")}
+              placeholder="10115"
+              required
+              disabled={fieldsDisabled}
+            />
           </div>
         </form>
       </div>
@@ -1209,7 +1249,10 @@ const AddressSection: React.FC<AddressSectionProps> = ({
         </div>
 
         {shipLoading && (
-          <div className="muted" style={{ marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
+          <div
+            className="muted"
+            style={{ marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}
+          >
             <div className={styles.checkout__spinner} style={{ width: 16, height: 16 }} />
             Loading options…
           </div>
@@ -1233,7 +1276,11 @@ const AddressSection: React.FC<AddressSectionProps> = ({
           items={shippingOptions.map((m) => ({
             id: m.id,
             title: <strong>{m.label}</strong>,
-            subtitle: <span>({m.effectivePriceCents === 0 ? "Free" : formatMoney(m.effectivePriceCents)})</span>,
+            subtitle: (
+              <span>
+                ({m.effectivePriceCents === 0 ? "Free" : formatMoney(m.effectivePriceCents)})
+              </span>
+            ),
             caption: m.eta && <span className="muted">{m.eta}</span>,
             icon: carrierIconFor(m),
           }))}
@@ -1259,7 +1306,10 @@ const PaymentSection: React.FC<{
   setAcceptTerms: (b: boolean) => void;
   onPrev: () => void;
   onSubmitManual: (e: React.FormEvent<HTMLFormElement>) => void;
-  onSubmitStripe: (e: React.FormEvent<HTMLFormElement>, args: { stripe: any; elements: any; holder: string }) => void;
+  onSubmitStripe: (
+    e: React.FormEvent<HTMLFormElement>,
+    args: { stripe: any; elements: any; holder: string }
+  ) => void;
   disablePay?: boolean;
   provider: "stripe" | "paypal" | "invoice";
   preparePayPalPayment: () => Promise<{
@@ -1281,7 +1331,6 @@ const PaymentSection: React.FC<{
   preparePayPalPayment,
   onPayPalApproved,
 }) => {
-    // Общее поле держателя для Stripe
     const [cardName, setCardName] = useState("");
 
     if (provider === "stripe") {
@@ -1342,8 +1391,8 @@ const PaymentSection: React.FC<{
 
           <form className="form" onSubmit={onSubmitManual} noValidate>
             <div className="info" style={{ marginBottom: 12 }}>
-              Мы оформим заказ и вышлем вам на e-mail инструкции по оплате (счёт/реквизиты). Обработка может занять 1–2 рабочих
-              дня.
+              Мы оформим заказ и вышлем вам на e-mail инструкции по оплате (счёт/реквизиты).
+              Обработка может занять 1–2 рабочих дня.
             </div>
 
             <CheckboxField
@@ -1360,7 +1409,12 @@ const PaymentSection: React.FC<{
               <Button size="small" variant="secondary" onClick={onPrev} type="button">
                 Back
               </Button>
-              <Button size="small" className="btn btn--xl" type="submit" disabled={!!disablePay || !acceptTerms}>
+              <Button
+                size="small"
+                className="btn btn--xl"
+                type="submit"
+                disabled={!!disablePay || !acceptTerms}
+              >
                 Place order — {formatMoney(displayTotal)}
               </Button>
             </div>
@@ -1377,110 +1431,123 @@ const StripeForm: React.FC<{
   acceptTerms: boolean;
   setAcceptTerms: (b: boolean) => void;
   onPrev: () => void;
-  onSubmitStripe: (e: React.FormEvent<HTMLFormElement>, args: { stripe: any; elements: any; holder: string }) => void;
+  onSubmitStripe: (
+    e: React.FormEvent<HTMLFormElement>,
+    args: { stripe: any; elements: any; holder: string }
+  ) => void;
   disablePay?: boolean;
   displayTotal: number;
   nameError?: string;
-}> = ({ cardName, setCardName, acceptTerms, setAcceptTerms, onPrev, onSubmitStripe, disablePay, displayTotal, nameError }) => {
-  const stripe = useStripe();
-  const elements = useElements();
+}> = ({
+  cardName,
+  setCardName,
+  acceptTerms,
+  setAcceptTerms,
+  onPrev,
+  onSubmitStripe,
+  disablePay,
+  displayTotal,
+  nameError,
+}) => {
+    const stripe = useStripe();
+    const elements = useElements();
 
-  const stripeFormOk = !!stripe && !!elements && cardName.trim().length >= 3 && acceptTerms;
-  const payDisabled = !!disablePay || !stripeFormOk;
+    const stripeFormOk = !!stripe && !!elements && cardName.trim().length >= 3 && acceptTerms;
+    const payDisabled = !!disablePay || !stripeFormOk;
 
-  const inputStyle = {
-    iconColor: "#c4f0ff",
-    fontWeight: "400",
-    lineHeight: "43px",
-    fontFamily: "Inter, Open Sans, Segoe UI, sans-serif",
-    fontSize: "16px",
-    fontSmoothing: "antialiased",
-    ":-webkit-autofill": {
-      color: "#fce883",
-    },
-    "::placeholder": {
-      color: "#9CA3AF",
-    },
-  } as any;
+    const inputStyle = {
+      iconColor: "#c4f0ff",
+      fontWeight: "400",
+      lineHeight: "43px",
+      fontFamily: "Inter, Open Sans, Segoe UI, sans-serif",
+      fontSize: "16px",
+      fontSmoothing: "antialiased",
+      ":-webkit-autofill": {
+        color: "#fce883",
+      },
+      "::placeholder": {
+        color: "#9CA3AF",
+      },
+    } as any;
 
-  return (
-    <form
-      className="form"
-      onSubmit={(e) => {
-        if (!stripe || !elements) return e.preventDefault();
-        return onSubmitStripe(e, { stripe, elements, holder: cardName.trim() });
-      }}
-      noValidate
-    >
-      <TextField
-        label="Cardholder"
-        value={cardName}
-        onChange={(e) => setCardName(e.target.value)}
-        placeholder="IVAN IVANOV"
-        required
-        autoComplete="cc-name"
-        error={nameError}
-      />
+    return (
+      <form
+        className="form"
+        onSubmit={(e) => {
+          if (!stripe || !elements) return e.preventDefault();
+          return onSubmitStripe(e, { stripe, elements, holder: cardName.trim() });
+        }}
+        noValidate
+      >
+        <TextField
+          label="Cardholder"
+          value={cardName}
+          onChange={(e) => setCardName(e.target.value)}
+          placeholder="IVAN IVANOV"
+          required
+          autoComplete="cc-name"
+          error={nameError}
+        />
 
-      <div className="field">
-        <label className="label">Card Number</label>
-        <div className="stripe-input">
-          <CardNumberElement
-            options={{
-              placeholder: "1234 1234 1234 1234",
-              style: { base: inputStyle },
-            }}
-          />
-        </div>
-      </div>
-
-      <div className="form__row">
         <div className="field">
-          <label className="label">Expiration (MM/YY)</label>
+          <label className="label">Card Number</label>
           <div className="stripe-input">
-            <CardExpiryElement
+            <CardNumberElement
               options={{
-                placeholder: "MM/YY",
+                placeholder: "1234 1234 1234 1234",
                 style: { base: inputStyle },
               }}
             />
           </div>
         </div>
 
-        <div className="field">
-          <label className="label">CVC</label>
-          <div className="stripe-input">
-            <CardCvcElement
-              options={{
-                placeholder: "CVC",
-                style: { base: inputStyle },
-              }}
-            />
+        <div className="form__row">
+          <div className="field">
+            <label className="label">Expiration (MM/YY)</label>
+            <div className="stripe-input">
+              <CardExpiryElement
+                options={{
+                  placeholder: "MM/YY",
+                  style: { base: inputStyle },
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="field">
+            <label className="label">CVC</label>
+            <div className="stripe-input">
+              <CardCvcElement
+                options={{
+                  placeholder: "CVC",
+                  style: { base: inputStyle },
+                }}
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <CheckboxField
-        checked={acceptTerms}
-        onChange={(e) => setAcceptTerms(e.target.checked)}
-        label={
-          <>
-            I <a href="#terms">accept the terms and conditions</a>
-          </>
-        }
-      />
+        <CheckboxField
+          checked={acceptTerms}
+          onChange={(e) => setAcceptTerms(e.target.checked)}
+          label={
+            <>
+              I <a href="#terms">accept the terms and conditions</a>
+            </>
+          }
+        />
 
-      <div className="actions">
-        <Button size="small" variant="secondary" onClick={onPrev}>
-          Back
-        </Button>
-        <Button size="small" className="btn btn--xl" type="submit" disabled={payDisabled}>
-          Pay {formatMoney(displayTotal)}
-        </Button>
-      </div>
-    </form>
-  );
-};
+        <div className="actions">
+          <Button size="small" variant="secondary" onClick={onPrev}>
+            Back
+          </Button>
+          <Button size="small" className="btn btn--xl" type="submit" disabled={payDisabled}>
+            Pay {formatMoney(displayTotal)}
+          </Button>
+        </div>
+      </form>
+    );
+  };
 
 const PayPalForm: React.FC<{
   acceptTerms: boolean;
@@ -1488,114 +1555,130 @@ const PayPalForm: React.FC<{
   onPrev: () => void;
   disablePay?: boolean;
   displayTotal: number;
-  preparePayPalPayment: () => Promise<{ paypalOrderId: string; paymentId: string; orderNo: string; approvalUrl?: string }>;
+  preparePayPalPayment: () => Promise<{
+    paypalOrderId: string;
+    paymentId: string;
+    orderNo: string;
+    approvalUrl?: string;
+  }>;
   onPayPalApproved: (paymentId: string, orderNo: string) => Promise<void>;
-}> = ({ acceptTerms, setAcceptTerms, onPrev, disablePay, displayTotal, preparePayPalPayment, onPayPalApproved }) => {
-  const [busy, setBusy] = useState(false);
-  const paymentIdRef = React.useRef<string | null>(null);
-  const orderNoRef = React.useRef<string | null>(null);
-  const chRef = React.useRef<BroadcastChannel | null>(null);
+}> = ({
+  acceptTerms,
+  setAcceptTerms,
+  onPrev,
+  disablePay,
+  displayTotal,
+  preparePayPalPayment,
+  onPayPalApproved,
+}) => {
+    const [busy, setBusy] = useState(false);
+    const paymentIdRef = React.useRef<string | null>(null);
+    const orderNoRef = React.useRef<string | null>(null);
+    const chRef = React.useRef<BroadcastChannel | null>(null);
 
-  const openInNewTab = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!acceptTerms) {
-      alert("Подтвердите согласие с условиями.");
-      return;
-    }
-    if (disablePay || busy) return;
+    const openInNewTab = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (!acceptTerms) {
+        alert("Подтвердите согласие с условиями.");
+        return;
+      }
+      if (disablePay || busy) return;
 
-    setBusy(true);
-    let tab: Window | null = null;
-    let closePoll: number | null = null;
+      setBusy(true);
+      let tab: Window | null = null;
+      let closePoll: number | null = null;
 
-    const cleanup = () => {
-      if (closePoll) window.clearInterval(closePoll);
+      const cleanup = () => {
+        if (closePoll) window.clearInterval(closePoll);
+        try {
+          chRef.current?.close();
+        } catch { }
+        window.removeEventListener("message", onMessage);
+        try {
+          tab && tab.close();
+        } catch { }
+        setBusy(false);
+      };
+
       try {
-        chRef.current?.close();
-      } catch { }
-      window.removeEventListener("message", onMessage);
-      try {
-        tab && tab.close();
-      } catch { }
-      setBusy(false);
-    };
+        chRef.current = new BroadcastChannel("pp-redirect");
+        chRef.current.onmessage = async (ev) => {
+          const data = ev?.data || {};
+          if (data?.type !== "paypal-approved") return;
+          try {
+            if (!paymentIdRef.current || !orderNoRef.current)
+              throw new Error("Нет paymentId/orderNo");
+            await onPayPalApproved(paymentIdRef.current, orderNoRef.current);
+          } finally {
+            cleanup();
+          }
+        };
+      } catch {
+        // старые браузеры — без BroadcastChannel
+      }
 
-    try {
-      chRef.current = new BroadcastChannel("pp-redirect");
-      chRef.current.onmessage = async (ev) => {
+      const onMessage = async (ev: MessageEvent) => {
         const data = ev?.data || {};
         if (data?.type !== "paypal-approved") return;
         try {
-          if (!paymentIdRef.current || !orderNoRef.current) throw new Error("Нет paymentId/orderNo");
+          if (!paymentIdRef.current || !orderNoRef.current)
+            throw new Error("Нет paymentId/orderNo");
           await onPayPalApproved(paymentIdRef.current, orderNoRef.current);
         } finally {
           cleanup();
         }
       };
-    } catch {
-      // старые браузеры — без BroadcastChannel
-    }
+      window.addEventListener("message", onMessage);
 
-    const onMessage = async (ev: MessageEvent) => {
-      const data = ev?.data || {};
-      if (data?.type !== "paypal-approved") return;
       try {
-        if (!paymentIdRef.current || !orderNoRef.current) throw new Error("Нет paymentId/orderNo");
-        await onPayPalApproved(paymentIdRef.current, orderNoRef.current);
-      } finally {
-        cleanup();
+        const { paypalOrderId, paymentId, orderNo, approvalUrl } = await preparePayPalPayment();
+        paymentIdRef.current = paymentId;
+        orderNoRef.current = orderNo;
+
+        const href = approvalUrl || `https://www.sandbox.paypal.com/checkoutnow?token=${paypalOrderId}`;
+
+        tab = window.open(href, "_blank");
+        if (!tab) {
+          window.location.assign(href);
+          return;
+        }
+
+        closePoll = window.setInterval(() => {
+          if (tab && tab.closed) cleanup();
+        }, 700);
+      } catch (err: any) {
+        console.error(err);
+        alert(`PayPal: не удалось начать оплату. ${err?.message ?? err}`);
+        setBusy(false);
       }
     };
-    window.addEventListener("message", onMessage);
 
-    try {
-      const { paypalOrderId, paymentId, orderNo, approvalUrl } = await preparePayPalPayment();
-      paymentIdRef.current = paymentId;
-      orderNoRef.current = orderNo;
-
-      const href = approvalUrl || `https://www.sandbox.paypal.com/checkoutnow?token=${paypalOrderId}`;
-
-      tab = window.open(href, "_blank");
-      if (!tab) {
-        window.location.assign(href);
-        return;
-      }
-
-      closePoll = window.setInterval(() => {
-        if (tab && tab.closed) cleanup();
-      }, 700);
-    } catch (err: any) {
-      console.error(err);
-      alert(`PayPal: не удалось начать оплату. ${err?.message ?? err}`);
-      setBusy(false);
-    }
+    return (
+      <form className="form" onSubmit={openInNewTab} noValidate>
+        <div className="info" style={{ marginBottom: 12 }}>
+          You will be redirected to PayPal to complete your purchase — total{" "}
+          {formatMoney(displayTotal)}.
+        </div>
+        <CheckboxField
+          checked={acceptTerms}
+          onChange={(e) => setAcceptTerms(e.target.checked)}
+          label={
+            <>
+              I <a href="#terms">accept the terms and conditions</a>
+            </>
+          }
+        />
+        <div className="actions">
+          <Button size="small" variant="secondary" onClick={onPrev} type="button">
+            Back
+          </Button>
+          <Button size="small" className="btn btn--xl" type="submit" disabled={!!disablePay || busy}>
+            Pay with PayPal
+          </Button>
+        </div>
+      </form>
+    );
   };
-
-  return (
-    <form className="form" onSubmit={openInNewTab} noValidate>
-      <div className="info" style={{ marginBottom: 12 }}>
-        You will be redirected to PayPal to complete your purchase — total {formatMoney(displayTotal)}.
-      </div>
-      <CheckboxField
-        checked={acceptTerms}
-        onChange={(e) => setAcceptTerms(e.target.checked)}
-        label={
-          <>
-            I <a href="#terms">accept the terms and conditions</a>
-          </>
-        }
-      />
-      <div className="actions">
-        <Button size="small" variant="secondary" onClick={onPrev} type="button">
-          Back
-        </Button>
-        <Button size="small" className="btn btn--xl" type="submit" disabled={!!disablePay || busy}>
-          Pay with PayPal
-        </Button>
-      </div>
-    </form>
-  );
-};
 
 // ---------- Success
 const SuccessSection: React.FC<{ orderNo?: string }> = ({ orderNo }) => (
@@ -1668,18 +1751,25 @@ const OrderSummary: React.FC<{
   quoteError,
   quoteReason,
 }) => {
-    const promoMsg = promoApplied
-      ? discount > 0
-        ? { kind: "ok", text: `Promo applied: ${promoApplied}` }
-        : { kind: "warn", text: quoteReason ? `Promo not applied: ${quoteReason}` : `Promo not applicable` }
-      : null;
+    const promoMsg =
+      promoApplied
+        ? discount > 0
+          ? { kind: "ok", text: `Promo applied: ${promoApplied}` }
+          : {
+            kind: "warn",
+            text: quoteReason ? `Promo not applied: ${quoteReason}` : `Promo not applicable`,
+          }
+        : null;
 
     return (
       <div className="summary">
         <h3>Total</h3>
 
         {loading && (
-          <div className="muted" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+          <div
+            className="muted"
+            style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}
+          >
             <div className={styles.checkout__spinner} style={{ width: 16, height: 16 }} />
             Recalculating totals…
           </div>
@@ -1731,7 +1821,11 @@ const OrderSummary: React.FC<{
           </Button>
         </div>
 
-        {promoMsg && <div className={promoMsg.kind === "ok" ? "good" : "warn"} style={{ marginTop: 6 }}>{promoMsg.text}</div>}
+        {promoMsg && (
+          <div className={promoMsg.kind === "ok" ? "good" : "warn"} style={{ marginTop: 6 }}>
+            {promoMsg.text}
+          </div>
+        )}
 
         {typeof freeThresholdCents === "number" && freeThresholdCents > 0 && (
           <div className="muted" style={{ marginTop: 8 }}>

@@ -1,6 +1,6 @@
 import "react";
 import "./App.css";
-import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import Home from "./pages/Home/Home";
 import SearchPage from "./pages/Search/SearchPage";
 import ProductsPage from "./pages/Product/ProductsPage";
@@ -16,24 +16,36 @@ type AuthMode = "login" | "register";
 function AuthScreen() {
   const { login, register, user, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { tab } = useParams<{ tab?: string }>();
 
   const mode: AuthMode = tab === "register" ? "register" : "login";
 
-  const handleModeChange = (next: AuthMode) => {
-    if (next !== mode) {
-      navigate(`/auth/${next}`, { replace: true });
+  const searchParams = new URLSearchParams(location.search);
+  const next = searchParams.get("next") ?? undefined;
+
+  const handleModeChange = (nextMode: AuthMode) => {
+    if (nextMode !== mode) {
+      // сохраняем ?next=... при переключении табов
+      navigate(`/auth/${nextMode}${location.search}`, { replace: true });
     }
   };
 
   if (!loading && isAuthenticated && user) {
+    if (next) {
+      return <Navigate to={next} replace />;
+    }
     const username = user.username ?? user.user?.username;
-
     if (username) {
       return <Navigate to={`/u/${username}`} replace />;
     }
   }
-  const redirectToProfile = (me: any) => {
+
+  const redirectAfterAuth = (me: any) => {
+    if (next) {
+      navigate(next, { replace: true });
+      return;
+    }
     const username = me?.username ?? me?.user?.username;
     if (username) {
       navigate(`/u/${username}`, { replace: true });
@@ -46,11 +58,11 @@ function AuthScreen() {
       onModeChange={handleModeChange}
       onLogin={async ({ email, password, remember }) => {
         const me = await login({ email, password, remember });
-        redirectToProfile(me);
+        redirectAfterAuth(me);
       }}
       onRegister={async ({ firstName, lastName, email, password }) => {
         const me = await register({ firstName, lastName, email, password });
-        redirectToProfile(me);
+        redirectAfterAuth(me);
       }}
     />
   );

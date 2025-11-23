@@ -13,21 +13,13 @@ import styles from "../Account/AccountPage.module.scss";
 import Videos from "../../components/User/Tabs/Videos";
 import { buildAvatarSrc } from "../../utils/avatar";
 import WrapperSkeleton from "../../components/User/Wrapper.Skeleton";
+import type { Profile } from "../../types/user/profile";
 
 type TabKey = "videos";
 
 const tabs: TabItem<TabKey>[] = [
     { key: "videos", label: "Videos" },
 ];
-
-type Profile = {
-    id: string;
-    username?: string | null;
-    firstName?: string | null;
-    lastName?: string | null;
-    avatarUrl?: string | null;
-    isMe: boolean;
-};
 
 const normalizeTab = (tabParam?: string): TabKey => {
     switch (tabParam) {
