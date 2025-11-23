@@ -725,6 +725,25 @@ const CheckoutPage: React.FC = () => {
     return vals.length ? Math.min(...vals) : undefined;
   }, [shippingOptions]);
 
+  if (lines.length === 0) {
+    const nav = useNavigate()
+    return (
+      <Page>
+        <div className={styles.cart}>
+          <h1 className={styles.cart__empty}>
+            Cart is empty
+          </h1>
+          <Button
+            variant="link"
+            onClick={() => nav("/")}
+          >
+            Return to shopping
+          </Button>
+        </div>
+      </Page>
+    );
+  }
+
   const renderSteps = () => {
     return (
       <nav className={styles.steps} aria-label="Steps to place an order">
@@ -954,16 +973,8 @@ const AccountSection: React.FC<{
   onSwitchAccount: () => void | Promise<void>;
   onGuestContinue: () => void;
 }> = ({ onBack, onAuthedContinue, onSwitchAccount, onGuestContinue }) => {
-  const { isAuthenticated, user, logout, loading: authLoading } = useAuth();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-
-  async function onLogout() {
-    try {
-      await logout();
-    } finally {
-      navigate("/checkout", { replace: true });
-    }
-  }
 
   if (authLoading) {
     return (
@@ -1004,25 +1015,16 @@ const AccountSection: React.FC<{
           fullname={nameOrEmail}
           username={username}
           action={(
-            <>
-              <Button
-                size="small"
-                variant="secondary"
-                onClick={async () => {
-                  await onSwitchAccount();
-                  navigate(`/auth/login?next=${encodeURIComponent("/checkout?from=auth")}`);
-                }}
-              >
-                Switch account
-              </Button>
-              <Button
-                size="small"
-                variant="ghost"
-                onClick={onLogout}
-              >
-                Logout
-              </Button>
-            </>
+            <Button
+              size="small"
+              variant="secondary"
+              onClick={async () => {
+                await onSwitchAccount();
+                navigate(`/auth/login?next=${encodeURIComponent("/checkout?from=auth")}`);
+              }}
+            >
+              Switch account
+            </Button>
           )}
         />
         <div className="actions" style={{ gap: 8, display: "flex", flexWrap: "wrap", marginTop: 20 }}>

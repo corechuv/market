@@ -2,6 +2,22 @@
 @use "../../styles/global.module.scss";
 @use "../../styles/tabs.module.scss";
 
+.cart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    margin: 100px 0;
+    gap: 10px;
+
+    &__empty {
+        margin: 0;
+        font-size: clamp(20px, 2.6vw, 32px);
+        font-weight: 500;
+    }
+}
+
 .checkout {
 
     &__main {
@@ -24,6 +40,8 @@
         top: 14px;
         height: fit-content;
         max-width: 380px;
+        width: 100%;
+
         @media (max-width: 980px) {
             max-width: 100%;
         }
@@ -65,20 +83,20 @@
 
 /* Успешное оформление: без шагов/сайдбара, контент по центру */
 .checkout--success {
-  .checkout__main {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
+    .checkout__main {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
 
-  .checkout__content {
-    max-width: 560px;
-    margin: 60px auto 100px;
-  }
+    .checkout__content {
+        max-width: 560px;
+        margin: 60px auto 100px;
+    }
 
-  .checkout__steps,
-  .checkout__sidebar {
-    display: none !important;
-  }
+    .checkout__steps,
+    .checkout__sidebar {
+        display: none !important;
+    }
 }
 
 /* Stepper */
