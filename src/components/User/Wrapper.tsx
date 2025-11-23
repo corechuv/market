@@ -1,6 +1,7 @@
 // src/components/User/Wrapper.tsx
 import "react";
 import s from "./Wrapper.module.scss";
+import clsx from "clsx";
 
 interface UserProps {
     photoUrl?: string;
@@ -27,15 +28,15 @@ const Wrapper: React.FC<UserProps> = ({ photoUrl, fullname, username, action }) 
             </div>
             <div className={s.profile__row}>
                 <div className={s.profile__identity}>
+                    {username &&
+                        <div className={clsx(s["profile__identity--username"])} style={{color: "var(--muted)"}}>
+                            @{username}
+                        </div>
+                    }
                     {fullname &&
                         <h1 className={s["profile__identity--fullname"]}>
                             {fullname}
                         </h1>
-                    }
-                    {username &&
-                        <div className={s["profile__identity--username"]}>
-                            @{username}
-                        </div>
                     }
                 </div>
                 {action && <div className={s.profile__actions}>{action}</div>}

@@ -27,15 +27,15 @@ const Wrapper: React.FC<UserProps> = ({ photoUrl, fullname, username, action }) 
 
                 </div>
                 <div className={s.profile__identity}>
-                    {fullname &&
-                        <h1 className={s["profile__identity--fullname"]}>
-                            {fullname}
-                        </h1>
-                    }
                     {username &&
                         <div className={s["profile__identity--username"]}>
                             @{username}
                         </div>
+                    }
+                    {fullname &&
+                        <h1 className={s["profile__identity--fullname"]}>
+                            {fullname}
+                        </h1>
                     }
                 </div>
             </div>

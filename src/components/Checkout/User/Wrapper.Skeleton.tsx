@@ -14,8 +14,8 @@ const WrapperSkeleton: React.FC = () => {
                     <div className={s["profile__photo--skeleton"]} />
                 </div>
                 <div className={s.profile__identity}>
-                    <div className={s["profile__identity--fullnameSkeleton"]} />
                     <div className={s["profile__identity--usernameSkeleton"]} />
+                    <div className={s["profile__identity--fullnameSkeleton"]} />
                 </div>
             </div>
             {/* если хочешь – можно и кнопку-заглушку показать */}

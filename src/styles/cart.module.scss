@@ -1,0 +1,27 @@
+// src/styles/cart.module.scss
+.cart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100dvh;
+    gap: clamp(16px, 3vw, 24px);
+
+    &__empty {
+        margin: 0;
+        font-size: clamp(20px, 2.6vw, 32px);
+        font-weight: 500;
+    }
+
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+
+        a {
+            cursor: pointer;
+        }
+    }
+}
