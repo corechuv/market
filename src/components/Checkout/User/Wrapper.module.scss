@@ -25,15 +25,15 @@
     }
 
     &__photo {
-        width: clamp(60px, 30vw, 80px);
+        width: clamp(60px, 30vw, 70px);
         aspect-ratio: 1 / 1;
         overflow: hidden;
         background-color: var(--bg);
 
         &--skeleton {
             @extend %skeleton; // берём шимер из skeleton.module.scss
-            width: clamp(60px, 30vw, 80px);
-            height: clamp(60px, 30vw, 80px);
+            width: clamp(60px, 30vw, 70px);
+            height: clamp(60px, 30vw, 70px);
             border-radius: 50%;
         }
 
@@ -71,10 +71,12 @@
         &--fullname {
             margin: 0;
             font-size: 24px;
+            font-weight: 500;
         }
 
         &--username {
             font-size: 15px;
+            font-weight: 400;
         }
 
         &--fullnameSkeleton {
