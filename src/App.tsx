@@ -164,6 +164,8 @@ export default function App() {
             <Route path="/account/settings/change-password" element={<ChangePasswordPage />} />
             <Route path="/reset-password" element={<ChangePasswordPage />} /> {/* ← алиас */}
 
+            <Route path="/cart" element={<CartPage />} />
+
             <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
           </Route>
 
@@ -174,7 +176,6 @@ export default function App() {
           </Route>
 
           <Route element={<CartLayout />}>
-            <Route path="/cart" element={<CartPage />} />
             <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
           </Route>
 

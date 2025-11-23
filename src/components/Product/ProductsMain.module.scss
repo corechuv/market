@@ -1,24 +1,34 @@
 @use "../../styles/scrollbar.module.scss" as scrollbar;
 
 .titlebase {
-    color: var(--text);
-    margin: 0;
-    font-size: 1.75rem;
-    line-height: 1;
-    font-weight: 600;
+  color: var(--text);
+  margin: 0;
+  font-size: 1.75rem;
+  line-height: 1;
+  font-weight: 600;
 }
 
 .mastbar {
-    width: 100%;
-    z-index: 1;
-    padding: 1.5rem 1.2rem 0;
-    background: var(--bg);
+  width: 100%;
+  z-index: 1;
+  padding: 1.5rem 1.2rem 0;
+  background: var(--bg);
 
-    &__title {
-        @extend .titlebase;
-    }
+  &__title {
+    @extend .titlebase;
+  }
 }
 
+.topbar {
+  padding: 1rem 0 0.5rem;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+
+  div {
+    width: 100%;
+  }
+}
 
 $bp-sm: 480px;
 $bp-md: 768px;
@@ -38,17 +48,6 @@ $bp-lg: 1024px;
 .content {
   width: 100%;
   flex: 1 1 auto;
-}
-
-.topbar {
-  padding: 1rem 0 0.5rem;
-  display: flex;
-  gap: 16px;
-  align-items: center;
-
-  div {
-    width: 100%;
-  }
 }
 
 .items {

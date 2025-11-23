@@ -2,6 +2,7 @@
 import React, { useMemo } from "react";
 import "../Checkout/Checkout.scss";
 import styles from "../Checkout/Checkout.module.scss";
+import c from "./CartPage.module.scss";
 
 import { useCart } from "../../context/CartContext";
 import { formatMoney } from "../../utils/money";
@@ -18,6 +19,7 @@ const CartPage: React.FC = () => {
     const { lines, inc } = useCart();
     const navigate = useNavigate();
 
+    // --- ВСЕ хуки наверху ---
     const itemsCount = useMemo(
         () => lines.reduce((s, l) => s + l.qty, 0),
         [lines]
@@ -31,7 +33,6 @@ const CartPage: React.FC = () => {
     // На странице корзины нет доставки — считаем 0,
     // а реальная доставка посчитается на checkout.
     const shippingCents = 0;
-
     const discount = 0;
 
     const total = useMemo(
@@ -54,90 +55,96 @@ const CartPage: React.FC = () => {
         navigate("/checkout");
     };
 
+    // --- РАННИЙ RETURN ПОСЛЕ ВСЕХ ХУКОВ ---
+    if (itemsCount === 0) {
+        return (
+            <Page>
+                <div className={c.cart}>
+                    <h1 className={c.cart__empty}>
+                        Cart is empty
+                    </h1>
+                    <div className={c.cart__actions}>
+                        <a onClick={() => navigate("/")}>
+                            Home
+                        </a>
+                        <a onClick={() => navigate(-1)}>
+                            Return to shopping
+                        </a>
+                    </div>
+                </div>
+            </Page>
+        );
+    }
+
     return (
-        <Page>
-            <div className={styles.checkout}>
-                <main className={styles.checkout__main}>
-                    {/* Левая колонка — сама корзина (как CartSection было) */}
-                    <section className={styles.checkout__content}>
-                        <div className="card">
-                            <div className="card__head">
-                                <h2>Cart</h2>
-                                <span className="muted">{itemsCount} items</span>
-                            </div>
+        <Page padding={false}>
+            <div className={c.mastbar}>
+                <h2 className={c.title}>
+                    Cart <span className={c.count}>({itemsCount})</span>
+                </h2>
+            </div>
+            <div className={c.main}>
+                <section className={c.section}>
+                    {lines.length === 0 ? (<></>) : (
+                        <ul className={c.section__list}>
+                            {lines.map((it) => (
+                                <li key={it.id} className={c["section__list--item"]}>
+                                    {it.image && (
+                                        <img src={it.image} className={c["section__list--item--img"]} alt="" loading="lazy" />
+                                    )}
+                                    <div className={c["section__list--item--meta"]}>
+                                        <h3>{it.title}</h3>
+                                        <QtyStepper
+                                            value={it.qty}
+                                            min={0}
+                                            size="sm"
+                                            showMax={false}
+                                            ariaLabel={`Количество для ${it.title}`}
+                                            onChange={(q) => inc(it.id, q - it.qty)}
+                                            max={99}
+                                        />
+                                    </div>
+                                    <div className={c["section__list--item--meta--price"]}>
+                                        {formatMoney(it.priceCents * it.qty)}
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                    <div className="card__foot">
+                        <Button
+                            size="small"
+                            disabled={lines.length === 0}
+                            onClick={handleProceed}
+                        >
+                            Proceed to checkout
+                        </Button>
+                    </div>
+                </section>
 
-                            {lines.length === 0 ? (
-                                <div>
-                                    <p>Your cart is empty.</p>
-                                    <a className="btn" href="/">
-                                        Return to shopping
-                                    </a>
-                                </div>
-                            ) : (
-                                <ul className="cart-list">
-                                    {lines.map((it) => (
-                                        <li key={it.id} className="cart-item">
-                                            {it.image && (
-                                                <img src={it.image} alt="" loading="lazy" />
-                                            )}
-                                            <div className="cart-item__meta">
-                                                <h3>{it.title}</h3>
-                                                <QtyStepper
-                                                    value={it.qty}
-                                                    min={0}
-                                                    size="sm"
-                                                    showMax={false}
-                                                    ariaLabel={`Количество для ${it.title}`}
-                                                    onChange={(q) => inc(it.id, q - it.qty)}
-                                                    max={99}
-                                                />
-                                            </div>
-                                            <div className="cart-item__price">
-                                                {formatMoney(it.priceCents * it.qty)}
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-
-                            <div className="card__foot">
-                                <Button
-                                    className="btn"
-                                    size="small"
-                                    disabled={lines.length === 0}
-                                    onClick={handleProceed}
-                                >
-                                    Proceed to checkout
-                                </Button>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Правая колонка — Summary без промокода */}
-                    <aside
-                        className={styles.checkout__sidebar}
-                        aria-label="Order summary"
-                    >
-                        <Summary
-                            lines={lines}
-                            subtotal={subtotal}
-                            vat={vat}
-                            vatLabel={vatLabel}
-                            discount={discount}
-                            total={total}
-                            shippingCents={shippingCents}
-                            freeThresholdCents={undefined}
-                            loading={false}
-                            quoteError={null}
-                            quoteReason={null}
-                            spinnerClassName={undefined}
-                        />
-                        <p className="muted" style={{ marginTop: 8 }}>
-                            Shipping costs and final discounts will be calculated during
-                            checkout.
-                        </p>
-                    </aside>
-                </main>
+                <aside
+                    className={styles.checkout__sidebar}
+                    aria-label="Order summary"
+                >
+                    <Summary
+                        lines={lines}
+                        subtotal={subtotal}
+                        vat={vat}
+                        vatLabel={vatLabel}
+                        discount={discount}
+                        total={total}
+                        shippingCents={shippingCents}
+                        freeThresholdCents={undefined}
+                        loading={false}
+                        quoteError={null}
+                        quoteReason={null}
+                        spinnerClassName={undefined}
+                    />
+                    <p className="muted" style={{ marginTop: 8 }}>
+                        Shipping costs and final discounts will be calculated during
+                        checkout.
+                    </p>
+                </aside>
             </div>
         </Page>
     );
