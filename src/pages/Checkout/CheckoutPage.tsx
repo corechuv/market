@@ -187,6 +187,8 @@ const CheckoutPage: React.FC = () => {
   const [provider, setProvider] = useState<ProviderId>("stripe");
 
   const location = useLocation();
+  const navigate = useNavigate();
+
   const fromAuth = useMemo(() => {
     const params = new URLSearchParams(location.search);
     return params.get("from") === "auth";
@@ -236,6 +238,11 @@ const CheckoutPage: React.FC = () => {
     ];
 
   const { lines, inc, setQty, clear } = useCart();
+
+  const itemsCount = useMemo(
+    () => lines.reduce((sum, l) => sum + l.qty, 0),
+    [lines]
+  );
 
   // ACCOUNT step
   const { user, isAuthenticated, loading: authLoading, logout } = useAuth();
@@ -725,8 +732,7 @@ const CheckoutPage: React.FC = () => {
     return vals.length ? Math.min(...vals) : undefined;
   }, [shippingOptions]);
 
-  if (lines.length === 0) {
-    const nav = useNavigate()
+  if (itemsCount === 0) {
     return (
       <Page>
         <div className={styles.cart}>
@@ -735,7 +741,7 @@ const CheckoutPage: React.FC = () => {
           </h1>
           <Button
             variant="link"
-            onClick={() => nav("/")}
+            onClick={() => navigate("/")}
           >
             Return to shopping
           </Button>
