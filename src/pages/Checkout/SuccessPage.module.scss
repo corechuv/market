@@ -1,0 +1,54 @@
+// src/pages/Checkout/SuccessPage.module.scss
+.success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100dvh;
+    gap: clamp(16px, 3vw, 24px);
+    text-align: center;
+
+    &__icon {
+        svg {
+            width: clamp(80px, 40vw, 140px);
+            height: clamp(80px, 40vw, 140px);
+            line-height: clamp(80px, 40vw, 140px);
+        }
+    }
+
+    &__order {
+        display: inline-flex;
+        flex-direction: column;
+
+        &--number {
+            display: inline-block;
+            font-size: clamp(20px, 2.6vw, 32px);
+            font-weight: 500;
+            letter-spacing: 2px;
+        }
+    }
+
+    &__title {
+        margin: 0;
+        font-size: clamp(20px, 2.6vw, 32px);
+        font-weight: 500;
+    }
+
+    &__description {
+        color: var(--muted);
+        font-size: clamp(14px, 1.5vw, 16px);
+        margin: 0;
+    }
+
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+
+        a {
+            cursor: pointer;
+        }
+    }
+}

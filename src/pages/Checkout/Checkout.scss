@@ -21,11 +21,6 @@ $gap-sm: 12px;
     border: 0;
 }
 
-.muted {
-    color: $muted;
-    font-size: 14px;
-}
-
 .good {
     color: $success;
 }
@@ -62,21 +57,6 @@ $gap-sm: 12px;
     font-size: 1.05rem;
 }
 
-/* Бейдж номера заказа */
-.success__order {
-    margin: 10px 0 0px;
-    display: inline-flex;
-    flex-direction: column;
-    gap: 10px;
-
-    strong {
-        display: inline-block;
-        padding: 4px;
-        font-size: 1.2rem;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-    }
-}
 
 .card {
     padding: 16px 0;
@@ -112,7 +92,7 @@ $gap-sm: 12px;
 
 .cart-item {
     display: grid;
-    grid-template-columns: 86px 1fr auto;
+    grid-template-columns: 70px 1fr auto;
     gap: 12px;
     align-items: center;
     padding: 20px 0;
@@ -124,8 +104,8 @@ $gap-sm: 12px;
 }
 
 .cart-item img {
-    width: 86px;
-    height: 86px;
+    width: 70px;
+    height: 70px;
     object-fit: cover;
     border-radius: 12px;
 }
@@ -291,17 +271,6 @@ $gap-sm: 12px;
     justify-content: space-between;
     color: $muted;
     font-size: .9rem;
-}
-
-.success {
-    text-align: center;
-    padding: 28px;
-}
-
-.success__icon {
-    display: grid;
-    place-items: center;
-    margin: 0 auto 10px;
 }
 
 .bullets {

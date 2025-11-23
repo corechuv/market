@@ -165,7 +165,7 @@ const Navigation: FC<Props> = ({ className, hideOnMobile }) => {
       ariaLabel: "Cart",
       icon: <BagIcon />,
       action: "link",
-      to: "/checkout",
+      to: "/cart",
       renderAfterIcon: (
         <CounterBadge count={cartCount} title={`In cart: ${cartCount}`} />
       ),

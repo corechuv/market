@@ -110,6 +110,9 @@ import PressPage from "./pages/About/PressPage";
 import ProfilePage from "./pages/User/ProfilePage";
 import SettingsPage from "./pages/Settings/SettingsPage";
 import InformationLayout from "./components/layouts/InformationLayout";
+import SuccessPage from "./pages/Checkout/SuccessPage";
+import CartLayout from "./components/layouts/CartLayout";
+import CartPage from "./pages/Cart/CartPage";
 
 export default function App() {
 
@@ -170,8 +173,14 @@ export default function App() {
             <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
           </Route>
 
+          <Route element={<CartLayout />}>
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
+          </Route>
+
           <Route element={<CheckoutLayout />}>
             <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/checkout/success" element={<SuccessPage />} />
             <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
           </Route>
 

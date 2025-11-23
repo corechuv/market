@@ -124,7 +124,7 @@ export default function MainLayout() {
         renderAfterIcon: (
           <CounterBadge count={cartCount} title={`In cart: ${cartCount}`} />
         ),
-        onClick: () => navigate("/checkout"),
+        onClick: () => navigate("/cart"),
       },
     ],
     [

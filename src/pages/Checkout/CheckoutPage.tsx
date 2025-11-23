@@ -35,7 +35,6 @@ import { vatRateFor } from "../../utils/vat";
 import Button from "../../components/UI/Button";
 import { TextField } from "../../components/UI/TextField";
 import { CheckboxField } from "../../components/UI/CheckboxField";
-import QtyStepper from "../../components/UI/QtyStepper";
 import RadioCard from "../../components/UI/RadioCard";
 
 import dpd from "/dpd.png";
@@ -47,10 +46,11 @@ import paypal from "/paypal.png";
 import visa from "/visa.png";
 import amex from "@/assets/svg/amex.svg";
 import Page from "../../components/UI/Page/Page";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Wrapper from "../../components/Checkout/User/Wrapper";
 import { buildAvatarSrc } from "../../utils/avatar";
 import WrapperSkeleton from "../../components/Checkout/User/Wrapper.Skeleton";
+import { Summary } from "../../components/Checkout/Order/Summary";
 
 const CARRIER_LOGOS = { dhl, hermes, dpd, gls } as const;
 
@@ -75,7 +75,7 @@ type AccountAddress = {
   firstName: string;
   lastName: string;
   company?: string | null;
-  country: string;        // ISO-2
+  country: string; // ISO-2
   postalCode: string;
   region?: string | null;
   city: string;
@@ -171,8 +171,15 @@ function carrierIconFor(option: ShippingUi) {
   if (!src) {
     return (
       <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
-        <path d="M3 7h11v7h-1.5a2.5 2.5 0 0 0-5 0H6a2.5 2.5 0 0 0-5 0H0V9a2 2 0 0 1 2-2h1z" fill="currentColor" opacity=".5" />
-        <path d="M14 7h4l4 4v3h-2.5a2.5 2.5 0 0 0-5 0H14V7z" fill="currentColor" />
+        <path
+          d="M3 7h11v7h-1.5a2.5 2.5 0 0 0-5 0H6a2.5 2.5 0 0 0-5 0H0V9a2 2 0 0 1 2-2h1z"
+          fill="currentColor"
+          opacity=".5"
+        />
+        <path
+          d="M14 7h4l4 4v3h-2.5a2.5 2.5 0 0 0-5 0H14V7z"
+          fill="currentColor"
+        />
       </svg>
     );
   }
@@ -186,14 +193,11 @@ const CheckoutPage: React.FC = () => {
   type ProviderId = "stripe" | "paypal" | "invoice";
   const [provider, setProvider] = useState<ProviderId>("stripe");
 
-  const location = useLocation();
+  const navigate = useNavigate();
 
-  const fromAuth = useMemo(() => {
-    const params = new URLSearchParams(location.search);
-    return params.get("from") === "auth";
-  }, [location.search]);
-
-  const [theme, setTheme] = useState(() => document.documentElement.getAttribute("data-theme") || "light");
+  const [theme, setTheme] = useState(
+    () => document.documentElement.getAttribute("data-theme") || "light"
+  );
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setTheme(document.documentElement.getAttribute("data-theme") || "light");
@@ -208,41 +212,39 @@ const CheckoutPage: React.FC = () => {
     caption?: React.ReactNode;
     icon?: React.ReactNode;
   }> = [
-      {
-        id: "stripe",
-        title: <strong>Card payment</strong>,
-        icon: (
-          <>
-            <img loading="lazy" src={theme === "dark" ? visa : visa} alt="" />
-            <img loading="lazy" src={theme === "dark" ? mastercard : mastercard} alt="" />
-            <img loading="lazy" src={theme === "dark" ? amex : amex} alt="" />
-          </>
-        ),
-      },
-      {
-        id: "paypal",
-        title: <strong>PayPal</strong>,
-        icon: <img loading="lazy" src={theme === "dark" ? paypal : paypal} alt="" />,
-      },
-      {
-        id: "invoice",
-        title: <strong>Bank transfer / Invoice</strong>,
-        caption: <span className="muted">We’ll send payment instructions by email</span>,
-        icon: (
-          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
-            <path d="M12 3l9 5v2H3V8l9-5zM4 11h16v8H4z" fill="currentColor" />
-          </svg>
-        ),
-      },
-    ];
+    {
+      id: "stripe",
+      title: <strong>Card payment</strong>,
+      icon: (
+        <>
+          <img loading="lazy" src={theme === "dark" ? visa : visa} alt="" />
+          <img loading="lazy" src={theme === "dark" ? mastercard : mastercard} alt="" />
+          <img loading="lazy" src={theme === "dark" ? amex : amex} alt="" />
+        </>
+      ),
+    },
+    {
+      id: "paypal",
+      title: <strong>PayPal</strong>,
+      icon: <img loading="lazy" src={theme === "dark" ? paypal : paypal} alt="" />,
+    },
+    {
+      id: "invoice",
+      title: <strong>Bank transfer / Invoice</strong>,
+      caption: <span className="muted">We’ll send payment instructions by email</span>,
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
+          <path d="M12 3l9 5v2H3V8l9-5zM4 11h16v8H4z" fill="currentColor" />
+        </svg>
+      ),
+    },
+  ];
 
-  const { lines, inc, setQty, clear } = useCart();
+  const { lines, clear } = useCart();
 
   // ACCOUNT step
   const { user, isAuthenticated, loading: authLoading, logout } = useAuth();
-  const [, setIsGuest] = useState<boolean>(() => !isAuthenticated);
   const [customerId, setCustomerId] = useState<string | null>(null);
-  const [forceAccount, setForceAccount] = useState(false);
 
   // доставка
   const [shippingOptions, setShippingOptions] = useState<ShippingUi[]>([]);
@@ -259,18 +261,15 @@ const CheckoutPage: React.FC = () => {
   const [selectedAddressId, setSelectedAddressId] = useState<string | "manual">("manual");
   const [manualDraft] = useState<FormAddress>(() => readCheckoutDraft());
 
-  // 0 Cart, 1 Account, 2 Address, 3 Payment, 4 Success
-  const [step, setStep] = useState<0 | 1 | 2 | 3 | 4>(0);
+  // 0 Account, 1 Address, 2 Payment
+  const [step, setStep] = useState<0 | 1 | 2>(0);
   const [isPaying, setIsPaying] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
-
-  const [orderNo, setOrderNo] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
 
     if (isAuthenticated) {
-      setIsGuest(false);
       setCustomerId(user?.id ?? null);
 
       // ← всегда проставляем базовые поля из аккаунта (не оставляем старый LS-мусор)
@@ -311,24 +310,14 @@ const CheckoutPage: React.FC = () => {
           setSelectedAddressId("manual");
         }
       })();
-
-      if (fromAuth && (step === 0 || step === 1)) {
-        // вернулись из /auth после логина/регистрации/смены акка
-        setForceAccount(false);
-        setStep(2);
-      } else if (step === 1 && !forceAccount) {
-        // если шаг Account не обязателен — можно пропустить его
-        setStep(2);
-      }
     } else {
       // logout/гость — возвращаемся к черновику
       setCustomerId(null);
-      setIsGuest(true);
       setSavedAddresses([]);
       setSelectedAddressId("manual");
       setAddress(readCheckoutDraft());
     }
-  }, [authLoading, isAuthenticated, user, step, forceAccount, fromAuth]);
+  }, [authLoading, isAuthenticated, user]);
 
   const handleSelectSavedAddr = (id: string | "manual") => {
     setSelectedAddressId(id);
@@ -343,7 +332,7 @@ const CheckoutPage: React.FC = () => {
   useEffect(() => {
     try {
       localStorage.setItem(CHECKOUT_ADDR_LS_KEY, JSON.stringify(address));
-    } catch { }
+    } catch {}
   }, [address]);
 
   // Totals
@@ -558,9 +547,11 @@ const CheckoutPage: React.FC = () => {
       });
 
       await createPaymentIntent(order.id, order.totalCents, "invoice");
-      setOrderNo(order.number);
-      setStep(4);
       clear();
+      navigate("/checkout/success", {
+        replace: true,
+        state: { orderNo: order.number },
+      });
     } catch (err: any) {
       console.error(err);
       alert(`Оплата не прошла: ${err?.message ?? err}`);
@@ -626,7 +617,9 @@ const CheckoutPage: React.FC = () => {
       const result = await args.stripe.confirmCardPayment(intent.clientSecret, {
         payment_method: {
           card: numberEl,
-          billing_details: { name: args.holder || `${address.firstName} ${address.lastName}`.trim() },
+          billing_details: {
+            name: args.holder || `${address.firstName} ${address.lastName}`.trim(),
+          },
         },
       });
 
@@ -634,9 +627,11 @@ const CheckoutPage: React.FC = () => {
 
       await confirmPayment(intent.id);
 
-      setOrderNo(order.number);
-      setStep(4);
       clear();
+      navigate("/checkout/success", {
+        replace: true,
+        state: { orderNo: order.number },
+      });
     } catch (err: any) {
       console.error(err);
       alert(`Оплата не прошла: ${err?.message ?? err}`);
@@ -702,9 +697,11 @@ const CheckoutPage: React.FC = () => {
     setIsPaying(true);
     try {
       await confirmPayment(paymentId);
-      setOrderNo(orderNo);
-      setStep(4);
       clear();
+      navigate("/checkout/success", {
+        replace: true,
+        state: { orderNo },
+      });
     } catch (err: any) {
       console.error(err);
       alert(`Оплата не прошла: ${err?.message ?? err}`);
@@ -727,23 +724,24 @@ const CheckoutPage: React.FC = () => {
   }, [shippingOptions]);
 
   const renderSteps = () => {
+    const steps = [
+      { k: 0, label: "Account" },
+      { k: 1, label: "Delivery" },
+      { k: 2, label: "Pay" },
+    ];
+
     return (
       <nav className={styles.steps} aria-label="Steps to place an order">
-        {[
-          { k: 0, label: "Cart" },
-          { k: 1, label: "Account" },
-          { k: 2, label: "Delivery" },
-          { k: 3, label: "Pay" },
-          { k: 4, label: "Complete" },
-        ].map((s, i) => (
+        {steps.map((s, i) => (
           <div
             key={s.k}
-            className={`${styles.steps__item} ${step === i
-              ? `${styles["steps__item--active"]}`
-              : step > i
-                ? `${styles["steps__item--done"]}`
-                : ``
-              }`}
+            className={`${styles.steps__item} ${
+              step === i
+                ? styles["steps__item--active"]
+                : step > i
+                ? styles["steps__item--done"]
+                : ""
+            }`}
           >
             <span className={styles.steps__index}>{i + 1}</span>
             <span className={styles.steps__label}>{s.label}</span>
@@ -755,48 +753,30 @@ const CheckoutPage: React.FC = () => {
 
   return (
     <Page>
-      <div className={`${styles.checkout} ${step === 4 ? styles["checkout--success"] : ""}`}>
-
-        {step !== 4 && renderSteps()}
+      <div className={styles.checkout}>
+        {renderSteps()}
 
         <main className={styles.checkout__main}>
           <section className={styles.checkout__content}>
             {step === 0 && (
-              <CartSection
-                lines={lines}
-                inc={inc}
-                setQty={setQty}
-                onNext={() => {
-                  setForceAccount(true); // хотим видеть шаг Account даже если юзер уже залогинен
+              <AccountSection
+                onAuthedContinue={() => {
                   setStep(1);
                 }}
+                onSwitchAccount={async () => {
+                  await logout();
+                  setCustomerId(null);
+                  setAddress((a) => ({ ...a, email: "" })); // опционально очистить e-mail
+                }}
+                onGuestContinue={() => {
+                  setCustomerId(null);
+                  setStep(1);
+                }}
+                onBack={() => navigate("/cart")}
               />
             )}
 
             {step === 1 && (
-              <AccountSection
-                onAuthedContinue={() => {
-                  setForceAccount(false);
-                  setStep(2);
-                }}
-                onSwitchAccount={async () => {
-                  await logout();
-                  setIsGuest(true);
-                  setCustomerId(null);
-                  setAddress((a) => ({ ...a, email: "" })); // опционально очистить e-mail
-                  setForceAccount(true);
-                }}
-                onGuestContinue={() => {
-                  setIsGuest(true);
-                  setCustomerId(null);
-                  setForceAccount(false);
-                  setStep(2);
-                }}
-                onBack={() => setStep(0)}
-              />
-            )}
-
-            {step === 2 && (
               <AddressSection
                 address={address}
                 setAddress={setAddress}
@@ -805,11 +785,8 @@ const CheckoutPage: React.FC = () => {
                 shippingOptions={shippingOptions}
                 shipLoading={shipLoading}
                 shipError={shipError}
-                onPrev={() => {
-                  setForceAccount(true);
-                  setStep(1);
-                }}
-                onNext={() => setStep(3)}
+                onPrev={() => setStep(0)}
+                onNext={() => setStep(2)}
                 canContinue={addressValid}
                 isAuthed={isAuthenticated}
                 savedAddresses={savedAddresses}
@@ -819,7 +796,7 @@ const CheckoutPage: React.FC = () => {
               />
             )}
 
-            {step === 3 && (
+            {step === 2 && (
               <>
                 <div className="card" style={{ marginBottom: 12 }}>
                   <div className="card__head">
@@ -842,7 +819,7 @@ const CheckoutPage: React.FC = () => {
                   displayTotal={displayTotal}
                   acceptTerms={acceptTerms}
                   setAcceptTerms={setAcceptTerms}
-                  onPrev={() => setStep(2)}
+                  onPrev={() => setStep(1)}
                   onSubmitManual={handlePayManual}
                   onSubmitStripe={handlePayStripe}
                   disablePay={qLoading || isPaying}
@@ -852,14 +829,12 @@ const CheckoutPage: React.FC = () => {
                 />
               </>
             )}
-
-            {step === 4 && <SuccessSection orderNo={orderNo ?? undefined} />}
           </section>
 
-          {/* Summary НЕ показываем на шаге Account (step === 1) */}
-          {step !== 4 && step !== 1 && (
+          {/* Summary НЕ показываем на шаге Account (step === 0) */}
+          {step !== 0 && (
             <aside className={styles.checkout__sidebar} aria-label="Итог заказа">
-              <OrderSummary
+              <Summary
                 lines={lines}
                 subtotal={displaySubtotal}
                 vat={displayVat}
@@ -875,6 +850,7 @@ const CheckoutPage: React.FC = () => {
                 loading={qLoading}
                 quoteError={qError}
                 quoteReason={serverQuote?.reason ?? null}
+                spinnerClassName={styles.checkout__spinner}
               />
             </aside>
           )}
@@ -894,60 +870,6 @@ const CheckoutPage: React.FC = () => {
 export default CheckoutPage;
 
 // ---- Sections
-
-type CartSectionProps = {
-  lines: import("../../context/CartContext").CartLine[];
-  inc: (id: string, delta: number) => void;
-  setQty: (id: string, qty: number) => void;
-  onNext: () => void;
-};
-
-const CartSection: React.FC<CartSectionProps> = ({ lines, inc, /* setQty, */ onNext }) => {
-  const itemsCount = lines.reduce((s, l) => s + l.qty, 0);
-  return (
-    <div className="card">
-      <div className="card__head">
-        <h2>Cart</h2>
-        <span className="muted">{itemsCount} items</span>
-      </div>
-      {lines.length === 0 ? (
-        <div>
-          <p>Your cart is empty.</p>
-          <a className="btn" href="/">
-            Return to shopping
-          </a>
-        </div>
-      ) : (
-        <ul className="cart-list">
-          {lines.map((it) => (
-            <li key={it.id} className="cart-item">
-              {it.image && <img src={it.image} alt="" loading="lazy" />}
-              <div className="cart-item__meta">
-                <h3>{it.title}</h3>
-                <QtyStepper
-                  value={it.qty}
-                  min={0}
-                  size="sm"
-                  showMax={false}
-                  ariaLabel={`Количество для ${it.title}`}
-                  onChange={(q) => inc(it.id, q - it.qty)}
-                  max={99}
-                />
-              </div>
-              <div className="cart-item__price">{formatMoney(it.priceCents * it.qty)}</div>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <div className="card__foot">
-        <Button className="btn" size="small" disabled={lines.length === 0} onClick={onNext}>
-          Proceed to account
-        </Button>
-      </div>
-    </div>
-  );
-};
 
 const AccountSection: React.FC<{
   onBack: () => void;
@@ -996,7 +918,7 @@ const AccountSection: React.FC<{
           photoUrl={avatarUrl}
           fullname={nameOrEmail}
           username={username}
-          action={(
+          action={
             <Button
               size="small"
               variant="secondary"
@@ -1007,20 +929,16 @@ const AccountSection: React.FC<{
             >
               Switch account
             </Button>
-          )}
+          }
         />
-        <div className="actions" style={{ gap: 8, display: "flex", flexWrap: "wrap", marginTop: 20 }}>
-          <Button
-            size="small"
-            variant="secondary"
-            onClick={onBack}
-          >
+        <div
+          className="actions"
+          style={{ gap: 8, display: "flex", flexWrap: "wrap", marginTop: 20 }}
+        >
+          <Button size="small" variant="secondary" onClick={onBack}>
             Back
           </Button>
-          <Button
-            size="small"
-            onClick={onAuthedContinue}
-          >
+          <Button size="small" onClick={onAuthedContinue}>
             Continue to delivery
           </Button>
         </div>
@@ -1066,12 +984,7 @@ const AccountSection: React.FC<{
         >
           Register
         </Button>
-        <Button
-          size="small"
-          variant="secondary"
-          type="button"
-          onClick={onBack}
-        >
+        <Button size="small" variant="secondary" type="button" onClick={onBack}>
           Back
         </Button>
       </div>
@@ -1120,16 +1033,19 @@ const AddressSection: React.FC<AddressSectionProps> = ({
 }) => {
   const set =
     (k: keyof FormAddress) =>
-      (e: React.ChangeEvent<HTMLInputElement>) =>
-        setAddress({ ...address, [k]: e.target.value });
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setAddress({ ...address, [k]: e.target.value });
 
-  const canProceed = canContinue && !!shipping && !shipLoading && !shipError && shippingOptions.length > 0;
+  const canProceed =
+    canContinue && !!shipping && !shipLoading && !shipError && shippingOptions.length > 0;
 
   const addrOptions = [
     { value: "manual", label: "— Enter a new address —" },
     ...savedAddresses.map((a) => ({
       value: a.id,
-      label: `${a.isDefault ? "Default • " : ""}${a.firstName} ${a.lastName}, ${a.city}, ${a.country}`,
+      label: `${a.isDefault ? "Default • " : ""}${a.firstName} ${a.lastName}, ${a.city}, ${
+        a.country
+      }`,
     })),
   ];
 
@@ -1333,57 +1249,9 @@ const PaymentSection: React.FC<{
   preparePayPalPayment,
   onPayPalApproved,
 }) => {
-    const [cardName, setCardName] = useState("");
+  const [cardName, setCardName] = useState("");
 
-    if (provider === "stripe") {
-      return (
-        <div className="grid-2">
-          <div className="card">
-            <div className="card__head">
-              <h2>Payment</h2>
-            </div>
-
-            <Elements stripe={stripePromise}>
-              <StripeForm
-                cardName={cardName}
-                setCardName={setCardName}
-                acceptTerms={acceptTerms}
-                setAcceptTerms={setAcceptTerms}
-                onPrev={onPrev}
-                onSubmitStripe={onSubmitStripe}
-                disablePay={disablePay}
-                displayTotal={displayTotal}
-                nameError={cardName.trim().length === 0 ? "Укажите имя как на карте" : undefined}
-              />
-            </Elements>
-          </div>
-        </div>
-      );
-    }
-
-    if (provider === "paypal") {
-      return (
-        <div className="grid-2">
-          <div className="card">
-            <div className="card__head">
-              <h2>Payment</h2>
-            </div>
-
-            <PayPalForm
-              acceptTerms={acceptTerms}
-              setAcceptTerms={setAcceptTerms}
-              onPrev={onPrev}
-              disablePay={disablePay}
-              preparePayPalPayment={preparePayPalPayment}
-              onPayPalApproved={onPayPalApproved}
-              displayTotal={displayTotal}
-            />
-          </div>
-        </div>
-      );
-    }
-
-    // Manual — «Оплата по счёту / банковский перевод»
+  if (provider === "stripe") {
     return (
       <div className="grid-2">
         <div className="card">
@@ -1391,40 +1259,88 @@ const PaymentSection: React.FC<{
             <h2>Payment</h2>
           </div>
 
-          <form className="form" onSubmit={onSubmitManual} noValidate>
-            <div className="info" style={{ marginBottom: 12 }}>
-              Мы оформим заказ и вышлем вам на e-mail инструкции по оплате (счёт/реквизиты).
-              Обработка может занять 1–2 рабочих дня.
-            </div>
-
-            <CheckboxField
-              checked={acceptTerms}
-              onChange={(e) => setAcceptTerms(e.target.checked)}
-              label={
-                <>
-                  I <a href="#terms">accept the terms and conditions</a>
-                </>
-              }
+          <Elements stripe={stripePromise}>
+            <StripeForm
+              cardName={cardName}
+              setCardName={setCardName}
+              acceptTerms={acceptTerms}
+              setAcceptTerms={setAcceptTerms}
+              onPrev={onPrev}
+              onSubmitStripe={onSubmitStripe}
+              disablePay={disablePay}
+              displayTotal={displayTotal}
+              nameError={cardName.trim().length === 0 ? "Укажите имя как на карте" : undefined}
             />
-
-            <div className="actions">
-              <Button size="small" variant="secondary" onClick={onPrev} type="button">
-                Back
-              </Button>
-              <Button
-                size="small"
-                className="btn btn--xl"
-                type="submit"
-                disabled={!!disablePay || !acceptTerms}
-              >
-                Place order — {formatMoney(displayTotal)}
-              </Button>
-            </div>
-          </form>
+          </Elements>
         </div>
       </div>
     );
-  };
+  }
+
+  if (provider === "paypal") {
+    return (
+      <div className="grid-2">
+        <div className="card">
+          <div className="card__head">
+            <h2>Payment</h2>
+          </div>
+
+          <PayPalForm
+            acceptTerms={acceptTerms}
+            setAcceptTerms={setAcceptTerms}
+            onPrev={onPrev}
+            disablePay={disablePay}
+            preparePayPalPayment={preparePayPalPayment}
+            onPayPalApproved={onPayPalApproved}
+            displayTotal={displayTotal}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Manual — «Оплата по счёту / банковский перевод»
+  return (
+    <div className="grid-2">
+      <div className="card">
+        <div className="card__head">
+          <h2>Payment</h2>
+        </div>
+
+        <form className="form" onSubmit={onSubmitManual} noValidate>
+          <div className="info" style={{ marginBottom: 12 }}>
+            Мы оформим заказ и вышлем вам на e-mail инструкции по оплате (счёт/реквизиты).
+            Обработка может занять 1–2 рабочих дня.
+          </div>
+
+          <CheckboxField
+            checked={acceptTerms}
+            onChange={(e) => setAcceptTerms(e.target.checked)}
+            label={
+              <>
+                I <a href="#terms">accept the terms and conditions</a>
+              </>
+            }
+          />
+
+          <div className="actions">
+            <Button size="small" variant="secondary" onClick={onPrev} type="button">
+              Back
+            </Button>
+            <Button
+              size="small"
+              className="btn btn--xl"
+              type="submit"
+              disabled={!!disablePay || !acceptTerms}
+            >
+              Place order — {formatMoney(displayTotal)}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 // Внутренняя форма для Stripe (под <Elements>)
 const StripeForm: React.FC<{
@@ -1451,105 +1367,105 @@ const StripeForm: React.FC<{
   displayTotal,
   nameError,
 }) => {
-    const stripe = useStripe();
-    const elements = useElements();
+  const stripe = useStripe();
+  const elements = useElements();
 
-    const stripeFormOk = !!stripe && !!elements && cardName.trim().length >= 3 && acceptTerms;
-    const payDisabled = !!disablePay || !stripeFormOk;
+  const stripeFormOk = !!stripe && !!elements && cardName.trim().length >= 3 && acceptTerms;
+  const payDisabled = !!disablePay || !stripeFormOk;
 
-    const inputStyle = {
-      iconColor: "#c4f0ff",
-      fontWeight: "400",
-      lineHeight: "43px",
-      fontFamily: "Inter, Open Sans, Segoe UI, sans-serif",
-      fontSize: "16px",
-      fontSmoothing: "antialiased",
-      ":-webkit-autofill": {
-        color: "#fce883",
-      },
-      "::placeholder": {
-        color: "#9CA3AF",
-      },
-    } as any;
+  const inputStyle = {
+    iconColor: "#c4f0ff",
+    fontWeight: "400",
+    lineHeight: "43px",
+    fontFamily: "Inter, Open Sans, Segoe UI, sans-serif",
+    fontSize: "16px",
+    fontSmoothing: "antialiased",
+    ":-webkit-autofill": {
+      color: "#fce883",
+    },
+    "::placeholder": {
+      color: "#9CA3AF",
+    },
+  } as any;
 
-    return (
-      <form
-        className="form"
-        onSubmit={(e) => {
-          if (!stripe || !elements) return e.preventDefault();
-          return onSubmitStripe(e, { stripe, elements, holder: cardName.trim() });
-        }}
-        noValidate
-      >
-        <TextField
-          label="Cardholder"
-          value={cardName}
-          onChange={(e) => setCardName(e.target.value)}
-          placeholder="IVAN IVANOV"
-          required
-          autoComplete="cc-name"
-          error={nameError}
-        />
+  return (
+    <form
+      className="form"
+      onSubmit={(e) => {
+        if (!stripe || !elements) return e.preventDefault();
+        return onSubmitStripe(e, { stripe, elements, holder: cardName.trim() });
+      }}
+      noValidate
+    >
+      <TextField
+        label="Cardholder"
+        value={cardName}
+        onChange={(e) => setCardName(e.target.value)}
+        placeholder="IVAN IVANOV"
+        required
+        autoComplete="cc-name"
+        error={nameError}
+      />
 
+      <div className="field">
+        <label className="label">Card Number</label>
+        <div className="stripe-input">
+          <CardNumberElement
+            options={{
+              placeholder: "1234 1234 1234 1234",
+              style: { base: inputStyle },
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="form__row">
         <div className="field">
-          <label className="label">Card Number</label>
+          <label className="label">Expiration (MM/YY)</label>
           <div className="stripe-input">
-            <CardNumberElement
+            <CardExpiryElement
               options={{
-                placeholder: "1234 1234 1234 1234",
+                placeholder: "MM/YY",
                 style: { base: inputStyle },
               }}
             />
           </div>
         </div>
 
-        <div className="form__row">
-          <div className="field">
-            <label className="label">Expiration (MM/YY)</label>
-            <div className="stripe-input">
-              <CardExpiryElement
-                options={{
-                  placeholder: "MM/YY",
-                  style: { base: inputStyle },
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="field">
-            <label className="label">CVC</label>
-            <div className="stripe-input">
-              <CardCvcElement
-                options={{
-                  placeholder: "CVC",
-                  style: { base: inputStyle },
-                }}
-              />
-            </div>
+        <div className="field">
+          <label className="label">CVC</label>
+          <div className="stripe-input">
+            <CardCvcElement
+              options={{
+                placeholder: "CVC",
+                style: { base: inputStyle },
+              }}
+            />
           </div>
         </div>
+      </div>
 
-        <CheckboxField
-          checked={acceptTerms}
-          onChange={(e) => setAcceptTerms(e.target.checked)}
-          label={
-            <>
-              I <a href="#terms">accept the terms and conditions</a>
-            </>
-          }
-        />
+      <CheckboxField
+        checked={acceptTerms}
+        onChange={(e) => setAcceptTerms(e.target.checked)}
+        label={
+          <>
+            I <a href="#terms">accept the terms and conditions</a>
+          </>
+        }
+      />
 
-        <div className="actions">
-          <Button size="small" variant="secondary" onClick={onPrev}>
-            Back
-          </Button>
-          <Button size="small" className="btn btn--xl" type="submit" disabled={payDisabled}>
-            Pay {formatMoney(displayTotal)}
-          </Button>
-        </div>
-      </form>
-    );
-  };
+      <div className="actions">
+        <Button size="small" variant="secondary" onClick={onPrev}>
+          Back
+        </Button>
+        <Button size="small" className="btn btn--xl" type="submit" disabled={payDisabled}>
+          Pay {formatMoney(displayTotal)}
+        </Button>
+      </div>
+    </form>
+  );
+};
 
 const PayPalForm: React.FC<{
   acceptTerms: boolean;
@@ -1573,53 +1489,38 @@ const PayPalForm: React.FC<{
   preparePayPalPayment,
   onPayPalApproved,
 }) => {
-    const [busy, setBusy] = useState(false);
-    const paymentIdRef = React.useRef<string | null>(null);
-    const orderNoRef = React.useRef<string | null>(null);
-    const chRef = React.useRef<BroadcastChannel | null>(null);
+  const [busy, setBusy] = useState(false);
+  const paymentIdRef = React.useRef<string | null>(null);
+  const orderNoRef = React.useRef<string | null>(null);
+  const chRef = React.useRef<BroadcastChannel | null>(null);
 
-    const openInNewTab = async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (!acceptTerms) {
-        alert("Подтвердите согласие с условиями.");
-        return;
-      }
-      if (disablePay || busy) return;
+  const openInNewTab = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!acceptTerms) {
+      alert("Подтвердите согласие с условиями.");
+      return;
+    }
+    if (disablePay || busy) return;
 
-      setBusy(true);
-      let tab: Window | null = null;
-      let closePoll: number | null = null;
+    setBusy(true);
+    let tab: Window | null = null;
+    let closePoll: number | null = null;
 
-      const cleanup = () => {
-        if (closePoll) window.clearInterval(closePoll);
-        try {
-          chRef.current?.close();
-        } catch { }
-        window.removeEventListener("message", onMessage);
-        try {
-          tab && tab.close();
-        } catch { }
-        setBusy(false);
-      };
-
+    const cleanup = () => {
+      if (closePoll) window.clearInterval(closePoll);
       try {
-        chRef.current = new BroadcastChannel("pp-redirect");
-        chRef.current.onmessage = async (ev) => {
-          const data = ev?.data || {};
-          if (data?.type !== "paypal-approved") return;
-          try {
-            if (!paymentIdRef.current || !orderNoRef.current)
-              throw new Error("Нет paymentId/orderNo");
-            await onPayPalApproved(paymentIdRef.current, orderNoRef.current);
-          } finally {
-            cleanup();
-          }
-        };
-      } catch {
-        // старые браузеры — без BroadcastChannel
-      }
+        chRef.current?.close();
+      } catch {}
+      window.removeEventListener("message", onMessage);
+      try {
+        tab && tab.close();
+      } catch {}
+      setBusy(false);
+    };
 
-      const onMessage = async (ev: MessageEvent) => {
+    try {
+      chRef.current = new BroadcastChannel("pp-redirect");
+      chRef.current.onmessage = async (ev) => {
         const data = ev?.data || {};
         if (data?.type !== "paypal-approved") return;
         try {
@@ -1630,227 +1531,77 @@ const PayPalForm: React.FC<{
           cleanup();
         }
       };
-      window.addEventListener("message", onMessage);
+    } catch {
+      // старые браузеры — без BroadcastChannel
+    }
 
+    const onMessage = async (ev: MessageEvent) => {
+      const data = ev?.data || {};
+      if (data?.type !== "paypal-approved") return;
       try {
-        const { paypalOrderId, paymentId, orderNo, approvalUrl } = await preparePayPalPayment();
-        paymentIdRef.current = paymentId;
-        orderNoRef.current = orderNo;
-
-        const href = approvalUrl || `https://www.sandbox.paypal.com/checkoutnow?token=${paypalOrderId}`;
-
-        tab = window.open(href, "_blank");
-        if (!tab) {
-          window.location.assign(href);
-          return;
-        }
-
-        closePoll = window.setInterval(() => {
-          if (tab && tab.closed) cleanup();
-        }, 700);
-      } catch (err: any) {
-        console.error(err);
-        alert(`PayPal: не удалось начать оплату. ${err?.message ?? err}`);
-        setBusy(false);
+        if (!paymentIdRef.current || !orderNoRef.current)
+          throw new Error("Нет paymentId/orderNo");
+        await onPayPalApproved(paymentIdRef.current, orderNoRef.current);
+      } finally {
+        cleanup();
       }
     };
+    window.addEventListener("message", onMessage);
 
-    return (
-      <form className="form" onSubmit={openInNewTab} noValidate>
-        <div className="info" style={{ marginBottom: 12 }}>
-          You will be redirected to PayPal to complete your purchase — total{" "}
-          {formatMoney(displayTotal)}.
-        </div>
-        <CheckboxField
-          checked={acceptTerms}
-          onChange={(e) => setAcceptTerms(e.target.checked)}
-          label={
-            <>
-              I <a href="#terms">accept the terms and conditions</a>
-            </>
-          }
-        />
-        <div className="actions">
-          <Button size="small" variant="secondary" onClick={onPrev} type="button">
-            Back
-          </Button>
-          <Button size="small" className="btn btn--xl" type="submit" disabled={!!disablePay || busy}>
-            Pay with PayPal
-          </Button>
-        </div>
-      </form>
-    );
+    try {
+      const { paypalOrderId, paymentId, orderNo, approvalUrl } =
+        await preparePayPalPayment();
+      paymentIdRef.current = paymentId;
+      orderNoRef.current = orderNo;
+
+      const href =
+        approvalUrl ||
+        `https://www.sandbox.paypal.com/checkoutnow?token=${paypalOrderId}`;
+
+      tab = window.open(href, "_blank");
+      if (!tab) {
+        window.location.assign(href);
+        return;
+      }
+
+      closePoll = window.setInterval(() => {
+        if (tab && tab.closed) cleanup();
+      }, 700);
+    } catch (err: any) {
+      console.error(err);
+      alert(`PayPal: не удалось начать оплату. ${err?.message ?? err}`);
+      setBusy(false);
+    }
   };
 
-// ---------- Success
-const SuccessSection: React.FC<{ orderNo?: string }> = ({ orderNo }) => (
-  <div className="success card">
-    <div className="success__icon" aria-hidden>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        width="80"
-        height="80"
-        role="img"
-        aria-label="Заказ успешно оформлен"
-        style={{ "--w": 1.5, color: "#16a34a" } as React.CSSProperties}
-      >
-        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth={1 as unknown as number} opacity="0.25" />
-        <path
-          d="M7 12.5l3 3L17 9"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1 as unknown as number}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </div>
-    <h2>Thanks! Your order has been placed</h2>
-    {orderNo && (
-      <p className="success__order">
-        Order number: <strong>{orderNo}</strong>
-      </p>
-    )}
-    <p className="muted">We have sent a confirmation to your email.</p>
-    <a className="btn" href="/">
-      Continue Shopping
-    </a>
-  </div>
-);
-
-// ---- Sidebar
-const OrderSummary: React.FC<{
-  lines: import("../../context/CartContext").CartLine[];
-  subtotal: number;
-  vat: number;
-  vatLabel: string;
-  discount: number;
-  total: number;
-  promo: string;
-  setPromo: (s: string) => void;
-  promoApplied: string | null;
-  applyPromo: () => void;
-  freeThresholdCents?: number;
-  shippingCents: number;
-  loading?: boolean;
-  quoteError?: string | null;
-  quoteReason?: string | null;
-}> = ({
-  lines,
-  subtotal,
-  vat,
-  vatLabel,
-  discount,
-  total,
-  promo,
-  setPromo,
-  promoApplied,
-  applyPromo,
-  freeThresholdCents,
-  shippingCents,
-  loading,
-  quoteError,
-  quoteReason,
-}) => {
-    const promoMsg =
-      promoApplied
-        ? discount > 0
-          ? { kind: "ok", text: `Promo applied: ${promoApplied}` }
-          : {
-            kind: "warn",
-            text: quoteReason ? `Promo not applied: ${quoteReason}` : `Promo not applicable`,
-          }
-        : null;
-
-    return (
-      <div className="summary">
-        <h3>Total</h3>
-
-        {loading && (
-          <div
-            className="muted"
-            style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}
-          >
-            <div className={styles.checkout__spinner} style={{ width: 16, height: 16 }} />
-            Recalculating totals…
-          </div>
-        )}
-        {quoteError && (
-          <div className="warn" role="status" style={{ marginBottom: 8 }}>
-            Pricing service unavailable — totals are estimated.
-          </div>
-        )}
-
-        <ul className="summary__list">
-          <li>
-            <span>Items</span>
-            <span>{formatMoney(subtotal)}</span>
-          </li>
-          <li>
-            <span>Shipping</span>
-            <span>{shippingCents === 0 ? "Free" : formatMoney(shippingCents)}</span>
-          </li>
-          {discount > 0 && (
-            <li className="good">
-              <span>
-                Discount{promoApplied ? ` (${promoApplied})` : ""}
-              </span>
-              <span>-{formatMoney(discount)}</span>
-            </li>
-          )}
-          <li>
-            <span>{vatLabel}</span>
-            <span>{formatMoney(vat)}</span>
-          </li>
-          <li className="sum">
-            <span>To pay</span>
-            <span>{formatMoney(total)}</span>
-          </li>
-        </ul>
-
-        <div className="promo">
-          <TextField
-            label="Promo code"
-            className="promo__input"
-            id="promo"
-            value={promo}
-            onChange={(e) => setPromo(e.target.value)}
-            placeholder="Promo code"
-          />
-          <Button className="btn btn--ghost" size="small" disabled={!promo.trim()} onClick={applyPromo}>
-            Apply
-          </Button>
-        </div>
-
-        {promoMsg && (
-          <div className={promoMsg.kind === "ok" ? "good" : "warn"} style={{ marginTop: 6 }}>
-            {promoMsg.text}
-          </div>
-        )}
-
-        {typeof freeThresholdCents === "number" && freeThresholdCents > 0 && (
-          <div className="muted" style={{ marginTop: 8 }}>
-            Free shipment from {formatMoney(freeThresholdCents)}
-          </div>
-        )}
-
-        <div className="summary__mini">
-          {lines.length === 0 ? (
-            <p className="muted">Cart is empty</p>
-          ) : (
-            lines.map((it) => (
-              <div key={it.id} className="mini-item">
-                {it.image && <img src={it.image} alt="" />}
-                <div>
-                  <div className="mini-item__title">{it.title}</div>
-                  <div className="muted">×{it.qty}</div>
-                </div>
-                <div className="mini-item__price">{formatMoney(it.priceCents * it.qty)}</div>
-              </div>
-            ))
-          )}
-        </div>
+  return (
+    <form className="form" onSubmit={openInNewTab} noValidate>
+      <div className="info" style={{ marginBottom: 12 }}>
+        You will be redirected to PayPal to complete your purchase — total{" "}
+        {formatMoney(displayTotal)}.
       </div>
-    );
-  };
+      <CheckboxField
+        checked={acceptTerms}
+        onChange={(e) => setAcceptTerms(e.target.checked)}
+        label={
+          <>
+            I <a href="#terms">accept the terms and conditions</a>
+          </>
+        }
+      />
+      <div className="actions">
+        <Button size="small" variant="secondary" onClick={onPrev} type="button">
+          Back
+        </Button>
+        <Button
+          size="small"
+          className="btn btn--xl"
+          type="submit"
+          disabled={!!disablePay || busy}
+        >
+          Pay with PayPal
+        </Button>
+      </div>
+    </form>
+  );
+};
