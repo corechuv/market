@@ -13,7 +13,7 @@ const Header: React.FC = () => {
                 <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
                     <path d="M12 2l7 4v6c0 5-3.5 9.74-7 10-3.5-.26-7-5-7-10V6l7-4z" fill="currentColor" />
                 </svg>
-                <span>SSL Secure Checkout</span>
+                <span>SSL Secure</span>
             </div>
         </header>
     );

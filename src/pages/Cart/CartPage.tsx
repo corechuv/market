@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { vatRateFor } from "../../utils/vat";
 import { Summary } from "../../components/Checkout/Order/Summary";
 import Page from "../../components/UI/Page/Page";
+import Footer from "../../components/Footer/Footer";
 
 const PRICES_INCLUDE_VAT = true as const;
 
@@ -138,14 +139,12 @@ const CartPage: React.FC = () => {
                         loading={false}
                         quoteError={null}
                         quoteReason={null}
+                        hint={true}
                         spinnerClassName={undefined}
                     />
-                    <p className="muted" style={{ marginTop: 8 }}>
-                        Shipping costs and final discounts will be calculated during
-                        checkout.
-                    </p>
                 </aside>
             </div>
+            <Footer />
         </Page>
     );
 };

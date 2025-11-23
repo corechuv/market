@@ -25,6 +25,7 @@ export type SummaryProps = {
     loading?: boolean;
     quoteError?: string | null;
     quoteReason?: string | null;
+    hint?: boolean;
 
     /** Позволяет передать класс спиннера извне (например, styles.checkout__spinner) */
     spinnerClassName?: string;
@@ -46,6 +47,7 @@ export const Summary: React.FC<SummaryProps> = ({
     loading,
     quoteError,
     quoteReason,
+    hint = false,
     spinnerClassName,
 }) => {
     const promoMsg =
@@ -134,6 +136,19 @@ export const Summary: React.FC<SummaryProps> = ({
                 </li>
             </ul>
 
+            {hint && (
+                <p className={c.hint}>
+                    Shipping costs and final discounts will be calculated during
+                    checkout.
+                </p>
+            )}
+
+            {typeof freeThresholdCents === "number" && freeThresholdCents > 0 && (
+                <p className={c.summary__info}>
+                    Free shipment from {formatMoney(freeThresholdCents)}
+                </p>
+            )}
+
             {/* Блок промокода показываем только если передали все нужные пропсы */}
             {showPromoInput && (
                 <div className="promo">
@@ -162,12 +177,6 @@ export const Summary: React.FC<SummaryProps> = ({
                     style={{ marginTop: 6 }}
                 >
                     {promoMsg.text}
-                </div>
-            )}
-
-            {typeof freeThresholdCents === "number" && freeThresholdCents > 0 && (
-                <div className={c.summary__info}>
-                    Free shipment from {formatMoney(freeThresholdCents)}
                 </div>
             )}
 

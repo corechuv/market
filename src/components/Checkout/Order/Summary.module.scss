@@ -38,6 +38,10 @@
     }
 }
 
+.hint {
+    color: var(--muted);
+}
+
 .summary__mini {
     margin-top: 30px;
     display: grid;
@@ -67,4 +71,5 @@
 .mini-item__title {
     font-size: 1rem;
     font-weight: 500;
+    line-height: 1.3rem;
 }

@@ -17,7 +17,7 @@ $bp-lg: 1024px;
     margin-bottom: 50px;
     width: 100%;
     max-width: 1024px;
-    padding: 0 var(--gap);
+    padding: 0 calc(var(--gap) + 10px);
   }
 
   &__nav {
