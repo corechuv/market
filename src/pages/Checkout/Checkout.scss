@@ -57,11 +57,6 @@ $gap-sm: 12px;
     font-size: 1.05rem;
 }
 
-
-.card {
-    padding: 16px 0;
-}
-
 .card--ghost {
     background: $panel-2;
 }
@@ -81,12 +76,6 @@ $gap-sm: 12px;
     margin-top: 12px;
     display: flex;
     justify-content: flex-end;
-}
-
-.grid-2 {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: $gap;
 }
 
 .promo {

@@ -1,9 +1,7 @@
 // src/pages/Checkout/Checkout.module.scss
 @use "../../styles/global.module.scss";
-@use "../../styles/tabs.module.scss";
 
 .checkout {
-
     &__main {
         display: flex;
         gap: 40px;
@@ -90,52 +88,5 @@
     .checkout__steps,
     .checkout__sidebar {
         display: none !important;
-    }
-}
-
-/* Stepper */
-.steps {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    margin: 40px 0 22px;
-
-    &__item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 12px 0;
-        color: var(--muted);
-
-        &--active {
-            border-color: rgba(#808080, .6);
-            color: var(--text);
-        }
-
-        &--done {
-            color: var(--text);
-            opacity: .85;
-        }
-
-        @media screen and (max-width: 640px) {
-            gap: 7px;
-        }
-    }
-
-    &__index {
-        width: 26px;
-        height: 26px;
-        border-radius: 999px;
-        color: var(--color-text-index-step);
-        display: grid;
-        place-items: center;
-        background-color: var(--color-bg-index-step);
-        border: 1px solid var(--color-bg-index-step);
-        font-weight: 300;
-        font-size: .9rem;
-    }
-
-    &__label {
-        font-weight: 600;
     }
 }
