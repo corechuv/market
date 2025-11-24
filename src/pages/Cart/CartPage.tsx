@@ -53,7 +53,7 @@ const CartPage: React.FC = () => {
 
     const handleProceed = () => {
         if (lines.length === 0) return;
-        navigate("/checkout");
+        navigate(`/identity-gate?next=${encodeURIComponent("/checkout")}`);
     };
 
     // --- РАННИЙ RETURN ПОСЛЕ ВСЕХ ХУКОВ ---

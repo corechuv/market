@@ -1,0 +1,34 @@
+// src/pages/IdentityGate/IdentityGatePage.module.scss
+.gate {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100dvh;
+    gap: clamp(16px, 3vw, 24px);
+    text-align: center;
+
+    &__title {
+        margin: 0;
+        font-size: clamp(20px, 2.6vw, 32px);
+        font-weight: 500;
+    }
+
+    &__description {
+        color: var(--muted);
+        font-size: clamp(14px, 1.5vw, 16px);
+        margin: 0;
+    }
+
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+
+        a {
+            cursor: pointer;
+        }
+    }
+}

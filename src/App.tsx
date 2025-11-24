@@ -113,6 +113,7 @@ import InformationLayout from "./components/layouts/InformationLayout";
 import SuccessPage from "./pages/Checkout/SuccessPage";
 import CartLayout from "./components/layouts/CartLayout";
 import CartPage from "./pages/Cart/CartPage";
+import IdentityGatePage from "./pages/IdentityGate/IdentityGatePage";
 
 export default function App() {
 
@@ -142,6 +143,8 @@ export default function App() {
 
             <Route path="/videos/me" element={<MyVideosPage />} />
 
+            <Route path="/identity-gate" element={<IdentityGatePage />} />
+            
             <Route path="/account" element={<AccountPage />} />
             <Route path="/account/profile/edit" element={<ProfileEditPage />} />
 
