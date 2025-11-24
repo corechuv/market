@@ -49,7 +49,7 @@ export const CatalogScreens: React.FC<Props> = (p) => {
         background={p.mastbarBg}
       >
         {p.stage !== "L1" && (
-          <BackButton onClick={p.back} size="small" label />
+          <BackButton onClick={p.back} size="small" />
         )}
       </MasterBar>
 
