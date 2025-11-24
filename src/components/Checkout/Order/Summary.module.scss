@@ -27,14 +27,17 @@
             font-weight: 600;
         }
     }
+}
 
-    &__info {
-        padding: 10px 0;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        color: var(--muted);
-        font-size: 15px;
+$success: #1cc57e;
+$danger: #ff6b6b;
+
+.item--discount {
+    margin-bottom: 20px;
+    li {
+        span {
+            color: $success;
+        }
     }
 }
 

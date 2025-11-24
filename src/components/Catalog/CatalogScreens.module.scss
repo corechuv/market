@@ -55,22 +55,3 @@
     transform: translateX(100%);
     pointer-events: auto;
 }
-
-.back {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    border: none;
-    background: none;
-    font-size: 1.1rem;
-    font-weight: 500;
-    padding: 0;
-    height: 28px;
-    color: var(--text);
-    cursor: pointer;
-
-    svg {
-        width: 18px;
-        height: 18px;
-    }
-}

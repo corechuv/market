@@ -1,8 +1,8 @@
 // src/components/layouts/PageLayout.tsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Left from "../Icons/ChevronLeftIcon";
 import styles from "./PageLayout.module.scss";
+import BackButton from "../UI/BackButton";
 
 type PageLayoutProps = {
     title: React.ReactNode;
@@ -52,13 +52,7 @@ export default function PageLayout({
             >
                 <div className={styles.header__main}>
                     {hasBack && (
-                        <button
-                            type="button"
-                            className={styles["header__main--btn"]}
-                            onClick={handleBack}
-                        >
-                            <Left />
-                        </button>
+                        <BackButton onClick={handleBack} label={false} />
                     )}
                     <h1 className={styles["header__main--title"]}>{title}</h1>
                 </div>

@@ -1,0 +1,51 @@
+// src/components/UI/BackButton.module.scss
+.back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    background: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 0;
+    color: var(--text);
+    cursor: pointer;
+
+    .base {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(var(--background-color-input));
+        border-radius: 10px;
+    }
+
+    .small {
+        @extend .base;
+        @extend .smallBase;
+    }
+
+    .medium {
+        @extend .base;
+        @extend .mediumBase;
+    }
+}
+
+.smallBase {
+    width: 28px;
+    height: 28px;
+
+    svg {
+        width: 17px;
+        height: 17px;
+    }
+}
+
+.mediumBase {
+    width: 34px;
+    height: 34px;
+
+    svg {
+        width: 19px;
+        height: 19px;
+    }
+}

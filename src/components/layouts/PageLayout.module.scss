@@ -15,28 +15,6 @@
         gap: 20px;
         align-items: center;
 
-        &--btn {
-            display: flex;
-            justify-content: center;
-            padding: 0;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: none;
-            color: var(--btn-text-secondary);
-            background-color: var(--btn-background-secondary);
-            align-items: center;
-            font-size: 16px;
-            font-weight: 500;
-            font-family: var(--font);
-            cursor: pointer;
-
-            svg {
-                width: 24px;
-                height: 24px;
-            }
-        }
-
         &--title {
             margin: 0;
             font-size: 28px;

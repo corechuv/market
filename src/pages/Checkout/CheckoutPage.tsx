@@ -469,7 +469,7 @@ const CheckoutPage: React.FC = () => {
       if (net > 0) {
         const eff = serverQuote.vat / net;
         const pct = Math.round(eff * 100);
-        if (pct >= 1 && pct <= 27) return `Including VAT (~${pct}%)`;
+        if (pct >= 1 && pct <= 27) return `Including VAT ${pct}%`; 
       }
       return "Including VAT";
     }

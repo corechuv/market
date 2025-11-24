@@ -5,6 +5,7 @@ import Button from "../../../components/UI/Button";
 import { TextField } from "../../../components/UI/TextField";
 import { formatMoney } from "../../../utils/money";
 import c from "./Summary.module.scss";
+import Accordion from "../../UI/Accordion";
 
 export type SummaryProps = {
     lines: CartLine[];
@@ -116,18 +117,20 @@ export const Summary: React.FC<SummaryProps> = ({
                     <span>Shipping</span>
                     <span>{shippingCents === 0 ? "Free" : formatMoney(shippingCents)}</span>
                 </li>
-                {discount > 0 && (
-                    <li className={`${c["summary__list--item"]} ${"good"}`}>
-                        <span>
-                            Discount{promoApplied ? ` (${promoApplied})` : ""}
-                        </span>
-                        <span>-{formatMoney(discount)}</span>
-                    </li>
-                )}
                 <li className={c["summary__list--item"]}>
                     <span>{vatLabel}</span>
                     <span>{formatMoney(vat)}</span>
                 </li>
+                <div className={`${c["item--discount"]}`}>
+                    {discount > 0 && (
+                        <li className={`${c["summary__list--item"]}`}>
+                            <span>
+                                Discount{promoApplied ? ` (${promoApplied})` : ""}
+                            </span>
+                            <span>-{formatMoney(discount)}</span>
+                        </li>
+                    )}
+                </div>
                 <li
                     className={`${c["summary__list--item"]} ${c["summary__list--sum"]}`}
                 >
@@ -144,31 +147,33 @@ export const Summary: React.FC<SummaryProps> = ({
             )}
 
             {typeof freeThresholdCents === "number" && freeThresholdCents > 0 && (
-                <p className={c.summary__info}>
+                <p className={c.hint}>
                     Free shipment from {formatMoney(freeThresholdCents)}
                 </p>
             )}
 
             {/* Блок промокода показываем только если передали все нужные пропсы */}
             {showPromoInput && (
-                <div className="promo">
-                    <TextField
-                        label="Promo code"
-                        className="promo__input"
-                        id="promo"
-                        value={promo}
-                        onChange={(e) => setPromo!(e.target.value)}
-                        placeholder="Promo code"
-                    />
-                    <Button
-                        className="btn btn--ghost"
-                        size="small"
-                        disabled={!promo!.trim()}
-                        onClick={applyPromo}
-                    >
-                        Apply
-                    </Button>
-                </div>
+                <Accordion title="Add promocode">
+                    <div className="promo">
+                        <TextField
+                            label="Promo code"
+                            className="promo__input"
+                            id="promo"
+                            value={promo}
+                            onChange={(e) => setPromo!(e.target.value)}
+                            placeholder="Promo code"
+                        />
+                        <Button
+                            className="btn btn--ghost"
+                            size="small"
+                            disabled={!promo!.trim()}
+                            onClick={applyPromo}
+                        >
+                            Apply
+                        </Button>
+                    </div>
+                </Accordion>
             )}
 
             {promoMsg && (

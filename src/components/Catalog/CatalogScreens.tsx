@@ -5,8 +5,8 @@ import MasterBar from "../UI/Bars/MasterBar";
 import ScrollArea from "../UI/ScrollArea/ScrollArea";
 import type { Category as Cat } from "../../types/category";
 import c from "./CatalogScreens.module.scss";
-import Left from "../Icons/ChevronLeftIcon";
 import { useNavigate } from "react-router-dom";
+import BackButton from "../UI/BackButton";
 
 interface Props {
   title?: string;
@@ -49,15 +49,7 @@ export const CatalogScreens: React.FC<Props> = (p) => {
         background={p.mastbarBg}
       >
         {p.stage !== "L1" && (
-          <button
-            className={c.back}
-            onClick={p.back}
-            aria-label="Back"
-            type="button"
-          >
-            <Left />
-            Back
-          </button>
+          <BackButton onClick={p.back} size="small" label />
         )}
       </MasterBar>
 
