@@ -759,7 +759,7 @@ const CheckoutPage: React.FC = () => {
               fieldsDisabled={selectedAddressId !== "manual"}
             />
 
-            <div className="card" style={{ marginTop: 24, marginBottom: 12 }}>
+            <div>
               <div className="card__head">
                 <h2>Payment Method</h2>
               </div>
@@ -887,8 +887,8 @@ const AddressSection: React.FC<AddressSectionProps> = ({
       : null;
 
   return (
-    <div className="grid-2">
-      <div className="card">
+    <div>
+      <div>
         <div className="card__head">
           <h2>Address</h2>
         </div>
@@ -906,28 +906,30 @@ const AddressSection: React.FC<AddressSectionProps> = ({
           </div>
         )}
 
-        {/* Если выбран сохранённый адрес — показываем его отдельной карточкой */}
-        {selectedSavedAddr && (
-          <Accordion title="Selected address" defaultOpen>
-            <div>
-              <strong>
-                {selectedSavedAddr.firstName} {selectedSavedAddr.lastName}
-              </strong>
-            </div>
-            {selectedSavedAddr.company && <div>{selectedSavedAddr.company}</div>}
-            <div>{selectedSavedAddr.line1}</div>
-            {selectedSavedAddr.line2 && <div>{selectedSavedAddr.line2}</div>}
-            <div>
-              {selectedSavedAddr.postalCode} {selectedSavedAddr.city}
-            </div>
-            <div>{selectedSavedAddr.country}</div>
+        <div style={{ marginBottom: 30 }}>
+          {/* Если выбран сохранённый адрес — показываем его отдельной карточкой */}
+          {selectedSavedAddr && (
+            <Accordion title="Selected address" defaultOpen>
+              <div>
+                <strong>
+                  {selectedSavedAddr.firstName} {selectedSavedAddr.lastName}
+                </strong>
+              </div>
+              {selectedSavedAddr.company && <div>{selectedSavedAddr.company}</div>}
+              <div>{selectedSavedAddr.line1}</div>
+              {selectedSavedAddr.line2 && <div>{selectedSavedAddr.line2}</div>}
+              <div>
+                {selectedSavedAddr.postalCode} {selectedSavedAddr.city}
+              </div>
+              <div>{selectedSavedAddr.country}</div>
 
-            <p className={styles.hint}>
-              This address comes from your account. Edit it in{" "}
-              <a href="/account?tab=addresses">Addresses</a>.
-            </p>
-          </Accordion>
-        )}
+              <p className={styles.hint}>
+                This address comes from your account. Edit it in{" "}
+                <a href="/account?tab=addresses">Addresses</a>.
+              </p>
+            </Accordion>
+          )}
+        </div>
 
         {/* Форма показывается только когда выбран "manual" или нет валидного сохранённого адреса */}
         {(!selectedSavedAddr || selectedAddrId === "manual") && (
