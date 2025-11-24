@@ -27,9 +27,17 @@
     z-index: 1;
     padding: 1.5rem 1.2rem 0;
     background: var(--bg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
 
     &__title {
         @extend .titlebase;
+    }
+
+    &__right {
+
     }
 }
 
@@ -57,9 +65,8 @@
 
         &--item {
             display: grid;
-            grid-template-columns: 70px 1fr auto;
+            grid-template-columns: 20px 70px 1fr auto;
             gap: 12px;
-            align-items: center;
             padding: 24px 0;
             border-bottom: 1px dashed var(--border);
 

@@ -1,5 +1,5 @@
 // src/pages/Cart/CartPage.tsx
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import "../Checkout/Checkout.scss";
 import styles from "../Checkout/Checkout.module.scss";
 import c from "./CartPage.module.scss";
@@ -13,22 +13,37 @@ import { vatRateFor } from "../../utils/vat";
 import { Summary } from "../../components/Checkout/Order/Summary";
 import Page from "../../components/UI/Page/Page";
 import Footer from "../../components/Footer/Footer";
+import { CheckboxField } from "../../components/UI/CheckboxField";
 
 const PRICES_INCLUDE_VAT = true as const;
 
 const CartPage: React.FC = () => {
-    const { lines, inc } = useCart();
+    const { lines, inc, setSelected, setSelectedAll } = useCart();
     const navigate = useNavigate();
 
     // --- ВСЕ хуки наверху ---
+
+    // выбранные позиции
+    const selectedLines = useMemo(
+        () => lines.filter((l) => l.selected),
+        [lines]
+    );
+
+    // количество выбранных товаров
     const itemsCount = useMemo(
+        () => selectedLines.reduce((s, l) => s + l.qty, 0),
+        [selectedLines]
+    );
+
+    // количество всех товаров в корзине (для информации/бейджа)
+    const totalItemsCount = useMemo(
         () => lines.reduce((s, l) => s + l.qty, 0),
         [lines]
     );
 
     const subtotal = useMemo(
-        () => lines.reduce((s, l) => s + l.priceCents * l.qty, 0),
-        [lines]
+        () => selectedLines.reduce((s, l) => s + l.priceCents * l.qty, 0),
+        [selectedLines]
     );
 
     // На странице корзины нет доставки — считаем 0,
@@ -52,25 +67,26 @@ const CartPage: React.FC = () => {
     const vatLabel = `Including VAT (${Math.round(vatRate * 100)}%)`;
 
     const handleProceed = () => {
-        if (lines.length === 0) return;
+        if (selectedLines.length === 0) return;
         navigate(`/identity-gate?next=${encodeURIComponent("/checkout")}`);
     };
 
+    const allSelected = lines.length > 0 && lines.every((l) => l.selected);
+
+    const handleToggleAll = useCallback(() => {
+        setSelectedAll(!allSelected);
+    }, [allSelected, setSelectedAll]);
+
     // --- РАННИЙ RETURN ПОСЛЕ ВСЕХ ХУКОВ ---
-    if (itemsCount === 0) {
+    // Пустота корзины определяем по lines, а не по выбранным
+    if (lines.length === 0) {
         return (
             <Page>
                 <div className={c.cart}>
-                    <h1 className={c.cart__empty}>
-                        Cart is empty
-                    </h1>
+                    <h1 className={c.cart__empty}>Cart is empty</h1>
                     <div className={c.cart__actions}>
-                        <a onClick={() => navigate("/")}>
-                            Home
-                        </a>
-                        <a onClick={() => navigate(-1)}>
-                            Return to shopping
-                        </a>
+                        <a onClick={() => navigate("/")}>Home</a>
+                        <a onClick={() => navigate(-1)}>Return to shopping</a>
                     </div>
                 </div>
             </Page>
@@ -80,19 +96,44 @@ const CartPage: React.FC = () => {
     return (
         <Page padding={false}>
             <div className={c.mastbar}>
-                <h2 className={c.title}>
-                    Cart <span className={c.count}>({itemsCount})</span>
-                </h2>
+                <div className={c.mastbar__left}>
+                    <h2 className={c.title}>
+                        Cart{" "}
+                        <span className={c.count}>
+                            ({itemsCount}/{totalItemsCount})
+                        </span>
+                    </h2>
+                </div>
+                <div className={c.mastbar__right}>
+                    <CheckboxField
+                        checked={allSelected}
+                        onChange={handleToggleAll}
+                        label="Select all"
+                    />
+                </div>
             </div>
+
             <div className={c.main}>
                 <section className={c.section}>
-                    {lines.length === 0 ? (<></>) : (
+                    {lines.length > 0 && (
                         <ul className={c.section__list}>
                             {lines.map((it) => (
                                 <li key={it.id} className={c["section__list--item"]}>
+                                    <CheckboxField
+                                        checked={!!it.selected}
+                                        onChange={(e) => setSelected(it.id, e.target.checked)}
+                                        aria-label={`Включить/исключить ${it.title} из заказа`}
+                                    />
+
                                     {it.image && (
-                                        <img src={it.image} className={c["section__list--item--img"]} alt="" loading="lazy" />
+                                        <img
+                                            src={it.image}
+                                            className={c["section__list--item--img"]}
+                                            alt=""
+                                            loading="lazy"
+                                        />
                                     )}
+
                                     <div className={c["section__list--item--meta"]}>
                                         <h3>{it.title}</h3>
                                         <QtyStepper
@@ -105,6 +146,7 @@ const CartPage: React.FC = () => {
                                             max={99}
                                         />
                                     </div>
+
                                     <div className={c["section__list--item--meta--price"]}>
                                         {formatMoney(it.priceCents * it.qty)}
                                     </div>
@@ -112,10 +154,11 @@ const CartPage: React.FC = () => {
                             ))}
                         </ul>
                     )}
+
                     <div className="card__foot">
                         <Button
                             size="small"
-                            disabled={lines.length === 0}
+                            disabled={selectedLines.length === 0}
                             onClick={handleProceed}
                         >
                             Proceed to checkout
@@ -128,7 +171,7 @@ const CartPage: React.FC = () => {
                     aria-label="Order summary"
                 >
                     <Summary
-                        lines={lines}
+                        lines={selectedLines}
                         subtotal={subtotal}
                         vat={vat}
                         vatLabel={vatLabel}
@@ -144,6 +187,7 @@ const CartPage: React.FC = () => {
                     />
                 </aside>
             </div>
+
             <Footer />
         </Page>
     );

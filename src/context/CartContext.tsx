@@ -11,6 +11,8 @@ export type CartLine = {
     /** Price in cents, GROSS (incl. VAT) */
     priceCents: number;
     qty: number;
+    /** участвует ли эта позиция в оформляемом заказе */
+    selected: boolean;
 };
 
 export type CartState = {
@@ -20,6 +22,10 @@ export type CartState = {
     inc: (id: string, delta: number) => void;
     remove: (id: string) => void;
     clear: () => void;
+
+    setSelected: (id: string, selected: boolean) => void;
+    setSelectedAll: (selected: boolean) => void;
+    removeSelected: () => void;
 };
 
 const LS_KEY = "cart_v1";
@@ -31,7 +37,13 @@ function clamp(n: number, min: number, max: number) {
 function readLS(): CartLine[] {
     try {
         const raw = localStorage.getItem(LS_KEY);
-        return raw ? (JSON.parse(raw) as CartLine[]) : [];
+        const parsed = raw ? (JSON.parse(raw) as any[]) : [];
+        return parsed.map((l) => ({
+            ...l,
+            // если в LS уже есть selected — используем его,
+            // если нет (старые данные) — ставим true по умолчанию
+            selected: l.selected ?? true,
+        }));
     } catch {
         return [];
     }
@@ -52,10 +64,16 @@ export const CartProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
             const i = prev.findIndex((x) => x.id === line.id);
             if (i >= 0) {
                 const copy = [...prev];
-                copy[i] = { ...copy[i], qty: clamp(copy[i].qty + line.qty, 1, 99) };
+                copy[i] = {
+                    ...copy[i],
+                    qty: clamp(copy[i].qty + line.qty, 1, 99),
+                };
                 return copy;
             }
-            return [...prev, { ...line, qty: clamp(line.qty, 1, 99) }];
+            return [
+                ...prev,
+                { ...line, qty: clamp(line.qty, 1, 99), selected: line.selected ?? true },
+            ];
         });
     };
 
@@ -69,7 +87,24 @@ export const CartProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
     const clear: CartState["clear"] = () => setLines([]);
 
-    const value: CartState = { lines, add, setQty, inc, remove, clear };
+    const setSelected: CartState["setSelected"] = (id, selected) => {
+        setLines((prev) => prev.map(
+            (l) => l.id === id ? { ...l, selected } : l
+        ));
+    };
+
+    const setSelectedAll: CartState["setSelectedAll"] = (selected) => {
+        setLines((prev) => prev.map((l) => ({ ...l, selected })));
+    };
+
+    const removeSelected: CartState["removeSelected"] = () => {
+        setLines((prev) => prev.filter((l) => !l.selected));
+    };
+
+    const value: CartState = {
+        lines, add, setQty, inc, remove, clear,
+        setSelected, setSelectedAll, removeSelected,
+    };
     return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 };
 

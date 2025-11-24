@@ -25,5 +25,6 @@ export function toCartLine(product: Product, variant?: ProductVariant, qty = 1):
         image: pickImage(product, variant),
         priceCents: cents,
         qty,
+        selected: true, // по умолчанию новая позиция участвует в заказе
     };
 }
