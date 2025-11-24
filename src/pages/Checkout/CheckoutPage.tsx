@@ -50,6 +50,7 @@ import { useNavigate } from "react-router-dom";
 import { Summary } from "../../components/Checkout/Order/Summary";
 import Accordion from "../../components/UI/Accordion";
 import RadioLabel from "../../components/UI/Radio/RadioLabel";
+import Footer from "../../components/Footer/Footer";
 
 const CARRIER_LOGOS = { dhl, hermes, dpd, gls } as const;
 
@@ -740,94 +741,101 @@ const CheckoutPage: React.FC = () => {
   }, [shippingOptions]);
 
   return (
-    <Page>
-      <div className={styles.checkout}>
-        <main className={styles.checkout__main}>
-          <section className={styles.checkout__content}>
-            <AddressSection
-              address={address}
-              setAddress={setAddress}
-              shipping={shipping}
-              setShipping={setShipping}
-              shippingOptions={shippingOptions}
-              shipLoading={shipLoading}
-              shipError={shipError}
-              isAuthed={isAuthenticated}
-              savedAddresses={savedAddresses}
-              selectedAddrId={selectedAddressId}
-              onSelectSavedAddr={handleSelectSavedAddr}
-              fieldsDisabled={selectedAddressId !== "manual"}
-            />
-
-            <div>
-              <div className="card__head">
-                <h2>Payment Method</h2>
-              </div>
-              <div className={styles.radio__list}>
-                {pmOptions.map((o) => (
-                  <RadioField
-                    key={o.id}
-                    name="pm"
-                    value={o.id}
-                    checked={provider === o.id}
-                    onChange={() => setProvider(o.id)}
-                    label={
-                      <RadioLabel
-                        icon={o.icon}
-                        title={o.title}
-                        caption={o.caption}
-                      />
-                    }
-                  />
-                ))}
-              </div>
-            </div>
-
-            <PaymentSection
-              displayTotal={displayTotal}
-              acceptTerms={acceptTerms}
-              setAcceptTerms={setAcceptTerms}
-              onPrev={handleBack}
-              onSubmitManual={handlePayManual}
-              onSubmitStripe={handlePayStripe}
-              disablePay={qLoading || isPaying}
-              provider={provider}
-              preparePayPalPayment={preparePayPalPayment}
-              onPayPalApproved={onPayPalApproved}
-              canPay={canPay}
-            />
-          </section>
-
-          {/* Summary показываем на всех шагах Checkout */}
-          <aside className={styles.checkout__sidebar} aria-label="Итог заказа">
-            <Summary
-              lines={selectedLines}
-              subtotal={displaySubtotal}
-              vat={displayVat}
-              vatLabel={vatLabel}
-              discount={displayDiscount}
-              total={displayTotal}
-              promo={promo}
-              setPromo={setPromo}
-              promoApplied={promoApplied}
-              applyPromo={applyPromo}
-              freeThresholdCents={minFreeThreshold}
-              shippingCents={displayShipping}
-              loading={qLoading}
-              quoteError={qError}
-              quoteReason={serverQuote?.reason ?? null}
-              spinnerClassName={styles.checkout__spinner}
-            />
-          </aside>
-        </main>
-
-        {isPaying && (
-          <div className={styles.checkout__overlay} role="alert" aria-live="polite">
-            <div className={styles.spinner} />
-            <p>Processing payment…</p>
-          </div>
-        )}
+    <Page padding={false}>
+      <div className={styles.mastbar}>
+        <div className={styles.mastbar__left}>
+          <h2 className={styles.title}>
+            Checkout
+          </h2>
+        </div>
       </div>
+      <div className={styles.main}>
+        <section className={styles.section}>
+          <AddressSection
+            address={address}
+            setAddress={setAddress}
+            shipping={shipping}
+            setShipping={setShipping}
+            shippingOptions={shippingOptions}
+            shipLoading={shipLoading}
+            shipError={shipError}
+            isAuthed={isAuthenticated}
+            savedAddresses={savedAddresses}
+            selectedAddrId={selectedAddressId}
+            onSelectSavedAddr={handleSelectSavedAddr}
+            fieldsDisabled={selectedAddressId !== "manual"}
+          />
+
+          <div>
+            <div className="card__head">
+              <h2>Payment Method</h2>
+            </div>
+            <div className={styles.radio__list}>
+              {pmOptions.map((o) => (
+                <RadioField
+                  key={o.id}
+                  name="pm"
+                  value={o.id}
+                  checked={provider === o.id}
+                  onChange={() => setProvider(o.id)}
+                  label={
+                    <RadioLabel
+                      icon={o.icon}
+                      title={o.title}
+                      caption={o.caption}
+                    />
+                  }
+                />
+              ))}
+            </div>
+          </div>
+
+          <PaymentSection
+            displayTotal={displayTotal}
+            acceptTerms={acceptTerms}
+            setAcceptTerms={setAcceptTerms}
+            onPrev={handleBack}
+            onSubmitManual={handlePayManual}
+            onSubmitStripe={handlePayStripe}
+            disablePay={qLoading || isPaying}
+            provider={provider}
+            preparePayPalPayment={preparePayPalPayment}
+            onPayPalApproved={onPayPalApproved}
+            canPay={canPay}
+          />
+        </section>
+
+        {/* Summary показываем на всех шагах Checkout */}
+        <aside className={styles.checkout__sidebar} aria-label="Итог заказа">
+          <Summary
+            lines={selectedLines}
+            subtotal={displaySubtotal}
+            vat={displayVat}
+            vatLabel={vatLabel}
+            discount={displayDiscount}
+            total={displayTotal}
+            promo={promo}
+            setPromo={setPromo}
+            promoApplied={promoApplied}
+            applyPromo={applyPromo}
+            freeThresholdCents={minFreeThreshold}
+            shippingCents={displayShipping}
+            loading={qLoading}
+            quoteError={qError}
+            quoteReason={serverQuote?.reason ?? null}
+            spinnerClassName={styles.checkout__spinner}
+          />
+        </aside>
+      </div>
+
+      <Footer />
+
+      {isPaying && (
+        <div className={styles.checkout__overlay} role="alert" aria-live="polite">
+          <div className={styles.spinner} />
+          <p>Processing payment…</p>
+        </div>
+      )}
     </Page>
   );
 };

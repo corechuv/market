@@ -167,6 +167,7 @@ export default function App() {
             <Route path="/account/settings/change-password" element={<ChangePasswordPage />} />
             <Route path="/reset-password" element={<ChangePasswordPage />} /> {/* ← алиас */}
 
+            <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/cart" element={<CartPage />} />
 
             <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
@@ -183,7 +184,6 @@ export default function App() {
           </Route>
 
           <Route element={<CheckoutLayout />}>
-            <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/checkout/success" element={<SuccessPage />} />
             <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
           </Route>

@@ -2,7 +2,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import c from "./CheckoutLayout.module.scss";
 import Footer from "../Footer/Footer";
-import Header from "../Checkout/Header";
 
 export default function CheckoutLayout() {
   const location = useLocation();
@@ -17,7 +16,6 @@ export default function CheckoutLayout() {
   // Обычный checkout с шапкой и футером
   return (
     <div className={c.m}>
-      <Header />
       <Outlet />
       <Footer />
     </div>
