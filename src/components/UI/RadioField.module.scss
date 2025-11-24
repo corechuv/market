@@ -1,0 +1,60 @@
+// src/components/UI/RadioField.module.scss
+.option {
+    display: grid;
+    grid-template-columns: 20px auto;
+    align-items: center;
+    gap: 0.6rem;
+    user-select: none;
+    cursor: pointer;
+
+    &:has(.radio:disabled) {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+}
+
+.radio {
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border: none;
+    border-radius: 50%; // круг
+    background-color: var(--bg-checkbox);
+    position: relative;
+    margin: 0;
+    cursor: inherit;
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease,
+        box-shadow 0.15s ease;
+
+    // внутренний кружочек
+    &::after {
+        content: "";
+        position: absolute;
+        inset: 5px; // расстояние от края
+        border-radius: 50%;
+        background: transparent;
+        transition: background 0.15s ease;
+    }
+
+    &:checked {
+        border-color: none;
+        background: var(--color-border-checkbox);
+    }
+
+    &:checked::after {
+        background: var(--bg-radio-after);
+    }
+
+    &:disabled {
+        background: var(--cb-disabled-bg);
+        border-color: var(--cb-border);
+    }
+}
+
+.label {
+    color: var(--muted);
+    font-size: 0.95rem;
+    width: 100%;
+}

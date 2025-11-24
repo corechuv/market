@@ -35,7 +35,7 @@ import { vatRateFor } from "../../utils/vat";
 import Button from "../../components/UI/Button";
 import { TextField } from "../../components/UI/TextField";
 import { CheckboxField } from "../../components/UI/CheckboxField";
-import RadioCard from "../../components/UI/RadioCard";
+import { RadioField } from "../../components/UI/RadioField";
 
 import dpd from "/dpd.png";
 import dhl from "/dhl.png";
@@ -48,6 +48,8 @@ import amex from "@/assets/svg/amex.svg";
 import Page from "../../components/UI/Page/Page";
 import { useNavigate } from "react-router-dom";
 import { Summary } from "../../components/Checkout/Order/Summary";
+import Accordion from "../../components/UI/Accordion";
+import RadioLabel from "../../components/UI/Radio/RadioLabel";
 
 const CARRIER_LOGOS = { dhl, hermes, dpd, gls } as const;
 
@@ -788,17 +790,24 @@ const CheckoutPage: React.FC = () => {
                   <div className="card__head">
                     <h2>Payment Method</h2>
                   </div>
-                  <RadioCard
-                    name="pm"
-                    value={provider}
-                    onChangeValue={(id) => setProvider(id as ProviderId)}
-                    items={pmOptions.map((o) => ({
-                      id: o.id,
-                      title: o.title,
-                      caption: o.caption,
-                      icon: o.icon,
-                    }))}
-                  />
+                  <div className={styles.radio__list}>
+                    {pmOptions.map((o) => (
+                      <RadioField
+                        key={o.id}
+                        name="pm"
+                        value={o.id}
+                        checked={provider === o.id}
+                        onChange={() => setProvider(o.id)}
+                        label={
+                          <RadioLabel
+                            icon={o.icon}
+                            title={o.title}
+                            caption={o.caption}
+                          />
+                        }
+                      />
+                    ))}
+                  </div>
                 </div>
 
                 <PaymentSection
@@ -903,13 +912,17 @@ const AddressSection: React.FC<AddressSectionProps> = ({
     canContinue && !!shipping && !shipLoading && !shipError && shippingOptions.length > 0;
 
   const addrOptions = [
-    { value: "manual", label: "— Enter a new address —" },
+    { value: "manual", label: "Enter a new address" },
     ...savedAddresses.map((a) => ({
       value: a.id,
-      label: `${a.isDefault ? "Default • " : ""}${a.firstName} ${a.lastName}, ${a.city
-        }, ${a.country}`,
+      label: `${a.isDefault ? "Default • " : ""}${a.firstName} ${a.lastName}, ${a.city}, ${a.country}`,
     })),
   ];
+
+  const selectedSavedAddr =
+    selectedAddrId !== "manual"
+      ? savedAddresses.find((a) => a.id === selectedAddrId)
+      : null;
 
   return (
     <div className="grid-2">
@@ -919,7 +932,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({
         </div>
 
         {isAuthed && savedAddresses.length > 0 && (
-          <div className="form" style={{ marginBottom: 8 }}>
+          <div className="form" style={{ marginBottom: 40 }}>
             <SelectField
               label="Saved address"
               value={selectedAddrId}
@@ -928,99 +941,119 @@ const AddressSection: React.FC<AddressSectionProps> = ({
               minWidth="100%"
               dropdownMinWidth="100%"
             />
-            {selectedAddrId !== "manual" && (
-              <div className="muted" style={{ marginTop: 6 }}>
-                This address comes from your account. Edit it in{" "}
-                <a href="/account?tab=addresses">Addresses</a>.
-              </div>
-            )}
           </div>
         )}
 
-        <form className="form" onSubmit={(e) => e.preventDefault()}>
-          <div className="form__row">
-            <TextField
-              label="First Name"
-              value={address.firstName}
-              onChange={set("firstName")}
-              placeholder="John"
-              required
-              disabled={fieldsDisabled}
-            />
-            <TextField
-              label="Last Name"
-              value={address.lastName}
-              onChange={set("lastName")}
-              placeholder="Doe"
-              required
-              disabled={fieldsDisabled}
-            />
-          </div>
-          <div className="form__row">
-            <TextField
-              label="Email"
-              type="email"
-              value={address.email}
-              onChange={set("email")}
-              placeholder="name@mail.com"
-              required
-              disabled={fieldsDisabled}
-            />
-            <TextField
-              label="Phone"
-              value={address.phone}
-              onChange={set("phone")}
-              placeholder="+49 170 000000"
-              required
-              disabled={fieldsDisabled}
-            />
-          </div>
-          <div className="form__row">
-            <TextField
-              label="Address 1"
-              value={address.line1}
-              onChange={set("line1")}
-              placeholder="Unter den Linden 1"
-              required
-              disabled={fieldsDisabled}
-            />
-            <TextField
-              label="Address 2 (optional)"
-              value={address.line2 ?? ""}
-              onChange={set("line2")}
-              placeholder="Apt, suite, etc."
-              disabled={fieldsDisabled}
-            />
-          </div>
-          <div className="form__row">
-            <TextField
-              label="City"
-              value={address.city}
-              onChange={set("city")}
-              placeholder="Berlin"
-              required
-              disabled={fieldsDisabled}
-            />
-            <TextField
-              label="Country"
-              value={address.country}
-              onChange={set("country")}
-              placeholder="Deutschland"
-              required
-              disabled={fieldsDisabled}
-            />
-          </div>
-          <div className="form__row">
-            <TextField
-              label="Postal Code"
-              value={address.postalCode}
-              onChange={set("postalCode")}
-              placeholder="10115"
-              required
-              disabled={fieldsDisabled}
-            />
-          </div>
-        </form>
+        {/* Если выбран сохранённый адрес — показываем его отдельной карточкой */}
+        {selectedSavedAddr && (
+          <Accordion title="Selected address" defaultOpen>
+            <div>
+              <strong>
+                {selectedSavedAddr.firstName} {selectedSavedAddr.lastName}
+              </strong>
+            </div>
+            {selectedSavedAddr.company && <div>{selectedSavedAddr.company}</div>}
+            <div>{selectedSavedAddr.line1}</div>
+            {selectedSavedAddr.line2 && <div>{selectedSavedAddr.line2}</div>}
+            <div>
+              {selectedSavedAddr.postalCode} {selectedSavedAddr.city}
+            </div>
+            <div>{selectedSavedAddr.country}</div>
+
+            <p className={styles.hint}>
+              This address comes from your account. Edit it in{" "}
+              <a href="/account?tab=addresses">Addresses</a>.
+            </p>
+          </Accordion>
+        )}
+
+        {/* Форма показывается только когда выбран "manual" или нет валидного сохранённого адреса */}
+        {(!selectedSavedAddr || selectedAddrId === "manual") && (
+          <form className="form" onSubmit={(e) => e.preventDefault()}>
+            <div className="form__row">
+              <TextField
+                label="First Name"
+                value={address.firstName}
+                onChange={set("firstName")}
+                placeholder="John"
+                required
+                disabled={fieldsDisabled}
+              />
+              <TextField
+                label="Last Name"
+                value={address.lastName}
+                onChange={set("lastName")}
+                placeholder="Doe"
+                required
+                disabled={fieldsDisabled}
+              />
+            </div>
+            <div className="form__row">
+              <TextField
+                label="Email"
+                type="email"
+                value={address.email}
+                onChange={set("email")}
+                placeholder="name@mail.com"
+                required
+                disabled={fieldsDisabled}
+              />
+              <TextField
+                label="Phone"
+                value={address.phone}
+                onChange={set("phone")}
+                placeholder="+49 170 000000"
+                required
+                disabled={fieldsDisabled}
+              />
+            </div>
+            <div className="form__row">
+              <TextField
+                label="Address 1"
+                value={address.line1}
+                onChange={set("line1")}
+                placeholder="Unter den Linden 1"
+                required
+                disabled={fieldsDisabled}
+              />
+              <TextField
+                label="Address 2 (optional)"
+                value={address.line2 ?? ""}
+                onChange={set("line2")}
+                placeholder="Apt, suite, etc."
+                disabled={fieldsDisabled}
+              />
+            </div>
+            <div className="form__row">
+              <TextField
+                label="City"
+                value={address.city}
+                onChange={set("city")}
+                placeholder="Berlin"
+                required
+                disabled={fieldsDisabled}
+              />
+              <TextField
+                label="Country"
+                value={address.country}
+                onChange={set("country")}
+                placeholder="Deutschland"
+                required
+                disabled={fieldsDisabled}
+              />
+            </div>
+            <div className="form__row">
+              <TextField
+                label="Postal Code"
+                value={address.postalCode}
+                onChange={set("postalCode")}
+                placeholder="10115"
+                required
+                disabled={fieldsDisabled}
+              />
+            </div>
+          </form>
+        )}
       </div>
 
       <div className="card">
@@ -1046,25 +1079,31 @@ const AddressSection: React.FC<AddressSectionProps> = ({
           <div className="muted">No shipping methods available for your country.</div>
         )}
 
-        <RadioCard
-          name="shipping"
-          value={shipping?.id ?? ""}
-          onChangeValue={(id) => {
-            const found = shippingOptions.find((o) => o.id === id);
-            if (found) setShipping(found);
-          }}
-          items={shippingOptions.map((m) => ({
-            id: m.id,
-            title: <strong>{m.label}</strong>,
-            subtitle: (
-              <span>
-                ({m.effectivePriceCents === 0 ? "Free" : formatMoney(m.effectivePriceCents)})
-              </span>
-            ),
-            caption: m.eta && <span className="muted">{m.eta}</span>,
-            icon: carrierIconFor(m),
-          }))}
-        />
+        <div className={styles.radio__list}>
+          {shippingOptions.map((m) => (
+            <RadioField
+              key={m.id}
+              name="shipping"
+              value={m.id}
+              checked={shipping?.id === m.id}
+              onChange={() => setShipping(m)}
+              label={
+                <RadioLabel
+                  icon={carrierIconFor(m)}
+                  title={<strong>{m.label}</strong>}
+                  meta={
+                    <span>
+                      {m.effectivePriceCents === 0
+                        ? "Free"
+                        : formatMoney(m.effectivePriceCents)}
+                    </span>
+                  }
+                  caption={m.eta && <span className="muted">{m.eta}</span>}
+                />
+              }
+            />
+          ))}
+        </div>
       </div>
 
       <div className="actions">

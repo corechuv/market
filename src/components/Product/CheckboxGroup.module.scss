@@ -41,7 +41,7 @@
   appearance: none;
   width: 20px;
   height: 20px;
-  border: 1px solid var(--color-border-checkbox);
+  border: none;
   border-radius: 5px;
   background-color: var(--bg-checkbox);
   position: relative;
@@ -54,7 +54,7 @@
 
   &:checked {
     background: var(--cb-fill);
-    border-color: var(--cb-border-checked);
+    /*border-color: var(--cb-border-checked);*/
 
     /* делаем SVG видимым как «прорезь» */
     mask: var(--check-svg) center/80% no-repeat;
@@ -63,7 +63,7 @@
 
   &:disabled {
     background: var(--cb-disabled-bg);
-    border-color: var(--cb-border);
+    /*border-color: var(--cb-border);*/
   }
 }
 

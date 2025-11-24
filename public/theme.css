@@ -158,6 +158,10 @@ body[data-theme='light'] {
   --bg-skeleton: linear-gradient(90deg, transparent, rgba(54, 54, 54, 0.2), transparent);
   --bg-skeleton_v2: linear-gradient(90deg, #ededed 25%, #f6f6f6 37%, #ededed 63%);
 
+
+  /* Radio */
+  --bg-radio-after: #7e7e7e;
+
   color-scheme: light;
 }
 
@@ -317,6 +321,10 @@ body[data-theme='dark'] {
   /* Skeleton */
   --bg-skeleton: linear-gradient(90deg, transparent, rgba(54, 54, 54, 0.2), transparent);
   --bg-skeleton_v2: linear-gradient(90deg, rgba(50, 50, 50, 0.1) 25%, rgb(14, 14, 14) 37%, rgba(50, 50, 50, 0.1) 63%);
+
+
+  /* Radio */
+  --bg-radio-after: white;
 
   color-scheme: dark;
 }
