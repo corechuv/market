@@ -211,33 +211,33 @@ const CheckoutPage: React.FC = () => {
     caption?: React.ReactNode;
     icon?: React.ReactNode;
   }> = [
-    {
-      id: "stripe",
-      title: <strong>Card payment</strong>,
-      icon: (
-        <>
-          <img loading="lazy" src={theme === "dark" ? visa : visa} alt="" />
-          <img loading="lazy" src={theme === "dark" ? mastercard : mastercard} alt="" />
-          <img loading="lazy" src={theme === "dark" ? amex : amex} alt="" />
-        </>
-      ),
-    },
-    {
-      id: "paypal",
-      title: <strong>PayPal</strong>,
-      icon: <img loading="lazy" src={theme === "dark" ? paypal : paypal} alt="" />,
-    },
-    {
-      id: "invoice",
-      title: <strong>Bank transfer / Invoice</strong>,
-      caption: <span className="muted">We’ll send payment instructions by email</span>,
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
-          <path d="M12 3l9 5v2H3V8l9-5zM4 11h16v8H4z" fill="currentColor" />
-        </svg>
-      ),
-    },
-  ];
+      {
+        id: "stripe",
+        title: "Card payment",
+        icon: (
+          <>
+            <img loading="lazy" src={theme === "dark" ? visa : visa} alt="" />
+            <img loading="lazy" src={theme === "dark" ? mastercard : mastercard} alt="" />
+            <img loading="lazy" src={theme === "dark" ? amex : amex} alt="" />
+          </>
+        ),
+      },
+      {
+        id: "paypal",
+        title: "PayPal",
+        icon: <img loading="lazy" src={theme === "dark" ? paypal : paypal} alt="" />,
+      },
+      {
+        id: "invoice",
+        title: "Bank transfer / Invoice",
+        caption: "We’ll send payment instructions by email",
+        icon: (
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
+            <path d="M12 3l9 5v2H3V8l9-5zM4 11h16v8H4z" fill="currentColor" />
+          </svg>
+        ),
+      },
+    ];
 
   const { lines, removeSelected } = useCart();
 
@@ -334,7 +334,7 @@ const CheckoutPage: React.FC = () => {
   useEffect(() => {
     try {
       localStorage.setItem(CHECKOUT_ADDR_LS_KEY, JSON.stringify(address));
-    } catch {}
+    } catch { }
   }, [address]);
 
   // Totals
@@ -870,8 +870,8 @@ const AddressSection: React.FC<AddressSectionProps> = ({
 }) => {
   const set =
     (k: keyof FormAddress) =>
-    (e: React.ChangeEvent<HTMLInputElement>) =>
-      setAddress({ ...address, [k]: e.target.value });
+      (e: React.ChangeEvent<HTMLInputElement>) =>
+        setAddress({ ...address, [k]: e.target.value });
 
   const addrOptions = [
     { value: "manual", label: "Enter a new address" },
@@ -1018,7 +1018,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({
         )}
       </div>
 
-      <div className="card">
+      <div>
         <div className="card__head">
           <h2>Shipping Method</h2>
         </div>
@@ -1052,7 +1052,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({
               label={
                 <RadioLabel
                   icon={carrierIconFor(m)}
-                  title={<strong>{m.label}</strong>}
+                  title={m.label}
                   meta={
                     <span>
                       {m.effectivePriceCents === 0
@@ -1105,12 +1105,11 @@ const PaymentSection: React.FC<{
   onPayPalApproved,
   canPay,
 }) => {
-  const [cardName, setCardName] = useState("");
+    const [cardName, setCardName] = useState("");
 
-  if (provider === "stripe") {
-    return (
-      <div className="grid-2">
-        <div className="card">
+    if (provider === "stripe") {
+      return (
+        <div>
           <div className="card__head">
             <h2>Payment</h2>
           </div>
@@ -1130,14 +1129,12 @@ const PaymentSection: React.FC<{
             />
           </Elements>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  if (provider === "paypal") {
-    return (
-      <div className="grid-2">
-        <div className="card">
+    if (provider === "paypal") {
+      return (
+        <div>
           <div className="card__head">
             <h2>Payment</h2>
           </div>
@@ -1153,14 +1150,12 @@ const PaymentSection: React.FC<{
             canPay={canPay}
           />
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  // Manual — «Оплата по счёту / банковский перевод»
-  return (
-    <div className="grid-2">
-      <div className="card">
+    // Manual — «Оплата по счёту / банковский перевод»
+    return (
+      <div>
         <div className="card__head">
           <h2>Payment</h2>
         </div>
@@ -1206,9 +1201,8 @@ const PaymentSection: React.FC<{
           </div>
         </form>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
 // Внутренняя форма для Stripe (под <Elements>)
 const StripeForm: React.FC<{
@@ -1237,105 +1231,105 @@ const StripeForm: React.FC<{
   nameError,
   canPay,
 }) => {
-  const stripe = useStripe();
-  const elements = useElements();
+    const stripe = useStripe();
+    const elements = useElements();
 
-  const stripeFormOk = !!stripe && !!elements && cardName.trim().length >= 3 && acceptTerms;
-  const payDisabled = !!disablePay || !stripeFormOk || !canPay;
+    const stripeFormOk = !!stripe && !!elements && cardName.trim().length >= 3 && acceptTerms;
+    const payDisabled = !!disablePay || !stripeFormOk || !canPay;
 
-  const inputStyle = {
-    iconColor: "#c4f0ff",
-    fontWeight: "400",
-    lineHeight: "43px",
-    fontFamily: "Inter, Open Sans, Segoe UI, sans-serif",
-    fontSize: "16px",
-    fontSmoothing: "antialiased",
-    ":-webkit-autofill": {
-      color: "#fce883",
-    },
-    "::placeholder": {
-      color: "#9CA3AF",
-    },
-  } as any;
+    const inputStyle = {
+      iconColor: "#c4f0ff",
+      fontWeight: "400",
+      lineHeight: "43px",
+      fontFamily: "Inter, Open Sans, Segoe UI, sans-serif",
+      fontSize: "16px",
+      fontSmoothing: "antialiased",
+      ":-webkit-autofill": {
+        color: "#fce883",
+      },
+      "::placeholder": {
+        color: "#9CA3AF",
+      },
+    } as any;
 
-  return (
-    <form
-      className="form"
-      onSubmit={(e) => {
-        if (!stripe || !elements || !canPay) return e.preventDefault();
-        return onSubmitStripe(e, { stripe, elements, holder: cardName.trim() });
-      }}
-      noValidate
-    >
-      <TextField
-        label="Cardholder"
-        value={cardName}
-        onChange={(e) => setCardName(e.target.value)}
-        placeholder="IVAN IVANOV"
-        required
-        autoComplete="cc-name"
-        error={nameError}
-      />
+    return (
+      <form
+        className="form"
+        onSubmit={(e) => {
+          if (!stripe || !elements || !canPay) return e.preventDefault();
+          return onSubmitStripe(e, { stripe, elements, holder: cardName.trim() });
+        }}
+        noValidate
+      >
+        <TextField
+          label="Cardholder"
+          value={cardName}
+          onChange={(e) => setCardName(e.target.value)}
+          placeholder="IVAN IVANOV"
+          required
+          autoComplete="cc-name"
+          error={nameError}
+        />
 
-      <div className="field">
-        <label className="label">Card Number</label>
-        <div className="stripe-input">
-          <CardNumberElement
-            options={{
-              placeholder: "1234 1234 1234 1234",
-              style: { base: inputStyle },
-            }}
-          />
-        </div>
-      </div>
-
-      <div className="form__row">
         <div className="field">
-          <label className="label">Expiration (MM/YY)</label>
+          <label className="label">Card Number</label>
           <div className="stripe-input">
-            <CardExpiryElement
+            <CardNumberElement
               options={{
-                placeholder: "MM/YY",
+                placeholder: "1234 1234 1234 1234",
                 style: { base: inputStyle },
               }}
             />
           </div>
         </div>
 
-        <div className="field">
-          <label className="label">CVC</label>
-          <div className="stripe-input">
-            <CardCvcElement
-              options={{
-                placeholder: "CVC",
-                style: { base: inputStyle },
-              }}
-            />
+        <div className="form__row">
+          <div className="field">
+            <label className="label">Expiration (MM/YY)</label>
+            <div className="stripe-input">
+              <CardExpiryElement
+                options={{
+                  placeholder: "MM/YY",
+                  style: { base: inputStyle },
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="field">
+            <label className="label">CVC</label>
+            <div className="stripe-input">
+              <CardCvcElement
+                options={{
+                  placeholder: "CVC",
+                  style: { base: inputStyle },
+                }}
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <CheckboxField
-        checked={acceptTerms}
-        onChange={(e) => setAcceptTerms(e.target.checked)}
-        label={
-          <>
-            I <a href="#terms">accept the terms and conditions</a>
-          </>
-        }
-      />
+        <CheckboxField
+          checked={acceptTerms}
+          onChange={(e) => setAcceptTerms(e.target.checked)}
+          label={
+            <>
+              I <a href="#terms">accept the terms and conditions</a>
+            </>
+          }
+        />
 
-      <div className="actions">
-        <Button size="small" variant="secondary" onClick={onPrev}>
-          Back
-        </Button>
-        <Button size="small" className="btn btn--xl" type="submit" disabled={payDisabled}>
-          Pay {formatMoney(displayTotal)}
-        </Button>
-      </div>
-    </form>
-  );
-};
+        <div className="actions">
+          <Button size="small" variant="secondary" onClick={onPrev}>
+            Back
+          </Button>
+          <Button size="small" className="btn btn--xl" type="submit" disabled={payDisabled}>
+            Pay {formatMoney(displayTotal)}
+          </Button>
+        </div>
+      </form>
+    );
+  };
 
 const PayPalForm: React.FC<{
   acceptTerms: boolean;
@@ -1361,41 +1355,56 @@ const PayPalForm: React.FC<{
   onPayPalApproved,
   canPay,
 }) => {
-  const [busy, setBusy] = useState(false);
-  const paymentIdRef = React.useRef<string | null>(null);
-  const orderNoRef = React.useRef<string | null>(null);
-  const chRef = React.useRef<BroadcastChannel | null>(null);
+    const [busy, setBusy] = useState(false);
+    const paymentIdRef = React.useRef<string | null>(null);
+    const orderNoRef = React.useRef<string | null>(null);
+    const chRef = React.useRef<BroadcastChannel | null>(null);
 
-  const openInNewTab = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!acceptTerms) {
-      alert("Подтвердите согласие с условиями.");
-      return;
-    }
-    if (!canPay) {
-      return;
-    }
-    if (disablePay || busy) return;
+    const openInNewTab = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (!acceptTerms) {
+        alert("Подтвердите согласие с условиями.");
+        return;
+      }
+      if (!canPay) {
+        return;
+      }
+      if (disablePay || busy) return;
 
-    setBusy(true);
-    let tab: Window | null = null;
-    let closePoll: number | null = null;
+      setBusy(true);
+      let tab: Window | null = null;
+      let closePoll: number | null = null;
 
-    const cleanup = () => {
-      if (closePoll) window.clearInterval(closePoll);
+      const cleanup = () => {
+        if (closePoll) window.clearInterval(closePoll);
+        try {
+          chRef.current?.close();
+        } catch { }
+        window.removeEventListener("message", onMessage);
+        try {
+          tab && tab.close();
+        } catch { }
+        setBusy(false);
+      };
+
       try {
-        chRef.current?.close();
-      } catch {}
-      window.removeEventListener("message", onMessage);
-      try {
-        tab && tab.close();
-      } catch {}
-      setBusy(false);
-    };
+        chRef.current = new BroadcastChannel("pp-redirect");
+        chRef.current.onmessage = async (ev) => {
+          const data = ev?.data || {};
+          if (data?.type !== "paypal-approved") return;
+          try {
+            if (!paymentIdRef.current || !orderNoRef.current)
+              throw new Error("Нет paymentId/orderNo");
+            await onPayPalApproved(paymentIdRef.current, orderNoRef.current);
+          } finally {
+            cleanup();
+          }
+        };
+      } catch {
+        // старые браузеры — без BroadcastChannel
+      }
 
-    try {
-      chRef.current = new BroadcastChannel("pp-redirect");
-      chRef.current.onmessage = async (ev) => {
+      const onMessage = async (ev: MessageEvent) => {
         const data = ev?.data || {};
         if (data?.type !== "paypal-approved") return;
         try {
@@ -1406,78 +1415,63 @@ const PayPalForm: React.FC<{
           cleanup();
         }
       };
-    } catch {
-      // старые браузеры — без BroadcastChannel
-    }
+      window.addEventListener("message", onMessage);
 
-    const onMessage = async (ev: MessageEvent) => {
-      const data = ev?.data || {};
-      if (data?.type !== "paypal-approved") return;
       try {
-        if (!paymentIdRef.current || !orderNoRef.current)
-          throw new Error("Нет paymentId/orderNo");
-        await onPayPalApproved(paymentIdRef.current, orderNoRef.current);
-      } finally {
-        cleanup();
+        const { paypalOrderId, paymentId, orderNo, approvalUrl } =
+          await preparePayPalPayment();
+        paymentIdRef.current = paymentId;
+        orderNoRef.current = orderNo;
+
+        const href =
+          approvalUrl ||
+          `https://www.sandbox.paypal.com/checkoutnow?token=${paypalOrderId}`;
+
+        const tabWin = window.open(href, "_blank");
+        tab = tabWin;
+        if (!tabWin) {
+          window.location.assign(href);
+          return;
+        }
+
+        closePoll = window.setInterval(() => {
+          if (tab && tab.closed) cleanup();
+        }, 700);
+      } catch (err: any) {
+        console.error(err);
+        alert(`PayPal: не удалось начать оплату. ${err?.message ?? err}`);
+        setBusy(false);
       }
     };
-    window.addEventListener("message", onMessage);
 
-    try {
-      const { paypalOrderId, paymentId, orderNo, approvalUrl } =
-        await preparePayPalPayment();
-      paymentIdRef.current = paymentId;
-      orderNoRef.current = orderNo;
-
-      const href =
-        approvalUrl ||
-        `https://www.sandbox.paypal.com/checkoutnow?token=${paypalOrderId}`;
-
-      const tabWin = window.open(href, "_blank");
-      tab = tabWin;
-      if (!tabWin) {
-        window.location.assign(href);
-        return;
-      }
-
-      closePoll = window.setInterval(() => {
-        if (tab && tab.closed) cleanup();
-      }, 700);
-    } catch (err: any) {
-      console.error(err);
-      alert(`PayPal: не удалось начать оплату. ${err?.message ?? err}`);
-      setBusy(false);
-    }
+    return (
+      <form className="form" onSubmit={openInNewTab} noValidate>
+        <div className="info" style={{ marginBottom: 12 }}>
+          You will be redirected to PayPal to complete your purchase — total{" "}
+          {formatMoney(displayTotal)}.
+        </div>
+        <CheckboxField
+          checked={acceptTerms}
+          onChange={(e) => setAcceptTerms(e.target.checked)}
+          label={
+            <>
+              I <a href="#terms">accept the terms and conditions</a>
+            </>
+          }
+        />
+        <div className="actions">
+          <Button size="small" variant="secondary" onClick={onPrev} type="button">
+            Back
+          </Button>
+          <Button
+            size="small"
+            className="btn btn--xl"
+            type="submit"
+            disabled={!!disablePay || busy || !canPay}
+          >
+            Pay with PayPal
+          </Button>
+        </div>
+      </form>
+    );
   };
-
-  return (
-    <form className="form" onSubmit={openInNewTab} noValidate>
-      <div className="info" style={{ marginBottom: 12 }}>
-        You will be redirected to PayPal to complete your purchase — total{" "}
-        {formatMoney(displayTotal)}.
-      </div>
-      <CheckboxField
-        checked={acceptTerms}
-        onChange={(e) => setAcceptTerms(e.target.checked)}
-        label={
-          <>
-            I <a href="#terms">accept the terms and conditions</a>
-          </>
-        }
-      />
-      <div className="actions">
-        <Button size="small" variant="secondary" onClick={onPrev} type="button">
-          Back
-        </Button>
-        <Button
-          size="small"
-          className="btn btn--xl"
-          type="submit"
-          disabled={!!disablePay || busy || !canPay}
-        >
-          Pay with PayPal
-        </Button>
-      </div>
-    </form>
-  );
-};
