@@ -29,6 +29,12 @@
     }
 }
 
+.listAccodrion {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
 $success: #1cc57e;
 $danger: #ff6b6b;
 
@@ -46,7 +52,6 @@ $danger: #ff6b6b;
 }
 
 .summary__mini {
-    margin-top: 30px;
     display: grid;
     gap: 10px;
 }

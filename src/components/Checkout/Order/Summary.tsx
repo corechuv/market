@@ -152,56 +152,58 @@ export const Summary: React.FC<SummaryProps> = ({
                 </p>
             )}
 
-            {/* Блок промокода показываем только если передали все нужные пропсы */}
-            {showPromoInput && (
-                <Accordion title="Add promocode">
-                    <div className="promo">
-                        <TextField
-                            label="Promo code"
-                            className="promo__input"
-                            id="promo"
-                            value={promo}
-                            onChange={(e) => setPromo!(e.target.value)}
-                            placeholder="Promo code"
-                        />
-                        <Button
-                            className="btn btn--ghost"
-                            size="small"
-                            disabled={!promo!.trim()}
-                            onClick={applyPromo}
-                        >
-                            Apply
-                        </Button>
+            <div className={c.listAccodrion}>
+                {/* Блок промокода показываем только если передали все нужные пропсы */}
+                {showPromoInput && (
+                    <Accordion title="Add promocode">
+                        <div className="promo">
+                            <TextField
+                                label="Promo code"
+                                className="promo__input"
+                                id="promo"
+                                value={promo}
+                                onChange={(e) => setPromo!(e.target.value)}
+                                placeholder="Promo code"
+                            />
+                            <Button
+                                className="btn btn--ghost"
+                                size="small"
+                                disabled={!promo!.trim()}
+                                onClick={applyPromo}
+                            >
+                                Apply
+                            </Button>
+                        </div>
+                        {promoMsg && (
+                            <div
+                                className={promoMsg.kind === "ok" ? "good" : "warn"}
+                                style={{ marginTop: 6 }}
+                            >
+                                {promoMsg.text}
+                            </div>
+                        )}
+                    </Accordion>
+                )}
+                <Accordion title="Selected" defaultOpen>
+                    <div className={c.summary__mini}>
+                        {lines.length === 0 ? (
+                            <p className="muted">Empty</p>
+                        ) : (
+                            lines.map((it) => (
+                                <div key={it.id} className="mini-item">
+                                    {it.image && <img src={it.image} alt="" />}
+                                    <div>
+                                        <div className="mini-item__title">{it.title}</div>
+                                        <div className="muted">×{it.qty}</div>
+                                    </div>
+                                    <div className="mini-item__price">
+                                        {formatMoney(it.priceCents * it.qty)}
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </Accordion>
-            )}
-
-            {promoMsg && (
-                <div
-                    className={promoMsg.kind === "ok" ? "good" : "warn"}
-                    style={{ marginTop: 6 }}
-                >
-                    {promoMsg.text}
-                </div>
-            )}
-
-            <div className="summary__mini">
-                {lines.length === 0 ? (
-                    <p className="muted">Cart is empty</p>
-                ) : (
-                    lines.map((it) => (
-                        <div key={it.id} className="mini-item">
-                            {it.image && <img src={it.image} alt="" />}
-                            <div>
-                                <div className="mini-item__title">{it.title}</div>
-                                <div className="muted">×{it.qty}</div>
-                            </div>
-                            <div className="mini-item__price">
-                                {formatMoney(it.priceCents * it.qty)}
-                            </div>
-                        </div>
-                    ))
-                )}
             </div>
         </div>
     );
