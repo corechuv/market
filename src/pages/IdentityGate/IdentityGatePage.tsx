@@ -92,14 +92,6 @@ const IdentityGatePage: React.FC = () => {
                         )}
 
                         <div className={c.gate__actions}>
-                            <Button
-                                size="small"
-                                variant="secondary"
-                                onClick={goBackToCart}
-                                type="button"
-                            >
-                                Back
-                            </Button>
                             <Button size="small" onClick={continueToNext}>
                                 Continue
                             </Button>
@@ -112,6 +104,14 @@ const IdentityGatePage: React.FC = () => {
                                     Switch account
                                 </Button>
                             )}
+                            <Button
+                                size="small"
+                                variant="link"
+                                onClick={goBackToCart}
+                                type="button"
+                            >
+                                Back
+                            </Button>
                         </div>
                     </>
                 ) : (
@@ -148,7 +148,7 @@ const IdentityGatePage: React.FC = () => {
                             </Button>
                             <Button
                                 size="small"
-                                variant="secondary"
+                                variant="link"
                                 type="button"
                                 onClick={goBackToCart}
                             >

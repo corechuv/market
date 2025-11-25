@@ -78,13 +78,6 @@ $gap-sm: 12px;
     justify-content: flex-end;
 }
 
-.promo {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 4px;
-}
-
 .form {
     display: grid;
     gap: $gap-sm;

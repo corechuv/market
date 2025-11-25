@@ -35,6 +35,13 @@
     gap: 20px;
 }
 
+.promo {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 10px;
+}
+
 $success: #1cc57e;
 $danger: #ff6b6b;
 

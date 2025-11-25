@@ -156,7 +156,7 @@ export const Summary: React.FC<SummaryProps> = ({
                 {/* Блок промокода показываем только если передали все нужные пропсы */}
                 {showPromoInput && (
                     <Accordion title="Add promocode">
-                        <div className="promo">
+                        <div className={c.promo}>
                             <TextField
                                 label="Promo code"
                                 className="promo__input"
