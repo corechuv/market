@@ -766,10 +766,7 @@ const CheckoutPage: React.FC = () => {
             fieldsDisabled={selectedAddressId !== "manual"}
           />
 
-          <div>
-            <div className="card__head">
-              <h2>Payment Method</h2>
-            </div>
+          <Accordion title="Payment Method" defaultOpen>
             <div className={styles.radio__list}>
               {pmOptions.map((o) => (
                 <RadioField
@@ -788,7 +785,7 @@ const CheckoutPage: React.FC = () => {
                 />
               ))}
             </div>
-          </div>
+          </Accordion>
 
           <PaymentSection
             displayTotal={displayTotal}
@@ -897,142 +894,134 @@ const AddressSection: React.FC<AddressSectionProps> = ({
   return (
     <div>
       <div>
-        <div className="card__head">
-          <h2>Address</h2>
-        </div>
-
-        {isAuthed && savedAddresses.length > 0 && (
-          <div className="form" style={{ marginBottom: 40 }}>
-            <SelectField
-              label="Saved address"
-              value={selectedAddrId}
-              onChange={(v) => onSelectSavedAddr((v as any) || "manual")}
-              options={addrOptions}
-              minWidth="100%"
-              dropdownMinWidth="100%"
-            />
-          </div>
-        )}
-
         <div style={{ marginBottom: 30 }}>
-          {/* Если выбран сохранённый адрес — показываем его отдельной карточкой */}
-          {selectedSavedAddr && (
-            <Accordion title="Selected address" defaultOpen>
-              <div>
-                <strong>
-                  {selectedSavedAddr.firstName} {selectedSavedAddr.lastName}
-                </strong>
+          <Accordion title="Address" defaultOpen>
+            {isAuthed && savedAddresses.length > 0 && (
+              <div className="form" style={{ marginBottom: 20 }}>
+                <SelectField
+                  label="Saved address"
+                  value={selectedAddrId}
+                  onChange={(v) => onSelectSavedAddr((v as any) || "manual")}
+                  options={addrOptions}
+                  minWidth="100%"
+                  dropdownMinWidth="100%"
+                />
               </div>
-              {selectedSavedAddr.company && <div>{selectedSavedAddr.company}</div>}
-              <div>{selectedSavedAddr.line1}</div>
-              {selectedSavedAddr.line2 && <div>{selectedSavedAddr.line2}</div>}
-              <div>
-                {selectedSavedAddr.postalCode} {selectedSavedAddr.city}
-              </div>
-              <div>{selectedSavedAddr.country}</div>
+            )}
+            {selectedSavedAddr && (
+              <>
+                <div>
+                  <strong>
+                    {selectedSavedAddr.firstName} {selectedSavedAddr.lastName}
+                  </strong>
+                </div>
+                {selectedSavedAddr.company && <div>{selectedSavedAddr.company}</div>}
+                <div>{selectedSavedAddr.line1}</div>
+                {selectedSavedAddr.line2 && <div>{selectedSavedAddr.line2}</div>}
+                <div>
+                  {selectedSavedAddr.postalCode} {selectedSavedAddr.city}
+                </div>
+                <div>{selectedSavedAddr.country}</div>
 
-              <p className={styles.hint}>
-                This address comes from your account. Edit it in{" "}
-                <a href="/account?tab=addresses">Addresses</a>.
-              </p>
-            </Accordion>
+                <p className={styles.hint}>
+                  This address comes from your account. Edit it in{" "}
+                  <a href="/account?tab=addresses">Addresses</a>.
+                </p>
+              </>
+            )}
+          </Accordion>
+
+          {/* Форма показывается только когда выбран "manual" или нет валидного сохранённого адреса */}
+          {(!selectedSavedAddr || selectedAddrId === "manual") && (
+            <form className="form" onSubmit={(e) => e.preventDefault()}>
+              <div className="form__row">
+                <TextField
+                  label="First Name"
+                  value={address.firstName}
+                  onChange={set("firstName")}
+                  placeholder="John"
+                  required
+                  disabled={fieldsDisabled}
+                />
+                <TextField
+                  label="Last Name"
+                  value={address.lastName}
+                  onChange={set("lastName")}
+                  placeholder="Doe"
+                  required
+                  disabled={fieldsDisabled}
+                />
+              </div>
+              <div className="form__row">
+                <TextField
+                  label="Email"
+                  type="email"
+                  value={address.email}
+                  onChange={set("email")}
+                  placeholder="name@mail.com"
+                  required
+                  disabled={fieldsDisabled}
+                />
+                <TextField
+                  label="Phone"
+                  value={address.phone}
+                  onChange={set("phone")}
+                  placeholder="+49 170 000000"
+                  required
+                  disabled={fieldsDisabled}
+                />
+              </div>
+              <div className="form__row">
+                <TextField
+                  label="Address 1"
+                  value={address.line1}
+                  onChange={set("line1")}
+                  placeholder="Unter den Linden 1"
+                  required
+                  disabled={fieldsDisabled}
+                />
+                <TextField
+                  label="Address 2 (optional)"
+                  value={address.line2 ?? ""}
+                  onChange={set("line2")}
+                  placeholder="Apt, suite, etc."
+                  disabled={fieldsDisabled}
+                />
+              </div>
+              <div className="form__row">
+                <TextField
+                  label="City"
+                  value={address.city}
+                  onChange={set("city")}
+                  placeholder="Berlin"
+                  required
+                  disabled={fieldsDisabled}
+                />
+                <TextField
+                  label="Country"
+                  value={address.country}
+                  onChange={set("country")}
+                  placeholder="Deutschland"
+                  required
+                  disabled={fieldsDisabled}
+                />
+              </div>
+              <div className="form__row">
+                <TextField
+                  label="Postal Code"
+                  value={address.postalCode}
+                  onChange={set("postalCode")}
+                  placeholder="10115"
+                  required
+                  disabled={fieldsDisabled}
+                />
+              </div>
+            </form>
           )}
         </div>
-
-        {/* Форма показывается только когда выбран "manual" или нет валидного сохранённого адреса */}
-        {(!selectedSavedAddr || selectedAddrId === "manual") && (
-          <form className="form" onSubmit={(e) => e.preventDefault()}>
-            <div className="form__row">
-              <TextField
-                label="First Name"
-                value={address.firstName}
-                onChange={set("firstName")}
-                placeholder="John"
-                required
-                disabled={fieldsDisabled}
-              />
-              <TextField
-                label="Last Name"
-                value={address.lastName}
-                onChange={set("lastName")}
-                placeholder="Doe"
-                required
-                disabled={fieldsDisabled}
-              />
-            </div>
-            <div className="form__row">
-              <TextField
-                label="Email"
-                type="email"
-                value={address.email}
-                onChange={set("email")}
-                placeholder="name@mail.com"
-                required
-                disabled={fieldsDisabled}
-              />
-              <TextField
-                label="Phone"
-                value={address.phone}
-                onChange={set("phone")}
-                placeholder="+49 170 000000"
-                required
-                disabled={fieldsDisabled}
-              />
-            </div>
-            <div className="form__row">
-              <TextField
-                label="Address 1"
-                value={address.line1}
-                onChange={set("line1")}
-                placeholder="Unter den Linden 1"
-                required
-                disabled={fieldsDisabled}
-              />
-              <TextField
-                label="Address 2 (optional)"
-                value={address.line2 ?? ""}
-                onChange={set("line2")}
-                placeholder="Apt, suite, etc."
-                disabled={fieldsDisabled}
-              />
-            </div>
-            <div className="form__row">
-              <TextField
-                label="City"
-                value={address.city}
-                onChange={set("city")}
-                placeholder="Berlin"
-                required
-                disabled={fieldsDisabled}
-              />
-              <TextField
-                label="Country"
-                value={address.country}
-                onChange={set("country")}
-                placeholder="Deutschland"
-                required
-                disabled={fieldsDisabled}
-              />
-            </div>
-            <div className="form__row">
-              <TextField
-                label="Postal Code"
-                value={address.postalCode}
-                onChange={set("postalCode")}
-                placeholder="10115"
-                required
-                disabled={fieldsDisabled}
-              />
-            </div>
-          </form>
-        )}
       </div>
 
-      <div>
-        <div className="card__head">
-          <h2>Shipping Method</h2>
-        </div>
-
+      <Accordion title="Shipping Method" defaultOpen>
         {shipLoading && (
           <div
             className="muted"
@@ -1076,7 +1065,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({
             />
           ))}
         </div>
-      </div>
+      </Accordion>
     </div>
   );
 };
