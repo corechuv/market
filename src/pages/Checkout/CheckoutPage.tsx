@@ -589,10 +589,7 @@ const CheckoutPage: React.FC = () => {
             </div>
           </Accordion>
 
-          <div className="actions">
-            <Button size="small" variant="secondary" onClick={handleBack}>
-              Back
-            </Button>
+          <div className={styles.checkout__actions}>
             <Button
               size="small"
               className="btn btn--xl"
@@ -601,6 +598,9 @@ const CheckoutPage: React.FC = () => {
               onClick={handleGoToPayment}
             >
               Continue to payment — {formatMoney(displayTotal)}
+            </Button>
+            <Button size="small" variant="link" onClick={handleBack}>
+              Back
             </Button>
           </div>
         </section>
