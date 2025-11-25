@@ -385,24 +385,22 @@ const PaymentPage: React.FC = () => {
     };
 
     return (
-        <Page padding={false}>
-            <section className={styles.section}>
-                <div className={c.payment}>
-                    <PaymentSection
-                        displayTotal={total}
-                        acceptTerms={acceptTerms}
-                        setAcceptTerms={setAcceptTerms}
-                        onPrev={handleBack}
-                        onSubmitManual={handlePayManual}
-                        onSubmitStripe={handlePayStripe}
-                        disablePay={isPaying}
-                        provider={provider}
-                        preparePayPalPayment={preparePayPalPayment}
-                        onPayPalApproved={onPayPalApproved}
-                        canPay={canPay}
-                    />
-                </div>
-            </section>
+        <Page>
+            <div className={c.payment}>
+                <PaymentSection
+                    displayTotal={total}
+                    acceptTerms={acceptTerms}
+                    setAcceptTerms={setAcceptTerms}
+                    onPrev={handleBack}
+                    onSubmitManual={handlePayManual}
+                    onSubmitStripe={handlePayStripe}
+                    disablePay={isPaying}
+                    provider={provider}
+                    preparePayPalPayment={preparePayPalPayment}
+                    onPayPalApproved={onPayPalApproved}
+                    canPay={canPay}
+                />
+            </div>
 
             {isPaying && (
                 <div className={styles.checkout__overlay} role="alert" aria-live="polite">
@@ -454,7 +452,6 @@ const PaymentSection: React.FC<{
 }) => {
         const [cardName, setCardName] = useState("");
 
-
         const [theme, setTheme] = useState(
             () => document.documentElement.getAttribute("data-theme") || "light"
         );
@@ -478,22 +475,19 @@ const PaymentSection: React.FC<{
                         />
                         <img loading="lazy" src={theme === "dark" ? amex : amex} alt="" />
                     </div>
-                    <div>
-                        <Elements stripe={stripePromise}>
-                            <StripeForm
-                                cardName={cardName}
-                                setCardName={setCardName}
-                                acceptTerms={acceptTerms}
-                                setAcceptTerms={setAcceptTerms}
-                                onPrev={onPrev}
-                                onSubmitStripe={onSubmitStripe}
-                                disablePay={disablePay}
-                                displayTotal={displayTotal}
-                                canPay={canPay}
-                                nameError={cardName.trim().length === 0 ? "Укажите имя как на карте" : undefined}
-                            />
-                        </Elements>
-                    </div>
+                    <Elements stripe={stripePromise}>
+                        <StripeForm
+                            cardName={cardName}
+                            setCardName={setCardName}
+                            acceptTerms={acceptTerms}
+                            setAcceptTerms={setAcceptTerms}
+                            onPrev={onPrev}
+                            onSubmitStripe={onSubmitStripe}
+                            disablePay={disablePay}
+                            displayTotal={displayTotal}
+                            canPay={canPay}
+                        />
+                    </Elements>
                 </>
             );
         }
@@ -517,25 +511,25 @@ const PaymentSection: React.FC<{
 
         // Manual — invoice / банковский перевод
         return (
-            <div>
-                <form
-                    className="form"
-                    onSubmit={(e) => {
-                        if (!canPay) {
-                            e.preventDefault();
-                            return;
-                        }
-                        onSubmitManual(e);
-                    }}
-                    noValidate
-                >
-                    <h2 className={c.payment__title}>
-                        We'll process your order and email you payment instructions (invoice/payment details).
-                    </h2>
-                    <h2 className={c.payment__description}>
-                        Processing may take 1-2 business days.
-                    </h2>
+            <form
+                className="form"
+                onSubmit={(e) => {
+                    if (!canPay) {
+                        e.preventDefault();
+                        return;
+                    }
+                    onSubmitManual(e);
+                }}
+                noValidate
+            >
+                <h2 className={c.payment__title}>
+                    We'll process your order and email you payment instructions (invoice/payment details).
+                </h2>
+                <h2 className={c.payment__description}>
+                    Processing may take 1-2 business days.
+                </h2>
 
+                <div className={c.payment__agree}>
                     <CheckboxField
                         checked={acceptTerms}
                         onChange={(e) => setAcceptTerms(e.target.checked)}
@@ -545,22 +539,22 @@ const PaymentSection: React.FC<{
                             </>
                         }
                     />
+                </div>
 
-                    <div className="actions">
-                        <Button size="small" variant="secondary" onClick={onPrev} type="button">
-                            Back
-                        </Button>
-                        <Button
-                            size="small"
-                            className="btn btn--xl"
-                            type="submit"
-                            disabled={!!disablePay || !acceptTerms || !canPay}
-                        >
-                            Place order — {formatMoney(displayTotal)}
-                        </Button>
-                    </div>
-                </form>
-            </div>
+                <div className="actions">
+                    <Button size="small" variant="secondary" onClick={onPrev} type="button">
+                        Back
+                    </Button>
+                    <Button
+                        size="small"
+                        className="btn btn--xl"
+                        type="submit"
+                        disabled={!!disablePay || !acceptTerms || !canPay}
+                    >
+                        Place order — {formatMoney(displayTotal)}
+                    </Button>
+                </div>
+            </form>
         );
     };
 
@@ -577,7 +571,6 @@ const StripeForm: React.FC<{
     ) => void;
     disablePay?: boolean;
     displayTotal: number;
-    nameError?: string;
     canPay: boolean;
 }> = ({
     cardName,
@@ -588,13 +581,20 @@ const StripeForm: React.FC<{
     onSubmitStripe,
     disablePay,
     displayTotal,
-    nameError,
     canPay,
 }) => {
         const stripe = useStripe();
         const elements = useElements();
 
-        const stripeFormOk = !!stripe && !!elements && cardName.trim().length >= 3 && acceptTerms;
+        const [nameTouched, setNameTouched] = useState(false);
+
+        const nameError =
+            nameTouched && cardName.trim().length < 3
+                ? "Укажите имя как на карте"
+                : undefined;
+
+        const stripeFormOk =
+            !!stripe && !!elements && cardName.trim().length >= 3 && acceptTerms;
         const payDisabled = !!disablePay || !stripeFormOk || !canPay;
 
         const inputStyle = {
@@ -612,24 +612,31 @@ const StripeForm: React.FC<{
             },
         } as any;
 
+        const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+            if (!stripe || !elements || !canPay) {
+                e.preventDefault();
+                return;
+            }
+
+            // на всякий случай отмечаем поле как тронутое при сабмите
+            if (!nameTouched) setNameTouched(true);
+
+            if (cardName.trim().length < 3) {
+                e.preventDefault();
+                return;
+            }
+
+            return onSubmitStripe(e, { stripe, elements, holder: cardName.trim() });
+        };
+
         return (
             <form
+                style={{ width: "100%" }}
                 className="form"
-                onSubmit={(e) => {
-                    if (!stripe || !elements || !canPay) return e.preventDefault();
-                    return onSubmitStripe(e, { stripe, elements, holder: cardName.trim() });
-                }}
+                onSubmit={handleSubmit}
                 noValidate
             >
-                <TextField
-                    label="Cardholder"
-                    value={cardName}
-                    onChange={(e) => setCardName(e.target.value)}
-                    placeholder="IVAN IVANOV"
-                    required
-                    autoComplete="cc-name"
-                    error={nameError}
-                />
+                <h2 className={c.payment__title}>{formatMoney(displayTotal)}</h2>
 
                 <div className="field">
                     <label className="label">Card Number</label>
@@ -643,9 +650,9 @@ const StripeForm: React.FC<{
                     </div>
                 </div>
 
-                <div className="form__row">
+                <div className={c["payment__form--row"]}>
                     <div className="field">
-                        <label className="label">Expiration (MM/YY)</label>
+                        <label className="label">MM/YY</label>
                         <div className="stripe-input">
                             <CardExpiryElement
                                 options={{
@@ -669,9 +676,19 @@ const StripeForm: React.FC<{
                     </div>
                 </div>
 
-                <div></div>
+                <TextField
+                    label="Cardholder"
+                    value={cardName}
+                    onChange={(e) => {
+                        setCardName(e.target.value);
+                    }}
+                    onBlur={() => setNameTouched(true)}
+                    required
+                    autoComplete="cc-name"
+                    error={nameError}
+                />
 
-                <div>
+                <div className={c.payment__agree}>
                     <CheckboxField
                         checked={acceptTerms}
                         onChange={(e) => setAcceptTerms(e.target.checked)}
@@ -683,11 +700,14 @@ const StripeForm: React.FC<{
                     />
                 </div>
 
-                <div></div>
-
                 <div className={c.payment__actions}>
-                    <Button size="small" className="btn btn--xl" type="submit" disabled={payDisabled}>
-                        Pay {formatMoney(displayTotal)}
+                    <Button
+                        size="small"
+                        className="btn btn--xl"
+                        type="submit"
+                        disabled={payDisabled}
+                    >
+                        Pay
                     </Button>
                     <Button size="small" variant="link" onClick={onPrev}>
                         Back
@@ -816,7 +836,7 @@ const PayPalForm: React.FC<{
                     You will be redirected to PayPal to complete your purchase — total{" "}
                     {formatMoney(displayTotal)}.
                 </h2>
-                <div>
+                <div className={c.payment__agree}>
                     <CheckboxField
                         checked={acceptTerms}
                         onChange={(e) => setAcceptTerms(e.target.checked)}
@@ -827,7 +847,6 @@ const PayPalForm: React.FC<{
                         }
                     />
                 </div>
-                <div></div>
                 <div className={c.payment__actions}>
                     <Button
                         size="small"
