@@ -194,37 +194,37 @@ const CheckoutPage: React.FC = () => {
     caption?: React.ReactNode;
     icon?: React.ReactNode;
   }> = [
-    {
-      id: "stripe",
-      title: "Card payment",
-      icon: (
-        <>
-          <img loading="lazy" src={theme === "dark" ? visa : visa} alt="" />
-          <img
-            loading="lazy"
-            src={theme === "dark" ? mastercard : mastercard}
-            alt=""
-          />
-          <img loading="lazy" src={theme === "dark" ? amex : amex} alt="" />
-        </>
-      ),
-    },
-    {
-      id: "paypal",
-      title: "PayPal",
-      icon: <img loading="lazy" src={paypal} alt="" />,
-    },
-    {
-      id: "invoice",
-      title: "Bank transfer / Invoice",
-      caption: "We’ll send payment instructions by email",
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
-          <path d="M12 3l9 5v2H3V8l9-5zM4 11h16v8H4z" fill="currentColor" />
-        </svg>
-      ),
-    },
-  ];
+      {
+        id: "stripe",
+        title: "Card payment",
+        icon: (
+          <>
+            <img loading="lazy" src={theme === "dark" ? visa : visa} alt="" />
+            <img
+              loading="lazy"
+              src={theme === "dark" ? mastercard : mastercard}
+              alt=""
+            />
+            <img loading="lazy" src={theme === "dark" ? amex : amex} alt="" />
+          </>
+        ),
+      },
+      {
+        id: "paypal",
+        title: "PayPal",
+        icon: <img loading="lazy" src={paypal} alt="" />,
+      },
+      {
+        id: "invoice",
+        title: "Bank transfer / Invoice",
+        caption: "We’ll send payment instructions by email",
+        icon: (
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
+            <path d="M12 3l9 5v2H3V8l9-5zM4 11h16v8H4z" fill="currentColor" />
+          </svg>
+        ),
+      },
+    ];
 
   const { lines } = useCart();
 
@@ -320,7 +320,7 @@ const CheckoutPage: React.FC = () => {
   useEffect(() => {
     try {
       localStorage.setItem(CHECKOUT_ADDR_LS_KEY, JSON.stringify(address));
-    } catch {}
+    } catch { }
   }, [address]);
 
   // Totals
@@ -674,16 +674,15 @@ const AddressSection: React.FC<AddressSectionProps> = ({
 }) => {
   const set =
     (k: keyof FormAddress) =>
-    (e: React.ChangeEvent<HTMLInputElement>) =>
-      setAddress({ ...address, [k]: e.target.value });
+      (e: React.ChangeEvent<HTMLInputElement>) =>
+        setAddress({ ...address, [k]: e.target.value });
 
   const addrOptions = [
     { value: "manual", label: "Enter a new address" },
     ...savedAddresses.map((a) => ({
       value: a.id,
-      label: `${a.isDefault ? "Default • " : ""}${a.firstName} ${
-        a.lastName
-      }, ${a.city}, ${a.country}`,
+      label: `${a.isDefault ? "Default • " : ""}${a.firstName} ${a.lastName
+        }, ${a.city}, ${a.country}`,
     })),
   ];
 
@@ -731,11 +730,6 @@ const AddressSection: React.FC<AddressSectionProps> = ({
                   {selectedSavedAddr.city}
                 </div>
                 <div>{selectedSavedAddr.country}</div>
-
-                <p className={styles.hint}>
-                  This address comes from your account. Edit it in{" "}
-                  <a href="/account?tab=addresses">Addresses</a>.
-                </p>
               </>
             )}
           </Accordion>

@@ -586,7 +586,6 @@ const StripeForm: React.FC<{
     onPrev,
     onSubmitStripe,
     disablePay,
-    displayTotal,
     canPay,
 }) => {
         const stripe = useStripe();
@@ -740,7 +739,6 @@ const PayPalForm: React.FC<{
     setAcceptTerms,
     onPrev,
     disablePay,
-    displayTotal,
     preparePayPalPayment,
     onPayPalApproved,
     canPay,
