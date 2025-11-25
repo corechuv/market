@@ -547,17 +547,16 @@ const PaymentSection: React.FC<{
                     />
                 </div>
 
-                <div className="actions">
-                    <Button size="small" variant="secondary" onClick={onPrev} type="button">
-                        Back
-                    </Button>
+                <div className={c.payment__actions}>
                     <Button
                         size="small"
-                        className="btn btn--xl"
                         type="submit"
                         disabled={!!disablePay || !acceptTerms || !canPay}
                     >
                         Place order
+                    </Button>
+                    <Button size="small" variant="link" onClick={onPrev} type="button">
+                        Back
                     </Button>
                 </div>
             </form>
@@ -706,7 +705,6 @@ const StripeForm: React.FC<{
                 <div className={c.payment__actions}>
                     <Button
                         size="small"
-                        className="btn btn--xl"
                         type="submit"
                         disabled={payDisabled}
                     >
@@ -851,7 +849,6 @@ const PayPalForm: React.FC<{
                 <div className={c.payment__actions}>
                     <Button
                         size="small"
-                        className="btn btn--xl"
                         type="submit"
                         disabled={!!disablePay || busy || !canPay}
                     >
