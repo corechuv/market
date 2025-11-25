@@ -631,12 +631,14 @@ const StripeForm: React.FC<{
 
         return (
             <form
-                style={{ width: "100%" }}
+                style={{ maxWidth: "200ppx" }}
                 className="form"
                 onSubmit={handleSubmit}
                 noValidate
             >
-                <h2 className={c.payment__title}>{formatMoney(displayTotal)}</h2>
+                <div className={c.payment__card}>
+                    <h2 className={c.payment__title}>{formatMoney(displayTotal)}</h2>
+                </div>
 
                 <div className="field">
                     <label className="label">Card Number</label>
