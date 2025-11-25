@@ -34,7 +34,6 @@ import {
 } from "@stripe/react-stripe-js";
 
 import mastercard from "/mastercard.png";
-import paypal from "/paypal.png";
 import visa from "/visa.png";
 import amex from "@/assets/svg/amex.svg";
 
