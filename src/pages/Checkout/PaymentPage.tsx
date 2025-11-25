@@ -387,6 +387,12 @@ const PaymentPage: React.FC = () => {
     return (
         <Page>
             <div className={c.payment}>
+                <div className={c.payment__summary}>
+                    <h2 className={c.payment__title}>
+                        {formatMoney(total)}
+                    </h2>
+                </div>
+
                 <PaymentSection
                     displayTotal={total}
                     acceptTerms={acceptTerms}
@@ -551,7 +557,7 @@ const PaymentSection: React.FC<{
                         type="submit"
                         disabled={!!disablePay || !acceptTerms || !canPay}
                     >
-                        Place order — {formatMoney(displayTotal)}
+                        Place order
                     </Button>
                 </div>
             </form>
@@ -636,10 +642,6 @@ const StripeForm: React.FC<{
                 onSubmit={handleSubmit}
                 noValidate
             >
-                <div className={c.payment__card}>
-                    <h2 className={c.payment__title}>{formatMoney(displayTotal)}</h2>
-                </div>
-
                 <div className="field">
                     <label className="label">Card Number</label>
                     <div className="stripe-input">
@@ -835,8 +837,7 @@ const PayPalForm: React.FC<{
         return (
             <form className="form" onSubmit={openInNewTab} noValidate>
                 <h2 className={c.payment__description}>
-                    You will be redirected to PayPal to complete your purchase — total{" "}
-                    {formatMoney(displayTotal)}.
+                    You will be redirected to PayPal to complete your purchase
                 </h2>
                 <div className={c.payment__agree}>
                     <CheckboxField
