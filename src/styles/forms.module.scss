@@ -9,6 +9,7 @@
         font-weight: 400;
         font-size: 14px;
         margin: 0 3px;
+        text-align: left;
 
         &--mark {
             margin-left: 4px;
@@ -79,6 +80,7 @@
     }
 
     &__error {
+        text-align: left;
         color: #ff6b6b;
         font-size: 12px;
     }

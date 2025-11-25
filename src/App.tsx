@@ -114,6 +114,7 @@ import SuccessPage from "./pages/Checkout/SuccessPage";
 import CartLayout from "./components/layouts/CartLayout";
 import CartPage from "./pages/Cart/CartPage";
 import IdentityGatePage from "./pages/IdentityGate/IdentityGatePage";
+import PaymentPage from "./pages/Checkout/PaymentPage";
 
 export default function App() {
 
@@ -144,7 +145,7 @@ export default function App() {
             <Route path="/videos/me" element={<MyVideosPage />} />
 
             <Route path="/identity-gate" element={<IdentityGatePage />} />
-            
+
             <Route path="/account" element={<AccountPage />} />
             <Route path="/account/profile/edit" element={<ProfileEditPage />} />
 
@@ -167,8 +168,9 @@ export default function App() {
             <Route path="/account/settings/change-password" element={<ChangePasswordPage />} />
             <Route path="/reset-password" element={<ChangePasswordPage />} /> {/* ← алиас */}
 
-            <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/checkout/payment" element={<PaymentPage />} />
 
             <Route path="*" element={<NotFound supportHref="mailto:support@example.com" />} />
           </Route>
