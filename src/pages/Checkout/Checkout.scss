@@ -111,46 +111,6 @@ $gap-sm: 12px;
     justify-content: flex-end;
 }
 
-.summary {
-    position: sticky;
-    top: 14px;
-    padding: 16px;
-
-    @media screen and (max-width: 980px) {
-        padding-left: 0;
-        padding-right: 0;
-    }
-}
-
-.summary h3 {
-    margin: 0 0 10px;
-}
-
-.summary__list {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 12px;
-    display: grid;
-    gap: 8px;
-}
-
-.summary__list li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.summary__list li:last-child {
-    border-bottom: 0;
-}
-
-.summary__list .sum {
-    margin-top: 8px;
-    margin-bottom: 8px;
-    font-size: 1.4rem;
-    font-weight: 600;
-}
-
 .mini-item {
     display: grid;
     grid-template-columns: 48px 1fr auto;

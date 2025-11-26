@@ -167,7 +167,7 @@ const CartPage: React.FC = () => {
                 </section>
 
                 <aside
-                    className={styles.checkout__sidebar}
+                    className={c.cart__sidebar}
                     aria-label="Order summary"
                 >
                     <Summary

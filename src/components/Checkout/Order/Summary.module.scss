@@ -1,7 +1,6 @@
 // src/components/Checkout/Order/Summary.module.scss
 .summary {
-    position: sticky;
-    top: 14px;
+    width: 100%;
 
     &__title {
         margin: 0 0 10px;
@@ -47,6 +46,7 @@ $danger: #ff6b6b;
 
 .item--discount {
     margin-bottom: 20px;
+
     li {
         span {
             color: $success;
