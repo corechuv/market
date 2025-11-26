@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import { BrowserRouter } from 'react-router-dom'
+import "./i18n";
 
 import './index.css'
 import "./styles/theme.module.scss" // Import global styles

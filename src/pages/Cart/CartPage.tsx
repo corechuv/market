@@ -13,12 +13,14 @@ import { Summary } from "../../components/Checkout/Order/Summary";
 import Page from "../../components/UI/Page/Page";
 import Footer from "../../components/Footer/Footer";
 import { CheckboxField } from "../../components/UI/CheckboxField";
+import { useTranslation } from "react-i18next";
 
 const PRICES_INCLUDE_VAT = true as const;
 
 const CartPage: React.FC = () => {
     const { lines, inc, setSelected, setSelectedAll } = useCart();
     const navigate = useNavigate();
+    const { t } = useTranslation("cart");
 
     // --- ВСЕ хуки наверху ---
 
@@ -82,10 +84,10 @@ const CartPage: React.FC = () => {
         return (
             <Page>
                 <div className={c.cart}>
-                    <h1 className={c.cart__empty}>Cart is empty</h1>
+                    <h1 className={c.cart__empty}>{t("empty.title")}</h1>
                     <div className={c.cart__actions}>
-                        <a onClick={() => navigate("/")}>Home</a>
-                        <a onClick={() => navigate(-1)}>Return to shopping</a>
+                        <a onClick={() => navigate("/")}>{t("empty.home")}</a>
+                        <a onClick={() => navigate(-1)}>{t("empty.return")}</a>
                     </div>
                 </div>
             </Page>
@@ -97,7 +99,7 @@ const CartPage: React.FC = () => {
             <div className={c.mastbar}>
                 <div className={c.mastbar__left}>
                     <h2 className={c.title}>
-                        Cart{" "}
+                        {t("mastbar.title")}{" "}
                         <span className={c.count}>
                             ({itemsCount}/{totalItemsCount})
                         </span>
@@ -107,7 +109,7 @@ const CartPage: React.FC = () => {
                     <CheckboxField
                         checked={allSelected}
                         onChange={handleToggleAll}
-                        label="Select all"
+                        label={t("mastbar.selectAll")}
                     />
                 </div>
             </div>
@@ -121,7 +123,7 @@ const CartPage: React.FC = () => {
                                     <CheckboxField
                                         checked={!!it.selected}
                                         onChange={(e) => setSelected(it.id, e.target.checked)}
-                                        aria-label={`Включить/исключить ${it.title} из заказа`}
+                                        aria-label={t("item.toggleAria", { title: it.title })}
                                     />
 
                                     {it.image && (
@@ -140,7 +142,7 @@ const CartPage: React.FC = () => {
                                             min={0}
                                             size="sm"
                                             showMax={false}
-                                            ariaLabel={`Количество для ${it.title}`}
+                                            ariaLabel={t("item.qtyAria", { title: it.title })}
                                             onChange={(q) => inc(it.id, q - it.qty)}
                                             max={99}
                                         />
@@ -160,7 +162,7 @@ const CartPage: React.FC = () => {
                             disabled={selectedLines.length === 0}
                             onClick={handleProceed}
                         >
-                            Proceed to checkout
+                            {t("actions.proceed")}
                         </Button>
                     </div>
                 </section>

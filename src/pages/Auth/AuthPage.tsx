@@ -20,6 +20,7 @@ import {
 } from "../../utils/validate/fields";
 
 import { Tabs, type TabItem } from "../../components/UI/Tabs";
+import { useTranslation, Trans } from "react-i18next";
 
 export type Mode = "login" | "register";
 
@@ -50,7 +51,10 @@ export interface AuthPageProps {
     ) => Promise<void> | void;
 }
 
-const Spinner = () => <span className={s.spinner} aria-label="Loading" />;
+const Spinner: React.FC = () => {
+    const { t } = useTranslation("auth");
+    return <span className={s.spinner} aria-label={t("spinner.loading")} />;
+};
 
 export default function AuthPage({
     mode,
@@ -58,6 +62,8 @@ export default function AuthPage({
     onLogin,
     onRegister,
 }: AuthPageProps) {
+    const { t } = useTranslation("auth");
+
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -81,8 +87,14 @@ export default function AuthPage({
         };
 
         const loginRules = {
-            email: compose(required("Email is required"), validateEmail),
-            password: compose(required("Password is required"), minLength(6)),
+            email: compose(
+                required(t("errors.emailRequired")),
+                validateEmail
+            ),
+            password: compose(
+                required(t("errors.passwordRequired")),
+                minLength(6)
+            ),
         } as const;
 
         const errs = validateForm(payload, loginRules) as FieldErrors<LoginPayload>;
@@ -96,7 +108,7 @@ export default function AuthPage({
             if (onLogin) await onLogin(payload);
             else await new Promise((r) => setTimeout(r, 400));
         } catch (serverErr: any) {
-            setErrors(serverErr ?? { password: "Login failed" });
+            setErrors(serverErr ?? { password: t("errors.loginFailed") });
             return;
         } finally {
             setLoading(false);
@@ -118,23 +130,26 @@ export default function AuthPage({
 
         const registerRules = {
             firstName: compose(
-                required("First name is required"),
-                minLength(2, "Too short"),
+                required(t("errors.firstNameRequired")),
+                minLength(2, t("errors.tooShort"))
             ),
             lastName: compose(
-                required("Last name is required"),
-                minLength(2, "Too short"),
+                required(t("errors.lastNameRequired")),
+                minLength(2, t("errors.tooShort"))
             ),
-            email: compose(required("Email is required"), validateEmail),
+            email: compose(
+                required(t("errors.emailRequired")),
+                validateEmail
+            ),
             password: compose(
-                required("Password is required"),
-                minLength(8, "Password must be at least 8 characters"),
+                required(t("errors.passwordRequired")),
+                minLength(8, t("errors.passwordMin"))
             ),
             confirm: sameAs<string>(
                 (all) => all.password,
-                "Passwords do not match",
+                t("errors.passwordsNotMatch")
             ),
-            agree: requiredTrue("Needs to be accepted"),
+            agree: requiredTrue(t("errors.needsToBeAccepted")),
         } as const;
 
         const errs = validateForm(payload, registerRules) as FieldErrors<RegisterPayload>;
@@ -152,7 +167,7 @@ export default function AuthPage({
                 await new Promise((r) => setTimeout(r, 500));
             }
         } catch (serverErr: any) {
-            setErrors(serverErr ?? { email: "Registration failed" });
+            setErrors(serverErr ?? { email: t("errors.registerFailed") });
             return;
         } finally {
             setLoading(false);
@@ -162,8 +177,8 @@ export default function AuthPage({
     const strength = (val: string) => passwordStrength(val);
 
     const tabs: TabItem<Mode>[] = [
-        { key: "login", label: "Login" },
-        { key: "register", label: "Sign Up" },
+        { key: "login", label: t("tabs.login") },
+        { key: "register", label: t("tabs.register") },
     ];
 
     return (
@@ -180,7 +195,7 @@ export default function AuthPage({
                             items={tabs}
                             activeKey={mode}
                             onChange={onModeChange}
-                            ariaLabel="Auth tabs"
+                            ariaLabel={t("tabs.ariaLabel")}
                         />
                     </div>
 
@@ -201,15 +216,15 @@ export default function AuthPage({
                                 name="email"
                                 inputMode="email"
                                 autoComplete="email"
-                                placeholder="name@company.com"
-                                label="Email"
+                                placeholder={t("login.emailPlaceholder")}
+                                label={t("login.emailLabel")}
                                 error={errors.email}
                             />
                             <PasswordField
                                 name="password"
                                 autoComplete="current-password"
-                                placeholder="••••••••"
-                                label="Password"
+                                placeholder={t("login.passwordPlaceholder")}
+                                label={t("login.passwordLabel")}
                                 error={errors.password}
                             />
 
@@ -217,7 +232,7 @@ export default function AuthPage({
                                 <CheckboxField
                                     name="remember"
                                     defaultChecked
-                                    label="Remember me"
+                                    label={t("login.remember")}
                                 />
                             </div>
 
@@ -227,12 +242,12 @@ export default function AuthPage({
                                 disabled={loading}
                                 size="large"
                             >
-                                {loading ? <Spinner /> : "Login"}
+                                {loading ? <Spinner /> : t("login.submit")}
                             </Button>
 
                             <div className={s.rowBetween}>
                                 <a className={s.mutedLink} href="#forgot">
-                                    Forgot password?
+                                    {t("login.forgot")}
                                 </a>
                             </div>
                         </form>
@@ -253,29 +268,29 @@ export default function AuthPage({
                         >
                             <TextField
                                 name="firstName"
-                                label="First name"
-                                placeholder="Markus"
+                                label={t("register.firstNameLabel")}
+                                placeholder={t("register.firstNamePlaceholder")}
                                 error={errors.firstName}
                             />
                             <TextField
                                 name="lastName"
-                                label="Last name"
-                                placeholder="Müller"
+                                label={t("register.lastNameLabel")}
+                                placeholder={t("register.lastNamePlaceholder")}
                                 error={errors.lastName}
                             />
                             <TextField
                                 name="email"
                                 inputMode="email"
                                 autoComplete="email"
-                                label="Email"
-                                placeholder="name@example.com"
+                                label={t("register.emailLabel")}
+                                placeholder={t("register.emailPlaceholder")}
                                 error={errors.email}
                             />
                             <PasswordField
                                 name="password"
                                 autoComplete="new-password"
-                                label="Password"
-                                placeholder="Minimum 8 characters"
+                                label={t("register.passwordLabel")}
+                                placeholder={t("register.passwordPlaceholder")}
                                 withStrength
                                 strengthCalc={strength}
                                 error={errors.password}
@@ -283,8 +298,8 @@ export default function AuthPage({
                             <PasswordField
                                 name="confirm"
                                 autoComplete="new-password"
-                                label="Confirm Password"
-                                placeholder="Repeat"
+                                label={t("register.confirmLabel")}
+                                placeholder={t("register.confirmPlaceholder")}
                                 error={errors.confirm}
                             />
 
@@ -292,12 +307,13 @@ export default function AuthPage({
                                 <CheckboxField
                                     name="agree"
                                     label={
-                                        <>
-                                            I{" "}
-                                            <a className={s.mutedLink} href="#terms">
-                                                agree to the terms
-                                            </a>
-                                        </>
+                                        <Trans
+                                            i18nKey="register.agree"
+                                            ns="auth"
+                                            components={{
+                                                a: <a className={s.mutedLink} href="#terms" />,
+                                            }}
+                                        />
                                     }
                                 />
                                 {errors.agree && (
@@ -313,14 +329,14 @@ export default function AuthPage({
                                 disabled={loading}
                                 size="large"
                             >
-                                {loading ? <Spinner /> : "Register"}
+                                {loading ? <Spinner /> : t("register.submit")}
                             </Button>
                         </form>
                     </section>
 
                     <footer className={s.footer}>
                         <p className={s.muted}>
-                            © {new Date().getFullYear()} Dashedo. All rights reserved.
+                            {t("footer.copyright", { year: new Date().getFullYear() })}
                         </p>
                     </footer>
                 </div>

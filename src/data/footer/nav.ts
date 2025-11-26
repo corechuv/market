@@ -1,40 +1,57 @@
 // src/data/footer/nav.ts
 
-export const navInfo = [
+export type FooterNavGroupId = "about" | "help" | "account" | "legal";
+
+export interface FooterLink {
+    href: string;
+    labelKey: string;
+}
+
+export interface FooterNavGroup {
+    id: FooterNavGroupId;
+    titleKey: string;
+    links: FooterLink[];
+}
+
+export const navInfo: FooterNavGroup[] = [
     {
-        title: "About",
+        id: "about",
+        titleKey: "about.title",
         links: [
-            { href: "/about", label: "About Us" },
-            { href: "/about/careers", label: "Careers" },
-            { href: "/about/press", label: "Press" },
+            { href: "/about", labelKey: "about.links.aboutUs" },
+            { href: "/about/careers", labelKey: "about.links.careers" },
+            { href: "/about/press", labelKey: "about.links.press" },
         ],
     },
     {
-        title: "Help & Support",
+        id: "help",
+        titleKey: "help.title",
         links: [
-            { href: "/help/contact", label: "Contact" },
-            { href: "/help/faq", label: "FAQ" },
-            { href: "/help/shipping", label: "Shipping & Delivery" },
-            { href: "/help/returns-refunds", label: "Returns & Refunds" },
+            { href: "/help/contact", labelKey: "help.links.contact" },
+            { href: "/help/faq", labelKey: "help.links.faq" },
+            { href: "/help/shipping", labelKey: "help.links.shipping" },
+            { href: "/help/returns-refunds", labelKey: "help.links.returns" },
         ],
     },
     {
-        title: "Account",
+        id: "account",
+        titleKey: "account.title",
         links: [
-            { href: "/account", label: "My Account" },
-            { href: "/account/orders", label: "Orders" },
-            { href: "/account/addresses", label: "Addresses" },
-            { href: "/account/security", label: "Security" },
+            { href: "/account", labelKey: "account.links.myAccount" },
+            { href: "/account/orders", labelKey: "account.links.orders" },
+            { href: "/account/addresses", labelKey: "account.links.addresses" },
+            { href: "/account/security", labelKey: "account.links.security" },
         ],
     },
     {
-        title: "Legal",
+        id: "legal",
+        titleKey: "legal.title",
         links: [
-            { href: "/legal/terms", label: "Terms of Service" },
-            { href: "/legal/privacy", label: "Privacy Policy" },
-            { href: "/legal/cookies", label: "Cookie Policy" },
-            { href: "/legal/imprint", label: "Imprint" },
-            { href: "/legal/sitemap", label: "Sitemap" },
+            { href: "/legal/terms", labelKey: "legal.links.terms" },
+            { href: "/legal/privacy", labelKey: "legal.links.privacy" },
+            { href: "/legal/cookies", labelKey: "legal.links.cookies" },
+            { href: "/legal/imprint", labelKey: "legal.links.imprint" },
+            { href: "/legal/sitemap", labelKey: "legal.links.sitemap" },
         ],
     },
 ];

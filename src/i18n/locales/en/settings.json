@@ -1,0 +1,32 @@
+{
+    "panel": {
+        "title": "Settings",
+        "ariaLabel": "Settings"
+    },
+    "sections": {
+        "account": "Account",
+        "theme": "Theme",
+        "language": "Language",
+        "info": "Information"
+    },
+    "items": {
+        "notifications": "Notifications",
+        "editProfile": "Edit profile",
+        "orders": "Orders",
+        "addresses": "Addresses",
+        "security": "Security",
+        "about": "About",
+        "help": "Help & Support",
+        "legal": "Legal",
+        "logout": "Logout"
+    },
+    "theme": {
+        "light": "Light",
+        "dark": "Dark"
+    },
+    "languages": {
+        "en": "English",
+        "ru": "Russian",
+        "de": "German"
+    }
+}

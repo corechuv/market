@@ -12,11 +12,16 @@ import HelpSupportIcon from "../../Icons/HelpSupportIcon";
 import { useAuth } from "../../../context/AuthContext";
 import OrdersIcon from "../../Icons/OrdersIcon";
 import AddressIcon from "../../Icons/AddressIcon";
-import { applyTheme, getInitialTheme, type Theme } from "../../../utils/theme/theme";
+import {
+    applyTheme,
+    getInitialTheme,
+    type Theme,
+} from "../../../utils/theme/theme";
 import { useLang } from "../../../context/LangContext";
 import type { AppLanguage } from "../../../utils/lang/lang";
 import ScrollArea from "../../UI/ScrollArea/ScrollArea";
 import { useVisualViewport } from "../../../hooks/useViewportUnits";
+import { useTranslation } from "react-i18next";
 
 interface SettingsPanelProps {
     /** Управление видимостью извне (Navigation) */
@@ -38,9 +43,10 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     onMouseLeave,
 }) => {
     useVisualViewport();
+    const { t } = useTranslation("settings");
     if (!open) return null;
 
-    const nav = useNavigate()
+    const nav = useNavigate();
     const { logout } = useAuth();
 
     async function onLogout() {
@@ -50,6 +56,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             nav("/auth", { replace: true });
         }
     }
+
     // Тема
     const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
 
@@ -62,16 +69,15 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
     const handleChangeLanguage = (next: AppLanguage) => {
         if (next === lang) return;
-        setLang(next);      // это триггерит applyLanguage() в провайдере
-        // по желанию, если хочешь полный перерендер всего SPA:
+        setLang(next); // триггерит applyLanguage() в провайдере
         window.location.reload();
     };
 
     return (
         <section
-            id="settings-panel"            // для aria-controls на кнопке
+            id="settings-panel" // для aria-controls на кнопке
             role="region"
-            aria-label="Settings"
+            aria-label={t("panel.ariaLabel")}
             data-panel="settings"
             data-anchor={anchorRole}
             onMouseEnter={onMouseEnter}
@@ -79,56 +85,106 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             className={c.g}
         >
             <div className={c.content}>
-                <MasterBar title="Settings" background="var(--n-bg-desktop)" />
+                <MasterBar title={t("panel.title")} background="var(--n-bg-desktop)" />
                 <ScrollArea lockBody={false}>
+                    {/* Аккаунт / навигация */}
                     <ul className={c.list}>
-                        <li className={c.list__item} onClick={() => { nav("/account/notifications") }}>
+                        <li
+                            className={c.list__item}
+                            onClick={() => {
+                                nav("/account/notifications");
+                            }}
+                        >
                             <NotificationIcon className={c["list__item--icon-left"]} />
-                            <span className={c["list__item--label"]} aria-label={``} title="">
-                                Notifications
+                            <span className={c["list__item--label"]}>
+                                {t("items.notifications")}
                             </span>
                         </li>
-                        <li className={c.list__item} onClick={() => { nav("/account/profile/edit") }}>
+                        <li
+                            className={c.list__item}
+                            onClick={() => {
+                                nav("/account/profile/edit");
+                            }}
+                        >
                             <AccountIcon className={c["list__item--icon-left"]} />
-                            <span className={c["list__item--label"]} aria-label={``} title="">
-                                Edit profile
+                            <span className={c["list__item--label"]}>
+                                {t("items.editProfile")}
                             </span>
                         </li>
-                        <li className={c.list__item} onClick={() => { nav("/account/orders") }}>
+                        <li
+                            className={c.list__item}
+                            onClick={() => {
+                                nav("/account/orders");
+                            }}
+                        >
                             <OrdersIcon className={c["list__item--icon-left"]} />
-                            <span className={c["list__item--label"]} aria-label={``} title="">
-                                Orders
+                            <span className={c["list__item--label"]}>
+                                {t("items.orders")}
                             </span>
                         </li>
-                        <li className={c.list__item} onClick={() => { nav("/account/addresses") }}>
+                        <li
+                            className={c.list__item}
+                            onClick={() => {
+                                nav("/account/addresses");
+                            }}
+                        >
                             <AddressIcon className={c["list__item--icon-left"]} />
-                            <span className={c["list__item--label"]} aria-label={``} title="">
-                                Addresses
+                            <span className={c["list__item--label"]}>
+                                {t("items.addresses")}
                             </span>
                         </li>
-                        <li className={c.list__item} onClick={() => { nav("/account/security") }}>
+                        <li
+                            className={c.list__item}
+                            onClick={() => {
+                                nav("/account/security");
+                            }}
+                        >
                             <svg className={c["list__item--icon-left"]}></svg>
-                            <span className={c["list__item--label"]} aria-label={``} title="">
-                                Security
+                            <span className={c["list__item--label"]}>
+                                {t("items.security")}
                             </span>
                         </li>
                     </ul>
-                    <h3 className={c.subtitle}>Theme</h3>
+
+                    {/* Тема */}
+                    <h3 className={c.subtitle}>{t("sections.theme")}</h3>
                     <ul className={c.list}>
-                        <li className={c.list__item} aria-checked={theme === 'light'} onClick={() => { setTheme('light') }}>
+                        <li
+                            className={c.list__item}
+                            aria-checked={theme === "light"}
+                            onClick={() => {
+                                setTheme("light");
+                            }}
+                        >
                             <SunIcon className={c["list__item--icon-left"]} />
-                            <span className={c["list__item--label"]} aria-label={`Light`} title="light">
-                                Light
+                            <span
+                                className={c["list__item--label"]}
+                                aria-label={t("theme.light")}
+                                title="light"
+                            >
+                                {t("theme.light")}
                             </span>
                         </li>
-                        <li className={c.list__item} aria-checked={theme === 'dark'} onClick={() => { setTheme('dark') }}>
+                        <li
+                            className={c.list__item}
+                            aria-checked={theme === "dark"}
+                            onClick={() => {
+                                setTheme("dark");
+                            }}
+                        >
                             <MoonIcon className={c["list__item--icon-left"]} />
-                            <span className={c["list__item--label"]} aria-label={`Dark`} title="dark">
-                                Dark
+                            <span
+                                className={c["list__item--label"]}
+                                aria-label={t("theme.dark")}
+                                title="dark"
+                            >
+                                {t("theme.dark")}
                             </span>
                         </li>
                     </ul>
-                    <h3 className={c.subtitle}>Language</h3>
+
+                    {/* Язык */}
+                    <h3 className={c.subtitle}>{t("sections.language")}</h3>
                     <ul className={c.list}>
                         <li
                             className={c.list__item}
@@ -136,7 +192,9 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             onClick={() => handleChangeLanguage("en")}
                         >
                             <svg className={c["list__item--icon-left"]}></svg>
-                            <span className={c["list__item--label"]}>English</span>
+                            <span className={c["list__item--label"]}>
+                                {t("languages.en")}
+                            </span>
                         </li>
 
                         <li
@@ -145,7 +203,9 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             onClick={() => handleChangeLanguage("ru")}
                         >
                             <svg className={c["list__item--icon-left"]}></svg>
-                            <span className={c["list__item--label"]}>Russian</span>
+                            <span className={c["list__item--label"]}>
+                                {t("languages.ru")}
+                            </span>
                         </li>
 
                         <li
@@ -154,37 +214,56 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             onClick={() => handleChangeLanguage("de")}
                         >
                             <svg className={c["list__item--icon-left"]}></svg>
-                            <span className={c["list__item--label"]}>German</span>
-                        </li>
-                    </ul>
-                    <h3 className={c.subtitle}>Information</h3>
-                    <ul className={c.list}>
-                        <li className={c.list__item} onClick={() => { nav("/about") }}>
-                            <AboutIcon className={c["list__item--icon-left"]} />
-                            <span className={c["list__item--label"]} aria-label={``} title="">
-                                About
-                            </span>
-                        </li>
-                        <li className={c.list__item} onClick={() => { nav("/help") }}>
-                            <HelpSupportIcon className={c["list__item--icon-left"]} />
-                            <span className={c["list__item--label"]} aria-label={``} title="">
-                                Help & Support
-                            </span>
-                        </li>
-                        <li className={c.list__item} onClick={() => { nav("/legal") }}>
-                            <svg className={c["list__item--icon-left"]}></svg>
-                            <span className={c["list__item--label"]} aria-label={``} title="">
-                                Legal
+                            <span className={c["list__item--label"]}>
+                                {t("languages.de")}
                             </span>
                         </li>
                     </ul>
-                    <h3 className={c.subtitle}></h3>
 
+                    {/* Информация */}
+                    <h3 className={c.subtitle}>{t("sections.info")}</h3>
+                    <ul className={c.list}>
+                        <li
+                            className={c.list__item}
+                            onClick={() => {
+                                nav("/about");
+                            }}
+                        >
+                            <AboutIcon className={c["list__item--icon-left"]} />
+                            <span className={c["list__item--label"]}>
+                                {t("items.about")}
+                            </span>
+                        </li>
+                        <li
+                            className={c.list__item}
+                            onClick={() => {
+                                nav("/help");
+                            }}
+                        >
+                            <HelpSupportIcon className={c["list__item--icon-left"]} />
+                            <span className={c["list__item--label"]}>
+                                {t("items.help")}
+                            </span>
+                        </li>
+                        <li
+                            className={c.list__item}
+                            onClick={() => {
+                                nav("/legal");
+                            }}
+                        >
+                            <svg className={c["list__item--icon-left"]}></svg>
+                            <span className={c["list__item--label"]}>
+                                {t("items.legal")}
+                            </span>
+                        </li>
+                    </ul>
+
+                    <h3 className={c.subtitle}></h3>
                     <ul className={c.list}>
                         <li className={c.list__item} onClick={onLogout}>
                             <svg className={c["list__item--icon-left"]}></svg>
-                            <span className={c["list__item--label"]} aria-label={``} title="">
-                                Logout
+                            <span className={c["list__item--label"]}>
+                                {t("items.logout")}
                             </span>
                         </li>
                     </ul>

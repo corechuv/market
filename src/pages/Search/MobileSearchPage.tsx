@@ -1,4 +1,4 @@
-// src/pages/Search/ModileSearchPage.tsx
+// src/pages/Search/MobileSearchPage.tsx
 import {
     useEffect,
     useMemo,
@@ -26,6 +26,7 @@ import ReelsGrid from "../../components/User/Tabs/ReelsGrid";
 import UserResultsList from "../../components/Search/UsersResultList";
 import { buildAvatarSrc } from "../../utils/avatar";
 import ReelsGridSkeleton from "../../components/User/Tabs/ReelsGrid.Skeleton";
+import { useTranslation } from "react-i18next";
 
 type SearchItem = {
     id: string;
@@ -41,21 +42,13 @@ type PersonSearchItem = {
     photoUrl?: string | null;
 };
 
-const tabItems: TabItem<SearchTabKey>[] = [
-    { key: "products", label: "Goods" },
-    { key: "people", label: "People" },
-    { key: "videos", label: "Videos" },
-];
-
 // Унифицированное преобразование профиля от бэка → PersonSearchItem
 function mapProfileToPerson(p: any): PersonSearchItem {
     const fullName = [p.firstName, p.lastName].filter(Boolean).join(" ").trim();
 
-    // какие поля может отдать бэк под аватар
     const rawAvatar: string | null =
         p.avatarUrl || p.avatar || p.avatarPath || null;
 
-    // чем будем бить кэш — что есть, то и используем
     const cacheKey: string | null =
         p.avatarUpdatedAt || p.updatedAt || null;
 
@@ -75,8 +68,19 @@ export default function MobileSearchPage() {
     const [params, setParams] = useSearchParams();
     const qParam = params.get("q") ?? "";
 
+    const { t } = useTranslation("search");
+
     const [query, setQuery] = useState(qParam);
     const [activeTab, setActiveTab] = useState<SearchTabKey>("products");
+
+    const tabItems: TabItem<SearchTabKey>[] = useMemo(
+        () => [
+            { key: "products", label: t("tabs.products") },
+            { key: "people", label: t("tabs.people") },
+            { key: "videos", label: t("tabs.videos") },
+        ],
+        [t]
+    );
 
     // ----- ТОВАРЫ -----
     const [items, setItems] = useState<SearchItem[]>([]);
@@ -148,7 +152,7 @@ export default function MobileSearchPage() {
                 if (!cancelled) setItems(mapped);
             } catch {
                 if (!cancelled) {
-                    setProductsError("Не удалось загрузить каталог");
+                    setProductsError(t("errors.catalog"));
                     setItems([]);
                 }
             } finally {
@@ -159,7 +163,7 @@ export default function MobileSearchPage() {
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [t]);
 
     // ==== people (дебаунс по query + активная вкладка) ====
     useEffect(() => {
@@ -191,7 +195,7 @@ export default function MobileSearchPage() {
                 setPeople(mapped);
             } catch {
                 if (!cancelled) {
-                    setPeopleError("Не удалось загрузить пользователей");
+                    setPeopleError(t("errors.users"));
                     setPeople([]);
                 }
             } finally {
@@ -203,7 +207,7 @@ export default function MobileSearchPage() {
             cancelled = true;
             window.clearTimeout(timeoutId);
         };
-    }, [activeTab, query]);
+    }, [activeTab, query, t]);
 
     // ==== videos (дебаунс по query + активная вкладка) ====
     useEffect(() => {
@@ -228,7 +232,7 @@ export default function MobileSearchPage() {
                 if (!cancelled) setVideos(data);
             } catch {
                 if (!cancelled) {
-                    setVideosError("Не удалось загрузить видео");
+                    setVideosError(t("errors.videos"));
                     setVideos([]);
                 }
             } finally {
@@ -240,7 +244,7 @@ export default function MobileSearchPage() {
             cancelled = true;
             window.clearTimeout(timeoutId);
         };
-    }, [activeTab, query]);
+    }, [activeTab, query, t]);
 
     // ==== результаты для активной вкладки ====
 
@@ -287,7 +291,11 @@ export default function MobileSearchPage() {
 
     return (
         <Page padding={false}>
-            <div className={c.content} role="search">
+            <div
+                className={c.content}
+                role="search"
+                aria-label={t("panel.ariaRegion")}
+            >
                 <MasterBar
                     includeBars
                     bar={
@@ -295,8 +303,8 @@ export default function MobileSearchPage() {
                             ref={inputRef}
                             value={query}
                             onChange={setQuery}
-                            placeholder="Start typing..."
-                            aria-label="Search"
+                            placeholder={t("field.placeholder")}
+                            aria-label={t("field.ariaLabel")}
                             aria-controls={listboxId}
                             aria-expanded={searchLoading || activeResultsLength > 0}
                             loading={searchLoading}
@@ -320,7 +328,7 @@ export default function MobileSearchPage() {
                         items={tabItems}
                         activeKey={activeTab}
                         onChange={setActiveTab}
-                        ariaLabel="Search type"
+                        ariaLabel={t("tabs.ariaLabel")}
                         background="transparent"
                     />
                 </MasterBar>
@@ -334,7 +342,7 @@ export default function MobileSearchPage() {
                             onSelect={onSelectProduct}
                             loading={productsLoading}
                             role="listbox"
-                            ariaLabel="Search results: products"
+                            ariaLabel={t("ariaResults.products")}
                             listId={listboxId}
                             skeletonRows={6}
                         />
@@ -347,7 +355,7 @@ export default function MobileSearchPage() {
                             onSelect={onSelectPerson}
                             loading={peopleLoading && !!peopleResults.length}
                             role="listbox"
-                            ariaLabel="Search results: people"
+                            ariaLabel={t("ariaResults.people")}
                             listId={listboxId}
                             skeletonRows={6}
                         />
@@ -357,7 +365,7 @@ export default function MobileSearchPage() {
                         <div
                             id={listboxId}
                             role="listbox"
-                            aria-label="Search results: videos"
+                            aria-label={t("ariaResults.videos")}
                         >
                             {videosLoading && query.trim() && !videosError ? (
                                 <ReelsGridSkeleton layout="search" />
@@ -371,7 +379,7 @@ export default function MobileSearchPage() {
                                             : videosLoading
                                                 ? ""
                                                 : query.trim()
-                                                    ? "Ничего не найдено"
+                                                    ? t("empty.videos")
                                                     : ""
                                     }
                                     onItemClick={(review) => {

@@ -1,0 +1,58 @@
+{
+    "title": "Checkout",
+    "address": {
+        "accordionTitle": "Adresse",
+        "savedAddressLabel": "Gespeicherte Adresse",
+        "manualOption": "Neue Adresse eingeben",
+        "saved": {
+            "defaultPrefix": "Standard •"
+        },
+        "form": {
+            "firstNameLabel": "Vorname",
+            "firstNamePlaceholder": "Max",
+            "lastNameLabel": "Nachname",
+            "lastNamePlaceholder": "Mustermann",
+            "emailLabel": "E-Mail",
+            "emailPlaceholder": "name@mail.de",
+            "phoneLabel": "Telefon",
+            "phonePlaceholder": "+49 170 000000",
+            "address1Label": "Adresse",
+            "address1Placeholder": "Unter den Linden 1",
+            "cityLabel": "Stadt",
+            "cityPlaceholder": "Berlin",
+            "countryLabel": "Land",
+            "countryPlaceholder": "Deutschland",
+            "postalLabel": "Postleitzahl",
+            "postalPlaceholder": "10115"
+        }
+    },
+    "payment": {
+        "accordionTitle": "Zahlungsmethode",
+        "card": {
+            "title": "Kartenzahlung"
+        },
+        "paypal": {
+            "title": "PayPal"
+        },
+        "invoice": {
+            "title": "Banküberweisung / Rechnung",
+            "caption": "Wir senden Ihnen die Zahlungsinformationen per E-Mail"
+        }
+    },
+    "shipping": {
+        "accordionTitle": "Versandart",
+        "loading": "Versandoptionen werden geladen…",
+        "error": "Versandoptionen konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+        "none": "Für Ihr Land sind keine Versandarten verfügbar.",
+        "free": "Kostenlos",
+        "eta": {
+            "range": "{{min}}–{{max}} Tage",
+            "exact_one": "{{count}} Tag",
+            "exact_other": "{{count}} Tage"
+        }
+    },
+    "actions": {
+        "continueToPayment": "Weiter zur Zahlung — {{total}}",
+        "back": "Zurück"
+    }
+}

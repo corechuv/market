@@ -1,0 +1,37 @@
+{
+    "overlay": {
+        "processing": "Обработка платежа…"
+    },
+    "invoice": {
+        "title": "Мы обработаем ваш заказ и отправим вам инструкции по оплате (счёт/реквизиты).",
+        "description": "Обработка может занять 1–2 рабочих дня.",
+        "placeOrder": "Разместить заказ"
+    },
+    "paypal": {
+        "description": "Вы будете перенаправлены на PayPal для завершения оплаты.",
+        "button": "Оплатить через PayPal"
+    },
+    "stripe": {
+        "cardNumberLabel": "Номер карты",
+        "cardNumberPlaceholder": "1234 1234 1234 1234",
+        "expiryLabel": "MM/ГГ",
+        "expiryPlaceholder": "MM/ГГ",
+        "cvcLabel": "CVC",
+        "cvcPlaceholder": "CVC",
+        "cardholderLabel": "Держатель карты",
+        "cardholderError": "Укажите имя как на карте",
+        "button": "Оплатить"
+    },
+    "terms": {
+        "label": "Я <a>принимаю условия и положения</a>",
+        "acceptRequired": "Пожалуйста, сначала примите условия."
+    },
+    "errors": {
+        "orderInvalid": "Данные заказа некорректны.",
+        "paymentFailed": "Оплата не прошла: {{message}}",
+        "paypalStartFailed": "PayPal: не удалось начать оплату. {{message}}"
+    },
+    "buttons": {
+        "back": "Назад"
+    }
+}

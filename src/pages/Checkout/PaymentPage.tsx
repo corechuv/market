@@ -40,6 +40,7 @@ import amex from "@/assets/svg/amex.svg";
 import Button from "../../components/UI/Button";
 import { TextField } from "../../components/UI/TextField";
 import { CheckboxField } from "../../components/UI/CheckboxField";
+import { useTranslation, Trans } from "react-i18next";
 
 // --- Stripe init
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PK as string);
@@ -90,6 +91,7 @@ const PaymentPage: React.FC = () => {
 
     const { lines, removeSelected } = useCart();
     const { user, isAuthenticated } = useAuth();
+    const { t } = useTranslation("payment");
 
     const [acceptTerms, setAcceptTerms] = useState(false);
     const [isPaying, setIsPaying] = useState(false);
@@ -193,7 +195,7 @@ const PaymentPage: React.FC = () => {
     const handlePayManual = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!acceptTerms) {
-            alert("Подтвердите согласие с условиями.");
+            alert(t("terms.acceptRequired"));
             return;
         }
         if (!canPay) return;
@@ -235,7 +237,11 @@ const PaymentPage: React.FC = () => {
             });
         } catch (err: any) {
             console.error(err);
-            alert(`Оплата не прошла: ${err?.message ?? err}`);
+            alert(
+                t("errors.paymentFailed", {
+                    message: err?.message ?? String(err),
+                })
+            );
         } finally {
             setIsPaying(false);
         }
@@ -248,7 +254,7 @@ const PaymentPage: React.FC = () => {
     ) => {
         e.preventDefault();
         if (!acceptTerms) {
-            alert("Подтвердите согласие с условиями.");
+            alert(t("terms.acceptRequired"));
             return;
         }
         if (!canPay) return;
@@ -313,7 +319,11 @@ const PaymentPage: React.FC = () => {
             });
         } catch (err: any) {
             console.error(err);
-            alert(`Оплата не прошла: ${err?.message ?? err}`);
+            alert(
+                t("errors.paymentFailed", {
+                    message: err?.message ?? String(err),
+                })
+            );
         } finally {
             setIsPaying(false);
         }
@@ -322,10 +332,10 @@ const PaymentPage: React.FC = () => {
     // --- PayPal
     const preparePayPalPayment = async () => {
         if (!acceptTerms) {
-            throw new Error("Подтвердите согласие с условиями.");
+            throw new Error(t("terms.acceptRequired"));
         }
         if (!canPay) {
-            throw new Error("Данные заказа некорректны.");
+            throw new Error(t("errors.orderInvalid"));
         }
 
         const customer = await resolveCustomerId();
@@ -356,7 +366,7 @@ const PaymentPage: React.FC = () => {
 
         const payment = await createPaymentIntent(order.id, order.totalCents, "paypal");
         if (!payment?.providerPaymentId) {
-            throw new Error("PayPal order id не получен от сервера");
+            throw new Error("PayPal order id not returned from server");
         }
 
         return {
@@ -378,7 +388,11 @@ const PaymentPage: React.FC = () => {
             });
         } catch (err: any) {
             console.error(err);
-            alert(`Оплата не прошла: ${err?.message ?? err}`);
+            alert(
+                t("errors.paymentFailed", {
+                    message: err?.message ?? String(err),
+                })
+            );
         } finally {
             setIsPaying(false);
         }
@@ -388,9 +402,7 @@ const PaymentPage: React.FC = () => {
         <Page>
             <div className={c.payment}>
                 <div className={c.payment__summary}>
-                    <h2 className={c.payment__title}>
-                        {formatMoney(total)}
-                    </h2>
+                    <h2 className={c.payment__title}>{formatMoney(total)}</h2>
                 </div>
 
                 <PaymentSection
@@ -411,7 +423,7 @@ const PaymentPage: React.FC = () => {
             {isPaying && (
                 <div className={styles.checkout__overlay} role="alert" aria-live="polite">
                     <div className={styles.checkout__spinner} />
-                    <p>Processing payment…</p>
+                    <p>{t("overlay.processing")}</p>
                 </div>
             )}
         </Page>
@@ -421,7 +433,6 @@ const PaymentPage: React.FC = () => {
 export default PaymentPage;
 
 // ---------- PaymentSection + StripeForm + PayPalForm
-// это почти 1:1 твой код из CheckoutPage
 
 const PaymentSection: React.FC<{
     displayTotal: number;
@@ -457,6 +468,7 @@ const PaymentSection: React.FC<{
     canPay,
 }) => {
         const [cardName, setCardName] = useState("");
+        const { t } = useTranslation("payment");
 
         const [theme, setTheme] = useState(
             () => document.documentElement.getAttribute("data-theme") || "light"
@@ -528,21 +540,21 @@ const PaymentSection: React.FC<{
                 }}
                 noValidate
             >
-                <h2 className={c.payment__title}>
-                    We'll process your order and email you payment instructions (invoice/payment details).
-                </h2>
-                <h2 className={c.payment__description}>
-                    Processing may take 1-2 business days.
-                </h2>
+                <h2 className={c.payment__title}>{t("invoice.title")}</h2>
+                <h2 className={c.payment__description}>{t("invoice.description")}</h2>
 
                 <div className={c.payment__agree}>
                     <CheckboxField
                         checked={acceptTerms}
                         onChange={(e) => setAcceptTerms(e.target.checked)}
                         label={
-                            <>
-                                I <a href="#terms">accept the terms and conditions</a>
-                            </>
+                            <Trans
+                                i18nKey="terms.label"
+                                ns="payment"
+                                components={{
+                                    a: <a href="#terms" />,
+                                }}
+                            />
                         }
                     />
                 </div>
@@ -553,10 +565,10 @@ const PaymentSection: React.FC<{
                         type="submit"
                         disabled={!!disablePay || !acceptTerms || !canPay}
                     >
-                        Place order
+                        {t("invoice.placeOrder")}
                     </Button>
                     <Button size="small" variant="link" onClick={onPrev} type="button">
-                        Back
+                        {t("buttons.back")}
                     </Button>
                 </div>
             </form>
@@ -589,12 +601,13 @@ const StripeForm: React.FC<{
 }) => {
         const stripe = useStripe();
         const elements = useElements();
+        const { t } = useTranslation("payment");
 
         const [nameTouched, setNameTouched] = useState(false);
 
         const nameError =
             nameTouched && cardName.trim().length < 3
-                ? "Укажите имя как на карте"
+                ? t("stripe.cardholderError")
                 : undefined;
 
         const stripeFormOk =
@@ -622,7 +635,6 @@ const StripeForm: React.FC<{
                 return;
             }
 
-            // на всякий случай отмечаем поле как тронутое при сабмите
             if (!nameTouched) setNameTouched(true);
 
             if (cardName.trim().length < 3) {
@@ -641,11 +653,11 @@ const StripeForm: React.FC<{
                 noValidate
             >
                 <div className="field">
-                    <label className="label">Card Number</label>
+                    <label className="label">{t("stripe.cardNumberLabel")}</label>
                     <div className="stripe-input">
                         <CardNumberElement
                             options={{
-                                placeholder: "1234 1234 1234 1234",
+                                placeholder: t("stripe.cardNumberPlaceholder"),
                                 style: { base: inputStyle },
                             }}
                         />
@@ -654,11 +666,11 @@ const StripeForm: React.FC<{
 
                 <div className={c["payment__form--row"]}>
                     <div className="field">
-                        <label className="label">MM/YY</label>
+                        <label className="label">{t("stripe.expiryLabel")}</label>
                         <div className="stripe-input">
                             <CardExpiryElement
                                 options={{
-                                    placeholder: "MM/YY",
+                                    placeholder: t("stripe.expiryPlaceholder"),
                                     style: { base: inputStyle },
                                 }}
                             />
@@ -666,11 +678,11 @@ const StripeForm: React.FC<{
                     </div>
 
                     <div className="field">
-                        <label className="label">CVC</label>
+                        <label className="label">{t("stripe.cvcLabel")}</label>
                         <div className="stripe-input">
                             <CardCvcElement
                                 options={{
-                                    placeholder: "CVC",
+                                    placeholder: t("stripe.cvcPlaceholder"),
                                     style: { base: inputStyle },
                                 }}
                             />
@@ -679,7 +691,7 @@ const StripeForm: React.FC<{
                 </div>
 
                 <TextField
-                    label="Cardholder"
+                    label={t("stripe.cardholderLabel")}
                     value={cardName}
                     onChange={(e) => {
                         setCardName(e.target.value);
@@ -695,23 +707,23 @@ const StripeForm: React.FC<{
                         checked={acceptTerms}
                         onChange={(e) => setAcceptTerms(e.target.checked)}
                         label={
-                            <>
-                                I <a href="#terms">accept the terms and conditions</a>
-                            </>
+                            <Trans
+                                i18nKey="terms.label"
+                                ns="payment"
+                                components={{
+                                    a: <a href="#terms" />,
+                                }}
+                            />
                         }
                     />
                 </div>
 
                 <div className={c.payment__actions}>
-                    <Button
-                        size="small"
-                        type="submit"
-                        disabled={payDisabled}
-                    >
-                        Pay
+                    <Button size="small" type="submit" disabled={payDisabled}>
+                        {t("stripe.button")}
                     </Button>
                     <Button size="small" variant="link" onClick={onPrev}>
-                        Back
+                        {t("buttons.back")}
                     </Button>
                 </div>
             </form>
@@ -745,11 +757,12 @@ const PayPalForm: React.FC<{
         const paymentIdRef = React.useRef<string | null>(null);
         const orderNoRef = React.useRef<string | null>(null);
         const chRef = React.useRef<BroadcastChannel | null>(null);
+        const { t } = useTranslation("payment");
 
         const openInNewTab = async (e: React.FormEvent<HTMLFormElement>) => {
             e.preventDefault();
             if (!acceptTerms) {
-                alert("Подтвердите согласие с условиями.");
+                alert(t("terms.acceptRequired"));
                 return;
             }
             if (!canPay) {
@@ -780,7 +793,7 @@ const PayPalForm: React.FC<{
                     if (data?.type !== "paypal-approved") return;
                     try {
                         if (!paymentIdRef.current || !orderNoRef.current)
-                            throw new Error("Нет paymentId/orderNo");
+                            throw new Error("Missing paymentId/orderNo");
                         await onPayPalApproved(paymentIdRef.current, orderNoRef.current);
                     } finally {
                         cleanup();
@@ -795,7 +808,7 @@ const PayPalForm: React.FC<{
                 if (data?.type !== "paypal-approved") return;
                 try {
                     if (!paymentIdRef.current || !orderNoRef.current)
-                        throw new Error("Нет paymentId/orderNo");
+                        throw new Error("Missing paymentId/orderNo");
                     await onPayPalApproved(paymentIdRef.current, orderNoRef.current);
                 } finally {
                     cleanup();
@@ -825,24 +838,30 @@ const PayPalForm: React.FC<{
                 }, 700);
             } catch (err: any) {
                 console.error(err);
-                alert(`PayPal: не удалось начать оплату. ${err?.message ?? err}`);
+                alert(
+                    t("errors.paypalStartFailed", {
+                        message: err?.message ?? String(err),
+                    })
+                );
                 setBusy(false);
             }
         };
 
         return (
             <form className="form" onSubmit={openInNewTab} noValidate>
-                <h2 className={c.payment__description}>
-                    You will be redirected to PayPal to complete your purchase
-                </h2>
+                <h2 className={c.payment__description}>{t("paypal.description")}</h2>
                 <div className={c.payment__agree}>
                     <CheckboxField
                         checked={acceptTerms}
                         onChange={(e) => setAcceptTerms(e.target.checked)}
                         label={
-                            <>
-                                I <a href="#terms">accept the terms and conditions</a>
-                            </>
+                            <Trans
+                                i18nKey="terms.label"
+                                ns="payment"
+                                components={{
+                                    a: <a href="#terms" />,
+                                }}
+                            />
                         }
                     />
                 </div>
@@ -852,10 +871,10 @@ const PayPalForm: React.FC<{
                         type="submit"
                         disabled={!!disablePay || busy || !canPay}
                     >
-                        Pay with PayPal
+                        {t("paypal.button")}
                     </Button>
                     <Button size="small" variant="link" onClick={onPrev} type="button">
-                        Back
+                        {t("buttons.back")}
                     </Button>
                 </div>
             </form>

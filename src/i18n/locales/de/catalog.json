@@ -1,0 +1,9 @@
+{
+    "title": "Katalog",
+    "sections": {
+        "newArrivals": "Neuheiten",
+        "sale": "Sale"
+    },
+    "loading": "Wird geladen…",
+    "loadError": "Kategorien konnten nicht geladen werden"
+}

@@ -1,0 +1,18 @@
+{
+    "empty": {
+        "title": "Cart is empty",
+        "home": "Home",
+        "return": "Return to shopping"
+    },
+    "mastbar": {
+        "title": "Cart",
+        "selectAll": "Select all"
+    },
+    "item": {
+        "toggleAria": "Include / exclude {{title}} from order",
+        "qtyAria": "Quantity for {{title}}"
+    },
+    "actions": {
+        "proceed": "Proceed to checkout"
+    }
+}

@@ -1,0 +1,29 @@
+{
+    "title": "Gesamt",
+    "recalculating": "Summen werden neu berechnet…",
+    "quoteError": "Preisdienst nicht verfügbar — Beträge sind geschätzt.",
+    "lines": {
+        "items": "Artikel",
+        "shipping": "Versand",
+        "free": "Kostenlos",
+        "discount": "Rabatt",
+        "toPay": "Zu zahlen"
+    },
+    "hint": {
+        "checkout": "Versandkosten und endgültige Rabatte werden während des Checkouts berechnet.",
+        "freeFrom": "Kostenloser Versand ab {{amount}}"
+    },
+    "promo": {
+        "accordionTitle": "Gutscheincode eingeben",
+        "label": "Gutscheincode",
+        "placeholder": "Gutscheincode",
+        "apply": "Anwenden",
+        "applied": "Gutschein angewendet: {{code}}",
+        "notAppliedWithReason": "Gutschein nicht angewendet: {{reason}}",
+        "notApplicable": "Gutschein nicht anwendbar"
+    },
+    "selected": {
+        "accordionTitle": "Ausgewählt",
+        "empty": "Leer"
+    }
+}

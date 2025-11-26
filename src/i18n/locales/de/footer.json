@@ -1,0 +1,40 @@
+{
+    "ariaNavigation": "Fußzeilennavigation",
+    "about": {
+        "title": "Über uns",
+        "links": {
+            "aboutUs": "Über Dashedo",
+            "careers": "Karriere",
+            "press": "Presse"
+        }
+    },
+    "help": {
+        "title": "Hilfe & Support",
+        "links": {
+            "contact": "Kontakt",
+            "faq": "FAQ",
+            "shipping": "Versand & Lieferung",
+            "returns": "Rückgabe & Erstattung"
+        }
+    },
+    "account": {
+        "title": "Konto",
+        "links": {
+            "myAccount": "Mein Konto",
+            "orders": "Bestellungen",
+            "addresses": "Adressen",
+            "security": "Sicherheit"
+        }
+    },
+    "legal": {
+        "title": "Rechtliches",
+        "links": {
+            "terms": "Allgemeine Geschäftsbedingungen",
+            "privacy": "Datenschutzerklärung",
+            "cookies": "Cookie-Richtlinie",
+            "imprint": "Impressum",
+            "sitemap": "Sitemap"
+        }
+    },
+    "copyright": "© 2025 Dashedo. Alle Rechte vorbehalten."
+}

@@ -1,0 +1,12 @@
+{
+    "title": "Account",
+    "description": "You can checkout as a guest or sign in / register for a faster experience.",
+    "buttons": {
+        "continue": "Continue",
+        "switchAccount": "Switch account",
+        "continueAsGuest": "Continue as guest",
+        "login": "Login",
+        "register": "Register",
+        "back": "Back"
+    }
+}

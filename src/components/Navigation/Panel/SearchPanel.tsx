@@ -23,6 +23,7 @@ import ReelsGrid from "../../User/Tabs/ReelsGrid";
 import UserResultsList from "../../Search/UsersResultList";
 import { buildAvatarSrc } from "../../../utils/avatar";
 import ReelsGridSkeleton from "../../User/Tabs/ReelsGrid.Skeleton";
+import { useTranslation } from "react-i18next";
 
 export interface SearchItem {
   id: string;
@@ -76,6 +77,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
 }) => {
   useVisualViewport();
   const navigate = useNavigate();
+  const { t } = useTranslation("search");
 
   const [activeTab, setActiveTab] = useState<SearchTabKey>("products");
 
@@ -109,7 +111,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
 
         if (!cancelled) setItems(mapped);
       } catch {
-        if (!cancelled) setProductsLoadError("Не удалось загрузить каталог");
+        if (!cancelled) setProductsLoadError(t("errors.catalog"));
       } finally {
         if (!cancelled) setProductsLoading(false);
       }
@@ -117,7 +119,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   // ----- ЛЮДИ -----
   const [people, setPeople] = useState<PersonSearchItem[]>([]);
@@ -143,11 +145,11 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
 
   const tabItems = useMemo<TabItem<SearchTabKey>[]>(
     () => [
-      { key: "products", label: "Goods" },
-      { key: "people", label: "People" },
-      { key: "videos", label: "Videos" },
+      { key: "products", label: t("tabs.products") },
+      { key: "people", label: t("tabs.people") },
+      { key: "videos", label: t("tabs.videos") },
     ],
-    []
+    [t]
   );
 
   // отдельный activeIndex для каждой вкладки
@@ -212,7 +214,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
         setPeople(mapped);
       } catch {
         if (!cancelled) {
-          setPeopleError("Не удалось загрузить пользователей");
+          setPeopleError(t("errors.users"));
           setPeople([]);
         }
       } finally {
@@ -224,7 +226,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
       cancelled = true;
       window.clearTimeout(timeoutId);
     };
-  }, [activeTab, query]);
+  }, [activeTab, query, t]);
 
   // ВИДЕО
   useEffect(() => {
@@ -248,7 +250,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
         if (!cancelled) setVideos(data);
       } catch {
         if (!cancelled) {
-          setVideosError("Не удалось загрузить видео");
+          setVideosError(t("errors.videos"));
           setVideos([]);
         }
       } finally {
@@ -260,7 +262,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
       cancelled = true;
       window.clearTimeout(timeoutId);
     };
-  }, [activeTab, query]);
+  }, [activeTab, query, t]);
 
   const moveActive = useCallback(
     (dir: 1 | -1) => {
@@ -381,7 +383,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
     <section
       id="search-panel"
       role="region"
-      aria-label="Search"
+      aria-label={t("panel.ariaRegion")}
       data-panel="search"
       data-anchor={anchorRole}
       onMouseEnter={onMouseEnter}
@@ -390,7 +392,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
     >
       <div className={c.content}>
         <MasterBar
-          title="Search"
+          title={t("panel.title")}
           includeBars
           background="var(--n-bg-desktop)"
           bar={
@@ -403,8 +405,8 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
                 setActiveIndexForTab(activeTab, -1);
               }}
               onKeyDown={onKeyDown}
-              placeholder="Start typing..."
-              aria-label="Search bar"
+              placeholder={t("field.placeholder")}
+              aria-label={t("field.ariaBar")}
               aria-controls={listboxId}
               aria-expanded={searchLoading || activeResultsLength > 0}
               aria-autocomplete="list"
@@ -422,10 +424,9 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
             activeKey={activeTab}
             onChange={(k) => {
               setActiveTab(k);
-              // сбрасываем активный элемент новой вкладки
               setActiveIndexForTab(k, -1);
             }}
-            ariaLabel="Search type"
+            ariaLabel={t("tabs.ariaLabel")}
             background="transparent"
           />
         </MasterBar>
@@ -439,7 +440,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
               onSelect={(item) => onSelectProduct(item)}
               loading={productsLoading}
               role="listbox"
-              ariaLabel="Search results: products"
+              ariaLabel={t("ariaResults.products")}
               listId={listboxId}
               skeletonRows={6}
               activeIndex={activeIndexByTab.products}
@@ -458,7 +459,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
               }}
               loading={peopleLoading && !!peopleResults.length}
               role="listbox"
-              ariaLabel="Search results: people"
+              ariaLabel={t("ariaResults.people")}
               listId={listboxId}
               skeletonRows={6}
               activeIndex={activeIndexByTab.people}
@@ -472,7 +473,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
             <div
               id={listboxId}
               role="listbox"
-              aria-label="Search results: videos"
+              aria-label={t("ariaResults.videos")}
             >
               {videosLoading && query.trim() && !videosError ? (
                 <ReelsGridSkeleton layout="search" />
@@ -485,7 +486,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
                       : videosLoading
                         ? ""
                         : query.trim()
-                          ? "Ничего не найдено"
+                          ? t("empty.videos")
                           : ""
                   }
                   onItemClick={(review) => {

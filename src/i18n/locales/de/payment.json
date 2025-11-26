@@ -1,0 +1,37 @@
+{
+    "overlay": {
+        "processing": "Zahlung wird verarbeitet…"
+    },
+    "invoice": {
+        "title": "Wir verarbeiten Ihre Bestellung und senden Ihnen die Zahlungsinformationen (Rechnung/Zahlungsdetails) per E-Mail.",
+        "description": "Die Bearbeitung kann 1–2 Werktage dauern.",
+        "placeOrder": "Bestellung abschicken"
+    },
+    "paypal": {
+        "description": "Sie werden zu PayPal weitergeleitet, um den Kauf abzuschließen.",
+        "button": "Mit PayPal bezahlen"
+    },
+    "stripe": {
+        "cardNumberLabel": "Kartennummer",
+        "cardNumberPlaceholder": "1234 1234 1234 1234",
+        "expiryLabel": "MM/JJ",
+        "expiryPlaceholder": "MM/JJ",
+        "cvcLabel": "CVC",
+        "cvcPlaceholder": "CVC",
+        "cardholderLabel": "Karteninhaber",
+        "cardholderError": "Geben Sie den Namen wie auf der Karte an",
+        "button": "Bezahlen"
+    },
+    "terms": {
+        "label": "Ich <a>akzeptiere die AGB</a>",
+        "acceptRequired": "Bitte akzeptieren Sie zuerst die AGB."
+    },
+    "errors": {
+        "orderInvalid": "Bestelldaten sind ungültig.",
+        "paymentFailed": "Zahlung fehlgeschlagen: {{message}}",
+        "paypalStartFailed": "PayPal: Zahlung konnte nicht gestartet werden. {{message}}"
+    },
+    "buttons": {
+        "back": "Zurück"
+    }
+}

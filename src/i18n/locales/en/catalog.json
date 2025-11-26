@@ -1,0 +1,9 @@
+{
+    "title": "Catalog",
+    "sections": {
+        "newArrivals": "New Arrivals",
+        "sale": "Sale"
+    },
+    "loading": "Loading…",
+    "loadError": "Failed to load categories"
+}

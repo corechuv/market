@@ -1,0 +1,30 @@
+{
+    "panel": {
+        "title": "Search",
+        "ariaRegion": "Search"
+    },
+    "field": {
+        "placeholder": "Start typing...",
+        "ariaLabel": "Search",
+        "ariaBar": "Search bar"
+    },
+    "tabs": {
+        "ariaLabel": "Search type",
+        "products": "Goods",
+        "people": "People",
+        "videos": "Videos"
+    },
+    "ariaResults": {
+        "products": "Search results: products",
+        "people": "Search results: people",
+        "videos": "Search results: videos"
+    },
+    "errors": {
+        "catalog": "Failed to load catalog",
+        "users": "Failed to load users",
+        "videos": "Failed to load videos"
+    },
+    "empty": {
+        "videos": "Nothing found"
+    }
+}

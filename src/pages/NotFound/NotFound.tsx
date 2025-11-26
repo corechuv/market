@@ -2,6 +2,7 @@
 import React from "react";
 import s from "./NotFound.module.scss";
 import Page from "../../components/UI/Page/Page";
+import { useTranslation } from "react-i18next";
 
 type NotFoundProps = {
   /** Куда ведёт кнопка "На главную" */
@@ -17,30 +18,34 @@ type NotFoundProps = {
 const NotFound: React.FC<NotFoundProps> = ({
   homeHref = "/",
   supportHref,
-  title = "Page not found",
-  description = "It looks like this page doesn't exist.",
+  title,
+  description,
 }) => {
+  const { t } = useTranslation("notFound");
+
+  const finalTitle = title ?? t("title");
+  const finalDescription = description ?? t("description");
 
   return (
     <Page>
-      <section className={s.not} aria-live="polite" aria-label="Page not found">
+      <section
+        className={s.not}
+        aria-live="polite"
+        aria-label={t("ariaLabel")}
+      >
         <div className={s.not__code} aria-hidden>
           <span>4</span>
           <span>0</span>
           <span>4</span>
         </div>
         <div className={s.not__what}>
-          <h1 className={s["not__what--title"]}>{title}</h1>
-          <p className={s["not__what--description"]}>{description}</p>
+          <h1 className={s["not__what--title"]}>{finalTitle}</h1>
+          <p className={s["not__what--description"]}>{finalDescription}</p>
         </div>
         <div className={s.not__actions}>
-          <a href={homeHref}>
-            Home
-          </a>
+          <a href={homeHref}>{t("actions.home")}</a>
           {supportHref && (
-            <a href={supportHref}>
-              Report a problem
-            </a>
+            <a href={supportHref}>{t("actions.report")}</a>
           )}
         </div>
       </section>

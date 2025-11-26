@@ -1,0 +1,15 @@
+{
+    "tabs": {
+        "home": "Startseite",
+        "newArrivals": "Neuheiten",
+        "sale": "Sale",
+        "ariaLabel": "Bereiche der Startseite"
+    },
+    "sections": {
+        "brands": "Marken",
+        "newArrivals": "Neuheiten",
+        "trendingVideos": "Trendvideos",
+        "bestsellers": "Bestseller",
+        "sale": "Sale"
+    }
+}

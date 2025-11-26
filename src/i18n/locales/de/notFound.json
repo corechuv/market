@@ -1,0 +1,10 @@
+{
+    "ariaLabel": "Seite nicht gefunden",
+    "code": "404",
+    "title": "Seite nicht gefunden",
+    "description": "Diese Seite scheint nicht zu existieren.",
+    "actions": {
+        "home": "Startseite",
+        "report": "Problem melden"
+    }
+}

@@ -1,0 +1,29 @@
+{
+    "title": "Total",
+    "recalculating": "Recalculating totals…",
+    "quoteError": "Pricing service unavailable — totals are estimated.",
+    "lines": {
+        "items": "Items",
+        "shipping": "Shipping",
+        "free": "Free",
+        "discount": "Discount",
+        "toPay": "To pay"
+    },
+    "hint": {
+        "checkout": "Shipping costs and final discounts will be calculated during checkout.",
+        "freeFrom": "Free shipment from {{amount}}"
+    },
+    "promo": {
+        "accordionTitle": "Enter promo code",
+        "label": "Promo code",
+        "placeholder": "Promo code",
+        "apply": "Apply",
+        "applied": "Promo applied: {{code}}",
+        "notAppliedWithReason": "Promo not applied: {{reason}}",
+        "notApplicable": "Promo not applicable"
+    },
+    "selected": {
+        "accordionTitle": "Selected",
+        "empty": "Empty"
+    }
+}

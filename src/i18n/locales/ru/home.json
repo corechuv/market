@@ -1,0 +1,15 @@
+{
+    "tabs": {
+        "home": "Главная",
+        "newArrivals": "Новинки",
+        "sale": "Распродажа",
+        "ariaLabel": "Разделы главной страницы"
+    },
+    "sections": {
+        "brands": "Бренды",
+        "newArrivals": "Новинки",
+        "trendingVideos": "Популярные видео",
+        "bestsellers": "Хиты продаж",
+        "sale": "Распродажа"
+    }
+}

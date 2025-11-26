@@ -1,0 +1,18 @@
+{
+    "empty": {
+        "title": "Warenkorb ist leer",
+        "home": "Startseite",
+        "return": "Zurück zum Einkaufen"
+    },
+    "mastbar": {
+        "title": "Warenkorb",
+        "selectAll": "Alle auswählen"
+    },
+    "item": {
+        "toggleAria": "{{title}} zur Bestellung hinzufügen/entfernen",
+        "qtyAria": "Menge für {{title}}"
+    },
+    "actions": {
+        "proceed": "Zur Kasse"
+    }
+}

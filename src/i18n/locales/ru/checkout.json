@@ -1,0 +1,60 @@
+{
+    "title": "Оформление заказа",
+    "address": {
+        "accordionTitle": "Адрес",
+        "savedAddressLabel": "Сохранённый адрес",
+        "manualOption": "Ввести новый адрес",
+        "saved": {
+            "defaultPrefix": "По умолчанию •"
+        },
+        "form": {
+            "firstNameLabel": "Имя",
+            "firstNamePlaceholder": "Иван",
+            "lastNameLabel": "Фамилия",
+            "lastNamePlaceholder": "Иванов",
+            "emailLabel": "E-mail",
+            "emailPlaceholder": "name@mail.com",
+            "phoneLabel": "Телефон",
+            "phonePlaceholder": "+49 170 000000",
+            "address1Label": "Адрес",
+            "address1Placeholder": "Unter den Linden 1",
+            "cityLabel": "Город",
+            "cityPlaceholder": "Берлин",
+            "countryLabel": "Страна",
+            "countryPlaceholder": "Deutschland",
+            "postalLabel": "Почтовый индекс",
+            "postalPlaceholder": "10115"
+        }
+    },
+    "payment": {
+        "accordionTitle": "Способ оплаты",
+        "card": {
+            "title": "Оплата картой"
+        },
+        "paypal": {
+            "title": "PayPal"
+        },
+        "invoice": {
+            "title": "Банковский перевод / счёт",
+            "caption": "Мы отправим инструкции по оплате на e-mail"
+        }
+    },
+    "shipping": {
+        "accordionTitle": "Способ доставки",
+        "loading": "Загрузка вариантов…",
+        "error": "Не удалось загрузить варианты доставки. Попробуйте позже.",
+        "none": "Для вашей страны нет доступных способов доставки.",
+        "free": "Бесплатно",
+        "eta": {
+            "range": "{{min}}–{{max}} дней",
+            "exact_one": "{{count}} день",
+            "exact_few": "{{count}} дня",
+            "exact_many": "{{count}} дней",
+            "exact_other": "{{count}} дней"
+        }
+    },
+    "actions": {
+        "continueToPayment": "Перейти к оплате — {{total}}",
+        "back": "Назад"
+    }
+}

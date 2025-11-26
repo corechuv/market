@@ -7,6 +7,7 @@ import type { Category as Cat } from "../../types/category";
 import c from "./CatalogScreens.module.scss";
 import { useNavigate } from "react-router-dom";
 import BackButton from "../UI/BackButton";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   title?: string;
@@ -39,18 +40,16 @@ interface Props {
 
 export const CatalogScreens: React.FC<Props> = (p) => {
   const lock = p.lockBody ?? true; // default: true
-
   const nav = useNavigate();
+  const { t } = useTranslation("catalog");
 
   return (
     <div className={c.content}>
       <MasterBar
-        title={p.stage === "L1" ? (p.title ?? "Catalog") : ""}
+        title={p.stage === "L1" ? (p.title ?? t("title")) : ""}
         background={p.mastbarBg}
       >
-        {p.stage !== "L1" && (
-          <BackButton onClick={p.back} size="small" />
-        )}
+        {p.stage !== "L1" && <BackButton onClick={p.back} size="small" />}
       </MasterBar>
 
       <div className={c.drawer}>
@@ -59,38 +58,44 @@ export const CatalogScreens: React.FC<Props> = (p) => {
           <ScrollArea lockBody={lock && p.stage === "L1"} ref={p.refs.l1 as any}>
             {p.isLoading ? (
               <div className={c.skeleton} role="status" aria-live="polite">
-                Загрузка…
+                {t("loading")}
               </div>
             ) : p.error && p.roots.length === 0 ? (
               <div className={c.skeleton} role="alert">
-                Не удалось загрузить категории
+                {t("loadError")}
               </div>
             ) : (
               <ul className={c.list}>
                 <li
                   className={c.list__item}
                   onClick={() => {
-                    if (p.onCloseNav) { p.onCloseNav(); } nav("/new_arrivals")
+                    if (p.onCloseNav) {
+                      p.onCloseNav();
+                    }
+                    nav("/new_arrivals");
                   }}
                 >
                   <span
                     className={c["list__item--label"]}
-                    title="New Arrivals"
+                    title={t("sections.newArrivals")}
                   >
-                    New Arrivals
+                    {t("sections.newArrivals")}
                   </span>
                 </li>
                 <li
                   className={c.list__item}
                   onClick={() => {
-                    if (p.onCloseNav) { p.onCloseNav(); } nav("/sale")
+                    if (p.onCloseNav) {
+                      p.onCloseNav();
+                    }
+                    nav("/sale");
                   }}
                 >
                   <span
                     className={c["list__item--label"]}
-                    title="Sale"
+                    title={t("sections.sale")}
                   >
-                    Sale
+                    {t("sections.sale")}
                   </span>
                 </li>
                 {p.roots.map((cat) => (
@@ -164,7 +169,10 @@ export const CatalogScreens: React.FC<Props> = (p) => {
                     p.l2Cat?.fullSlug && p.onOpenSlug(p.l2Cat.fullSlug)
                   }
                 >
-                  <span className={c["list__item--label"]} title={p.l2Cat.name}>
+                  <span
+                    className={c["list__item--label"]}
+                    title={p.l2Cat.name}
+                  >
                     {p.l2Cat.name}
                   </span>
                 </li>
@@ -176,7 +184,10 @@ export const CatalogScreens: React.FC<Props> = (p) => {
                       leaf.fullSlug && p.onOpenSlug(leaf.fullSlug)
                     }
                   >
-                    <span className={c["list__item--label"]} title={leaf.name}>
+                    <span
+                      className={c["list__item--label"]}
+                      title={leaf.name}
+                    >
                       {leaf.name}
                     </span>
                   </li>

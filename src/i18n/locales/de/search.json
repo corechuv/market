@@ -1,0 +1,30 @@
+{
+    "panel": {
+        "title": "Suche",
+        "ariaRegion": "Suche"
+    },
+    "field": {
+        "placeholder": "Tippen Sie, um zu suchen…",
+        "ariaLabel": "Suche",
+        "ariaBar": "Suchfeld"
+    },
+    "tabs": {
+        "ariaLabel": "Suchtyp",
+        "products": "Produkte",
+        "people": "Personen",
+        "videos": "Videos"
+    },
+    "ariaResults": {
+        "products": "Suchergebnisse: Produkte",
+        "people": "Suchergebnisse: Personen",
+        "videos": "Suchergebnisse: Videos"
+    },
+    "errors": {
+        "catalog": "Katalog konnte nicht geladen werden",
+        "users": "Benutzer konnten nicht geladen werden",
+        "videos": "Videos konnten nicht geladen werden"
+    },
+    "empty": {
+        "videos": "Nichts gefunden"
+    }
+}

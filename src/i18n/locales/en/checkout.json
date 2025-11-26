@@ -1,0 +1,58 @@
+{
+    "title": "Checkout",
+    "address": {
+        "accordionTitle": "Address",
+        "savedAddressLabel": "Saved address",
+        "manualOption": "Enter a new address",
+        "saved": {
+            "defaultPrefix": "Default •"
+        },
+        "form": {
+            "firstNameLabel": "First Name",
+            "firstNamePlaceholder": "John",
+            "lastNameLabel": "Last Name",
+            "lastNamePlaceholder": "Doe",
+            "emailLabel": "Email",
+            "emailPlaceholder": "name@mail.com",
+            "phoneLabel": "Phone",
+            "phonePlaceholder": "+49 170 000000",
+            "address1Label": "Address 1",
+            "address1Placeholder": "Unter den Linden 1",
+            "cityLabel": "City",
+            "cityPlaceholder": "Berlin",
+            "countryLabel": "Country",
+            "countryPlaceholder": "Deutschland",
+            "postalLabel": "Postal Code",
+            "postalPlaceholder": "10115"
+        }
+    },
+    "payment": {
+        "accordionTitle": "Payment Method",
+        "card": {
+            "title": "Card payment"
+        },
+        "paypal": {
+            "title": "PayPal"
+        },
+        "invoice": {
+            "title": "Bank transfer / Invoice",
+            "caption": "We’ll send payment instructions by email"
+        }
+    },
+    "shipping": {
+        "accordionTitle": "Shipping Method",
+        "loading": "Loading options…",
+        "error": "Failed to load shipping options. Try again later.",
+        "none": "No shipping methods available for your country.",
+        "free": "Free",
+        "eta": {
+            "range": "{{min}}–{{max}} days",
+            "exact_one": "{{count}} day",
+            "exact_other": "{{count}} days"
+        }
+    },
+    "actions": {
+        "continueToPayment": "Continue to payment — {{total}}",
+        "back": "Back"
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "iconAria": "Bestellung erfolgreich aufgegeben",
+    "title": "Danke!",
+    "subtitle": "Ihre Bestellung wurde aufgegeben",
+    "order": {
+        "numberLabel": "Bestellnummer"
+    },
+    "actions": {
+        "home": "Startseite",
+        "continue": "Weiter einkaufen"
+    }
+}

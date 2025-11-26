@@ -1,0 +1,12 @@
+{
+    "title": "Konto",
+    "description": "Sie können als Gast zur Kasse gehen oder sich anmelden/registrieren, um den Checkout zu beschleunigen.",
+    "buttons": {
+        "continue": "Weiter",
+        "switchAccount": "Konto wechseln",
+        "continueAsGuest": "Als Gast fortfahren",
+        "login": "Anmelden",
+        "register": "Registrieren",
+        "back": "Zurück"
+    }
+}

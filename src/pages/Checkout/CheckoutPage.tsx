@@ -34,6 +34,7 @@ import { Summary } from "../../components/Checkout/Order/Summary";
 import Accordion from "../../components/UI/Accordion";
 import RadioLabel from "../../components/UI/Radio/RadioLabel";
 import Footer from "../../components/Footer/Footer";
+import { useTranslation } from "react-i18next";
 
 const CARRIER_LOGOS = { dhl, hermes, dpd, gls } as const;
 
@@ -135,12 +136,6 @@ function readCheckoutDraft(): FormAddress {
 const clamp = (n: number, min: number, max: number) =>
   Math.max(min, Math.min(max, n));
 
-function etaToStr(min?: number | null, max?: number | null) {
-  if (!min && !max) return "";
-  if (min && max && min !== max) return `${min}–${max} Tage`;
-  return `${min || max} Tag${(min || max) === 1 ? "" : "e"}`;
-}
-
 function normalizeCarrier(code?: string) {
   return (code || "").toLowerCase().replace(/[^a-z]/g, "");
 }
@@ -150,14 +145,14 @@ function carrierIconFor(option: ShippingUi) {
   const src = CARRIER_LOGOS[key as keyof typeof CARRIER_LOGOS];
 
   if (!src) {
-    return (<></>);
+    return <></>;
   }
 
   const alt =
     option.label?.split("•")[0]?.trim() || option.carrierCode || "Carrier";
 
-const carrierClass =
-  `${styles.baseicon} ${(styles as Record<string, string>)[key] ?? ""}`;
+  const carrierClass =
+    `${styles.baseicon} ${(styles as Record<string, string>)[key] ?? ""}`;
 
   return (
     <img
@@ -171,6 +166,8 @@ const carrierClass =
 
 // --- Component
 const CheckoutPage: React.FC = () => {
+  const { t } = useTranslation("checkout");
+
   type ProviderId = "stripe" | "paypal" | "invoice";
   const [provider, setProvider] = useState<ProviderId>("stripe");
 
@@ -195,7 +192,7 @@ const CheckoutPage: React.FC = () => {
   }> = [
       {
         id: "stripe",
-        title: "Card payment",
+        title: t("payment.card.title"),
         icon: (
           <>
             <img loading="lazy" className={styles.amex} src={theme === "dark" ? amex : amex} alt="" />
@@ -206,13 +203,13 @@ const CheckoutPage: React.FC = () => {
       },
       {
         id: "paypal",
-        title: "PayPal",
+        title: t("payment.paypal.title"),
         icon: <img loading="lazy" className={styles.paypal} src={paypal} alt="" />,
       },
       {
         id: "invoice",
-        title: "Bank transfer / Invoice",
-        caption: "We’ll send payment instructions by email",
+        title: t("payment.invoice.title"),
+        caption: t("payment.invoice.caption"),
         icon: (
           <svg className={styles.bank} width="22" height="22" viewBox="0 0 24 24" aria-hidden>
             <path d="M12 3l9 5v2H3V8l9-5zM4 11h16v8H4z" fill="currentColor" />
@@ -330,6 +327,19 @@ const CheckoutPage: React.FC = () => {
     [address.country]
   );
 
+  // форматирование ETA с i18n
+  const etaToStr = React.useCallback(
+    (min?: number | null, max?: number | null): string => {
+      if (!min && !max) return "";
+      if (min && max && min !== max) {
+        return t("shipping.eta.range", { min, max });
+      }
+      const days = (min ?? max) ?? 0;
+      return t("shipping.eta.exact", { count: days });
+    },
+    [t]
+  );
+
   // Загрузка вариантов доставки
   useEffect(() => {
     let cancelled = false;
@@ -370,7 +380,7 @@ const CheckoutPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [countryISO2, subtotal]);
+  }, [countryISO2, subtotal, etaToStr]);
 
   // базовая стоимость доставки
   const baseShippingCents = useMemo(() => {
@@ -543,7 +553,7 @@ const CheckoutPage: React.FC = () => {
     <Page padding={false}>
       <div className={styles.mastbar}>
         <div className={styles.mastbar__left}>
-          <h2 className={styles.title}>Checkout</h2>
+          <h2 className={styles.title}>{t("title")}</h2>
         </div>
       </div>
       <div className={styles.main}>
@@ -563,8 +573,7 @@ const CheckoutPage: React.FC = () => {
             fieldsDisabled={selectedAddressId !== "manual"}
           />
 
-          <Accordion title="Payment Method" defaultOpen>
-
+          <Accordion title={t("payment.accordionTitle")} defaultOpen>
             <div className={styles.radio__list}>
               {pmOptions.map((o) => (
                 <RadioField
@@ -592,10 +601,12 @@ const CheckoutPage: React.FC = () => {
               disabled={!canPay || qLoading}
               onClick={handleGoToPayment}
             >
-              Continue to payment — {formatMoney(displayTotal)}
+              {t("actions.continueToPayment", {
+                total: formatMoney(displayTotal),
+              })}
             </Button>
             <Button size="small" variant="link" onClick={handleBack}>
-              Back
+              {t("actions.back")}
             </Button>
           </div>
         </section>
@@ -659,17 +670,19 @@ const AddressSection: React.FC<AddressSectionProps> = ({
   onSelectSavedAddr,
   fieldsDisabled = false,
 }) => {
+  const { t } = useTranslation("checkout");
+
   const set =
     (k: keyof FormAddress) =>
       (e: React.ChangeEvent<HTMLInputElement>) =>
         setAddress({ ...address, [k]: e.target.value });
 
   const addrOptions = [
-    { value: "manual", label: "Enter a new address" },
+    { value: "manual", label: t("address.manualOption") },
     ...savedAddresses.map((a) => ({
       value: a.id,
-      label: `${a.isDefault ? "Default • " : ""}${a.firstName} ${a.lastName
-        }, ${a.city}, ${a.country}`,
+      label: `${a.isDefault ? t("address.saved.defaultPrefix") + " " : ""}${a.firstName
+        } ${a.lastName}, ${a.city}, ${a.country}`,
     })),
   ];
 
@@ -682,11 +695,11 @@ const AddressSection: React.FC<AddressSectionProps> = ({
     <div>
       <div>
         <div style={{ marginBottom: 30 }}>
-          <Accordion title="Address" defaultOpen>
+          <Accordion title={t("address.accordionTitle")} defaultOpen>
             {isAuthed && savedAddresses.length > 0 && (
               <div className="form" style={{ marginBottom: 20 }}>
                 <SelectField
-                  label="Saved address"
+                  label={t("address.savedAddressLabel")}
                   value={selectedAddrId}
                   onChange={(v) =>
                     onSelectSavedAddr((v as any) || "manual")
@@ -723,91 +736,95 @@ const AddressSection: React.FC<AddressSectionProps> = ({
             )}
 
             {/* Форма показывается только когда выбран "manual" или нет валидного сохранённого адреса */}
-            {(!selectedSavedAddr || selectedSavedAddr === null || selectedAddrId === "manual") && (
-              <form
-                className="form"
-                onSubmit={(e) => e.preventDefault()}
-              >
-                <div className="form__row">
-                  <TextField
-                    label="First Name"
-                    value={address.firstName}
-                    onChange={set("firstName")}
-                    placeholder="John"
-                    required
-                    disabled={fieldsDisabled}
-                  />
-                  <TextField
-                    label="Last Name"
-                    value={address.lastName}
-                    onChange={set("lastName")}
-                    placeholder="Doe"
-                    required
-                    disabled={fieldsDisabled}
-                  />
-                </div>
-                <div className="form__row">
-                  <TextField
-                    label="Email"
-                    type="email"
-                    value={address.email}
-                    onChange={set("email")}
-                    placeholder="name@mail.com"
-                    required
-                    disabled={fieldsDisabled}
-                  />
-                  <TextField
-                    label="Phone"
-                    value={address.phone}
-                    onChange={set("phone")}
-                    placeholder="+49 170 000000"
-                    required
-                    disabled={fieldsDisabled}
-                  />
-                </div>
-                <div className="form__row">
-                  <TextField
-                    label="Address 1"
-                    value={address.line1}
-                    onChange={set("line1")}
-                    placeholder="Unter den Linden 1"
-                    required
-                    disabled={fieldsDisabled}
-                  />
-                  <TextField
-                    label="City"
-                    value={address.city}
-                    onChange={set("city")}
-                    placeholder="Berlin"
-                    required
-                    disabled={fieldsDisabled}
-                  />
-                </div>
-                <div className="form__row">
-                  <TextField
-                    label="Country"
-                    value={address.country}
-                    onChange={set("country")}
-                    placeholder="Deutschland"
-                    required
-                    disabled={fieldsDisabled}
-                  />
-                  <TextField
-                    label="Postal Code"
-                    value={address.postalCode}
-                    onChange={set("postalCode")}
-                    placeholder="10115"
-                    required
-                    disabled={fieldsDisabled}
-                  />
-                </div>
-              </form>
-            )}
+            {(!selectedSavedAddr ||
+              selectedSavedAddr === null ||
+              selectedAddrId === "manual") && (
+                <form
+                  className="form"
+                  onSubmit={(e) => e.preventDefault()}
+                >
+                  <div className="form__row">
+                    <TextField
+                      label={t("address.form.firstNameLabel")}
+                      value={address.firstName}
+                      onChange={set("firstName")}
+                      placeholder={t(
+                        "address.form.firstNamePlaceholder"
+                      )}
+                      required
+                      disabled={fieldsDisabled}
+                    />
+                    <TextField
+                      label={t("address.form.lastNameLabel")}
+                      value={address.lastName}
+                      onChange={set("lastName")}
+                      placeholder={t("address.form.lastNamePlaceholder")}
+                      required
+                      disabled={fieldsDisabled}
+                    />
+                  </div>
+                  <div className="form__row">
+                    <TextField
+                      label={t("address.form.emailLabel")}
+                      type="email"
+                      value={address.email}
+                      onChange={set("email")}
+                      placeholder={t("address.form.emailPlaceholder")}
+                      required
+                      disabled={fieldsDisabled}
+                    />
+                    <TextField
+                      label={t("address.form.phoneLabel")}
+                      value={address.phone}
+                      onChange={set("phone")}
+                      placeholder={t("address.form.phonePlaceholder")}
+                      required
+                      disabled={fieldsDisabled}
+                    />
+                  </div>
+                  <div className="form__row">
+                    <TextField
+                      label={t("address.form.address1Label")}
+                      value={address.line1}
+                      onChange={set("line1")}
+                      placeholder={t("address.form.address1Placeholder")}
+                      required
+                      disabled={fieldsDisabled}
+                    />
+                    <TextField
+                      label={t("address.form.cityLabel")}
+                      value={address.city}
+                      onChange={set("city")}
+                      placeholder={t("address.form.cityPlaceholder")}
+                      required
+                      disabled={fieldsDisabled}
+                    />
+                  </div>
+                  <div className="form__row">
+                    <TextField
+                      label={t("address.form.countryLabel")}
+                      value={address.country}
+                      onChange={set("country")}
+                      placeholder={t("address.form.countryPlaceholder")}
+                      required
+                      disabled={fieldsDisabled}
+                    />
+                    <TextField
+                      label={t("address.form.postalLabel")}
+                      value={address.postalCode}
+                      onChange={set("postalCode")}
+                      placeholder={t("address.form.postalPlaceholder")}
+                      required
+                      disabled={fieldsDisabled}
+                    />
+                  </div>
+                </form>
+              )}
           </Accordion>
         </div>
       </div>
 
-      <Accordion title="Shipping Method" defaultOpen>
+      <Accordion title={t("shipping.accordionTitle")} defaultOpen>
         {shipLoading && (
           <div
             className="muted"
@@ -822,17 +839,17 @@ const AddressSection: React.FC<AddressSectionProps> = ({
               className={styles.checkout__spinner}
               style={{ width: 16, height: 16 }}
             />
-            Loading options…
+            {t("shipping.loading")}
           </div>
         )}
         {shipError && (
           <div className="warn" style={{ marginBottom: 8 }}>
-            Failed to load shipping options. Try again later.
+            {t("shipping.error")}
           </div>
         )}
         {!shipLoading && !shipError && shippingOptions.length === 0 && (
           <div className="muted">
-            No shipping methods available for your country.
+            {t("shipping.none")}
           </div>
         )}
 
@@ -851,7 +868,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({
                   meta={
                     <span>
                       {m.effectivePriceCents === 0
-                        ? "Free"
+                        ? t("shipping.free")
                         : formatMoney(m.effectivePriceCents)}
                     </span>
                   }

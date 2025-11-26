@@ -2,7 +2,8 @@
 import React from "react";
 import { useLocation, Navigate } from "react-router-dom";
 import Page from "../../components/UI/Page/Page";
-import c from "./SuccessPage.module.scss"
+import c from "./SuccessPage.module.scss";
+import { useTranslation } from "react-i18next";
 
 type LocationState = {
     orderNo?: string;
@@ -12,6 +13,7 @@ const SuccessPage: React.FC = () => {
     const location = useLocation();
     const state = location.state as LocationState | null;
     const orderNo = state?.orderNo;
+    const { t } = useTranslation("success");
 
     // Если пришли на страницу напрямую (без state) — выкидываем на главную
     if (!orderNo) {
@@ -28,7 +30,7 @@ const SuccessPage: React.FC = () => {
                         width="80"
                         height="80"
                         role="img"
-                        aria-label="Заказ успешно оформлен"
+                        aria-label={t("iconAria")}
                         style={{ "--w": 0.5, color: "#16a34a" } as React.CSSProperties}
                     >
                         <circle
@@ -51,19 +53,18 @@ const SuccessPage: React.FC = () => {
                     </svg>
                 </div>
                 <div>
-                    <h2 className={c.success__title}>Thanks!</h2>
-                    <h2 className={c.success__description}>Your order has been placed</h2>
+                    <h2 className={c.success__title}>{t("title")}</h2>
+                    <h2 className={c.success__description}>{t("subtitle")}</h2>
                 </div>
                 <p className={c.success__order}>
+                    {/* Если захочешь, можно добавить подпись:
+              <span>{t("order.numberLabel")}: </span>
+          */}
                     <strong className={c["success__order--number"]}>{orderNo}</strong>
                 </p>
                 <div className={c.success__actions}>
-                    <a href="/">
-                        Home
-                    </a>
-                    <a href="/">
-                        Continue Shopping
-                    </a>
+                    <a href="/">{t("actions.home")}</a>
+                    <a href="/">{t("actions.continue")}</a>
                 </div>
             </div>
         </Page>

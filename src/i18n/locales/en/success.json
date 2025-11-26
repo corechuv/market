@@ -1,0 +1,12 @@
+{
+    "iconAria": "Order successfully placed",
+    "title": "Thanks!",
+    "subtitle": "Your order has been placed",
+    "order": {
+        "numberLabel": "Order number"
+    },
+    "actions": {
+        "home": "Home",
+        "continue": "Continue shopping"
+    }
+}

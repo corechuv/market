@@ -11,6 +11,7 @@ import {
   getInitialLanguage,
   applyLanguage,
 } from "../utils/lang/lang";
+import i18n from "../i18n";
 
 type LangContextValue = {
   lang: AppLanguage;
@@ -22,9 +23,12 @@ const LangContext = createContext<LangContextValue | undefined>(undefined);
 export function LangProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<AppLanguage>(() => getInitialLanguage());
 
-  // Каждый раз, когда lang меняется — синхронизируем <html lang> + localStorage
+  // Каждый раз, когда lang меняется:
+  // 1) <html lang> + localStorage
+  // 2) i18next
   useEffect(() => {
     applyLanguage(lang);
+    i18n.changeLanguage(lang);
   }, [lang]);
 
   return (

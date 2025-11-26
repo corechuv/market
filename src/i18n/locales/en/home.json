@@ -1,0 +1,15 @@
+{
+    "tabs": {
+        "home": "Home",
+        "newArrivals": "New Arrivals",
+        "sale": "Sale",
+        "ariaLabel": "Home sections"
+    },
+    "sections": {
+        "brands": "Brands",
+        "newArrivals": "New Arrivals",
+        "trendingVideos": "Trending videos",
+        "bestsellers": "Bestsellers",
+        "sale": "Sale"
+    }
+}

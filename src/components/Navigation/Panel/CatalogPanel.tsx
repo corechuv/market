@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import c from "./CatalogPanel.module.scss";
 import { useCatalogFlow } from "../../../utils/catalog/useCatalogFlow";
 import { CatalogScreens } from "../../Catalog/CatalogScreens";
+import { useTranslation } from "react-i18next";
 
 interface CatalogPanelProps {
     /** Управление видимостью извне (Navigation) */
@@ -25,12 +26,13 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
     onMouseLeave,
 }) => {
     const nav = useNavigate();
+    const { t } = useTranslation("catalog");
 
     const flow = useCatalogFlow({
         backAtL1: "close",
         closeOnNavigate: true,
         onClose,
-        resetKey: open,             // при закрытии сбрасываем состояние
+        resetKey: open, // при закрытии сбрасываем состояние
         onNavigate: (url) => nav(url),
     });
 
@@ -40,7 +42,7 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
         <section
             id="catalog-panel"
             role="region"
-            aria-label="Catalog"
+            aria-label={t("title")}
             data-panel="catalog"
             data-anchor={anchorRole}
             onMouseEnter={onMouseEnter}
@@ -48,7 +50,7 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
             className={c.g}
         >
             <CatalogScreens
-                title="Catalog"
+                title={t("title")}
                 mastbarBg="var(--n-bg-desktop)"
                 stage={flow.stage}
                 isLoading={flow.isLoading}
@@ -64,7 +66,10 @@ const CatalogPanel: React.FC<CatalogPanelProps> = ({
                 touch={{ onTouchStart: flow.onTouchStart, onTouchEnd: flow.onTouchEnd }}
                 onOpenL2={flow.openL2}
                 onOpenL3={flow.openL3}
-                onOpenSlug={(slug) => { onClose(); nav(`/category${slug}`); }}
+                onOpenSlug={(slug) => {
+                    onClose();
+                    nav(`/category${slug}`);
+                }}
                 lockBody={false}
                 onCloseNav={() => onClose()}
             />

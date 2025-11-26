@@ -1,0 +1,37 @@
+{
+    "overlay": {
+        "processing": "Processing payment…"
+    },
+    "invoice": {
+        "title": "We’ll process your order and email you payment instructions (invoice/payment details).",
+        "description": "Processing may take 1–2 business days.",
+        "placeOrder": "Place order"
+    },
+    "paypal": {
+        "description": "You will be redirected to PayPal to complete your purchase.",
+        "button": "Pay with PayPal"
+    },
+    "stripe": {
+        "cardNumberLabel": "Card Number",
+        "cardNumberPlaceholder": "1234 1234 1234 1234",
+        "expiryLabel": "MM/YY",
+        "expiryPlaceholder": "MM/YY",
+        "cvcLabel": "CVC",
+        "cvcPlaceholder": "CVC",
+        "cardholderLabel": "Cardholder",
+        "cardholderError": "Enter the name as printed on the card",
+        "button": "Pay"
+    },
+    "terms": {
+        "label": "I <a>accept the terms and conditions</a>",
+        "acceptRequired": "Please accept the terms and conditions first."
+    },
+    "errors": {
+        "orderInvalid": "Order data is not valid.",
+        "paymentFailed": "Payment failed: {{message}}",
+        "paypalStartFailed": "PayPal: unable to start payment. {{message}}"
+    },
+    "buttons": {
+        "back": "Back"
+    }
+}

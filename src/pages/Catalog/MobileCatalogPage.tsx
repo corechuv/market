@@ -1,17 +1,19 @@
 // src/pages/Catalog/MobileCatalogPage.tsx
-import "react"
-import { useNavigate } from "react-router-dom"
-// import c from "./MobileCatalogPage.module.scss"
+import "react";
+import { useNavigate } from "react-router-dom";
+// import c from "./MobileCatalogPage.module.scss";
 
-import Page from "../../components/UI/Page/Page"
-import { useVisualViewport } from "../../hooks/useViewportUnits"
-import { CatalogScreens } from "../../components/Catalog/CatalogScreens"
-import { useCatalogFlow } from "../../utils/catalog/useCatalogFlow"
-
+import Page from "../../components/UI/Page/Page";
+import { useVisualViewport } from "../../hooks/useViewportUnits";
+import { CatalogScreens } from "../../components/Catalog/CatalogScreens";
+import { useCatalogFlow } from "../../utils/catalog/useCatalogFlow";
+import { useTranslation } from "react-i18next";
 
 export default function MobileCatalogPage() {
   useVisualViewport();
   const nav = useNavigate();
+  const { t } = useTranslation("catalog");
+
   const flow = useCatalogFlow({
     backAtL1: "smartBack",
     closeOnNavigate: false,
@@ -21,7 +23,7 @@ export default function MobileCatalogPage() {
   return (
     <Page padding={false}>
       <CatalogScreens
-        title="Catalog"
+        title={t("title")}
         stage={flow.stage}
         isLoading={flow.isLoading}
         error={!flow.isLoading && !!flow.error}

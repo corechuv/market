@@ -9,11 +9,13 @@ import { useAuth } from "../../context/AuthContext";
 import Wrapper from "../../components/Checkout/User/Wrapper";
 import WrapperSkeleton from "../../components/Checkout/User/Wrapper.Skeleton";
 import { buildAvatarSrc } from "../../utils/avatar";
+import { useTranslation } from "react-i18next";
 
 const IdentityGatePage: React.FC = () => {
     const { isAuthenticated, user, loading: authLoading, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    const { t } = useTranslation("identityGate");
 
     const params = new URLSearchParams(location.search);
     // Куда идти после выбора личности (по умолчанию — checkout)
@@ -57,7 +59,7 @@ const IdentityGatePage: React.FC = () => {
                                 onClick={goBackToCart}
                                 type="button"
                             >
-                                Back
+                                {t("buttons.back")}
                             </Button>
                         </div>
                     </div>
@@ -71,13 +73,14 @@ const IdentityGatePage: React.FC = () => {
                                         (user as any)?.firstName || (user as any)?.lastName
                                             ? `${(user as any)?.firstName ?? ""} ${(user as any)?.lastName ?? ""
                                                 }`.trim()
-                                            : (user as any)?.email ?? "Account";
+                                            : (user as any)?.email ?? t("title");
 
                                     const username = (user as any)?.username;
 
                                     const avatarUrl = buildAvatarSrc(
                                         (user as any).avatarUrl,
-                                        `${(user as any).id}-${(user as any).avatarUrl || ""}`
+                                        `${(user as any).id}-${(user as any).avatarUrl || ""
+                                        }`
                                     );
 
                                     return (
@@ -93,7 +96,7 @@ const IdentityGatePage: React.FC = () => {
 
                         <div className={c.gate__actions}>
                             <Button size="small" onClick={continueToNext}>
-                                Continue
+                                {t("buttons.continue")}
                             </Button>
                             {user && (
                                 <Button
@@ -101,7 +104,7 @@ const IdentityGatePage: React.FC = () => {
                                     variant="secondary"
                                     onClick={switchAccount}
                                 >
-                                    Switch account
+                                    {t("buttons.switchAccount")}
                                 </Button>
                             )}
                             <Button
@@ -110,17 +113,15 @@ const IdentityGatePage: React.FC = () => {
                                 onClick={goBackToCart}
                                 type="button"
                             >
-                                Back
+                                {t("buttons.back")}
                             </Button>
                         </div>
                     </>
                 ) : (
                     // Гость: выбор гостя / логин / регистрация
                     <>
-                        <h2 className={c.gate__title}>Account</h2>
-                        <h2 className={c.gate__description}>
-                            You can checkout as a guest or sign in / register for a faster experience.
-                        </h2>
+                        <h2 className={c.gate__title}>{t("title")}</h2>
+                        <h2 className={c.gate__description}>{t("description")}</h2>
                         <div className={c.gate__actions}>
                             <Button
                                 size="small"
@@ -128,7 +129,7 @@ const IdentityGatePage: React.FC = () => {
                                 type="button"
                                 onClick={continueAsGuest}
                             >
-                                Continue as guest
+                                {t("buttons.continueAsGuest")}
                             </Button>
                             <Button
                                 size="small"
@@ -136,7 +137,7 @@ const IdentityGatePage: React.FC = () => {
                                 type="button"
                                 onClick={goToLogin}
                             >
-                                Login
+                                {t("buttons.login")}
                             </Button>
                             <Button
                                 size="small"
@@ -144,7 +145,7 @@ const IdentityGatePage: React.FC = () => {
                                 type="button"
                                 onClick={goToRegister}
                             >
-                                Register
+                                {t("buttons.register")}
                             </Button>
                             <Button
                                 size="small"
@@ -152,7 +153,7 @@ const IdentityGatePage: React.FC = () => {
                                 type="button"
                                 onClick={goBackToCart}
                             >
-                                Back
+                                {t("buttons.back")}
                             </Button>
                         </div>
                     </>

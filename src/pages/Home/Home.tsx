@@ -25,13 +25,27 @@ import nvidia_light from "@/assets/brand_logos/NVIDIA_Logo_black.png";
 import nvidia_dark from "@/assets/brand_logos/NVIDIA_Logo_white.png";
 import hp_light from "@/assets/brand_logos/HP_Logo_color.svg";
 import hp_dark from "@/assets/brand_logos/HP_Logo_color.svg";
+
 import { Tabs, type TabItem } from "../../components/UI/Tabs";
 import ProductItemList from "../../components/Product/ProductItemList";
+import { useTranslation } from "react-i18next";
 
 const demoImages = [
-    { src: "https://www.apple.com/v/iphone-17-pro/a/images/overview/highlights/highlights_apple_intelligence__bs20h6298f36_medium_2x.jpg", alt: "1", caption: "" },
-    { src: "https://www.apple.com/v/iphone-17-pro/a/images/overview/highlights/highlights_design_endframe__flnga0hibmeu_large_2x.jpg", alt: "2", caption: "" },
-    { src: "https://www.apple.com/v/iphone-17-pro/a/images/overview/highlights/highlights_ios__empnwsdz698i_large_2x.jpg", alt: "3", caption: "" },
+    {
+        src: "https://www.apple.com/v/iphone-17-pro/a/images/overview/highlights/highlights_apple_intelligence__bs20h6298f36_medium_2x.jpg",
+        alt: "1",
+        caption: ""
+    },
+    {
+        src: "https://www.apple.com/v/iphone-17-pro/a/images/overview/highlights/highlights_design_endframe__flnga0hibmeu_large_2x.jpg",
+        alt: "2",
+        caption: ""
+    },
+    {
+        src: "https://www.apple.com/v/iphone-17-pro/a/images/overview/highlights/highlights_ios__empnwsdz698i_large_2x.jpg",
+        alt: "3",
+        caption: ""
+    }
 ];
 
 const brandLogos = [
@@ -40,16 +54,10 @@ const brandLogos = [
     { name: "Microsoft", light: { svg: microsoft_light }, dark: { svg: microsoft_dark } },
     { name: "Intel", light: { svg: intel_light }, dark: { svg: intel_dark } },
     { name: "Nvidia", light: { svg: nvidia_light }, dark: { svg: nvidia_dark } },
-    { name: "HP", light: { svg: hp_light }, dark: { svg: hp_dark } },
+    { name: "HP", light: { svg: hp_light }, dark: { svg: hp_dark } }
 ];
 
 type TabKey = "home" | "new_arrivals" | "sale";
-
-const tabs: TabItem<TabKey>[] = [
-    { key: "home", label: "Home" },
-    { key: "new_arrivals", label: "New Arrivals" },
-    { key: "sale", label: "Sale" },
-];
 
 const normalizeTab = (tabParam?: string): TabKey => {
     switch (tabParam) {
@@ -65,6 +73,7 @@ const normalizeTab = (tabParam?: string): TabKey => {
 };
 
 export default function Home() {
+    const { t } = useTranslation("home");
     const { tab } = useParams<{ tab?: string }>();
     const nav = useNavigate();
 
@@ -75,6 +84,15 @@ export default function Home() {
     const [, setError] = React.useState<string | null>(null);
 
     const active = normalizeTab(tab);
+
+    const tabs: TabItem<TabKey>[] = React.useMemo(
+        () => [
+            { key: "home", label: t("tabs.home") },
+            { key: "new_arrivals", label: t("tabs.newArrivals") },
+            { key: "sale", label: t("tabs.sale") }
+        ],
+        [t]
+    );
 
     React.useEffect(() => {
         let cancelled = false;
@@ -94,18 +112,18 @@ export default function Home() {
                 const newReq = (getProducts as any)({
                     newArrivalsOnly: true,
                     availableOnly: true,
-                    limit: 100,
+                    limit: 100
                 });
                 const saleReq = (getProducts as any)({
                     saleOnly: true,
                     availableOnly: true,
-                    limit: 100,
+                    limit: 100
                 });
 
                 const [all, newest, sale] = await Promise.all([
                     unwrap(allReq),
                     unwrap(newReq),
-                    unwrap(saleReq),
+                    unwrap(saleReq)
                 ]);
 
                 if (!cancelled) {
@@ -137,7 +155,7 @@ export default function Home() {
                         items={tabs}
                         activeKey={active}
                         onChange={handleTabChange}
-                        ariaLabel="Profile sections"
+                        ariaLabel={t("tabs.ariaLabel")}
                     />
 
                     <div style={{ padding: "0 var(--gap)" }}>
@@ -156,22 +174,29 @@ export default function Home() {
 
                     {active === "home" && (
                         <>
-                            <BrandCarousel label="Brands" images={brandLogos} />
+                            <BrandCarousel
+                                label={t("sections.brands")}
+                                images={brandLogos}
+                            />
 
-                            {/* 🔥 New Arrivals карусель — только новинки */}
+                            {/* New Arrivals карусель — только новинки */}
                             <ProductCarousel
-                                label="New Arrivals"
+                                label={t("sections.newArrivals")}
                                 products={newArrivals}
                                 isLoading={loading}
                                 skeletonCount={10}
                                 onItemClick={(p) => nav(`/product/${p.id}`)}
                             />
 
-                            <HomeVideos limit={5} sort="trending" label="Trending videos" />
+                            <HomeVideos
+                                limit={5}
+                                sort="trending"
+                                label={t("sections.trendingVideos")}
+                            />
 
-                            {/* здесь можно оставить общий список как "Bestsellers" */}
+                            {/* общий список как "Bestsellers" */}
                             <ProductCarousel
-                                label="Bestsellers"
+                                label={t("sections.bestsellers")}
                                 products={products}
                                 isLoading={loading}
                                 skeletonCount={10}
@@ -180,7 +205,7 @@ export default function Home() {
 
                             {/* Sale карусель — только скидки */}
                             <ProductCarousel
-                                label="Sale"
+                                label={t("sections.sale")}
                                 products={saleProducts}
                                 isLoading={loading}
                                 skeletonCount={10}
@@ -191,7 +216,10 @@ export default function Home() {
 
                     {active === "new_arrivals" && (
                         <>
-                            <BrandCarousel label="Brands" images={brandLogos} />
+                            <BrandCarousel
+                                label={t("sections.brands")}
+                                images={brandLogos}
+                            />
                             <div style={{ padding: "0 var(--gap)" }}>
                                 <ProductItemList
                                     products={newArrivals}
@@ -201,7 +229,7 @@ export default function Home() {
                                 />
                             </div>
                             <ProductCarousel
-                                label="New Arrivals"
+                                label={t("sections.newArrivals")}
                                 products={newArrivals}
                                 isLoading={loading}
                                 skeletonCount={10}
@@ -212,7 +240,10 @@ export default function Home() {
 
                     {active === "sale" && (
                         <>
-                            <BrandCarousel label="Brands" images={brandLogos} />
+                            <BrandCarousel
+                                label={t("sections.brands")}
+                                images={brandLogos}
+                            />
                             <div style={{ padding: "0 var(--gap)" }}>
                                 <ProductItemList
                                     products={saleProducts}
@@ -222,7 +253,7 @@ export default function Home() {
                                 />
                             </div>
                             <ProductCarousel
-                                label="Sale"
+                                label={t("sections.sale")}
                                 products={saleProducts}
                                 isLoading={loading}
                                 skeletonCount={10}

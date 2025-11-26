@@ -1,29 +1,37 @@
 // src/components/Footer/Footer.tsx
-import "react"
-import cls from "./Footer.module.scss"
-import { useIsMobile } from "../../utils/useIsMobile"
-import Accordion from "../UI/Accordion"
-import { navInfo } from "../../data/footer/nav"
+import "react";
+import cls from "./Footer.module.scss";
+import { useIsMobile } from "../../utils/useIsMobile";
+import Accordion from "../UI/Accordion";
+import { navInfo } from "../../data/footer/nav";
+import { useTranslation } from "react-i18next";
 
 export default function Footer() {
-    const isMobile = useIsMobile(768)
+    const isMobile = useIsMobile(768);
+    const { t } = useTranslation("footer");
 
     return (
         <footer className={cls.footer}>
-            <section className={cls.footer__section} aria-label="Footer Navigation">
+            <section
+                className={cls.footer__section}
+                aria-label={t("ariaNavigation")}
+            >
                 {isMobile ? (
                     <nav className={cls.footer__nav}>
                         {navInfo.map((group) => (
                             <Accordion
-                                key={group.title}
-                                title={group.title}
+                                key={group.id}
+                                title={t(group.titleKey)}
                                 defaultOpen={false}
                                 margin={false}
                             >
                                 <ul className={cls["footer__nav--col--list"]}>
                                     {group.links.map((l) => (
-                                        <li key={l.href} className={cls["footer__nav--col--list--item"]}>
-                                            <a href={l.href}>{l.label}</a>
+                                        <li
+                                            key={l.href}
+                                            className={cls["footer__nav--col--list--item"]}
+                                        >
+                                            <a href={l.href}>{t(l.labelKey)}</a>
                                         </li>
                                     ))}
                                 </ul>
@@ -36,13 +44,18 @@ export default function Footer() {
                             <div
                                 className={cls["footer__nav--col"]}
                                 role="listitem"
-                                key={group.title}
+                                key={group.id}
                             >
-                                <h3 className={cls["footer__nav--col--title"]}>{group.title}</h3>
+                                <h3 className={cls["footer__nav--col--title"]}>
+                                    {t(group.titleKey)}
+                                </h3>
                                 <ul className={cls["footer__nav--col--list"]}>
                                     {group.links.map((l) => (
-                                        <li key={l.href} className={cls["footer__nav--col--list--item"]}>
-                                            <a href={l.href}>{l.label}</a>
+                                        <li
+                                            key={l.href}
+                                            className={cls["footer__nav--col--list--item"]}
+                                        >
+                                            <a href={l.href}>{t(l.labelKey)}</a>
                                         </li>
                                     ))}
                                 </ul>
@@ -52,10 +65,10 @@ export default function Footer() {
                 )}
             </section>
             <section className={cls.footer__section} aria-label="Footer Copyright">
-                <p className={cls.corp}>&copy; 2025 Dashedo. All rights reserved.</p>
+                <p className={cls.corp}>{t("copyright")}</p>
             </section>
         </footer>
-    )
+    );
 }
 
 
