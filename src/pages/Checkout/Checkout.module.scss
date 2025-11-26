@@ -102,3 +102,50 @@
         display: none !important;
     }
 }
+
+.amex {
+    width: 44px;
+    height: 36px;
+    object-fit: contain;
+    padding: 2px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.visa {
+    width: 58px;
+    height: 28px;
+    object-fit: contain;
+    padding: 2px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.mastercard {
+    width: 49px;
+    height: 30px;
+    object-fit: contain;
+    padding: 2px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.paypal {
+    width: 71px;
+    height: 28px;
+    object-fit: contain;
+    padding: 2px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.dpd,
+.dhl,
+.bank {
+    width: 52px;
+    height: 28px;
+    object-fit: contain;
+    padding: 2px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+}

@@ -146,8 +146,8 @@ function normalizeCarrier(code?: string) {
 }
 
 function carrierIconFor(option: ShippingUi) {
-  const key = normalizeCarrier(option.carrierCode) as keyof typeof CARRIER_LOGOS;
-  const src = CARRIER_LOGOS[key];
+  const key = normalizeCarrier(option.carrierCode); // "dhl", "dpd", "gls", "hermes"
+  const src = CARRIER_LOGOS[key as keyof typeof CARRIER_LOGOS];
 
   if (!src) {
     return (
@@ -167,7 +167,19 @@ function carrierIconFor(option: ShippingUi) {
 
   const alt =
     option.label?.split("•")[0]?.trim() || option.carrierCode || "Carrier";
-  return <img loading="lazy" src={src} alt={`${alt} logo`} height={18} />;
+
+  // Берём класс из CSS-модуля по ключу "dhl" / "dpd" / "gls" / "hermes"
+  const carrierClass =
+    (styles as Record<string, string>)[key] || styles.carrier; // styles.carrier — общий стиль
+
+  return (
+    <img
+      loading="lazy"
+      className={carrierClass}
+      src={src}
+      alt={`${alt} logo`}
+    />
+  );
 }
 
 // --- Component
@@ -199,27 +211,23 @@ const CheckoutPage: React.FC = () => {
         title: "Card payment",
         icon: (
           <>
-            <img loading="lazy" src={theme === "dark" ? visa : visa} alt="" />
-            <img
-              loading="lazy"
-              src={theme === "dark" ? mastercard : mastercard}
-              alt=""
-            />
-            <img loading="lazy" src={theme === "dark" ? amex : amex} alt="" />
+            <img loading="lazy" className={styles.amex} src={theme === "dark" ? amex : amex} alt="" />
+            <img loading="lazy" className={styles.visa} src={theme === "dark" ? visa : visa} alt="" />
+            <img loading="lazy" className={styles.mastercard} src={theme === "dark" ? mastercard : mastercard} alt="" />
           </>
         ),
       },
       {
         id: "paypal",
         title: "PayPal",
-        icon: <img loading="lazy" src={paypal} alt="" />,
+        icon: <img loading="lazy" className={styles.paypal} src={paypal} alt="" />,
       },
       {
         id: "invoice",
         title: "Bank transfer / Invoice",
         caption: "We’ll send payment instructions by email",
         icon: (
-          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
+          <svg className={styles.bank} width="22" height="22" viewBox="0 0 24 24" aria-hidden>
             <path d="M12 3l9 5v2H3V8l9-5zM4 11h16v8H4z" fill="currentColor" />
           </svg>
         ),
@@ -593,7 +601,6 @@ const CheckoutPage: React.FC = () => {
           <div className={styles.checkout__actions}>
             <Button
               size="small"
-              className="btn btn--xl"
               type="button"
               disabled={!canPay || qLoading}
               onClick={handleGoToPayment}
@@ -632,8 +639,6 @@ const CheckoutPage: React.FC = () => {
 };
 
 export default CheckoutPage;
-
-// ---- Sections
 
 type AddressSectionProps = {
   address: FormAddress;

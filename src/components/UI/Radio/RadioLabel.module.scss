@@ -18,17 +18,7 @@
     &__icon {
         display: flex;
         align-items: center;
-        gap: 10px;
-
-        img {
-            width: 52px;
-            height: 28px;
-            object-fit: contain;
-            padding: 2px 6px;
-            border-radius: 6px;
-            background-color: var(--bg-card);
-            cursor: pointer;
-        }
+        gap: 0px;
     }
 }
 
