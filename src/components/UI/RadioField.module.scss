@@ -1,7 +1,7 @@
 // src/components/UI/RadioField.module.scss
 .option {
     display: grid;
-    grid-template-columns: auto 20px;
+    grid-template-columns: 20px auto;
     align-items: center;
     gap: 0.8rem;
     user-select: none;
