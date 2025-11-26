@@ -569,6 +569,7 @@ const CheckoutPage: React.FC = () => {
           />
 
           <Accordion title="Payment Method" defaultOpen>
+
             <div className={styles.radio__list}>
               {pmOptions.map((o) => (
                 <RadioField
@@ -726,89 +727,89 @@ const AddressSection: React.FC<AddressSectionProps> = ({
                 <div>{selectedSavedAddr.country}</div>
               </>
             )}
-          </Accordion>
 
-          {/* Форма показывается только когда выбран "manual" или нет валидного сохранённого адреса */}
-          {(!selectedSavedAddr || selectedSavedAddr === null || selectedAddrId === "manual") && (
-            <form
-              className="form"
-              onSubmit={(e) => e.preventDefault()}
-            >
-              <div className="form__row">
-                <TextField
-                  label="First Name"
-                  value={address.firstName}
-                  onChange={set("firstName")}
-                  placeholder="John"
-                  required
-                  disabled={fieldsDisabled}
-                />
-                <TextField
-                  label="Last Name"
-                  value={address.lastName}
-                  onChange={set("lastName")}
-                  placeholder="Doe"
-                  required
-                  disabled={fieldsDisabled}
-                />
-              </div>
-              <div className="form__row">
-                <TextField
-                  label="Email"
-                  type="email"
-                  value={address.email}
-                  onChange={set("email")}
-                  placeholder="name@mail.com"
-                  required
-                  disabled={fieldsDisabled}
-                />
-                <TextField
-                  label="Phone"
-                  value={address.phone}
-                  onChange={set("phone")}
-                  placeholder="+49 170 000000"
-                  required
-                  disabled={fieldsDisabled}
-                />
-              </div>
-              <div className="form__row">
-                <TextField
-                  label="Address 1"
-                  value={address.line1}
-                  onChange={set("line1")}
-                  placeholder="Unter den Linden 1"
-                  required
-                  disabled={fieldsDisabled}
-                />
-                <TextField
-                  label="City"
-                  value={address.city}
-                  onChange={set("city")}
-                  placeholder="Berlin"
-                  required
-                  disabled={fieldsDisabled}
-                />
-              </div>
-              <div className="form__row">
-                <TextField
-                  label="Country"
-                  value={address.country}
-                  onChange={set("country")}
-                  placeholder="Deutschland"
-                  required
-                  disabled={fieldsDisabled}
-                />
-                <TextField
-                  label="Postal Code"
-                  value={address.postalCode}
-                  onChange={set("postalCode")}
-                  placeholder="10115"
-                  required
-                  disabled={fieldsDisabled}
-                />
-              </div>
-            </form>
-          )}
+            {/* Форма показывается только когда выбран "manual" или нет валидного сохранённого адреса */}
+            {(!selectedSavedAddr || selectedSavedAddr === null || selectedAddrId === "manual") && (
+              <form
+                className="form"
+                onSubmit={(e) => e.preventDefault()}
+              >
+                <div className="form__row">
+                  <TextField
+                    label="First Name"
+                    value={address.firstName}
+                    onChange={set("firstName")}
+                    placeholder="John"
+                    required
+                    disabled={fieldsDisabled}
+                  />
+                  <TextField
+                    label="Last Name"
+                    value={address.lastName}
+                    onChange={set("lastName")}
+                    placeholder="Doe"
+                    required
+                    disabled={fieldsDisabled}
+                  />
+                </div>
+                <div className="form__row">
+                  <TextField
+                    label="Email"
+                    type="email"
+                    value={address.email}
+                    onChange={set("email")}
+                    placeholder="name@mail.com"
+                    required
+                    disabled={fieldsDisabled}
+                  />
+                  <TextField
+                    label="Phone"
+                    value={address.phone}
+                    onChange={set("phone")}
+                    placeholder="+49 170 000000"
+                    required
+                    disabled={fieldsDisabled}
+                  />
+                </div>
+                <div className="form__row">
+                  <TextField
+                    label="Address 1"
+                    value={address.line1}
+                    onChange={set("line1")}
+                    placeholder="Unter den Linden 1"
+                    required
+                    disabled={fieldsDisabled}
+                  />
+                  <TextField
+                    label="City"
+                    value={address.city}
+                    onChange={set("city")}
+                    placeholder="Berlin"
+                    required
+                    disabled={fieldsDisabled}
+                  />
+                </div>
+                <div className="form__row">
+                  <TextField
+                    label="Country"
+                    value={address.country}
+                    onChange={set("country")}
+                    placeholder="Deutschland"
+                    required
+                    disabled={fieldsDisabled}
+                  />
+                  <TextField
+                    label="Postal Code"
+                    value={address.postalCode}
+                    onChange={set("postalCode")}
+                    placeholder="10115"
+                    required
+                    disabled={fieldsDisabled}
+                  />
+                </div>
+              </form>
+            )}
+          </Accordion>
         </div>
       </div>
 
