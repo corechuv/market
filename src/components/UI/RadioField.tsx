@@ -26,7 +26,6 @@ export const RadioField: React.FC<RadioFieldProps> = ({
 
   return (
     <label className={cs.option} htmlFor={inputId} onClick={onClick}>
-      {label && <span className={cs.label}>{label}</span>}
       <input
         id={inputId}
         type="radio"
@@ -35,6 +34,7 @@ export const RadioField: React.FC<RadioFieldProps> = ({
         {...props}
         className={`${cs.radio} ${className ?? ""}`}
       />
+      {label && <span className={cs.label}>{label}</span>}
     </label>
   );
 };
