@@ -154,7 +154,7 @@ const CartPage: React.FC = () => {
                         </ul>
                     )}
 
-                    <div className="card__foot">
+                    <div className={c.section__actions}>
                         <Button
                             size="small"
                             disabled={selectedLines.length === 0}
