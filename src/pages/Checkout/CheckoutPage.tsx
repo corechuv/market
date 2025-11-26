@@ -707,24 +707,26 @@ const AddressSection: React.FC<AddressSectionProps> = ({
             )}
             {selectedSavedAddr && (
               <>
-                <div>
+                <div style={{ marginBottom: 6 }}>
                   <strong>
                     {selectedSavedAddr.firstName}{" "}
                     {selectedSavedAddr.lastName}
                   </strong>
                 </div>
-                {selectedSavedAddr.company && (
-                  <div>{selectedSavedAddr.company}</div>
-                )}
-                <div>{selectedSavedAddr.line1}</div>
-                {selectedSavedAddr.line2 && (
-                  <div>{selectedSavedAddr.line2}</div>
-                )}
-                <div>
-                  {selectedSavedAddr.postalCode}{" "}
-                  {selectedSavedAddr.city}
+                <div style={{ marginLeft: 4 }}>
+                  {selectedSavedAddr.company && (
+                    <div>{selectedSavedAddr.company}</div>
+                  )}
+                  <div>{selectedSavedAddr.line1}</div>
+                  {selectedSavedAddr.line2 && (
+                    <div>{selectedSavedAddr.line2}</div>
+                  )}
+                  <div>
+                    {selectedSavedAddr.postalCode}{" "}
+                    {selectedSavedAddr.city}
+                  </div>
+                  <div>{selectedSavedAddr.country}</div>
                 </div>
-                <div>{selectedSavedAddr.country}</div>
               </>
             )}
 
