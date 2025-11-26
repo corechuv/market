@@ -1,3 +1,4 @@
+// src/components/Product/SidebarItems.tsx
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Accordion from "../UI/Accordion";
@@ -12,6 +13,8 @@ import {
     getBreadcrumbs,
     getChildren,
 } from "../../services/categoryService";
+
+import { useTranslation } from "react-i18next";
 
 type SortOption = { value: string; label: string };
 type Option = { value: string; label: string };
@@ -63,11 +66,11 @@ const SidebarItems: React.FC<SidebarItemsProps> = ({
     onChangeMinRating,
     onResetFilters,
 }) => {
+    const { t } = useTranslation("products");
     const nav = useNavigate();
     const go = (fullSlug?: string) => fullSlug && nav(`/category${fullSlug}`);
 
     // --- Рейтинг: локальное состояние выбранных чекбоксов ---
-    // По умолчанию: выбраны "all" + все звёзды (то есть реально всё отмечено)
     const [ratingSelected, setRatingSelected] = useState<string[]>(() =>
         stars.map((s) => s.value)
     );
@@ -201,12 +204,12 @@ const SidebarItems: React.FC<SidebarItemsProps> = ({
                     size="small"
                     onClick={onResetFilters}
                 >
-                    Reset filters
+                    {t("filters.reset")}
                 </Button>
             </div>
 
             {showSort && (
-                <Accordion title="Sort by" defaultOpen>
+                <Accordion title={t("sort.title")} defaultOpen>
                     <ul className={cls.sidebar__list}>
                         {sortOptions.map((o) => (
                             <li
@@ -226,7 +229,6 @@ const SidebarItems: React.FC<SidebarItemsProps> = ({
 
             {showCategories && electronicsRoot && (
                 <Accordion title={electronicsRoot.name} defaultOpen>
-                    {/* UL: всегда рисуем 2-й уровень (дети Электроники) */}
                     <ul className={cls.sidebar__list}>
                         {level2.map((l2) => (
                             <li key={l2.id} className={cls.sidebar__item}>
@@ -241,7 +243,6 @@ const SidebarItems: React.FC<SidebarItemsProps> = ({
                                     {l2.name}
                                 </a>
 
-                                {/* Если этот L2 активен — под ним выводим его 3-й уровень */}
                                 {isActiveL2(l2.id) && level3.length > 0 && (
                                     <ul className={cls.sidebar__sublist}>
                                         {level3.map((l3) => (
@@ -266,7 +267,7 @@ const SidebarItems: React.FC<SidebarItemsProps> = ({
                 </Accordion>
             )}
 
-            <Accordion title="Price" defaultOpen>
+            <Accordion title={t("filters.priceTitle")} defaultOpen>
                 <PriceRangeDual
                     min={priceRange.min}
                     max={priceRange.max}
@@ -278,7 +279,7 @@ const SidebarItems: React.FC<SidebarItemsProps> = ({
                 />
             </Accordion>
 
-            <Accordion title="Offer" defaultOpen>
+            <Accordion title={t("filters.offerTitle")} defaultOpen>
                 <CheckboxGroup
                     options={offerings}
                     defaultValue={[]}
@@ -292,7 +293,7 @@ const SidebarItems: React.FC<SidebarItemsProps> = ({
                 />
             </Accordion>
 
-            <Accordion title="Rating" defaultOpen>
+            <Accordion title={t("filters.ratingTitle")} defaultOpen>
                 <CheckboxGroup
                     options={stars}
                     value={ratingSelected}

@@ -1,0 +1,58 @@
+{
+    "tabs": {
+        "details": "Характеристики",
+        "other": "Другое",
+        "reviews": "Отзывы",
+        "ariaLabel": "Разделы товара"
+    },
+    "meta": {
+        "articlePrefix": "Артикул:"
+    },
+    "price": {
+        "vatIncluded": "вкл. НДС",
+        "freeShipping": "бесплатная доставка"
+    },
+    "availability": {
+        "inStock": "В наличии",
+        "outOfStock": "Нет в наличии"
+    },
+    "sections": {
+        "delivery": {
+            "title": "Доставка"
+        },
+        "shortDescription": {
+            "title": "Краткое описание",
+            "empty": "Для этого товара нет краткого описания."
+        },
+        "specifications": {
+            "title": "Характеристики"
+        },
+        "description": {
+            "title": "Описание",
+            "empty": "Для этого товара нет описания."
+        }
+    },
+    "reviews": {
+        "addButton": "Добавить отзыв",
+        "videoLabel": "Видеоотзывы",
+        "loading": "Загрузка отзывов…",
+        "error": "Не удалось загрузить отзывы: {{error}}",
+        "empty": "Отзывов пока нет.",
+        "ariaLabel": "Отзывы покупателей",
+        "ratingLabel": "Оценка: {{rating}} из 5",
+        "verified": "Проверенная покупка",
+        "helpful": "👍 {{count}}",
+        "anonymous": "Аноним",
+        "videoError": "Не удалось загрузить видео: {{error}}",
+        "videoEmpty": "Видео пока нет."
+    },
+    "related": {
+        "title": "Похожие товары"
+    },
+    "actions": {
+        "addToCart": "Добавить в корзину"
+    },
+    "sticky": {
+        "ariaLabel": "Быстрое добавление в корзину"
+    }
+}

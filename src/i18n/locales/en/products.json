@@ -1,0 +1,27 @@
+{
+    "title": {
+        "all": "All products",
+        "resultsFor": "Results for “{{query}}”"
+    },
+    "sort": {
+        "title": "Sort by",
+        "placeholder": "Sort by…",
+        "priceAsc": "Price: Low to high",
+        "priceDesc": "Price: High to low",
+        "discount": "Biggest discount",
+        "new": "New arrivals",
+        "rating": "Rating: High to low"
+    },
+    "filters": {
+        "title": "Filters",
+        "reset": "Reset filters",
+        "priceTitle": "Price",
+        "offerTitle": "Offer",
+        "ratingTitle": "Rating",
+        "sale": "Sale",
+        "newArrivals": "New arrivals",
+        "stars": {
+            "all": "Select all"
+        }
+    }
+}

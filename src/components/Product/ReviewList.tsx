@@ -1,4 +1,4 @@
-// ReviewList.tsx
+// src/components/Product/Review/ReviewList.tsx
 // A production-ready, accessible review list component using SCSS modules — без внешних зависимостей.
 
 import React from "react";
@@ -55,7 +55,8 @@ export interface ReviewListProps {
   ariaLabel?: string;
 }
 
-const capRating = (r: number) => Math.max(0, Math.min(5, Number.isFinite(r as number) ? (r as number) : 0));
+const capRating = (r: number) =>
+  Math.max(0, Math.min(5, Number.isFinite(r as number) ? (r as number) : 0));
 
 /**
  * ReviewList – shows a list of customer reviews.
@@ -74,7 +75,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
 }) => {
   const t = {
     ratingLabel: (r: number) => `Rating: ${r} out of 5`,
-    verified: "Verified",
+    verified: "Verified purchase",
     helpful: (n: number) => `Helpful: ${n}`,
     anonymous: "Anonymous",
     formatDate: (d: Date) =>
@@ -90,7 +91,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
     <ul
       className={cx(cls.reviewList, className)}
       aria-label={ariaLabel || "Customer reviews"}
-       style={{padding: "0 var(--gap)"}}
+      style={{ padding: "0 var(--gap)" }}
     >
       {reviews.map(
         ({
@@ -109,7 +110,11 @@ const ReviewList: React.FC<ReviewListProps> = ({
 
           return (
             <li key={id} className={cls.reviewList__item}>
-              <RatingBadge ratingValue={cappedRating} count={false} reviewCount={cappedRating} />
+              <RatingBadge
+                ratingValue={cappedRating}
+                count={false}
+                reviewCount={cappedRating}
+              />
               <div className={cls["reviewList__item--section"]}>
                 <header className={cls.reviewHeader}>
                   <span className={cls.reviewerName}>
@@ -121,10 +126,18 @@ const ReviewList: React.FC<ReviewListProps> = ({
                         width="20"
                         height="20"
                         role="img"
-                        aria-label="Заказ успешно оформлен"
+                        aria-label={t.verified}
                         style={{ "--w": 1.5, color: "#16a34a" } as React.CSSProperties}
                       >
-                        <circle cx="12" cy="12" r="10" fill="#16a34a" stroke="currentColor" strokeWidth={1.5 as unknown as number} opacity="0.15" />
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          fill="#16a34a"
+                          stroke="currentColor"
+                          strokeWidth={1.5 as unknown as number}
+                          opacity="0.15"
+                        />
                         <path
                           d="M7 12.5l3 3L17 9"
                           fill="none"

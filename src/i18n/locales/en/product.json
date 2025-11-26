@@ -1,0 +1,58 @@
+{
+    "tabs": {
+        "details": "Details",
+        "other": "Other",
+        "reviews": "Reviews",
+        "ariaLabel": "Product sections"
+    },
+    "meta": {
+        "articlePrefix": "Art. no.:"
+    },
+    "price": {
+        "vatIncluded": "incl. VAT",
+        "freeShipping": "free shipping"
+    },
+    "availability": {
+        "inStock": "In stock",
+        "outOfStock": "Out of stock"
+    },
+    "sections": {
+        "delivery": {
+            "title": "Delivery"
+        },
+        "shortDescription": {
+            "title": "Short description",
+            "empty": "No short description available for this product."
+        },
+        "specifications": {
+            "title": "Specifications"
+        },
+        "description": {
+            "title": "Description",
+            "empty": "No description available for this product."
+        }
+    },
+    "reviews": {
+        "addButton": "Add review",
+        "videoLabel": "Video reviews",
+        "loading": "Loading reviews…",
+        "error": "Failed to load reviews: {{error}}",
+        "empty": "No reviews yet.",
+        "ariaLabel": "Customer reviews",
+        "ratingLabel": "Rating: {{rating}} out of 5",
+        "verified": "Verified purchase",
+        "helpful": "👍 {{count}}",
+        "anonymous": "Anonymous",
+        "videoError": "Failed to load videos: {{error}}",
+        "videoEmpty": "No videos yet."
+    },
+    "related": {
+        "title": "More products"
+    },
+    "actions": {
+        "addToCart": "Add to cart"
+    },
+    "sticky": {
+        "ariaLabel": "Quick add to cart"
+    }
+}

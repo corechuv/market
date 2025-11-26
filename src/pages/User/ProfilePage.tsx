@@ -14,12 +14,9 @@ import Videos from "../../components/User/Tabs/Videos";
 import { buildAvatarSrc } from "../../utils/avatar";
 import WrapperSkeleton from "../../components/User/Wrapper.Skeleton";
 import type { Profile } from "../../types/user/profile";
+import { useTranslation } from "react-i18next";
 
 type TabKey = "videos";
-
-const tabs: TabItem<TabKey>[] = [
-    { key: "videos", label: "Videos" },
-];
 
 const normalizeTab = (tabParam?: string): TabKey => {
     switch (tabParam) {
@@ -30,6 +27,7 @@ const normalizeTab = (tabParam?: string): TabKey => {
 };
 
 export default function ProfilePage() {
+    const { t } = useTranslation("profile");
     const { username: usernameParam, tab } = useParams<{
         username: string;
         tab?: string;
@@ -42,6 +40,14 @@ export default function ProfilePage() {
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
     const [active, setActive] = useState<TabKey>(normalizeTab(tab));
+
+    // табы с локализацией
+    const tabs: TabItem<TabKey>[] = useMemo(
+        () => [
+            { key: "videos", label: t("tabs.videos") }
+        ],
+        [t]
+    );
 
     // синхронизируем активный таб с URL
     useEffect(() => {
@@ -62,7 +68,9 @@ export default function ProfilePage() {
 
         (async () => {
             try {
-                const { data } = await api.get(`/profiles/${encodeURIComponent(username)}`);
+                const { data } = await api.get(
+                    `/profiles/${encodeURIComponent(username)}`
+                );
                 if (!cancelled) {
                     setProfile(data as Profile);
                 }
@@ -91,16 +99,18 @@ export default function ProfilePage() {
     }, [profile, user]);
 
     const displayName = useMemo(() => {
-        if (!profile) return "User";
+        if (!profile) return t("fallback.user");
         const f = (profile.firstName || "").trim();
         const l = (profile.lastName || "").trim();
         const full = `${f} ${l}`.trim();
-        return full || profile.username || "User";
-    }, [profile]);
+        return full || profile.username || t("fallback.user");
+    }, [profile, t]);
 
     const displayUsername = profile?.username || undefined;
 
-    const backAfter = encodeURIComponent(`/u/${displayUsername ?? username}/videos`);
+    const backAfter = encodeURIComponent(
+        `/u/${displayUsername ?? username}/videos`
+    );
 
     if (loading || !profile) {
         return (
@@ -137,7 +147,7 @@ export default function ProfilePage() {
                                     navigate(`/account/profile/edit?back=${backAfter}`)
                                 }
                             >
-                                Edit profile
+                                {t("buttons.editProfile")}
                             </Button>
                             <Button
                                 size="small"
@@ -146,7 +156,7 @@ export default function ProfilePage() {
                                     navigate(`/account/settings?back=${backAfter}`)
                                 }
                             >
-                                Settings
+                                {t("buttons.settings")}
                             </Button>
                         </>
                     )
@@ -159,7 +169,7 @@ export default function ProfilePage() {
                         items={tabs}
                         activeKey={active}
                         onChange={handleTabChange}
-                        ariaLabel="Profile sections"
+                        ariaLabel={t("tabs.ariaLabel")}
                     />
 
                     {active === "videos" && (

@@ -68,6 +68,21 @@ import enHome from "./locales/en/home.json";
 import deHome from "./locales/de/home.json";
 import ruHome from "./locales/ru/home.json";
 
+// PROFILE
+import enProfile from "./locales/en/profile.json";
+import deProfile from "./locales/de/profile.json";
+import ruProfile from "./locales/ru/profile.json";
+
+// PRODUCTS
+import enProducts from "./locales/en/products.json";
+import deProducts from "./locales/de/products.json";
+import ruProducts from "./locales/ru/products.json";
+
+// PRODUCT
+import enProduct from "./locales/en/product.json";
+import deProduct from "./locales/de/product.json";
+import ruProduct from "./locales/ru/product.json";
+
 const initialLang = getInitialLanguage();
 
 i18n
@@ -87,7 +102,10 @@ i18n
                 search: enSearch,
                 settings: enSettings,
                 catalog: enCatalog,
-                home: enHome
+                home: enHome,
+                profile: enProfile,
+                products: enProducts,
+                product: enProduct,
             },
             de: {
                 footer: deFooter,
@@ -102,7 +120,10 @@ i18n
                 search: deSearch,
                 settings: deSettings,
                 catalog: deCatalog,
-                home: deHome
+                home: deHome,
+                profile: deProfile,
+                products: deProducts,
+                product: deProduct,
             },
             ru: {
                 footer: ruFooter,
@@ -117,7 +138,10 @@ i18n
                 search: ruSearch,
                 settings: ruSettings,
                 catalog: ruCatalog,
-                home: ruHome
+                home: ruHome,
+                profile: ruProfile,
+                products: ruProducts,
+                product: ruProduct,
             },
         },
         lng: initialLang,

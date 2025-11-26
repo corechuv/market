@@ -1,6 +1,8 @@
 // src/pages/Product/ProductPage.tsx
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
 import { getProductById, getMoreProducts } from "../../services/productService";
 import { getBreadcrumbs } from "../../services/categoryService";
 import { buildSpecs, getInitialVariant } from "../../specs/builders";
@@ -33,12 +35,6 @@ import ProductImages from "../../components/Product/Details/ProductImages";
 
 type TabKey = "details" | "reviews" | "other";
 
-const productTabs: TabItem<TabKey>[] = [
-  { key: "details", label: "Details" },
-  { key: "other", label: "Other" },
-  { key: "reviews", label: "Reviews" },
-];
-
 const normalizeTab = (tabParam?: string): TabKey => {
   switch (tabParam) {
     case "reviews":
@@ -53,9 +49,19 @@ const normalizeTab = (tabParam?: string): TabKey => {
 export default function ProductPage() {
   const nav = useNavigate();
   const { productId, tab } = useParams<{ productId: string; tab?: string }>();
+  const { t } = useTranslation("product");
 
   // --- табы ---
   const [activeTab, setActiveTab] = React.useState<TabKey>(normalizeTab(tab));
+
+  // табы с переводами
+  const productTabs = React.useMemo<TabItem<TabKey>[]>(() => {
+    return [
+      { key: "details", label: t("tabs.details") },
+      { key: "other", label: t("tabs.other") },
+      { key: "reviews", label: t("tabs.reviews") },
+    ];
+  }, [t]);
 
   React.useEffect(() => {
     setActiveTab(normalizeTab(tab));
@@ -113,7 +119,6 @@ export default function ProductPage() {
           availableOnly: true,
           shuffle: true,
           fillFromAllIfShort: true,
-          // categoryId: product.categoryId,
         });
         if (!cancelled) setMoreProducts(res);
       } catch {
@@ -152,7 +157,6 @@ export default function ProductPage() {
   }, [product, variant, add]);
 
   // --- агрегаты отзывов (средняя оценка + количество всех типов) ---
-  // ВАЖНО: эти хуки объявлены выше любых ранних return!
   const [reviewAvg, setReviewAvg] = React.useState<number | null>(null);
   const [reviewCount, setReviewCount] = React.useState<number>(0);
 
@@ -172,7 +176,6 @@ export default function ProductPage() {
 
       try {
         while (true) {
-          // без type — получим plain + reel
           const page = await listProductReviews(product.id, { limit: LIMIT, offset });
           if (cancelled) return;
           if (!page.length) break;
@@ -251,7 +254,6 @@ export default function ProductPage() {
   const bannerImages = images.map((src, idx) => ({
     src,
     alt: product.name ? `${product.name} – фото ${idx + 1}` : `Фото ${idx + 1}`,
-    // caption: можно добавить при желании
   }));
 
   const price = variant?.price ?? product.price;
@@ -285,14 +287,11 @@ export default function ProductPage() {
         {/*<Breadcrumbs crumbs={categoryCrumbs as any} />*/}
 
         <div className={cls.productDetails}>
-
-          {/*<ProductImages images={images} />*/}
-
           <Tabs<TabKey>
             items={productTabs}
             activeKey={activeTab}
             onChange={handleTabChange}
-            ariaLabel="Product sections"
+            ariaLabel={t("tabs.ariaLabel")}
           />
 
           {activeTab === "details" && (
@@ -300,11 +299,13 @@ export default function ProductPage() {
               <div style={{ marginBottom: 10, padding: "0 var(--gap)" }}>
                 <div className={cls.productMeta}>
                   <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
-                  <div className={cls.productMeta__articleNumber}>Art.-Nr.: {articleNumber}</div>
+                  <div className={cls.productMeta__articleNumber}>
+                    {t("meta.articlePrefix")} {articleNumber}
+                  </div>
                 </div>
                 <h1 className={cls.productName}>{product.name}</h1>
               </div>
-              <div style={{padding: "0 var(--gap)"}}>
+              <div style={{ padding: "0 var(--gap)" }}>
                 <ProductImages
                   images={bannerImages}
                   interval={4500}
@@ -319,7 +320,7 @@ export default function ProductPage() {
                   fit="contain"
                 />
               </div>
-              <div className={cls.productInfo} style={{padding: "0 var(--gap)"}}>
+              <div className={cls.productInfo} style={{ padding: "0 var(--gap)" }}>
                 <div className={cls.productTitle}>
                   <div className={cls.productPrice}>
                     <div className={cls.meta__container}>
@@ -334,8 +335,8 @@ export default function ProductPage() {
                           <span className={cls.price__current}>{price}</span>
                         </div>
                         <div className={cls.product__infoBelow}>
-                          <span className={cls.productVat}>inkl. MwSt.</span>&nbsp;
-                          <span className={cls.productDelivery}>versandkostenfrei</span>
+                          <span className={cls.productVat}>{t("price.vatIncluded")}</span>&nbsp;
+                          <span className={cls.productDelivery}>{t("price.freeShipping")}</span>
                         </div>
                       </div>
                       <div className={"cls.meta_container--item"}>
@@ -365,7 +366,9 @@ export default function ProductPage() {
                       <div className={cls.available}>
                         <span className={available ? cls.inStock : cls.outOfStock} />
                         <span className={available ? cls.inStockText : cls.outOfStockText}>
-                          {available ? "In Stock" : "Out of Stock"}
+                          {available
+                            ? t("availability.inStock")
+                            : t("availability.outOfStock")}
                         </span>
                       </div>
                     </div>
@@ -380,7 +383,9 @@ export default function ProductPage() {
                   )}
 
                   <div className={cls.section}>
-                    <h3 className={cls.section__title}>Delivery</h3>
+                    <h3 className={cls.section__title}>
+                      {t("sections.delivery.title")}
+                    </h3>
                     <div className={cls.section__content}>
                       <DeliveryBadge minDays={2} maxDays={4} />
                     </div>
@@ -388,27 +393,37 @@ export default function ProductPage() {
                 </div>
 
                 <div ref={actionsRef} className={cls.productActions}>
-                  <Button className={cls.addToCart} disabled={!available} onClick={handleAddToCart}>
-                    Add to Cart
+                  <Button
+                    className={cls.addToCart}
+                    disabled={!available}
+                    onClick={handleAddToCart}
+                  >
+                    {t("actions.addToCart")}
                   </Button>
                 </div>
               </div>
 
-              <div className={cls.section} style={{padding: "0 var(--gap)"}}>
-                <h3 className={cls.section__title}>Short description</h3>
+              <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
+                <h3 className={cls.section__title}>
+                  {t("sections.shortDescription.title")}
+                </h3>
                 <div className={cls.section__content}>
                   <ul className={cls.list}>
                     {product.shortDescription?.length ? (
-                      product.shortDescription.map((line, idx) => <li key={idx}>{line}</li>)
+                      product.shortDescription.map((line, idx) => (
+                        <li key={idx}>{line}</li>
+                      ))
                     ) : (
-                      <li>No short description available for this product.</li>
+                      <li>{t("sections.shortDescription.empty")}</li>
                     )}
                   </ul>
                 </div>
               </div>
 
-              <div className={cls.section} style={{padding: "0 var(--gap)"}}>
-                <h3 className={cls.section__title}>Specifications</h3>
+              <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
+                <h3 className={cls.section__title}>
+                  {t("sections.specifications.title")}
+                </h3>
                 <div className={cls.section__content}>
                   <SpecTable
                     specs={entries}
@@ -419,23 +434,24 @@ export default function ProductPage() {
                 </div>
               </div>
 
-              <div className={cls.section} style={{padding: "0 var(--gap)"}}>
-                <h3 className={cls.section__title}>Description</h3>
+              <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
+                <h3 className={cls.section__title}>
+                  {t("sections.description.title")}
+                </h3>
                 <div className={cls.section__content}>
-                  <p>{product.description || "No description available for this product."}</p>
+                  <p>
+                    {product.description ||
+                      t("sections.description.empty")}
+                  </p>
                 </div>
               </div>
             </>
           )}
 
-          {activeTab === "other" && (
-            <>
-            </>
-          )}
+          {activeTab === "other" && <></>}
 
           {activeTab === "reviews" && (
             <>
-              {/* === Plain Reviews (server) — превью === */}
               <div className={cls.section}>
                 <div className={cls.section__content}>
                   <div className={cls.reviews}>
@@ -450,10 +466,14 @@ export default function ProductPage() {
                         size="small"
                         onClick={() => setIsOpenUpload(true)}
                       >
-                        Add review
+                        {t("reviews.addButton")}
                       </Button>
                     </div>
-                    <ProductVideos label="Video reviews" limit={10} productId={product.id} />
+                    <ProductVideos
+                      label={t("reviews.videoLabel")}
+                      limit={10}
+                      productId={product.id}
+                    />
                     <ProductPlainReviews productId={product.id} limit={5} />
                   </div>
                 </div>
@@ -463,14 +483,18 @@ export default function ProductPage() {
 
           <ProductCarousel
             products={moreProducts}
-            label="More Products"
+            label={t("related.title")}
             onItemClick={(p) => nav(`/product/${p.id}`)}
           />
         </div>
       </div>
 
       {showStickyCta && (
-        <div className={cls.stickyCta} role="region" aria-label="Quick add to cart">
+        <div
+          className={cls.stickyCta}
+          role="region"
+          aria-label={t("sticky.ariaLabel")}
+        >
           <div className={cls.stickyCta__price}>
             {!!discountPercent && compareAt && (
               <div className={cls.price__old}>
@@ -481,7 +505,7 @@ export default function ProductPage() {
             <span className={cls.stickyCta__currentPrice}>{price}</span>
           </div>
           <Button disabled={!available} onClick={handleAddToCart}>
-            Add to Cart
+            {t("actions.addToCart")}
           </Button>
         </div>
       )}

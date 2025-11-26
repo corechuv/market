@@ -1,5 +1,6 @@
-// src/components/Home/HomeVideos.tsx
+// src/components/Product/Review/ProductVideos.tsx
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { listProductReviews, posterFromMediaUrl } from "../../../services/reviewApi";
 import type { ReviewOut } from "../../../types/review/review";
 import cls from "./ProductVideos.module.scss";
@@ -15,8 +16,9 @@ type Props = {
 };
 
 type Item = { review: ReviewOut; url: string; poster?: string };
+
 const toItem = (r: ReviewOut): Item | null => {
-    const v = r.media.find(m => m.kind === "video");
+    const v = r.media.find((m) => m.kind === "video");
     if (!v?.url) return null;
     return { review: r, url: v.url, poster: posterFromMediaUrl(v.url) };
 };
@@ -25,8 +27,13 @@ export default function ProductVideos({
     productId,
     limit = 5,
     className,
-    label = "Videos",
+    label,
 }: Props) {
+    const { t } = useTranslation("product");
+
+    // если label не передали пропсом — берем из product.json
+    const resolvedLabel = label || t("reviews.videoLabel");
+
     const [items, setItems] = React.useState<Item[]>([]);
     const [open, setOpen] = React.useState(false);
     const [startIndex, setStartIndex] = React.useState(0);
@@ -39,38 +46,60 @@ export default function ProductVideos({
             setLoading(true);
             setError(null);
             try {
-                const res = await listProductReviews(productId, { type: "reel", limit, offset: 0 });
+                const res = await listProductReviews(productId, {
+                    type: "reel",
+                    limit,
+                    offset: 0,
+                });
                 if (cancelled) return;
                 const mapped = res.map(toItem).filter(Boolean) as Item[];
                 setItems(mapped);
             } catch (e: any) {
-                if (!cancelled) setError(e?.message ?? "Failed to load videos");
+                if (!cancelled) {
+                    // текст ошибки локализуем через i18n, поэтому тут можно не хардкодить
+                    setError(e?.message ?? null);
+                }
             } finally {
                 if (!cancelled) setLoading(false);
             }
         })();
-        return () => { cancelled = true; };
+        return () => {
+            cancelled = true;
+        };
     }, [productId, limit]);
 
     const viewItems = items.map((it, i) => ({
         id: it.review.id,
         poster: it.poster,
         title: it.review.text,
-        onClick: () => { ReelsAudio.unlock(); setStartIndex(i); setOpen(true); }
+        onClick: () => {
+            ReelsAudio.unlock();
+            setStartIndex(i);
+            setOpen(true);
+        },
     }));
 
     return (
-        <section className={`${cls.section} ${className || ""}`} aria-label={label}>
-            {error && <div>Failed to load videos: {error}</div>}
+        <section
+            className={`${cls.section} ${className || ""}`}
+            aria-label={resolvedLabel}
+        >
+            {error && (
+                <div>
+                    {t("reviews.videoError", { error })}
+                </div>
+            )}
 
             <VideoCarousel
-                label={label}
+                label={resolvedLabel}
                 items={viewItems}
                 isLoading={loading}
                 skeletonCount={limit}
             />
 
-            {!loading && !error && !items.length && <div>No videos yet.</div>}
+            {!loading && !error && !items.length && (
+                <div>{t("reviews.videoEmpty")}</div>
+            )}
 
             {open && (
                 <ReelsLightbox

@@ -1,0 +1,13 @@
+{
+    "tabs": {
+        "videos": "Videos",
+        "ariaLabel": "Profile sections"
+    },
+    "buttons": {
+        "editProfile": "Edit profile",
+        "settings": "Settings"
+    },
+    "fallback": {
+        "user": "User"
+    }
+}

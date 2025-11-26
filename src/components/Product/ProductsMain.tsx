@@ -1,3 +1,4 @@
+// src/components/Product/ProductMain.tsx
 import React, { useMemo, useState } from "react";
 import cls from "./ProductsMain.module.scss";
 import { useNavigate } from "react-router-dom";
@@ -11,19 +12,11 @@ import { SelectField, type SelectOption } from "../UI/SelectField";
 import IconFilters from "../Icons/IconFilters";
 import MasterBar from "../UI/Bars/MasterBar";
 import CloseIcon from "../Icons/CloseIcon";
+import { useTranslation } from "react-i18next";
 
 // ---- значения сортировки (для типов) ----
 const sortValues = ["price", "-price", "discount", "new", "rating"] as const;
 type SortValue = (typeof sortValues)[number];
-
-// ---- сами опции для SelectField (обычный массив, не readonly) ----
-const sortOptions: SelectOption[] = [
-  { value: "price", label: "Price: Low to high" },
-  { value: "-price", label: "Price: High to low" },
-  { value: "discount", label: "Biggest discount" },
-  { value: "new", label: "New arrivals" },
-  { value: "rating", label: "Rating: High to low" },
-];
 
 type ProductsMainProps = {
   query?: string;
@@ -31,28 +24,12 @@ type ProductsMainProps = {
   categoryFullSlug?: string; // "/electronics/computers/cpu"
 };
 
-// офферы: распродажа и новинки
-const offerings = [
-  { value: "sale", label: "Sale" },
-  { value: "new", label: "New arrivals" },
-];
-
-const stars = [
-  { value: "6", label: "Select all" },
-  { value: "5", label: "" },
-  { value: "4", label: "" },
-  { value: "3", label: "" },
-  { value: "2", label: "" },
-  { value: "1", label: "" },
-];
-
 // утилита для подсчёта диапазона цен по списку товаров
 function calcPriceBounds(products: Product[]) {
   let min = Number.POSITIVE_INFINITY;
   let max = 0;
 
   for (const p of products) {
-    // если в типе Product нет поля priceCents — можно добавить его в тип
     const cents = (p as any).priceCents as number | undefined;
     if (typeof cents !== "number" || !Number.isFinite(cents)) continue;
 
@@ -71,6 +48,7 @@ export default function ProductsMain({
   showCategories = true,
   categoryFullSlug,
 }: ProductsMainProps) {
+  const { t } = useTranslation("products");
   const nav = useNavigate();
 
   const cat = useMemo(
@@ -104,6 +82,40 @@ export default function ProductsMain({
   const [products, setProducts] = React.useState<Product[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [, setError] = React.useState<string | null>(null);
+
+  // локализованные опции сортировки
+  const sortOptions: SelectOption[] = useMemo(
+    () => [
+      { value: "price", label: t("sort.priceAsc") },
+      { value: "-price", label: t("sort.priceDesc") },
+      { value: "discount", label: t("sort.discount") },
+      { value: "new", label: t("sort.new") },
+      { value: "rating", label: t("sort.rating") },
+    ],
+    [t]
+  );
+
+  // офферы: распродажа и новинки (для фильтра)
+  const offerings = useMemo(
+    () => [
+      { value: "sale", label: t("filters.sale") },
+      { value: "new", label: t("filters.newArrivals") },
+    ],
+    [t]
+  );
+
+  // рейтинг: только "Select all" требует текста
+  const stars = useMemo(
+    () => [
+      { value: "6", label: t("filters.stars.all") },
+      { value: "5", label: "" },
+      { value: "4", label: "" },
+      { value: "3", label: "" },
+      { value: "2", label: "" },
+      { value: "1", label: "" },
+    ],
+    [t]
+  );
 
   // 👉 при смене категории / поискового запроса — сбрасываем диапазон и фильтр по цене
   React.useEffect(() => {
@@ -215,13 +227,15 @@ export default function ProductsMain({
       <section className={cls.content}>
         <div className={cls.mastbar}>
           <h2 className={cls.title}>
-            {query ? `Results for “${query}”` : cat?.name || "All products"}
+            {query
+              ? t("title.resultsFor", { query })
+              : cat?.name || t("title.all")}
           </h2>
           <div className={cls.topbar}>
             <SelectField
               className={cls.selectField}
               id="products-sort"
-              placeholder="Sort by…"
+              placeholder={t("sort.placeholder")}
               value={sort}
               onChange={(v) => setSort(v as SortValue)}
               options={sortOptions}
@@ -245,19 +259,18 @@ export default function ProductsMain({
       </section>
 
       <aside className={cls.desktopSidebarWrapper}>
-        <h2 className={cls.title}>Filters</h2>
+        <h2 className={cls.title}>{t("filters.title")}</h2>
         {renderSidebar()}
       </aside>
 
       {/* Мобильный сайдбар: bottom-sheet на весь экран */}
       <div
-        className={`${cls.mobileSidebar} ${
-          isFiltersOpen ? cls.mobileSidebarOpen : ""
-        }`}
+        className={`${cls.mobileSidebar} ${isFiltersOpen ? cls.mobileSidebarOpen : ""
+          }`}
       >
         <div className={cls.mobileSidebarBackdrop} onClick={closeMobileFilters} />
         <aside className={cls.mobileSidebarSheet}>
-          <MasterBar title="Filters">
+          <MasterBar title={t("filters.title")}>
             <CloseIcon className={cls.close} onClick={closeMobileFilters} />
           </MasterBar>
           <div className={cls.sidebar}>{renderSidebar()}</div>

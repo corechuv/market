@@ -1,0 +1,58 @@
+{
+    "tabs": {
+        "details": "Details",
+        "other": "Sonstiges",
+        "reviews": "Bewertungen",
+        "ariaLabel": "Produktbereiche"
+    },
+    "meta": {
+        "articlePrefix": "Art.-Nr.:"
+    },
+    "price": {
+        "vatIncluded": "inkl. MwSt.",
+        "freeShipping": "versandkostenfrei"
+    },
+    "availability": {
+        "inStock": "Auf Lager",
+        "outOfStock": "Nicht auf Lager"
+    },
+    "sections": {
+        "delivery": {
+            "title": "Lieferung"
+        },
+        "shortDescription": {
+            "title": "Kurzbeschreibung",
+            "empty": "Für dieses Produkt ist keine Kurzbeschreibung verfügbar."
+        },
+        "specifications": {
+            "title": "Spezifikationen"
+        },
+        "description": {
+            "title": "Beschreibung",
+            "empty": "Für dieses Produkt ist keine Beschreibung verfügbar."
+        }
+    },
+    "reviews": {
+        "addButton": "Bewertung hinzufügen",
+        "videoLabel": "Video-Bewertungen",
+        "loading": "Bewertungen werden geladen…",
+        "error": "Bewertungen konnten nicht geladen werden: {{error}}",
+        "empty": "Noch keine Bewertungen.",
+        "ariaLabel": "Kundenbewertungen",
+        "ratingLabel": "Bewertung: {{rating}} von 5",
+        "verified": "Verifizierter Kauf",
+        "helpful": "👍 {{count}}",
+        "anonymous": "Anonym",
+        "videoError": "Videos konnten nicht geladen werden: {{error}}",
+        "videoEmpty": "Noch keine Videos vorhanden."
+    },
+    "related": {
+        "title": "Weitere Produkte"
+    },
+    "actions": {
+        "addToCart": "In den Warenkorb"
+    },
+    "sticky": {
+        "ariaLabel": "Schnell in den Warenkorb"
+    }
+}
