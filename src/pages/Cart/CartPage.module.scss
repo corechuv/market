@@ -62,7 +62,7 @@
         &--item {
             display: grid;
             grid-template-columns: 20px 70px 1fr auto;
-            gap: 12px;
+            gap: 0.8rem;
             padding: 24px 0;
             border-bottom: 1px dashed var(--border);
 

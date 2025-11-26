@@ -787,15 +787,6 @@ const AddressSection: React.FC<AddressSectionProps> = ({
                   disabled={fieldsDisabled}
                 />
                 <TextField
-                  label="Address 2 (optional)"
-                  value={address.line2 ?? ""}
-                  onChange={set("line2")}
-                  placeholder="Apt, suite, etc."
-                  disabled={fieldsDisabled}
-                />
-              </div>
-              <div className="form__row">
-                <TextField
                   label="City"
                   value={address.city}
                   onChange={set("city")}
@@ -803,6 +794,8 @@ const AddressSection: React.FC<AddressSectionProps> = ({
                   required
                   disabled={fieldsDisabled}
                 />
+              </div>
+              <div className="form__row">
                 <TextField
                   label="Country"
                   value={address.country}
@@ -811,8 +804,6 @@ const AddressSection: React.FC<AddressSectionProps> = ({
                   required
                   disabled={fieldsDisabled}
                 />
-              </div>
-              <div className="form__row">
                 <TextField
                   label="Postal Code"
                   value={address.postalCode}
