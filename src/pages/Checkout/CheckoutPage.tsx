@@ -605,30 +605,24 @@ const CheckoutPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Summary показываем на всех шагах Checkout */}
-        <aside
-          className={styles.checkout__sidebar}
-          aria-label="Итог заказа"
-        >
-          <Summary
-            lines={selectedLines}
-            subtotal={displaySubtotal}
-            vat={displayVat}
-            vatLabel={vatLabel}
-            discount={displayDiscount}
-            total={displayTotal}
-            promo={promo}
-            setPromo={setPromo}
-            promoApplied={promoApplied}
-            applyPromo={applyPromo}
-            freeThresholdCents={minFreeThreshold}
-            shippingCents={displayShipping}
-            loading={qLoading}
-            quoteError={qError}
-            quoteReason={serverQuote?.reason ?? null}
-            spinnerClassName={styles.checkout__spinner}
-          />
-        </aside>
+        <Summary
+          lines={selectedLines}
+          subtotal={displaySubtotal}
+          vat={displayVat}
+          vatLabel={vatLabel}
+          discount={displayDiscount}
+          total={displayTotal}
+          promo={promo}
+          setPromo={setPromo}
+          promoApplied={promoApplied}
+          applyPromo={applyPromo}
+          freeThresholdCents={minFreeThreshold}
+          shippingCents={displayShipping}
+          loading={qLoading}
+          quoteError={qError}
+          quoteReason={serverQuote?.reason ?? null}
+          spinnerClassName={styles.checkout__spinner}
+        />
       </div>
 
       <Footer />

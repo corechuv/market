@@ -1,7 +1,6 @@
 // src/pages/Cart/CartPage.tsx
 import React, { useMemo, useCallback } from "react";
 import "../Checkout/Checkout.scss";
-import styles from "../Checkout/Checkout.module.scss";
 import c from "./CartPage.module.scss";
 
 import { useCart } from "../../context/CartContext";
@@ -166,26 +165,21 @@ const CartPage: React.FC = () => {
                     </div>
                 </section>
 
-                <aside
-                    className={c.cart__sidebar}
-                    aria-label="Order summary"
-                >
-                    <Summary
-                        lines={selectedLines}
-                        subtotal={subtotal}
-                        vat={vat}
-                        vatLabel={vatLabel}
-                        discount={discount}
-                        total={total}
-                        shippingCents={shippingCents}
-                        freeThresholdCents={undefined}
-                        loading={false}
-                        quoteError={null}
-                        quoteReason={null}
-                        hint={true}
-                        spinnerClassName={undefined}
-                    />
-                </aside>
+                <Summary
+                    lines={selectedLines}
+                    subtotal={subtotal}
+                    vat={vat}
+                    vatLabel={vatLabel}
+                    discount={discount}
+                    total={total}
+                    shippingCents={shippingCents}
+                    freeThresholdCents={undefined}
+                    loading={false}
+                    quoteError={null}
+                    quoteReason={null}
+                    hint={true}
+                    spinnerClassName={undefined}
+                />
             </div>
 
             <Footer />

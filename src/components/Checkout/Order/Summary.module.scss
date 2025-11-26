@@ -1,6 +1,16 @@
 // src/components/Checkout/Order/Summary.module.scss
 .summary {
+    position: sticky;
+    top: 14px;
+    max-width: 360px;
     width: 100%;
+
+    @media screen and (max-width: 980px) {
+        position: relative;
+        padding-left: 10px;
+        padding-right: 10px;
+        max-width: 100%;
+    }
 
     &__title {
         margin: 0 0 10px;
