@@ -210,12 +210,11 @@ export default function ProductPage() {
 
   if (error || !product) {
     return (
-      <Page>
-        <div className="container">
-          <div className={cls.product}>
-            <Breadcrumbs crumbs={categoryCrumbs as any} />
-            {/*<h2>{error ?? "Product not found"}</h2>*/}
-          </div>
+
+      <Page padding={false}>
+        <div className={cls.product}>
+          {/*<Breadcrumbs crumbs={categoryCrumbs as any} />*/}
+          {/*<h2>{error ?? "Product not found"}</h2>*/}
         </div>
       </Page>
     );
@@ -284,8 +283,6 @@ export default function ProductPage() {
   return (
     <Page padding={false}>
       <div className={cls.product}>
-        {/*<Breadcrumbs crumbs={categoryCrumbs as any} />*/}
-
         <div className={cls.productDetails}>
           <Tabs<TabKey>
             items={productTabs}
