@@ -1,14 +1,15 @@
 // src/components/UI/RadioField.module.scss
 .option {
     display: grid;
-    grid-template-columns: 20px auto;
+    grid-template-columns: auto 20px;
     align-items: center;
     gap: 0.8rem;
     user-select: none;
     cursor: pointer;
-    padding: 10px 16px;
+    height: 60px;
+    padding: 0 16px;
     background: var(--n-bg-desktop);
-    border-radius: 10px;
+    border-radius: 12px;
 
     &:has(.radio:disabled) {
         cursor: not-allowed;
