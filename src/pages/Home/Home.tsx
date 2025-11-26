@@ -167,7 +167,7 @@ export default function Home() {
                                 onItemClick={(p) => nav(`/product/${p.id}`)}
                             />
 
-                            <HomeVideos limit={4} sort="trending" label="Trending videos" />
+                            <HomeVideos limit={5} sort="trending" label="Trending videos" />
 
                             {/* здесь можно оставить общий список как "Bestsellers" */}
                             <ProductCarousel
@@ -178,7 +178,7 @@ export default function Home() {
                                 onItemClick={(p) => nav(`/product/${p.id}`)}
                             />
 
-                            {/* 🔥 Sale карусель — только скидки */}
+                            {/* Sale карусель — только скидки */}
                             <ProductCarousel
                                 label="Sale"
                                 products={saleProducts}
