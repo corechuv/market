@@ -150,27 +150,14 @@ function carrierIconFor(option: ShippingUi) {
   const src = CARRIER_LOGOS[key as keyof typeof CARRIER_LOGOS];
 
   if (!src) {
-    return (
-      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
-        <path
-          d="M3 7h11v7h-1.5a2.5 2.5 0 0 0-5 0H6a2.5 2.5 0 0 0-5 0H0V9a2 2 0 0 1 2-2h1z"
-          fill="currentColor"
-          opacity=".5"
-        />
-        <path
-          d="M14 7h4l4 4v3h-2.5a2.5 2.5 0 0 0-5 0H14V7z"
-          fill="currentColor"
-        />
-      </svg>
-    );
+    return (<></>);
   }
 
   const alt =
     option.label?.split("•")[0]?.trim() || option.carrierCode || "Carrier";
 
-  // Берём класс из CSS-модуля по ключу "dhl" / "dpd" / "gls" / "hermes"
-  const carrierClass =
-    (styles as Record<string, string>)[key] || styles.carrier; // styles.carrier — общий стиль
+const carrierClass =
+  `${styles.baseicon} ${(styles as Record<string, string>)[key] ?? ""}`;
 
   return (
     <img
