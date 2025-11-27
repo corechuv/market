@@ -57,6 +57,12 @@
     },
     "seo": {
         "title": "{{name}} купить онлайн | Dashedo",
-        "description": "Купите {{name}} в интернет-магазине Dashedo. {{short}} Быстрая доставка и безопасная оплата через PayPal и банковские карты."
+        "description": "Купите {{name}} в интернет-магазине Dashedo. {{short}} Быстрая доставка и безопасная оплата через PayPal и банковские карты.",
+        "detailsTitle": "{{name}} – характеристики и описание | Dashedo",
+        "detailsDescription": "{{name}} – полные характеристики, описание и техническая информация. {{short}}",
+        "reviewsTitle": "Отзывы о {{name}} | Dashedo",
+        "reviewsDescription": "Читайте отзывы покупателей и опыт использования {{name}} в магазине Dashedo.",
+        "otherTitle": "{{name}} – дополнительная информация | Dashedo",
+        "otherDescription": "Дополнительная информация, медиаматериалы и контент о {{name}} в магазине Dashedo."
     }
 }

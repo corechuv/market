@@ -57,6 +57,12 @@
     },
     "seo": {
         "title": "{{name}} online kaufen | Dashedo",
-        "description": "{{name}} jetzt bei Dashedo bestellen. {{short}} Schnelle Lieferung, sichere Zahlung mit PayPal & Stripe."
+        "description": "{{name}} jetzt bei Dashedo bestellen. {{short}} Schnelle Lieferung, sichere Zahlung mit PayPal & Stripe.",
+        "detailsTitle": "{{name}} – Details & technische Daten | Dashedo",
+        "detailsDescription": "{{name}} – Spezifikationen, Beschreibung und technische Daten. {{short}}",
+        "reviewsTitle": "Bewertungen zu {{name}} | Dashedo",
+        "reviewsDescription": "Lesen Sie Erfahrungen und Kundenbewertungen zu {{name}} im Dashedo Online-Shop.",
+        "otherTitle": "{{name}} – weitere Informationen | Dashedo",
+        "otherDescription": "Zusätzliche Informationen, Medien und Inhalte zu {{name}} im Dashedo Online-Shop."
     }
 }

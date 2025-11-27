@@ -57,6 +57,12 @@
     },
     "seo": {
         "title": "{{name}} | Buy online at Dashedo",
-        "description": "Buy {{name}} online at Dashedo. {{short}} Fast delivery and secure payment with PayPal & Stripe."
+        "description": "Buy {{name}} online at Dashedo. {{short}} Fast delivery and secure payment with PayPal & Stripe.",
+        "detailsTitle": "{{name}} – details & specifications | Dashedo",
+        "detailsDescription": "{{name}} – full specifications, description and technical details. {{short}}",
+        "reviewsTitle": "Reviews for {{name}} | Dashedo",
+        "reviewsDescription": "Read customer reviews and experiences with {{name}} at Dashedo.",
+        "otherTitle": "{{name}} – more information | Dashedo",
+        "otherDescription": "Additional information, media and content about {{name}} at Dashedo."
     }
 }

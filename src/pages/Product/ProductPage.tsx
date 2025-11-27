@@ -153,6 +153,7 @@ export default function ProductPage() {
   const [reviewAvg, setReviewAvg] = React.useState<number | null>(null);
   const [reviewCount, setReviewCount] = React.useState<number>(0);
 
+
   const seo: SeoConfig | null = React.useMemo(() => {
     if (!product) return null;
 
@@ -162,11 +163,39 @@ export default function ProductPage() {
       (typeof product.description === "string" ? product.description : "") ||
       "";
 
+    // по вкладке берём разные ключи, но всегда есть fallback
+    if (activeTab === "reviews") {
+      return {
+        title:
+          t("seo.reviewsTitle", { name }) ||
+          t("seo.title", { name }),
+        description:
+          t("seo.reviewsDescription", { name, short }) ||
+          t("seo.description", { name, short })
+      };
+    }
+
+    if (activeTab === "other") {
+      return {
+        title:
+          t("seo.otherTitle", { name }) ||
+          t("seo.title", { name }),
+        description:
+          t("seo.otherDescription", { name, short }) ||
+          t("seo.description", { name, short })
+      };
+    }
+
+    // default: details
     return {
-      title: t("seo.title", { name }),
-      description: t("seo.description", { name, short })
+      title:
+        t("seo.detailsTitle", { name }) ||
+        t("seo.title", { name }),
+      description:
+        t("seo.detailsDescription", { name, short }) ||
+        t("seo.description", { name, short })
     };
-  }, [product, t]);
+  }, [product, activeTab, t]);
 
 
   React.useEffect(() => {
