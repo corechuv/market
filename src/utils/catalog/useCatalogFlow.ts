@@ -1,7 +1,21 @@
 // src/utils/catalog/useCatalogFlow.ts
-import { useCallback, useEffect, useMemo, useRef, useState, useReducer } from "react";
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    useReducer,
+} from "react";
 import type { Category as Cat } from "../../types/category";
-import { getRootCategories, getChildren, subscribe, syncFromApi, getStatus } from "../../services/categoryService";
+import {
+    getRootCategories,
+    getChildren,
+    subscribe,
+    syncFromApi,
+    getStatus,
+} from "../../services/categoryService";
+import { useLang } from "../../context/LangContext";
 
 export type Stage = "L1" | "L2" | "L3";
 export interface FlowConfig {
@@ -18,14 +32,22 @@ export interface FlowConfig {
 }
 
 export function useCatalogFlow(cfg: FlowConfig) {
+    const { lang } = useLang(); // <-- текущий язык приложения
+
     const [tick, force] = useReducer((x) => x + 1, 0);
     const [{ loaded, error }, setStatus] = useState(getStatus());
 
     useEffect(() => {
-        const off = subscribe(() => { setStatus(getStatus()); force(); });
-        void syncFromApi().then(() => setStatus(getStatus()));
+        const off = subscribe(() => {
+            setStatus(getStatus());
+            force();
+        });
+
+        // первая синхронизация (если ещё не было) для текущего языка
+        void syncFromApi(lang).then(() => setStatus(getStatus()));
+
         return off;
-    }, []);
+    }, [lang]);
 
     const roots = useMemo(() => getRootCategories(), [tick]);
     const isLoading = !loaded && roots.length === 0;
@@ -37,35 +59,65 @@ export function useCatalogFlow(cfg: FlowConfig) {
     // сбрасываем состояние при смене resetKey (напр., закрыли панель)
     useEffect(() => {
         if (cfg.resetKey) return; // значение само по себе не важно — важен факт изменения
-        setStage("L1"); setRootCat(null); setL2Cat(null);
+        setStage("L1");
+        setRootCat(null);
+        setL2Cat(null);
     }, [cfg.resetKey]);
 
-    const l2List = useMemo<Cat[]>(() => (rootCat ? getChildren(rootCat.id) : []), [rootCat, tick]);
-    const l3List = useMemo<Cat[]>(() => (l2Cat ? getChildren(l2Cat.id) : []), [l2Cat, tick]);
+    const l2List = useMemo<Cat[]>(
+        () => (rootCat ? getChildren(rootCat.id) : []),
+        [rootCat, tick]
+    );
+    const l3List = useMemo<Cat[]>(
+        () => (l2Cat ? getChildren(l2Cat.id) : []),
+        [l2Cat, tick]
+    );
 
     const navigate = (slug?: string) => {
-        if (!slug) return; // можно ещё залогировать предупреждение
+        if (!slug) return;
         if (cfg.closeOnNavigate && cfg.onClose) cfg.onClose();
         cfg.onNavigate(`/category${slug}`);
     };
 
-    const openL2 = (cat: Cat) => { setRootCat(cat); setL2Cat(null); setStage("L2"); };
+    const openL2 = (cat: Cat) => {
+        setRootCat(cat);
+        setL2Cat(null);
+        setStage("L2");
+    };
     const openL3 = (cat: Cat) => {
         const children = getChildren(cat.id);
-        if (!children.length) { navigate(cat.fullSlug); return; }
-        setL2Cat(cat); setStage("L3");
+        if (!children.length) {
+            navigate(cat.fullSlug);
+            return;
+        }
+        setL2Cat(cat);
+        setStage("L3");
     };
 
     const back = () => {
-        if (stage === "L3") { setStage("L2"); return; }
-        if (stage === "L2") { setStage("L1"); setL2Cat(null); return; }
-        if (cfg.backAtL1 === "close" && cfg.onClose) { cfg.onClose(); return; }
-        if (cfg.backAtL1 === "smartBack") { window.history.length > 1 ? history.back() : cfg.onNavigate("/"); }
+        if (stage === "L3") {
+            setStage("L2");
+            return;
+        }
+        if (stage === "L2") {
+            setStage("L1");
+            setL2Cat(null);
+            return;
+        }
+        if (cfg.backAtL1 === "close" && cfg.onClose) {
+            cfg.onClose();
+            return;
+        }
+        if (cfg.backAtL1 === "smartBack") {
+            window.history.length > 1 ? history.back() : cfg.onNavigate("/");
+        }
     };
 
     // свайпы
     const touchStartX = useRef<number | null>(null);
-    const onTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
+    const onTouchStart = (e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX;
+    };
     const onTouchEnd = (e: React.TouchEvent) => {
         if (touchStartX.current == null) return;
         const dx = e.changedTouches[0].clientX - touchStartX.current;
@@ -77,8 +129,12 @@ export function useCatalogFlow(cfg: FlowConfig) {
     const screenClass = useCallback(
         (name: Stage, cls: Record<string, string>) => {
             if (stage === name) return cls.screenActive;
-            if (name === "L1") return stage === "L2" || stage === "L3" ? cls.screenHiddenLeft : cls.screenHiddenRight;
-            if (name === "L2") return stage === "L1" ? cls.screenHiddenRight : cls.screenHiddenLeft;
+            if (name === "L1")
+                return stage === "L2" || stage === "L3"
+                    ? cls.screenHiddenLeft
+                    : cls.screenHiddenRight;
+            if (name === "L2")
+                return stage === "L1" ? cls.screenHiddenRight : cls.screenHiddenLeft;
             return cls.screenHiddenRight;
         },
         [stage]
@@ -89,16 +145,31 @@ export function useCatalogFlow(cfg: FlowConfig) {
     const l2ScrollRef = useRef<HTMLDivElement | null>(null);
     const l3ScrollRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
-        (stage === "L1" ? l1ScrollRef.current :
-            stage === "L2" ? l2ScrollRef.current : l3ScrollRef.current)?.scrollTo({ top: 0 });
+        (stage === "L1"
+            ? l1ScrollRef.current
+            : stage === "L2"
+                ? l2ScrollRef.current
+                : l3ScrollRef.current
+        )?.scrollTo({ top: 0 });
     }, [stage]);
 
     return {
-        isLoading, error, roots, l2List, l3List,
-        stage, rootCat, l2Cat,
-        openL2, openL3, back,
-        onTouchStart, onTouchEnd,
+        isLoading,
+        error,
+        roots,
+        l2List,
+        l3List,
+        stage,
+        rootCat,
+        l2Cat,
+        openL2,
+        openL3,
+        back,
+        onTouchStart,
+        onTouchEnd,
         screenClass,
-        l1ScrollRef, l2ScrollRef, l3ScrollRef,
+        l1ScrollRef,
+        l2ScrollRef,
+        l3ScrollRef,
     };
 }

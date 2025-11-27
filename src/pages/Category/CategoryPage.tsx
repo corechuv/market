@@ -9,9 +9,11 @@ import {
   syncFromApi,
   getStatus,
 } from "../../services/categoryService";
+import { useLang } from "../../context/LangContext";
 
 export default function CategoryPage() {
   const { pathname } = useLocation();
+  const { lang } = useLang();
 
   // нормализуем /category/electronics/... -> /electronics/...
   const full = React.useMemo(() => {
@@ -30,10 +32,10 @@ export default function CategoryPage() {
       setStatus(getStatus());
       force();
     });
-    // первая синхронизация (если ещё не было)
-    void syncFromApi().catch(() => { });
+    // первая синхронизация (если ещё не было) для текущего языка
+    void syncFromApi(lang).catch(() => { });
     return off;
-  }, []);
+  }, [lang]);
 
   const cat = getCategoryByFullSlug(full);
 
@@ -48,7 +50,5 @@ export default function CategoryPage() {
   }
 
   // можно передавать и id, и fullSlug (на будущее удобно иметь id)
-  return (
-    <ProductsMain categoryFullSlug={full} />
-  )
+  return <ProductsMain categoryFullSlug={full} />;
 }

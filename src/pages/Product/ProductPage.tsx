@@ -4,7 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { getProductById, getMoreProducts } from "../../services/productService";
-import { getBreadcrumbs } from "../../services/categoryService";
 import { buildSpecs, getInitialVariant } from "../../specs/builders";
 import { parseMoney } from "../../types/helpers/parseMoney";
 import type { Product, ProductVariant } from "../../types/product";
@@ -15,7 +14,6 @@ import cls from "./ProductPage.module.scss";
 
 import Button from "../../components/UI/Button";
 import Modal from "../../components/Modal/Modal";
-import Breadcrumbs from "../../components/Common/Breadcrumbs";
 import DeliveryBadge from "../../components/Product/DeliveryBadge";
 import SpecTable from "../../components/Product/SpecTable";
 import VariantPicker from "../../components/Product/Details/VariantPicker";
@@ -92,13 +90,6 @@ export default function ProductPage() {
       cancelled = true;
     };
   }, [productId]);
-
-  // --- крошки по первичной категории (после загрузки товара) ---
-  const categoryCrumbs = React.useMemo(() => {
-    if (!product) return [];
-    const primaryCategoryId = product.categoryId ?? product.categoryIds?.[0];
-    return primaryCategoryId ? (getBreadcrumbs(primaryCategoryId) as any) : [];
-  }, [product]);
 
   // --- варианты ---
   const [variant, setVariant] = React.useState<ProductVariant | undefined>(undefined);

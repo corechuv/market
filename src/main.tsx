@@ -9,11 +9,9 @@ import "./styles/theme.module.scss" // Import global styles
 import { CartProvider } from './context/CartContext.tsx'
 import ScrollToTop from './components/ScrollToTop.tsx'
 import { LangProvider } from './context/LangContext.tsx'
-// import { AccountProvider } from './context/AccountContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {/*<AccountProvider>*/}
     <LangProvider>
       <CartProvider>
         <BrowserRouter>
@@ -22,6 +20,5 @@ createRoot(document.getElementById('root')!).render(
         </BrowserRouter>
       </CartProvider>
     </LangProvider>
-    {/*</AccountProvider>*/}
   </StrictMode>,
 )
