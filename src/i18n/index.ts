@@ -83,6 +83,11 @@ import enProduct from "./locales/en/product.json";
 import deProduct from "./locales/de/product.json";
 import ruProduct from "./locales/ru/product.json";
 
+// CATEGORY
+import enCategory from "./locales/en/category.json";
+import deCategory from "./locales/de/category.json";
+import ruCategory from "./locales/ru/category.json";
+
 const initialLang = getInitialLanguage();
 
 i18n
@@ -106,6 +111,7 @@ i18n
                 profile: enProfile,
                 products: enProducts,
                 product: enProduct,
+                category: enCategory,
             },
             de: {
                 footer: deFooter,
@@ -124,6 +130,7 @@ i18n
                 profile: deProfile,
                 products: deProducts,
                 product: deProduct,
+                category: deCategory,
             },
             ru: {
                 footer: ruFooter,
@@ -142,6 +149,7 @@ i18n
                 profile: ruProfile,
                 products: ruProducts,
                 product: ruProduct,
+                category: ruCategory,
             },
         },
         lng: initialLang,

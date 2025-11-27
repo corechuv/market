@@ -1,0 +1,12 @@
+{
+    "loading": "Kategorie wird geladen…",
+    "seo": {
+        "title": "{{name}} | Dashedo Onlineshop",
+        "description": "Produkte in der Kategorie {{name}} im Dashedo Onlineshop. {{description}}",
+        "descriptionShort": "Entdecken Sie Produkte in der Kategorie {{name}} im Dashedo Onlineshop."
+    },
+    "notFound": {
+        "title": "Kategorie nicht gefunden – Dashedo",
+        "description": "Die gesuchte Kategorie wurde nicht gefunden."
+    }
+}

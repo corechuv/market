@@ -1,0 +1,12 @@
+{
+    "loading": "Загружаем категорию…",
+    "seo": {
+        "title": "{{name}} | Категория в Dashedo",
+        "description": "Товары в категории «{{name}}» в интернет-магазине Dashedo. {{description}}",
+        "descriptionShort": "Смотрите товары в категории «{{name}}» в интернет-магазине Dashedo."
+    },
+    "notFound": {
+        "title": "Категория не найдена – Dashedo",
+        "description": "Запрошенная категория не найдена."
+    }
+}
