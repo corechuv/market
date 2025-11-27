@@ -1,5 +1,7 @@
 // src/pages/Cart/CartPage.tsx
 import React, { useMemo, useCallback } from "react";
+import { Helmet } from "react-helmet-async";
+import type { SeoConfig } from "../../types/seo/seoConfig";
 import "../Checkout/Checkout.scss";
 import c from "./CartPage.module.scss";
 
@@ -23,6 +25,14 @@ const CartPage: React.FC = () => {
     const { t } = useTranslation("cart");
 
     // --- ВСЕ хуки наверху ---
+
+    const seo: SeoConfig = React.useMemo(
+        () => ({
+            title: t("seo.title"),
+            description: t("seo.description")
+        }),
+        [t]
+    );
 
     // выбранные позиции
     const selectedLines = useMemo(
@@ -82,110 +92,120 @@ const CartPage: React.FC = () => {
     // Пустота корзины определяем по lines, а не по выбранным
     if (lines.length === 0) {
         return (
-            <Page>
-                <div className={c.cart}>
-                    <h1 className={c.cart__empty}>{t("empty.title")}</h1>
-                    <div className={c.cart__actions}>
-                        <a onClick={() => navigate("/")}>{t("empty.home")}</a>
-                        <a onClick={() => navigate(-1)}>{t("empty.return")}</a>
+            <>
+                <Helmet>
+                    <title>{seo.title}</title>
+                    <meta name="description" content={seo.description} />
+                    <meta name="robots" content="noindex, nofollow" />
+                </Helmet>
+                <Page>
+                    <div className={c.cart}>
+                        <h1 className={c.cart__empty}>{t("empty.title")}</h1>
+                        <div className={c.cart__actions}>
+                            <a onClick={() => navigate("/")}>{t("empty.home")}</a>
+                            <a onClick={() => navigate(-1)}>{t("empty.return")}</a>
+                        </div>
                     </div>
-                </div>
-            </Page>
+                </Page>
+            </>
         );
     }
 
     return (
-        <Page padding={false}>
-            <div className={c.mastbar}>
-                <div className={c.mastbar__left}>
-                    <h2 className={c.title}>
-                        {t("mastbar.title")}{" "}
-                        <span className={c.count}>
-                            ({itemsCount}/{totalItemsCount})
-                        </span>
-                    </h2>
+        <>
+            <Helmet>
+                <title>{seo.title}</title>
+                <meta name="description" content={seo.description} />
+                <meta name="robots" content="noindex, nofollow" />
+            </Helmet>
+            <Page padding={false}>
+                <div className={c.mastbar}>
+                    <div className={c.mastbar__left}>
+                        <h2 className={c.title}>
+                            {t("mastbar.title")}{" "}
+                            <span className={c.count}>
+                                ({itemsCount}/{totalItemsCount})
+                            </span>
+                        </h2>
+                    </div>
+                    <div className={c.mastbar__right}>
+                        <CheckboxField
+                            checked={allSelected}
+                            onChange={handleToggleAll}
+                            label={t("mastbar.selectAll")}
+                        />
+                    </div>
                 </div>
-                <div className={c.mastbar__right}>
-                    <CheckboxField
-                        checked={allSelected}
-                        onChange={handleToggleAll}
-                        label={t("mastbar.selectAll")}
+                <div className={c.main}>
+                    <section className={c.section}>
+                        {lines.length > 0 && (
+                            <ul className={c.section__list}>
+                                {lines.map((it) => (
+                                    <li key={it.id} className={c["section__list--item"]}>
+                                        <CheckboxField
+                                            checked={!!it.selected}
+                                            onChange={(e) => setSelected(it.id, e.target.checked)}
+                                            aria-label={t("item.toggleAria", { title: it.title })}
+                                        />
+
+                                        {it.image && (
+                                            <img
+                                                src={it.image}
+                                                className={c["section__list--item--img"]}
+                                                alt=""
+                                                loading="lazy"
+                                            />
+                                        )}
+
+                                        <div className={c["section__list--item--meta"]}>
+                                            <h3>{it.title}</h3>
+                                            <QtyStepper
+                                                value={it.qty}
+                                                min={0}
+                                                size="sm"
+                                                showMax={false}
+                                                ariaLabel={t("item.qtyAria", { title: it.title })}
+                                                onChange={(q) => inc(it.id, q - it.qty)}
+                                                max={99}
+                                            />
+                                        </div>
+
+                                        <div className={c["section__list--item--meta--price"]}>
+                                            {formatMoney(it.priceCents * it.qty)}
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                        <div className={c.section__actions}>
+                            <Button
+                                size="small"
+                                disabled={selectedLines.length === 0}
+                                onClick={handleProceed}
+                            >
+                                {t("actions.proceed")}
+                            </Button>
+                        </div>
+                    </section>
+                    <Summary
+                        lines={selectedLines}
+                        subtotal={subtotal}
+                        vat={vat}
+                        vatLabel={vatLabel}
+                        discount={discount}
+                        total={total}
+                        shippingCents={shippingCents}
+                        freeThresholdCents={undefined}
+                        loading={false}
+                        quoteError={null}
+                        quoteReason={null}
+                        hint={true}
+                        spinnerClassName={undefined}
                     />
                 </div>
-            </div>
-
-            <div className={c.main}>
-                <section className={c.section}>
-                    {lines.length > 0 && (
-                        <ul className={c.section__list}>
-                            {lines.map((it) => (
-                                <li key={it.id} className={c["section__list--item"]}>
-                                    <CheckboxField
-                                        checked={!!it.selected}
-                                        onChange={(e) => setSelected(it.id, e.target.checked)}
-                                        aria-label={t("item.toggleAria", { title: it.title })}
-                                    />
-
-                                    {it.image && (
-                                        <img
-                                            src={it.image}
-                                            className={c["section__list--item--img"]}
-                                            alt=""
-                                            loading="lazy"
-                                        />
-                                    )}
-
-                                    <div className={c["section__list--item--meta"]}>
-                                        <h3>{it.title}</h3>
-                                        <QtyStepper
-                                            value={it.qty}
-                                            min={0}
-                                            size="sm"
-                                            showMax={false}
-                                            ariaLabel={t("item.qtyAria", { title: it.title })}
-                                            onChange={(q) => inc(it.id, q - it.qty)}
-                                            max={99}
-                                        />
-                                    </div>
-
-                                    <div className={c["section__list--item--meta--price"]}>
-                                        {formatMoney(it.priceCents * it.qty)}
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-
-                    <div className={c.section__actions}>
-                        <Button
-                            size="small"
-                            disabled={selectedLines.length === 0}
-                            onClick={handleProceed}
-                        >
-                            {t("actions.proceed")}
-                        </Button>
-                    </div>
-                </section>
-
-                <Summary
-                    lines={selectedLines}
-                    subtotal={subtotal}
-                    vat={vat}
-                    vatLabel={vatLabel}
-                    discount={discount}
-                    total={total}
-                    shippingCents={shippingCents}
-                    freeThresholdCents={undefined}
-                    loading={false}
-                    quoteError={null}
-                    quoteReason={null}
-                    hint={true}
-                    spinnerClassName={undefined}
-                />
-            </div>
-
-            <Footer />
-        </Page>
+                <Footer />
+            </Page>
+        </>
     );
 };
 

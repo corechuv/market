@@ -14,5 +14,9 @@
     },
     "actions": {
         "proceed": "Proceed to checkout"
+    },
+    "seo": {
+        "title": "Shopping cart – Dashedo",
+        "description": "Review the items in your shopping cart at Dashedo before proceeding to checkout. Secure payment with PayPal & Stripe."
     }
 }

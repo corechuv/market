@@ -1,6 +1,7 @@
 // src/pages/Home/Home.tsx
 import React from "react";
 import cls from "./Home.module.scss";
+import { Helmet } from "react-helmet-async";
 
 import Banner from "../../components/Home/Banner";
 import ProductCarousel from "../../components/Product/ProductCarousel";
@@ -29,6 +30,7 @@ import hp_dark from "@/assets/brand_logos/HP_Logo_color.svg";
 import { Tabs, type TabItem } from "../../components/UI/Tabs";
 import ProductItemList from "../../components/Product/ProductItemList";
 import { useTranslation } from "react-i18next";
+import type { SeoConfig } from "../../types/seo/seoConfig";
 
 const demoImages = [
     {
@@ -143,127 +145,147 @@ export default function Home() {
         };
     }, []);
 
+    const seo: SeoConfig = React.useMemo(() => {
+        const key =
+            active === "new_arrivals"
+                ? "seo.newArrivals"
+                : active === "sale"
+                    ? "seo.sale"
+                    : "seo.home";
+
+        return {
+            title: t(`${key}.title`),
+            description: t(`${key}.description`)
+        };
+    }, [active, t]);
+
     const handleTabChange = (key: TabKey) => {
         nav(`/${key}`, { replace: false });
     };
 
     return (
-        <Page padding={false}>
-            <div className="container">
-                <div className={cls.homeContent}>
-                    <Tabs<TabKey>
-                        items={tabs}
-                        activeKey={active}
-                        onChange={handleTabChange}
-                        ariaLabel={t("tabs.ariaLabel")}
-                    />
-
-                    <div style={{ padding: "0 var(--gap)" }}>
-                        <Banner
-                            images={demoImages}
-                            interval={4500}
-                            autoPlay
-                            loop
-                            pauseOnHover
-                            showControls
-                            showDots
-                            rounded
-                            overlay="gradient"
+        <>
+            <Helmet>
+                <title>{seo.title}</title>
+                <meta name="description" content={seo.description} />
+            </Helmet>
+            <Page padding={false}>
+                <div className="container">
+                    <div className={cls.homeContent}>
+                        <Tabs<TabKey>
+                            items={tabs}
+                            activeKey={active}
+                            onChange={handleTabChange}
+                            ariaLabel={t("tabs.ariaLabel")}
                         />
-                    </div>
 
-                    {active === "home" && (
-                        <>
-                            <BrandCarousel
-                                label={t("sections.brands")}
-                                images={brandLogos}
+                        <div style={{ padding: "0 var(--gap)" }}>
+                            <Banner
+                                images={demoImages}
+                                interval={4500}
+                                autoPlay
+                                loop
+                                pauseOnHover
+                                showControls
+                                showDots
+                                rounded
+                                overlay="gradient"
                             />
+                        </div>
 
-                            {/* New Arrivals карусель — только новинки */}
-                            <ProductCarousel
-                                label={t("sections.newArrivals")}
-                                products={newArrivals}
-                                isLoading={loading}
-                                skeletonCount={10}
-                                onItemClick={(p) => nav(`/product/${p.id}`)}
-                            />
+                        {active === "home" && (
+                            <>
+                                <BrandCarousel
+                                    label={t("sections.brands")}
+                                    images={brandLogos}
+                                />
 
-                            <HomeVideos
-                                limit={5}
-                                sort="trending"
-                                label={t("sections.trendingVideos")}
-                            />
-
-                            {/* общий список как "Bestsellers" */}
-                            <ProductCarousel
-                                label={t("sections.bestsellers")}
-                                products={products}
-                                isLoading={loading}
-                                skeletonCount={10}
-                                onItemClick={(p) => nav(`/product/${p.id}`)}
-                            />
-
-                            {/* Sale карусель — только скидки */}
-                            <ProductCarousel
-                                label={t("sections.sale")}
-                                products={saleProducts}
-                                isLoading={loading}
-                                skeletonCount={10}
-                                onItemClick={(p) => nav(`/product/${p.id}`)}
-                            />
-                        </>
-                    )}
-
-                    {active === "new_arrivals" && (
-                        <>
-                            <BrandCarousel
-                                label={t("sections.brands")}
-                                images={brandLogos}
-                            />
-                            <div style={{ padding: "0 var(--gap)" }}>
-                                <ProductItemList
+                                {/* New Arrivals карусель — только новинки */}
+                                <ProductCarousel
+                                    label={t("sections.newArrivals")}
                                     products={newArrivals}
                                     isLoading={loading}
-                                    skeletonCount={12}
+                                    skeletonCount={10}
                                     onItemClick={(p) => nav(`/product/${p.id}`)}
                                 />
-                            </div>
-                            <ProductCarousel
-                                label={t("sections.newArrivals")}
-                                products={newArrivals}
-                                isLoading={loading}
-                                skeletonCount={10}
-                                onItemClick={(p) => nav(`/product/${p.id}`)}
-                            />
-                        </>
-                    )}
 
-                    {active === "sale" && (
-                        <>
-                            <BrandCarousel
-                                label={t("sections.brands")}
-                                images={brandLogos}
-                            />
-                            <div style={{ padding: "0 var(--gap)" }}>
-                                <ProductItemList
+                                <HomeVideos
+                                    limit={5}
+                                    sort="trending"
+                                    label={t("sections.trendingVideos")}
+                                />
+
+                                {/* общий список как "Bestsellers" */}
+                                <ProductCarousel
+                                    label={t("sections.bestsellers")}
+                                    products={products}
+                                    isLoading={loading}
+                                    skeletonCount={10}
+                                    onItemClick={(p) => nav(`/product/${p.id}`)}
+                                />
+
+                                {/* Sale карусель — только скидки */}
+                                <ProductCarousel
+                                    label={t("sections.sale")}
                                     products={saleProducts}
                                     isLoading={loading}
-                                    skeletonCount={12}
+                                    skeletonCount={10}
                                     onItemClick={(p) => nav(`/product/${p.id}`)}
                                 />
-                            </div>
-                            <ProductCarousel
-                                label={t("sections.sale")}
-                                products={saleProducts}
-                                isLoading={loading}
-                                skeletonCount={10}
-                                onItemClick={(p) => nav(`/product/${p.id}`)}
-                            />
-                        </>
-                    )}
+                            </>
+                        )}
+
+                        {active === "new_arrivals" && (
+                            <>
+                                <BrandCarousel
+                                    label={t("sections.brands")}
+                                    images={brandLogos}
+                                />
+                                <div style={{ padding: "0 var(--gap)" }}>
+                                    <ProductItemList
+                                        products={newArrivals}
+                                        isLoading={loading}
+                                        skeletonCount={12}
+                                        onItemClick={(p) => nav(`/product/${p.id}`)}
+                                    />
+                                </div>
+                                <ProductCarousel
+                                    label={t("sections.newArrivals")}
+                                    products={newArrivals}
+                                    isLoading={loading}
+                                    skeletonCount={10}
+                                    onItemClick={(p) => nav(`/product/${p.id}`)}
+                                />
+                            </>
+                        )}
+
+                        {active === "sale" && (
+                            <>
+                                <BrandCarousel
+                                    label={t("sections.brands")}
+                                    images={brandLogos}
+                                />
+                                <div style={{ padding: "0 var(--gap)" }}>
+                                    <ProductItemList
+                                        products={saleProducts}
+                                        isLoading={loading}
+                                        skeletonCount={12}
+                                        onItemClick={(p) => nav(`/product/${p.id}`)}
+                                    />
+                                </div>
+                                <ProductCarousel
+                                    label={t("sections.sale")}
+                                    products={saleProducts}
+                                    isLoading={loading}
+                                    skeletonCount={10}
+                                    onItemClick={(p) => nav(`/product/${p.id}`)}
+                                />
+                            </>
+                        )}
+                    </div>
                 </div>
-            </div>
-            <Footer />
-        </Page>
+                <Footer />
+            </Page>
+        </>
     );
 }

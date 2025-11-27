@@ -8,5 +8,9 @@
     "actions": {
         "home": "Startseite",
         "continue": "Weiter einkaufen"
+    },
+    "seo": {
+        "title": "Bestellung erfolgreich – Dashedo",
+        "description": "Ihre Bestellung bei Dashedo wurde erfolgreich aufgegeben. Hier finden Sie Ihre Bestellnummer und weitere Informationen zu Ihrer Bestellung."
     }
 }

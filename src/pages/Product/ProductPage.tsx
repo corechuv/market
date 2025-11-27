@@ -1,6 +1,8 @@
 // src/pages/Product/ProductPage.tsx
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import type { SeoConfig } from "../../types/seo/seoConfig";
 import { useTranslation } from "react-i18next";
 
 import { getProductById, getMoreProducts } from "../../services/productService";
@@ -67,7 +69,7 @@ export default function ProductPage() {
 
   // --- загрузка товара ---
   const [product, setProduct] = React.useState<Product | undefined>(undefined);
-  const [, setLoading] = React.useState<boolean>(true);
+  const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -151,6 +153,22 @@ export default function ProductPage() {
   const [reviewAvg, setReviewAvg] = React.useState<number | null>(null);
   const [reviewCount, setReviewCount] = React.useState<number>(0);
 
+  const seo: SeoConfig | null = React.useMemo(() => {
+    if (!product) return null;
+
+    const name = product.name ?? "";
+    const short =
+      (product.shortDescription && product.shortDescription[0]) ||
+      (typeof product.description === "string" ? product.description : "") ||
+      "";
+
+    return {
+      title: t("seo.title", { name }),
+      description: t("seo.description", { name, short })
+    };
+  }, [product, t]);
+
+
   React.useEffect(() => {
     let cancelled = false;
     async function run() {
@@ -199,15 +217,31 @@ export default function ProductPage() {
     };
   }, [product?.id]);
 
-  if (error || !product) {
+  if (loading && !product) {
     return (
-
       <Page padding={false}>
         <div className={cls.product}>
-          {/*<Breadcrumbs crumbs={categoryCrumbs as any} />*/}
-          {/*<h2>{error ?? "Product not found"}</h2>*/}
+          {/* тут можно потом повесить skeleton / спиннер */}
         </div>
       </Page>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <>
+        <Helmet>
+          <title>Produkt nicht gefunden – Dashedo</title>
+          <meta
+            name="description"
+            content="Das gesuchte Produkt wurde nicht gefunden."
+          />
+          <meta name="robots" content="noindex,follow" />
+        </Helmet>
+        <Page padding={false}>
+          <div className={cls.product} />
+        </Page>
+      </>
     );
   }
 
@@ -271,243 +305,318 @@ export default function ProductPage() {
 
   const ratingValue = reviewAvg !== null ? Math.round(reviewAvg * 10) / 10 : null;
 
+
+  // WARNING
+  const canonicalUrl = `https://dashedo.com/product/${product.id}`;
+  const primaryImage = images[0];
+
+  const seoTitle = seo?.title || product.name || "Produkt – Dashedo";
+  const seoDescription =
+    seo?.description ||
+    (product.description as string | undefined) ||
+    (product.shortDescription && product.shortDescription.join(" ")) ||
+    "";
+
+  // JSON-LD Product schema
+  const numericPrice =
+    typeof priceNum === "number" && Number.isFinite(priceNum)
+      ? priceNum
+      : null;
+
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    image: images,
+    sku: articleNumber,
+    description: seoDescription,
+    brand: (product as any).brand
+      ? {
+        "@type": "Brand",
+        name: (product as any).brand
+      }
+      : undefined,
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "EUR",
+      price: numericPrice !== null ? String(numericPrice) : undefined,
+      availability: available
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      url: canonicalUrl
+    },
+    aggregateRating:
+      ratingValue && reviewCount > 0
+        ? {
+          "@type": "AggregateRating",
+          ratingValue,
+          reviewCount
+        }
+        : undefined
+  };
+
   return (
-    <Page padding={false}>
-      <div className={cls.product}>
-        <div className={cls.productDetails}>
-          <Tabs<TabKey>
-            items={productTabs}
-            activeKey={activeTab}
-            onChange={handleTabChange}
-            ariaLabel={t("tabs.ariaLabel")}
-          />
+    <>
+      <Helmet>
+        <title>{seoTitle}</title>
+        <meta name="description" content={seoDescription} />
+        <link rel="canonical" href={canonicalUrl} />
 
-          {activeTab === "details" && (
-            <>
-              <div style={{ marginBottom: 10, padding: "0 var(--gap)" }}>
-                <div className={cls.productMeta}>
-                  <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
-                  <div className={cls.productMeta__articleNumber}>
-                    {t("meta.articlePrefix")} {articleNumber}
-                  </div>
-                </div>
-                <h1 className={cls.productName}>{product.name}</h1>
-              </div>
-              <div style={{ padding: "0 var(--gap)" }}>
-                <ProductImages
-                  images={bannerImages}
-                  interval={4500}
-                  autoPlay={true}
-                  loop
-                  pauseOnHover
-                  showControls
-                  showDots
-                  rounded
-                  overlay="gradient"
-                  aspectRatio="16 / 9"
-                  fit="contain"
-                />
-              </div>
-              <div className={cls.productInfo} style={{ padding: "0 var(--gap)" }}>
-                <div className={cls.productTitle}>
-                  <div className={cls.productPrice}>
-                    <div className={cls.meta__container}>
-                      <div className={"cls.meta_container--item"}>
-                        <div className={cls.price}>
-                          {!!discountPercent && compareAt && (
-                            <div className={cls.price__old}>
-                              <span className={cls.price__discount}>-{discountPercent}%</span>
-                              <span className={cls.price__compareAt}>{compareAt}</span>
-                            </div>
-                          )}
-                          <span className={cls.price__current}>{price}</span>
-                        </div>
-                        <div className={cls.product__infoBelow}>
-                          <span className={cls.productVat}>{t("price.vatIncluded")}</span>&nbsp;
-                          <span className={cls.productDelivery}>{t("price.freeShipping")}</span>
-                        </div>
-                      </div>
-                      <div className={"cls.meta_container--item"}>
-                        <div className={cls.product__info}>
-                          {(energyClass || energyClassArrow || datasheetUrl) && (
-                            <div className={cls.productEnergy}>
-                              {(energyClass || energyClassArrow) && (
-                                <EnergyLabel
-                                  className={cls.energyLabel}
-                                  energyClassUrl={energyClass || undefined}
-                                  energyClassArrowUrl={energyClassArrow || undefined}
-                                  label="Energieklasse"
-                                />
-                              )}
-                              {datasheetUrl && (
-                                <ProductDatasheet pdfUrl={datasheetUrl} label="Produktdatenblatt" />
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
+        {/* Open Graph */}
+        <meta property="og:type" content="product" />
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={seoDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        {primaryImage && <meta property="og:image" content={primaryImage} />}
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={seoTitle} />
+        <meta name="twitter:description" content={seoDescription} />
+        {primaryImage && <meta name="twitter:image" content={primaryImage} />}
+
+        {/* JSON-LD Product */}
+        <script type="application/ld+json">
+          {JSON.stringify(productSchema)}
+        </script>
+      </Helmet>
+      <Page padding={false}>
+        <div className={cls.product}>
+          <div className={cls.productDetails}>
+            <Tabs<TabKey>
+              items={productTabs}
+              activeKey={activeTab}
+              onChange={handleTabChange}
+              ariaLabel={t("tabs.ariaLabel")}
+            />
+
+            {activeTab === "details" && (
+              <>
+                <div style={{ marginBottom: 10, padding: "0 var(--gap)" }}>
+                  <div className={cls.productMeta}>
+                    <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
+                    <div className={cls.productMeta__articleNumber}>
+                      {t("meta.articlePrefix")} {articleNumber}
                     </div>
                   </div>
-
-                  <div className={cls.section}>
-                    <div className={cls.section__content}>
-                      <div className={cls.available}>
-                        <span className={available ? cls.inStock : cls.outOfStock} />
-                        <span className={available ? cls.inStockText : cls.outOfStockText}>
-                          {available
-                            ? t("availability.inStock")
-                            : t("availability.outOfStock")}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {hasVariants && (
-                    <div className={cls.section}>
-                      <div className={cls.section__content}>
-                        <VariantPicker product={product} value={variant} onChange={setVariant} />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className={cls.section}>
-                    <h3 className={cls.section__title}>
-                      {t("sections.delivery.title")}
-                    </h3>
-                    <div className={cls.section__content}>
-                      <DeliveryBadge minDays={2} maxDays={4} />
-                    </div>
-                  </div>
+                  <h1 className={cls.productName}>{product.name}</h1>
                 </div>
-
-                <div ref={actionsRef} className={cls.productActions}>
-                  <Button
-                    className={cls.addToCart}
-                    disabled={!available}
-                    onClick={handleAddToCart}
-                  >
-                    {t("actions.addToCart")}
-                  </Button>
-                </div>
-              </div>
-
-              <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
-                <h3 className={cls.section__title}>
-                  {t("sections.shortDescription.title")}
-                </h3>
-                <div className={cls.section__content}>
-                  <ul className={cls.list}>
-                    {product.shortDescription?.length ? (
-                      product.shortDescription.map((line, idx) => (
-                        <li key={idx}>{line}</li>
-                      ))
-                    ) : (
-                      <li>{t("sections.shortDescription.empty")}</li>
-                    )}
-                  </ul>
-                </div>
-              </div>
-
-              <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
-                <h3 className={cls.section__title}>
-                  {t("sections.specifications.title")}
-                </h3>
-                <div className={cls.section__content}>
-                  <SpecTable
-                    specs={entries}
-                    dictionary={dictionary}
-                    showEmpty="dash"
-                    mergeStrategy="dict-first"
+                <div style={{ padding: "0 var(--gap)" }}>
+                  <ProductImages
+                    images={bannerImages}
+                    interval={4500}
+                    autoPlay={true}
+                    loop
+                    pauseOnHover
+                    showControls
+                    showDots
+                    rounded
+                    overlay="gradient"
+                    aspectRatio="16 / 9"
+                    fit="contain"
                   />
                 </div>
-              </div>
-
-              <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
-                <h3 className={cls.section__title}>
-                  {t("sections.description.title")}
-                </h3>
-                <div className={cls.section__content}>
-                  <p>
-                    {product.description ||
-                      t("sections.description.empty")}
-                  </p>
-                </div>
-              </div>
-            </>
-          )}
-
-          {activeTab === "other" && <></>}
-
-          {activeTab === "reviews" && (
-            <>
-              <div className={cls.section}>
-                <div className={cls.section__content}>
-                  <div className={cls.reviews}>
-                    <div className={cls.rating}>
-                      <RatingBadge
-                        size="default"
-                        ratingValue={ratingValue}
-                        reviewCount={reviewCount}
-                      />
-                      <Button
-                        variant="secondary"
-                        size="small"
-                        onClick={() => setIsOpenUpload(true)}
-                      >
-                        {t("reviews.addButton")}
-                      </Button>
+                <div className={cls.productInfo} style={{ padding: "0 var(--gap)" }}>
+                  <div className={cls.productTitle}>
+                    <div className={cls.productPrice}>
+                      <div className={cls.meta__container}>
+                        <div className={"cls.meta_container--item"}>
+                          <div className={cls.price}>
+                            {!!discountPercent && compareAt && (
+                              <div className={cls.price__old}>
+                                <span className={cls.price__discount}>-{discountPercent}%</span>
+                                <span className={cls.price__compareAt}>{compareAt}</span>
+                              </div>
+                            )}
+                            <span className={cls.price__current}>{price}</span>
+                          </div>
+                          <div className={cls.product__infoBelow}>
+                            <span className={cls.productVat}>{t("price.vatIncluded")}</span>&nbsp;
+                            <span className={cls.productDelivery}>{t("price.freeShipping")}</span>
+                          </div>
+                        </div>
+                        <div className={"cls.meta_container--item"}>
+                          <div className={cls.product__info}>
+                            {(energyClass || energyClassArrow || datasheetUrl) && (
+                              <div className={cls.productEnergy}>
+                                {(energyClass || energyClassArrow) && (
+                                  <EnergyLabel
+                                    className={cls.energyLabel}
+                                    energyClassUrl={energyClass || undefined}
+                                    energyClassArrowUrl={energyClassArrow || undefined}
+                                    label="Energieklasse"
+                                  />
+                                )}
+                                {datasheetUrl && (
+                                  <ProductDatasheet pdfUrl={datasheetUrl} label="Produktdatenblatt" />
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <ProductVideos
-                      label={t("reviews.videoLabel")}
-                      limit={10}
-                      productId={product.id}
-                    />
-                    <ProductPlainReviews productId={product.id} limit={5} />
+
+                    <div className={cls.section}>
+                      <div className={cls.section__content}>
+                        <div className={cls.available}>
+                          <span className={available ? cls.inStock : cls.outOfStock} />
+                          <span className={available ? cls.inStockText : cls.outOfStockText}>
+                            {available
+                              ? t("availability.inStock")
+                              : t("availability.outOfStock")}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {hasVariants && (
+                      <div className={cls.section}>
+                        <div className={cls.section__content}>
+                          <VariantPicker product={product} value={variant} onChange={setVariant} />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className={cls.section}>
+                      <h3 className={cls.section__title}>
+                        {t("sections.delivery.title")}
+                      </h3>
+                      <div className={cls.section__content}>
+                        <DeliveryBadge minDays={2} maxDays={4} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div ref={actionsRef} className={cls.productActions}>
+                    <Button
+                      className={cls.addToCart}
+                      disabled={!available}
+                      onClick={handleAddToCart}
+                    >
+                      {t("actions.addToCart")}
+                    </Button>
                   </div>
                 </div>
-              </div>
-            </>
-          )}
 
-          <ProductCarousel
-            products={moreProducts}
-            label={t("related.title")}
-            onItemClick={(p) => nav(`/product/${p.id}`)}
-          />
-        </div>
-      </div>
+                <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
+                  <h3 className={cls.section__title}>
+                    {t("sections.shortDescription.title")}
+                  </h3>
+                  <div className={cls.section__content}>
+                    <ul className={cls.list}>
+                      {product.shortDescription?.length ? (
+                        product.shortDescription.map((line, idx) => (
+                          <li key={idx}>{line}</li>
+                        ))
+                      ) : (
+                        <li>{t("sections.shortDescription.empty")}</li>
+                      )}
+                    </ul>
+                  </div>
+                </div>
 
-      {showStickyCta && (
-        <div
-          className={cls.stickyCta}
-          role="region"
-          aria-label={t("sticky.ariaLabel")}
-        >
-          <div className={cls.stickyCta__price}>
-            {!!discountPercent && compareAt && (
-              <div className={cls.price__old}>
-                <span className={cls.price__discount}>-{discountPercent}%</span>
-                <span className={cls.price__compareAt}>{compareAt}</span>
-              </div>
+                <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
+                  <h3 className={cls.section__title}>
+                    {t("sections.specifications.title")}
+                  </h3>
+                  <div className={cls.section__content}>
+                    <SpecTable
+                      specs={entries}
+                      dictionary={dictionary}
+                      showEmpty="dash"
+                      mergeStrategy="dict-first"
+                    />
+                  </div>
+                </div>
+
+                <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
+                  <h3 className={cls.section__title}>
+                    {t("sections.description.title")}
+                  </h3>
+                  <div className={cls.section__content}>
+                    <p>
+                      {product.description ||
+                        t("sections.description.empty")}
+                    </p>
+                  </div>
+                </div>
+              </>
             )}
-            <span className={cls.stickyCta__currentPrice}>{price}</span>
-          </div>
-          <Button disabled={!available} onClick={handleAddToCart}>
-            {t("actions.addToCart")}
-          </Button>
-        </div>
-      )}
 
-      <Modal
-        isOpen={isOpenUpload}
-        onClose={() => setIsOpenUpload(false)}
-        variant="center"
-        headerBorder={false}
-        bodyStyles={true}
-      >
-        <ReviewComposer productId={product.id} />
-      </Modal>
-      <Footer />
-    </Page>
+            {activeTab === "other" && <></>}
+
+            {activeTab === "reviews" && (
+              <>
+                <div className={cls.section}>
+                  <div className={cls.section__content}>
+                    <div className={cls.reviews}>
+                      <div className={cls.rating}>
+                        <RatingBadge
+                          size="default"
+                          ratingValue={ratingValue}
+                          reviewCount={reviewCount}
+                        />
+                        <Button
+                          variant="secondary"
+                          size="small"
+                          onClick={() => setIsOpenUpload(true)}
+                        >
+                          {t("reviews.addButton")}
+                        </Button>
+                      </div>
+                      <ProductVideos
+                        label={t("reviews.videoLabel")}
+                        limit={10}
+                        productId={product.id}
+                      />
+                      <ProductPlainReviews productId={product.id} limit={5} />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            <ProductCarousel
+              products={moreProducts}
+              label={t("related.title")}
+              onItemClick={(p) => nav(`/product/${p.id}`)}
+            />
+          </div>
+        </div>
+
+        {showStickyCta && (
+          <div
+            className={cls.stickyCta}
+            role="region"
+            aria-label={t("sticky.ariaLabel")}
+          >
+            <div className={cls.stickyCta__price}>
+              {!!discountPercent && compareAt && (
+                <div className={cls.price__old}>
+                  <span className={cls.price__discount}>-{discountPercent}%</span>
+                  <span className={cls.price__compareAt}>{compareAt}</span>
+                </div>
+              )}
+              <span className={cls.stickyCta__currentPrice}>{price}</span>
+            </div>
+            <Button disabled={!available} onClick={handleAddToCart}>
+              {t("actions.addToCart")}
+            </Button>
+          </div>
+        )}
+
+        <Modal
+          isOpen={isOpenUpload}
+          onClose={() => setIsOpenUpload(false)}
+          variant="center"
+          headerBorder={false}
+          bodyStyles={true}
+        >
+          <ReviewComposer productId={product.id} />
+        </Modal>
+        <Footer />
+      </Page>
+    </>
   );
 }

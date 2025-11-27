@@ -1,5 +1,7 @@
 // src/pages/Checkout/PaymentPage.tsx
 import React, { useMemo, useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+import type { SeoConfig } from "../../types/seo/seoConfig";
 import "./Checkout.scss";
 import styles from "./Checkout.module.scss";
 import c from "./PaymentPage.module.scss";
@@ -92,6 +94,14 @@ const PaymentPage: React.FC = () => {
     const { lines, removeSelected } = useCart();
     const { user, isAuthenticated } = useAuth();
     const { t } = useTranslation("payment");
+
+    const seo: SeoConfig = useMemo(
+        () => ({
+            title: t("seo.title"),
+            description: t("seo.description")
+        }),
+        [t]
+    );
 
     const [acceptTerms, setAcceptTerms] = useState(false);
     const [isPaying, setIsPaying] = useState(false);
@@ -399,34 +409,42 @@ const PaymentPage: React.FC = () => {
     };
 
     return (
-        <Page>
-            <div className={c.payment}>
-                <div className={c.payment__summary}>
-                    <h2 className={c.payment__title}>{formatMoney(total)}</h2>
+        <>
+            <Helmet>
+                <title>{seo.title}</title>
+                <meta name="description" content={seo.description} />
+                {/* шаг оплаты тоже лучше не индексировать */}
+                <meta name="robots" content="noindex, nofollow" />
+            </Helmet>
+            <Page>
+                <div className={c.payment}>
+                    <div className={c.payment__summary}>
+                        <h2 className={c.payment__title}>{formatMoney(total)}</h2>
+                    </div>
+
+                    <PaymentSection
+                        displayTotal={total}
+                        acceptTerms={acceptTerms}
+                        setAcceptTerms={setAcceptTerms}
+                        onPrev={handleBack}
+                        onSubmitManual={handlePayManual}
+                        onSubmitStripe={handlePayStripe}
+                        disablePay={isPaying}
+                        provider={provider}
+                        preparePayPalPayment={preparePayPalPayment}
+                        onPayPalApproved={onPayPalApproved}
+                        canPay={canPay}
+                    />
                 </div>
 
-                <PaymentSection
-                    displayTotal={total}
-                    acceptTerms={acceptTerms}
-                    setAcceptTerms={setAcceptTerms}
-                    onPrev={handleBack}
-                    onSubmitManual={handlePayManual}
-                    onSubmitStripe={handlePayStripe}
-                    disablePay={isPaying}
-                    provider={provider}
-                    preparePayPalPayment={preparePayPalPayment}
-                    onPayPalApproved={onPayPalApproved}
-                    canPay={canPay}
-                />
-            </div>
-
-            {isPaying && (
-                <div className={styles.checkout__overlay} role="alert" aria-live="polite">
-                    <div className={styles.checkout__spinner} />
-                    <p>{t("overlay.processing")}</p>
-                </div>
-            )}
-        </Page>
+                {isPaying && (
+                    <div className={styles.checkout__overlay} role="alert" aria-live="polite">
+                        <div className={styles.checkout__spinner} />
+                        <p>{t("overlay.processing")}</p>
+                    </div>
+                )}
+            </Page>
+        </>
     );
 };
 

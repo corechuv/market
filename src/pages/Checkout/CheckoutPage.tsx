@@ -1,5 +1,7 @@
 // src/pages/Checkout/CheckoutPage.tsx
 import React, { useMemo, useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+import type { SeoConfig } from "../../types/seo/seoConfig";
 import "./Checkout.scss";
 import styles from "./Checkout.module.scss";
 import {
@@ -167,6 +169,15 @@ function carrierIconFor(option: ShippingUi) {
 // --- Component
 const CheckoutPage: React.FC = () => {
   const { t } = useTranslation("checkout");
+
+  const seo: SeoConfig = useMemo(
+    () => ({
+      title: t("seo.title"),
+      description: t("seo.description")
+    }),
+    [t]
+  );
+
 
   type ProviderId = "stripe" | "paypal" | "invoice";
   const [provider, setProvider] = useState<ProviderId>("stripe");
@@ -550,89 +561,96 @@ const CheckoutPage: React.FC = () => {
   }, [shippingOptions]);
 
   return (
-    <Page padding={false}>
-      <div className={styles.mastbar}>
-        <div className={styles.mastbar__left}>
-          <h2 className={styles.title}>{t("title")}</h2>
-        </div>
-      </div>
-      <div className={styles.main}>
-        <section className={styles.section}>
-          <AddressSection
-            address={address}
-            setAddress={setAddress}
-            shipping={shipping}
-            setShipping={setShipping}
-            shippingOptions={shippingOptions}
-            shipLoading={shipLoading}
-            shipError={shipError}
-            isAuthed={isAuthenticated}
-            savedAddresses={savedAddresses}
-            selectedAddrId={selectedAddressId}
-            onSelectSavedAddr={handleSelectSavedAddr}
-            fieldsDisabled={selectedAddressId !== "manual"}
-          />
-
-          <Accordion title={t("payment.accordionTitle")} defaultOpen>
-            <div className={styles.radio__list}>
-              {pmOptions.map((o) => (
-                <RadioField
-                  key={o.id}
-                  name="pm"
-                  value={o.id}
-                  checked={provider === o.id}
-                  onChange={() => setProvider(o.id)}
-                  label={
-                    <RadioLabel
-                      icon={o.icon}
-                      title={o.title}
-                      caption={o.caption}
-                    />
-                  }
-                />
-              ))}
-            </div>
-          </Accordion>
-
-          <div className={styles.checkout__actions}>
-            <Button
-              size="small"
-              type="button"
-              disabled={!canPay || qLoading}
-              onClick={handleGoToPayment}
-            >
-              {t("actions.continueToPayment", {
-                total: formatMoney(displayTotal),
-              })}
-            </Button>
-            <Button size="small" variant="link" onClick={handleBack}>
-              {t("actions.back")}
-            </Button>
+    <>
+      <Helmet>
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+      <Page padding={false}>
+        <div className={styles.mastbar}>
+          <div className={styles.mastbar__left}>
+            <h2 className={styles.title}>{t("title")}</h2>
           </div>
-        </section>
+        </div>
+        <div className={styles.main}>
+          <section className={styles.section}>
+            <AddressSection
+              address={address}
+              setAddress={setAddress}
+              shipping={shipping}
+              setShipping={setShipping}
+              shippingOptions={shippingOptions}
+              shipLoading={shipLoading}
+              shipError={shipError}
+              isAuthed={isAuthenticated}
+              savedAddresses={savedAddresses}
+              selectedAddrId={selectedAddressId}
+              onSelectSavedAddr={handleSelectSavedAddr}
+              fieldsDisabled={selectedAddressId !== "manual"}
+            />
 
-        <Summary
-          lines={selectedLines}
-          subtotal={displaySubtotal}
-          vat={displayVat}
-          vatLabel={vatLabel}
-          discount={displayDiscount}
-          total={displayTotal}
-          promo={promo}
-          setPromo={setPromo}
-          promoApplied={promoApplied}
-          applyPromo={applyPromo}
-          freeThresholdCents={minFreeThreshold}
-          shippingCents={displayShipping}
-          loading={qLoading}
-          quoteError={qError}
-          quoteReason={serverQuote?.reason ?? null}
-          spinnerClassName={styles.checkout__spinner}
-        />
-      </div>
+            <Accordion title={t("payment.accordionTitle")} defaultOpen>
+              <div className={styles.radio__list}>
+                {pmOptions.map((o) => (
+                  <RadioField
+                    key={o.id}
+                    name="pm"
+                    value={o.id}
+                    checked={provider === o.id}
+                    onChange={() => setProvider(o.id)}
+                    label={
+                      <RadioLabel
+                        icon={o.icon}
+                        title={o.title}
+                        caption={o.caption}
+                      />
+                    }
+                  />
+                ))}
+              </div>
+            </Accordion>
 
-      <Footer />
-    </Page>
+            <div className={styles.checkout__actions}>
+              <Button
+                size="small"
+                type="button"
+                disabled={!canPay || qLoading}
+                onClick={handleGoToPayment}
+              >
+                {t("actions.continueToPayment", {
+                  total: formatMoney(displayTotal),
+                })}
+              </Button>
+              <Button size="small" variant="link" onClick={handleBack}>
+                {t("actions.back")}
+              </Button>
+            </div>
+          </section>
+
+          <Summary
+            lines={selectedLines}
+            subtotal={displaySubtotal}
+            vat={displayVat}
+            vatLabel={vatLabel}
+            discount={displayDiscount}
+            total={displayTotal}
+            promo={promo}
+            setPromo={setPromo}
+            promoApplied={promoApplied}
+            applyPromo={applyPromo}
+            freeThresholdCents={minFreeThreshold}
+            shippingCents={displayShipping}
+            loading={qLoading}
+            quoteError={qError}
+            quoteReason={serverQuote?.reason ?? null}
+            spinnerClassName={styles.checkout__spinner}
+          />
+        </div>
+
+        <Footer />
+      </Page>
+    </>
   );
 };
 

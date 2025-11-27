@@ -8,5 +8,9 @@
     "actions": {
         "home": "Home",
         "continue": "Continue shopping"
+    },
+    "seo": {
+        "title": "Order completed – Dashedo",
+        "description": "Your order at Dashedo has been completed successfully. View your order number and the summary of your purchase."
     }
 }

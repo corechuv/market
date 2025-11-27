@@ -54,5 +54,9 @@
     },
     "sticky": {
         "ariaLabel": "Quick add to cart"
+    },
+    "seo": {
+        "title": "{{name}} | Buy online at Dashedo",
+        "description": "Buy {{name}} online at Dashedo. {{short}} Fast delivery and secure payment with PayPal & Stripe."
     }
 }

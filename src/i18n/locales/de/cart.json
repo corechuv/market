@@ -14,5 +14,9 @@
     },
     "actions": {
         "proceed": "Zur Kasse"
+    },
+    "seo": {
+        "title": "Warenkorb – Dashedo",
+        "description": "Überprüfen Sie die Artikel in Ihrem Warenkorb bei Dashedo, bevor Sie zur Kasse gehen. Sichere Zahlung mit PayPal & Stripe."
     }
 }

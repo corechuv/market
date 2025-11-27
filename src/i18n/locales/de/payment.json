@@ -33,5 +33,9 @@
     },
     "buttons": {
         "back": "Zurück"
+    },
+    "seo": {
+        "title": "Zahlung – Dashedo",
+        "description": "Wählen Sie Ihre gewünschte Zahlungsmethode und schließen Sie die Bestellung bei Dashedo sicher per Karte, PayPal oder Banküberweisung ab."
     }
 }

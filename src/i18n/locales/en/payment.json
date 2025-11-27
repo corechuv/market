@@ -33,5 +33,9 @@
     },
     "buttons": {
         "back": "Back"
+    },
+    "seo": {
+        "title": "Payment – Dashedo",
+        "description": "Choose your preferred payment method and complete your order securely at Dashedo using card, PayPal or bank transfer."
     }
 }

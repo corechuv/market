@@ -54,5 +54,9 @@
     "actions": {
         "continueToPayment": "Weiter zur Zahlung — {{total}}",
         "back": "Zurück"
+    },
+    "seo": {
+        "title": "Checkout – Dashedo",
+        "description": "Geben Sie Ihre Lieferadresse ein, wählen Sie Versandart und Zahlungsmethode, um Ihre Bestellung bei Dashedo abzuschließen. Sichere Zahlung mit PayPal und Kreditkarte."
     }
 }

@@ -54,5 +54,9 @@
     },
     "sticky": {
         "ariaLabel": "Schnell in den Warenkorb"
+    },
+    "seo": {
+        "title": "{{name}} online kaufen | Dashedo",
+        "description": "{{name}} jetzt bei Dashedo bestellen. {{short}} Schnelle Lieferung, sichere Zahlung mit PayPal & Stripe."
     }
 }

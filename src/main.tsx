@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { HelmetProvider } from "react-helmet-async"
 import App from './App.tsx'
 import { BrowserRouter } from 'react-router-dom'
 import "./i18n";
@@ -12,13 +13,15 @@ import { LangProvider } from './context/LangContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <LangProvider>
-      <CartProvider>
-        <BrowserRouter>
-          <ScrollToTop />
-          <App />
-        </BrowserRouter>
-      </CartProvider>
-    </LangProvider>
+    <HelmetProvider>
+      <LangProvider>
+        <CartProvider>
+          <BrowserRouter>
+            <ScrollToTop />
+            <App />
+          </BrowserRouter>
+        </CartProvider>
+      </LangProvider>
+    </HelmetProvider>
   </StrictMode>,
 )

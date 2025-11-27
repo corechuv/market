@@ -54,5 +54,9 @@
     "actions": {
         "continueToPayment": "Continue to payment — {{total}}",
         "back": "Back"
+    },
+    "seo": {
+        "title": "Checkout – Dashedo",
+        "description": "Enter your shipping address, choose a delivery option and payment method to complete your order at Dashedo. Secure payment with PayPal and credit card."
     }
 }

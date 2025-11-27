@@ -11,5 +11,19 @@
         "trendingVideos": "Trending videos",
         "bestsellers": "Bestsellers",
         "sale": "Sale"
+    },
+    "seo": {
+        "home": {
+            "title": "Dashedo – Online shop for electronics & computers",
+            "description": "Dashedo is your online shop for electronics, smartphones, PC hardware and accessories. Fast shipping, secure payment with PayPal & Stripe and great deals."
+        },
+        "newArrivals": {
+            "title": "New electronics & arrivals | Dashedo",
+            "description": "Discover the latest products in smartphones, PCs, gaming and accessories in the Dashedo online shop. Fast delivery and secure checkout."
+        },
+        "sale": {
+            "title": "Sale – Electronics deals & discounts | Dashedo",
+            "description": "Discounted electronics, smartphones, PC hardware and accessories in the Dashedo sale. Top brands at great prices, fast shipping and secure payment."
+        }
     }
 }
