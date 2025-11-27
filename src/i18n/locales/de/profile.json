@@ -9,5 +9,15 @@
     },
     "fallback": {
         "user": "Benutzer"
+    },
+    "seo": {
+        "me": {
+            "title": "{{username}} – Mein Profil | Dashedo",
+            "description": "Sehen Sie sich Ihr öffentliches Dashedo-Profil als {{name}} (@{{username}}) an und verwalten Sie Ihre Inhalte."
+        },
+        "user": {
+            "title": "{{name}} (@{{username}}) – Profil | Dashedo",
+            "description": "Sehen Sie sich das öffentliche Dashedo-Profil von {{name}} (@{{username}}) an und entdecken Sie hochgeladene Videos."
+        }
     }
 }

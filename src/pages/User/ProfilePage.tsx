@@ -1,6 +1,7 @@
 // src/pages/Profile/ProfilePage.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 import Page from "../../components/UI/Page/Page";
 import Wrapper from "../../components/User/Wrapper";
@@ -125,6 +126,34 @@ export default function ProfilePage() {
         `${profile.id}-${profile.avatarUrl || ""}`
     );
 
+    // ник для SEO – берём каноничный из профиля, если есть
+    const handle = profile.username || username;
+
+    const canonicalUrl = `https://dashedo.com/u/${encodeURIComponent(
+        handle
+    )}/videos`;
+
+    const seoTitle = isMe
+        ? t("seo.me.title", {
+            username: handle,
+            name: displayName,
+        })
+        : t("seo.user.title", {
+            username: handle,
+            name: displayName,
+        });
+
+    const seoDescription = isMe
+        ? t("seo.me.description", {
+            username: handle,
+            name: displayName,
+        })
+        : t("seo.user.description", {
+            username: handle,
+            name: displayName,
+        });
+
+
     const handleTabChange = (key: TabKey) => {
         setActive(key);
         // меняем URL под таб
@@ -132,51 +161,75 @@ export default function ProfilePage() {
     };
 
     return (
-        <Page padding={false}>
-            <Wrapper
-                photoUrl={avatarUrl}
-                fullname={displayName}
-                username={displayUsername}
-                action={
-                    isMe && (
-                        <>
-                            <Button
-                                size="small"
-                                variant="secondary"
-                                onClick={() =>
-                                    navigate(`/account/profile/edit?back=${backAfter}`)
-                                }
-                            >
-                                {t("buttons.editProfile")}
-                            </Button>
-                            <Button
-                                size="small"
-                                variant="secondary"
-                                onClick={() =>
-                                    navigate(`/account/settings?back=${backAfter}`)
-                                }
-                            >
-                                {t("buttons.settings")}
-                            </Button>
-                        </>
-                    )
-                }
-            />
+        <>
+            <Helmet>
+                <title>{seoTitle}</title>
+                <meta name="description" content={seoDescription} />
+                <link rel="canonical" href={canonicalUrl} />
+                {/* Open Graph */}
+                <meta property="og:type" content="profile" />
+                <meta property="og:title" content={seoTitle} />
+                <meta property="og:description" content={seoDescription} />
+                <meta property="og:url" content={canonicalUrl} />
+                {avatarUrl && (
+                    <meta property="og:image" content={avatarUrl} />
+                )}
+                {/* Twitter */}
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content={seoTitle} />
+                <meta name="twitter:description" content={seoDescription} />
+                {avatarUrl && (
+                    <meta name="twitter:image" content={avatarUrl} />
+                )}
+                {/* Доп. мета для профилей */}
+                <meta name="profile:username" content={handle} />
+            </Helmet>
+            <Page padding={false}>
+                <Wrapper
+                    photoUrl={avatarUrl}
+                    fullname={displayName}
+                    username={displayUsername}
+                    action={
+                        isMe && (
+                            <>
+                                <Button
+                                    size="small"
+                                    variant="secondary"
+                                    onClick={() =>
+                                        navigate(`/account/profile/edit?back=${backAfter}`)
+                                    }
+                                >
+                                    {t("buttons.editProfile")}
+                                </Button>
+                                <Button
+                                    size="small"
+                                    variant="secondary"
+                                    onClick={() =>
+                                        navigate(`/account/settings?back=${backAfter}`)
+                                    }
+                                >
+                                    {t("buttons.settings")}
+                                </Button>
+                            </>
+                        )
+                    }
+                />
 
-            <div className={styles.layout}>
-                <section className={styles.content}>
-                    <Tabs<TabKey>
-                        items={tabs}
-                        activeKey={active}
-                        onChange={handleTabChange}
-                        ariaLabel={t("tabs.ariaLabel")}
-                    />
+                <div className={styles.layout}>
+                    <section className={styles.content}>
+                        <Tabs<TabKey>
+                            items={tabs}
+                            activeKey={active}
+                            onChange={handleTabChange}
+                            ariaLabel={t("tabs.ariaLabel")}
+                        />
 
-                    {active === "videos" && (
-                        <Videos username={profile.username || username} />
-                    )}
-                </section>
-            </div>
-        </Page>
+                        {active === "videos" && (
+                            <Videos username={profile.username || username} />
+                        )}
+                    </section>
+                </div>
+            </Page>
+        </>
     );
 }

@@ -1,6 +1,7 @@
 // src/pages/Catalog/MobileCatalogPage.tsx
 import "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 // import c from "./MobileCatalogPage.module.scss";
 
 import Page from "../../components/UI/Page/Page";
@@ -20,26 +21,56 @@ export default function MobileCatalogPage() {
     onNavigate: (url) => nav(url),
   });
 
+  const seoTitle = t("seo.mobileTitle");
+  const seoDescription = t("seo.mobileDescription");
+  const canonicalUrl = "https://dashedo.com/c";
+
   return (
-    <Page padding={false}>
-      <CatalogScreens
-        title={t("title")}
-        stage={flow.stage}
-        isLoading={flow.isLoading}
-        error={!flow.isLoading && !!flow.error}
-        roots={flow.roots}
-        l2List={flow.l2List}
-        l3List={flow.l3List}
-        rootCat={flow.rootCat}
-        l2Cat={flow.l2Cat}
-        back={flow.back}
-        screenClass={flow.screenClass}
-        refs={{ l1: flow.l1ScrollRef, l2: flow.l2ScrollRef, l3: flow.l3ScrollRef }}
-        touch={{ onTouchStart: flow.onTouchStart, onTouchEnd: flow.onTouchEnd }}
-        onOpenL2={flow.openL2}
-        onOpenL3={flow.openL3}
-        onOpenSlug={(slug) => nav(`/category${slug}`)}
-      />
-    </Page>
+    <>
+      <Helmet>
+        <title>{seoTitle}</title>
+        <meta name="description" content={seoDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={seoDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={seoTitle} />
+        <meta name="twitter:description" content={seoDescription} />
+      </Helmet>
+
+      <Page padding={false}>
+        <CatalogScreens
+          title={t("title")}
+          stage={flow.stage}
+          isLoading={flow.isLoading}
+          error={!flow.isLoading && !!flow.error}
+          roots={flow.roots}
+          l2List={flow.l2List}
+          l3List={flow.l3List}
+          rootCat={flow.rootCat}
+          l2Cat={flow.l2Cat}
+          back={flow.back}
+          screenClass={flow.screenClass}
+          refs={{
+            l1: flow.l1ScrollRef,
+            l2: flow.l2ScrollRef,
+            l3: flow.l3ScrollRef,
+          }}
+          touch={{
+            onTouchStart: flow.onTouchStart,
+            onTouchEnd: flow.onTouchEnd,
+          }}
+          onOpenL2={flow.openL2}
+          onOpenL3={flow.openL3}
+          onOpenSlug={(slug) => nav(`/category${slug}`)}
+        />
+      </Page>
+    </>
   );
 }

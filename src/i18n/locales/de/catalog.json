@@ -5,5 +5,9 @@
         "sale": "Sale"
     },
     "loading": "Wird geladen…",
-    "loadError": "Kategorien konnten nicht geladen werden"
+    "loadError": "Kategorien konnten nicht geladen werden",
+    "seo": {
+        "mobileTitle": "Kategorien durchsuchen | Dashedo",
+        "mobileDescription": "Entdecken Sie Kategorien und Produkte im Dashedo Onlineshop – optimiert für mobile Geräte."
+    }
 }

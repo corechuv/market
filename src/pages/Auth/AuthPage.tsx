@@ -1,11 +1,12 @@
 // src/pages/Auth/AuthPage.tsx
-import React, { useEffect, useRef, useState } from "react";
-import s from "./AuthPage.module.scss";
-import { TextField } from "../../components/UI/TextField";
-import { PasswordField } from "../../components/UI/PasswordField";
-import { CheckboxField } from "../../components/UI/CheckboxField";
-import Button from "../../components/UI/Button";
-import Logo from "../../components/Footer/Logo";
+import React, { useEffect, useRef, useState } from "react"
+import { Helmet } from "react-helmet-async"
+import s from "./AuthPage.module.scss"
+import { TextField } from "../../components/UI/TextField"
+import { PasswordField } from "../../components/UI/PasswordField"
+import { CheckboxField } from "../../components/UI/CheckboxField"
+import Button from "../../components/UI/Button"
+import Logo from "../../components/Footer/Logo"
 
 import {
     passwordStrength,
@@ -17,10 +18,10 @@ import {
     validateForm,
     type FieldErrors,
     compose,
-} from "../../utils/validate/fields";
+} from "../../utils/validate/fields"
 
-import { Tabs, type TabItem } from "../../components/UI/Tabs";
-import { useTranslation, Trans } from "react-i18next";
+import { Tabs, type TabItem } from "../../components/UI/Tabs"
+import { useTranslation, Trans } from "react-i18next"
 
 export type Mode = "login" | "register";
 
@@ -63,6 +64,16 @@ export default function AuthPage({
     onRegister,
 }: AuthPageProps) {
     const { t } = useTranslation("auth");
+
+    const seoTitle =
+        mode === "login"
+            ? t("seo.login.title")
+            : t("seo.register.title");
+
+    const seoDescription =
+        mode === "login"
+            ? t("seo.login.description")
+            : t("seo.register.description");
 
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -182,165 +193,173 @@ export default function AuthPage({
     ];
 
     return (
-        <div className={s.page}>
-            <div className={s.center}>
-                <div className={s.card} role="dialog" aria-labelledby="auth-title">
-                    <header className={s.brand}>
-                        <Logo />
-                    </header>
+        <>
+            <Helmet>
+                <title>{seoTitle}</title>
+                <meta name="description" content={seoDescription} />
+                {/* обычно login/register не индексируют */}
+                <meta name="robots" content="noindex,nofollow" />
+            </Helmet>
+            <div className={s.page}>
+                <div className={s.center}>
+                    <div className={s.card} role="dialog" aria-labelledby="auth-title">
+                        <header className={s.brand}>
+                            <Logo />
+                        </header>
 
-                    {/* Табы c общим UI-компонентом */}
-                    <div className={s.tabs}>
-                        <Tabs<Mode>
-                            items={tabs}
-                            activeKey={mode}
-                            onChange={onModeChange}
-                            ariaLabel={t("tabs.ariaLabel")}
-                        />
+                        {/* Табы c общим UI-компонентом */}
+                        <div className={s.tabs}>
+                            <Tabs<Mode>
+                                items={tabs}
+                                activeKey={mode}
+                                onChange={onModeChange}
+                                ariaLabel={t("tabs.ariaLabel")}
+                            />
+                        </div>
+
+                        {/* Login */}
+                        <section
+                            id="panel-login"
+                            role="tabpanel"
+                            aria-labelledby="tab-login"
+                            hidden={mode !== "login"}
+                        >
+                            <form
+                                ref={loginRef}
+                                className={s.form}
+                                onSubmit={handleLogin}
+                                noValidate
+                            >
+                                <TextField
+                                    name="email"
+                                    inputMode="email"
+                                    autoComplete="email"
+                                    placeholder={t("login.emailPlaceholder")}
+                                    label={t("login.emailLabel")}
+                                    error={errors.email}
+                                />
+                                <PasswordField
+                                    name="password"
+                                    autoComplete="current-password"
+                                    placeholder={t("login.passwordPlaceholder")}
+                                    label={t("login.passwordLabel")}
+                                    error={errors.password}
+                                />
+
+                                <div className={s.rowBetween}>
+                                    <CheckboxField
+                                        name="remember"
+                                        defaultChecked
+                                        label={t("login.remember")}
+                                    />
+                                </div>
+
+                                <Button
+                                    className={s.cta}
+                                    type="submit"
+                                    disabled={loading}
+                                    size="large"
+                                >
+                                    {loading ? <Spinner /> : t("login.submit")}
+                                </Button>
+
+                                <div className={s.rowBetween}>
+                                    <a className={s.mutedLink} href="#forgot">
+                                        {t("login.forgot")}
+                                    </a>
+                                </div>
+                            </form>
+                        </section>
+
+                        {/* Register */}
+                        <section
+                            id="panel-register"
+                            role="tabpanel"
+                            aria-labelledby="tab-register"
+                            hidden={mode !== "register"}
+                        >
+                            <form
+                                ref={registerRef}
+                                className={s.form}
+                                onSubmit={handleRegister}
+                                noValidate
+                            >
+                                <TextField
+                                    name="firstName"
+                                    label={t("register.firstNameLabel")}
+                                    placeholder={t("register.firstNamePlaceholder")}
+                                    error={errors.firstName}
+                                />
+                                <TextField
+                                    name="lastName"
+                                    label={t("register.lastNameLabel")}
+                                    placeholder={t("register.lastNamePlaceholder")}
+                                    error={errors.lastName}
+                                />
+                                <TextField
+                                    name="email"
+                                    inputMode="email"
+                                    autoComplete="email"
+                                    label={t("register.emailLabel")}
+                                    placeholder={t("register.emailPlaceholder")}
+                                    error={errors.email}
+                                />
+                                <PasswordField
+                                    name="password"
+                                    autoComplete="new-password"
+                                    label={t("register.passwordLabel")}
+                                    placeholder={t("register.passwordPlaceholder")}
+                                    withStrength
+                                    strengthCalc={strength}
+                                    error={errors.password}
+                                />
+                                <PasswordField
+                                    name="confirm"
+                                    autoComplete="new-password"
+                                    label={t("register.confirmLabel")}
+                                    placeholder={t("register.confirmPlaceholder")}
+                                    error={errors.confirm}
+                                />
+
+                                <div className={s.rowBetween}>
+                                    <CheckboxField
+                                        name="agree"
+                                        label={
+                                            <Trans
+                                                i18nKey="register.agree"
+                                                ns="auth"
+                                                components={{
+                                                    a: <a className={s.mutedLink} href="#terms" />,
+                                                }}
+                                            />
+                                        }
+                                    />
+                                    {errors.agree && (
+                                        <div className={s.formError} role="alert">
+                                            {errors.agree}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <Button
+                                    className={s.cta}
+                                    type="submit"
+                                    disabled={loading}
+                                    size="large"
+                                >
+                                    {loading ? <Spinner /> : t("register.submit")}
+                                </Button>
+                            </form>
+                        </section>
+
+                        <footer className={s.footer}>
+                            <p className={s.muted}>
+                                {t("footer.copyright", { year: new Date().getFullYear() })}
+                            </p>
+                        </footer>
                     </div>
-
-                    {/* Login */}
-                    <section
-                        id="panel-login"
-                        role="tabpanel"
-                        aria-labelledby="tab-login"
-                        hidden={mode !== "login"}
-                    >
-                        <form
-                            ref={loginRef}
-                            className={s.form}
-                            onSubmit={handleLogin}
-                            noValidate
-                        >
-                            <TextField
-                                name="email"
-                                inputMode="email"
-                                autoComplete="email"
-                                placeholder={t("login.emailPlaceholder")}
-                                label={t("login.emailLabel")}
-                                error={errors.email}
-                            />
-                            <PasswordField
-                                name="password"
-                                autoComplete="current-password"
-                                placeholder={t("login.passwordPlaceholder")}
-                                label={t("login.passwordLabel")}
-                                error={errors.password}
-                            />
-
-                            <div className={s.rowBetween}>
-                                <CheckboxField
-                                    name="remember"
-                                    defaultChecked
-                                    label={t("login.remember")}
-                                />
-                            </div>
-
-                            <Button
-                                className={s.cta}
-                                type="submit"
-                                disabled={loading}
-                                size="large"
-                            >
-                                {loading ? <Spinner /> : t("login.submit")}
-                            </Button>
-
-                            <div className={s.rowBetween}>
-                                <a className={s.mutedLink} href="#forgot">
-                                    {t("login.forgot")}
-                                </a>
-                            </div>
-                        </form>
-                    </section>
-
-                    {/* Register */}
-                    <section
-                        id="panel-register"
-                        role="tabpanel"
-                        aria-labelledby="tab-register"
-                        hidden={mode !== "register"}
-                    >
-                        <form
-                            ref={registerRef}
-                            className={s.form}
-                            onSubmit={handleRegister}
-                            noValidate
-                        >
-                            <TextField
-                                name="firstName"
-                                label={t("register.firstNameLabel")}
-                                placeholder={t("register.firstNamePlaceholder")}
-                                error={errors.firstName}
-                            />
-                            <TextField
-                                name="lastName"
-                                label={t("register.lastNameLabel")}
-                                placeholder={t("register.lastNamePlaceholder")}
-                                error={errors.lastName}
-                            />
-                            <TextField
-                                name="email"
-                                inputMode="email"
-                                autoComplete="email"
-                                label={t("register.emailLabel")}
-                                placeholder={t("register.emailPlaceholder")}
-                                error={errors.email}
-                            />
-                            <PasswordField
-                                name="password"
-                                autoComplete="new-password"
-                                label={t("register.passwordLabel")}
-                                placeholder={t("register.passwordPlaceholder")}
-                                withStrength
-                                strengthCalc={strength}
-                                error={errors.password}
-                            />
-                            <PasswordField
-                                name="confirm"
-                                autoComplete="new-password"
-                                label={t("register.confirmLabel")}
-                                placeholder={t("register.confirmPlaceholder")}
-                                error={errors.confirm}
-                            />
-
-                            <div className={s.rowBetween}>
-                                <CheckboxField
-                                    name="agree"
-                                    label={
-                                        <Trans
-                                            i18nKey="register.agree"
-                                            ns="auth"
-                                            components={{
-                                                a: <a className={s.mutedLink} href="#terms" />,
-                                            }}
-                                        />
-                                    }
-                                />
-                                {errors.agree && (
-                                    <div className={s.formError} role="alert">
-                                        {errors.agree}
-                                    </div>
-                                )}
-                            </div>
-
-                            <Button
-                                className={s.cta}
-                                type="submit"
-                                disabled={loading}
-                                size="large"
-                            >
-                                {loading ? <Spinner /> : t("register.submit")}
-                            </Button>
-                        </form>
-                    </section>
-
-                    <footer className={s.footer}>
-                        <p className={s.muted}>
-                            {t("footer.copyright", { year: new Date().getFullYear() })}
-                        </p>
-                    </footer>
                 </div>
             </div>
-        </div>
+        </>
     );
 }

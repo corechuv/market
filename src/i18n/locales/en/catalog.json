@@ -5,5 +5,9 @@
         "sale": "Sale"
     },
     "loading": "Loading…",
-    "loadError": "Failed to load categories"
+    "loadError": "Failed to load categories",
+    "seo": {
+        "mobileTitle": "Browse categories | Dashedo",
+        "mobileDescription": "Explore categories and products in the Dashedo online shop – optimized for mobile devices."
+    }
 }
