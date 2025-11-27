@@ -3,7 +3,7 @@ import "./App.css";
 import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import Home from "./pages/Home/Home";
 import SearchPage from "./pages/Search/SearchPage";
-import ProductsPage from "./pages/Product/ProductsPage";
+// import ProductsPage from "./pages/Product/ProductsPage";
 import ProductPage from "./pages/Product/ProductPage";
 import CategoryPage from "./pages/Category/CategoryPage";
 import AccountPage from "./pages/Account/AccountPage";
@@ -133,7 +133,7 @@ export default function App() {
             <Route path="/u/:username" element={<ProfilePage />} />
             <Route path="/u/:username/:tab" element={<ProfilePage />} />
 
-            <Route path="/products" element={<ProductsPage />} />
+            {/*<Route path="/products" element={<ProductsPage />} />*/}
             <Route path="/product/:productId" element={<ProductPage />} />
             <Route path="/product/:productId/:tab" element={<ProductPage />} />
 

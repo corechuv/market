@@ -6,5 +6,9 @@
     "actions": {
         "home": "Главная",
         "report": "Сообщить о проблеме"
+    },
+    "seo": {
+        "title": "{{title}} | Dashedo",
+        "description": "{{description}}"
     }
 }

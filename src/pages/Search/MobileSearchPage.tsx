@@ -7,6 +7,7 @@ import {
     useId,
 } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import c from "./MobileSearchPage.module.scss";
 
 import { getProducts } from "../../services/productService";
@@ -289,108 +290,144 @@ export default function MobileSearchPage() {
 
     const onSelectVideo = (r: ReviewOut) => navigate(`/reels/${r.id}`);
 
+    // ---------------- SEO для мобильного поиска ----------------
+
+    const trimmedQuery = query.trim();
+
+    const canonicalBase = "https://dashedo.com/s";
+    const canonicalUrl = trimmedQuery
+        ? `${canonicalBase}?q=${encodeURIComponent(trimmedQuery)}`
+        : canonicalBase;
+
+    const seoTitle = trimmedQuery
+        ? t(`seo.${activeTab}.queryTitle`, { query: trimmedQuery })
+        : t(`seo.${activeTab}.title`);
+
+    const seoDescription = trimmedQuery
+        ? t(`seo.${activeTab}.queryDescription`, { query: trimmedQuery })
+        : t(`seo.${activeTab}.description`);
+
     return (
-        <Page padding={false}>
-            <div
-                className={c.content}
-                role="search"
-                aria-label={t("panel.ariaRegion")}
-            >
-                <MasterBar
-                    includeBars
-                    bar={
-                        <SearchField
-                            ref={inputRef}
-                            value={query}
-                            onChange={setQuery}
-                            placeholder={t("field.placeholder")}
-                            aria-label={t("field.ariaLabel")}
-                            aria-controls={listboxId}
-                            aria-expanded={searchLoading || activeResultsLength > 0}
-                            loading={searchLoading}
-                            error={searchError}
-                            resultsLength={activeResultsLength}
-                            onEnter={() => {
-                                if (!query.trim()) return;
-                                if (activeTab === "products" && productResults[0]) {
-                                    onSelectProduct(productResults[0]);
-                                } else if (activeTab === "people" && peopleResults[0]) {
-                                    onSelectPerson(peopleResults[0]);
-                                } else if (activeTab === "videos" && videoResults[0]) {
-                                    onSelectVideo(videoResults[0]);
-                                }
-                            }}
-                            onEscape={smartBack}
-                        />
-                    }
+        <>
+            <Helmet>
+                <title>{seoTitle}</title>
+                <meta name="description" content={seoDescription} />
+                <link rel="canonical" href={canonicalUrl} />
+
+                {/* Open Graph */}
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content={seoTitle} />
+                <meta property="og:description" content={seoDescription} />
+                <meta property="og:url" content={canonicalUrl} />
+
+                {/* Twitter */}
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content={seoTitle} />
+                <meta name="twitter:description" content={seoDescription} />
+            </Helmet>
+
+            <Page padding={false}>
+                <div
+                    className={c.content}
+                    role="search"
+                    aria-label={t("panel.ariaRegion")}
                 >
-                    <Tabs<SearchTabKey>
-                        items={tabItems}
-                        activeKey={activeTab}
-                        onChange={setActiveTab}
-                        ariaLabel={t("tabs.ariaLabel")}
-                        background="transparent"
-                    />
-                </MasterBar>
-
-                <ScrollArea>
-                    {activeTab === "products" && (
-                        <SearchResultsList
-                            items={productResults}
-                            getKey={(p) => String(p.id)}
-                            getLabel={(p) => p.label}
-                            onSelect={onSelectProduct}
-                            loading={productsLoading}
-                            role="listbox"
-                            ariaLabel={t("ariaResults.products")}
-                            listId={listboxId}
-                            skeletonRows={6}
-                        />
-                    )}
-
-                    {activeTab === "people" && (
-                        <UserResultsList<PersonSearchItem>
-                            items={peopleResults}
-                            getKey={(p) => p.id || p.username}
-                            onSelect={onSelectPerson}
-                            loading={peopleLoading && !!peopleResults.length}
-                            role="listbox"
-                            ariaLabel={t("ariaResults.people")}
-                            listId={listboxId}
-                            skeletonRows={6}
-                        />
-                    )}
-
-                    {activeTab === "videos" && (
-                        <div
-                            id={listboxId}
-                            role="listbox"
-                            aria-label={t("ariaResults.videos")}
-                        >
-                            {videosLoading && query.trim() && !videosError ? (
-                                <ReelsGridSkeleton layout="search" />
-                            ) : (
-                                <ReelsGrid
-                                    items={videoResults}
-                                    layout="search"
-                                    emptyText={
-                                        searchError
-                                            ? searchError
-                                            : videosLoading
-                                                ? ""
-                                                : query.trim()
-                                                    ? t("empty.videos")
-                                                    : ""
+                    <MasterBar
+                        includeBars
+                        bar={
+                            <SearchField
+                                ref={inputRef}
+                                value={query}
+                                onChange={setQuery}
+                                placeholder={t("field.placeholder")}
+                                aria-label={t("field.ariaLabel")}
+                                aria-controls={listboxId}
+                                aria-expanded={searchLoading || activeResultsLength > 0}
+                                loading={searchLoading}
+                                error={searchError}
+                                resultsLength={activeResultsLength}
+                                onEnter={() => {
+                                    if (!query.trim()) return;
+                                    if (activeTab === "products" && productResults[0]) {
+                                        onSelectProduct(productResults[0]);
+                                    } else if (activeTab === "people" && peopleResults[0]) {
+                                        onSelectPerson(peopleResults[0]);
+                                    } else if (activeTab === "videos" && videoResults[0]) {
+                                        onSelectVideo(videoResults[0]);
                                     }
-                                    onItemClick={(review) => {
-                                        onSelectVideo(review);
-                                    }}
-                                />
-                            )}
-                        </div>
-                    )}
-                </ScrollArea>
-            </div>
-        </Page>
+                                }}
+                                onEscape={smartBack}
+                            />
+                        }
+                    >
+                        <Tabs<SearchTabKey>
+                            items={tabItems}
+                            activeKey={activeTab}
+                            onChange={setActiveTab}
+                            ariaLabel={t("tabs.ariaLabel")}
+                            background="transparent"
+                        />
+                    </MasterBar>
+
+                    <ScrollArea>
+                        {activeTab === "products" && (
+                            <SearchResultsList
+                                items={productResults}
+                                getKey={(p) => String(p.id)}
+                                getLabel={(p) => p.label}
+                                onSelect={onSelectProduct}
+                                loading={productsLoading}
+                                role="listbox"
+                                ariaLabel={t("ariaResults.products")}
+                                listId={listboxId}
+                                skeletonRows={6}
+                            />
+                        )}
+
+                        {activeTab === "people" && (
+                            <UserResultsList<PersonSearchItem>
+                                items={peopleResults}
+                                getKey={(p) => p.id || p.username}
+                                onSelect={onSelectPerson}
+                                loading={peopleLoading && !!peopleResults.length}
+                                role="listbox"
+                                ariaLabel={t("ariaResults.people")}
+                                listId={listboxId}
+                                skeletonRows={6}
+                            />
+                        )}
+
+                        {activeTab === "videos" && (
+                            <div
+                                id={listboxId}
+                                role="listbox"
+                                aria-label={t("ariaResults.videos")}
+                            >
+                                {videosLoading && trimmedQuery && !videosError ? (
+                                    <ReelsGridSkeleton layout="search" />
+                                ) : (
+                                    <ReelsGrid
+                                        items={videoResults}
+                                        layout="search"
+                                        emptyText={
+                                            searchError
+                                                ? searchError
+                                                : videosLoading
+                                                    ? ""
+                                                    : trimmedQuery
+                                                        ? t("empty.videos")
+                                                        : ""
+                                        }
+                                        onItemClick={(review) => {
+                                            onSelectVideo(review);
+                                        }}
+                                    />
+                                )}
+                            </div>
+                        )}
+                    </ScrollArea>
+                </div>
+            </Page>
+        </>
     );
 }

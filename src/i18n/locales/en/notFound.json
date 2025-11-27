@@ -6,5 +6,9 @@
     "actions": {
         "home": "Home",
         "report": "Report a problem"
+    },
+    "seo": {
+        "title": "{{title}} | Dashedo",
+        "description": "{{description}}"
     }
 }

@@ -8,5 +8,16 @@
         "login": "Login",
         "register": "Register",
         "back": "Back"
+    },
+    "seo": {
+        "guest": {
+            "title": "Checkout – identify yourself | Dashedo",
+            "description": "Choose whether to continue as a guest or sign in to complete your order securely on Dashedo.",
+            "fallbackName": "Guest"
+        },
+        "user": {
+            "title": "Checkout as {{name}} | Dashedo",
+            "description": "You are signed in as {{name}}. Continue to checkout or switch to a different account."
+        }
     }
 }

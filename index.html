@@ -8,17 +8,14 @@
       try {
         lang = localStorage.getItem('lang');
       } catch (e) { }
-
       // если ничего нет — пробуем язык браузера
       if (!lang && window.navigator && navigator.language) {
         lang = navigator.language.slice(0, 2); // "de-DE" -> "de"
       }
-
       // дефолт
       if (!['de', 'en', 'ru'].includes(lang)) {
         lang = 'de';
       }
-
       document.documentElement.setAttribute('lang', lang);
     })();
   </script>
@@ -38,7 +35,7 @@
       } catch (e) { }
     })();
   </script>
-  <title>Dashedo </title>
+  <title>Dashedo</title>
 </head>
 
 <body>

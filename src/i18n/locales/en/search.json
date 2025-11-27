@@ -26,5 +26,25 @@
     },
     "empty": {
         "videos": "Nothing found"
+    },
+    "seo": {
+        "products": {
+            "title": "Product search – Dashedo",
+            "description": "Browse the Dashedo catalog for products on your smartphone.",
+            "queryTitle": "Search for \"{{query}}\" – Products | Dashedo",
+            "queryDescription": "Results for \"{{query}}\" in our product catalog on Dashedo."
+        },
+        "people": {
+            "title": "Search users – Dashedo",
+            "description": "Find profiles and creators on Dashedo.",
+            "queryTitle": "User search for \"{{query}}\" | Dashedo",
+            "queryDescription": "Profiles and creators that match \"{{query}}\"."
+        },
+        "videos": {
+            "title": "Video reviews – Dashedo",
+            "description": "Discover video reviews and reels about products on Dashedo.",
+            "queryTitle": "Video search for \"{{query}}\" | Dashedo",
+            "queryDescription": "Reels and video reviews for the search term \"{{query}}\"."
+        }
     }
 }

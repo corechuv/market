@@ -8,5 +8,16 @@
         "login": "Anmelden",
         "register": "Registrieren",
         "back": "Zurück"
+    },
+    "seo": {
+        "guest": {
+            "title": "Checkout – Identität bestätigen | Dashedo",
+            "description": "Wählen Sie, ob Sie als Gast fortfahren oder sich anmelden möchten, um Ihre Bestellung sicher auf Dashedo abzuschließen.",
+            "fallbackName": "Gast"
+        },
+        "user": {
+            "title": "Checkout als {{name}} | Dashedo",
+            "description": "Sie sind als {{name}} angemeldet. Fahren Sie mit dem Checkout fort oder wechseln Sie das Konto."
+        }
     }
 }

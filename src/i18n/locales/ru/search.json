@@ -26,5 +26,25 @@
     },
     "empty": {
         "videos": "Ничего не найдено"
+    },
+    "seo": {
+        "products": {
+            "title": "Поиск товаров – Dashedo",
+            "description": "Ищите товары из ассортимента Dashedo со смартфона.",
+            "queryTitle": "Поиск \"{{query}}\" – товары | Dashedo",
+            "queryDescription": "Результаты по запросу \"{{query}}\" в каталоге товаров Dashedo."
+        },
+        "people": {
+            "title": "Поиск пользователей – Dashedo",
+            "description": "Находите профили и авторов на Dashedo.",
+            "queryTitle": "Поиск пользователей по запросу \"{{query}}\" | Dashedo",
+            "queryDescription": "Профили и авторы, подходящие под запрос \"{{query}}\"."
+        },
+        "videos": {
+            "title": "Видео-обзоры – Dashedo",
+            "description": "Откройте для себя видео-обзоры и Reels о товарах на Dashedo.",
+            "queryTitle": "Поиск видео по запросу \"{{query}}\" | Dashedo",
+            "queryDescription": "Reels и видео-обзоры по запросу \"{{query}}\"."
+        }
     }
 }

@@ -26,5 +26,25 @@
     },
     "empty": {
         "videos": "Nichts gefunden"
+    },
+    "seo": {
+        "products": {
+            "title": "Produktsuche – Dashedo",
+            "description": "Durchsuchen Sie das Dashedo-Sortiment nach Produkten auf Ihrem Smartphone.",
+            "queryTitle": "Suche nach \"{{query}}\" – Produkte | Dashedo",
+            "queryDescription": "Ergebnisse für \"{{query}}\" in unserem Produktkatalog auf Dashedo."
+        },
+        "people": {
+            "title": "Nutzer suchen – Dashedo",
+            "description": "Finden Sie Profile und Creator auf Dashedo.",
+            "queryTitle": "Nutzer-Suche nach \"{{query}}\" | Dashedo",
+            "queryDescription": "Profile und Creator, die zu \"{{query}}\" passen."
+        },
+        "videos": {
+            "title": "Video-Rezensionen – Dashedo",
+            "description": "Entdecken Sie Video-Rezensionen und Reels zu Produkten auf Dashedo.",
+            "queryTitle": "Video-Suche nach \"{{query}}\" | Dashedo",
+            "queryDescription": "Reels und Video-Reviews zum Suchbegriff \"{{query}}\"."
+        }
     }
 }
