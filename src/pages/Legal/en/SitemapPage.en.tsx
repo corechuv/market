@@ -1,7 +1,8 @@
 // src/pages/Legal/en/SitemapPage.en.tsx
-import "react";
-import Page from "../../../components/UI/Page/Page";
-import s from "../Legal.module.scss";
+import "react"
+import { Helmet } from "react-helmet-async"
+import Page from "../../../components/UI/Page/Page"
+import s from "../Legal.module.scss"
 
 export default function SitemapPageEn() {
     const jsonLd = {
@@ -24,45 +25,63 @@ export default function SitemapPageEn() {
         ]
     };
 
+    const title = "Sitemap – Overview of all pages | Dashedo";
+    const description =
+        "HTML sitemap of Dashedo: overview of the homepage, features, solutions, pricing, help & support and legal pages.";
+
     return (
-        <Page>
-            <div className={s.content}>
-                <nav aria-label="Breadcrumb">
-                    <a href="/">Home</a> &nbsp;/&nbsp; <a href="/legal">Legal</a> &nbsp;/&nbsp; <span>Sitemap</span>
-                </nav>
+        <>
+            <Helmet>
+                <title>{title}</title>
+                <meta name="description" content={description} />
+                <link rel="canonical" href="https://dashedo.com/legal/sitemap" />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content={title} />
+                <meta property="og:description" content={description} />
+                <meta property="og:url" content="https://dashedo.com/legal/sitemap" />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content={title} />
+                <meta name="twitter:description" content={description} />
+            </Helmet>
+            <Page>
+                <div className={s.content}>
+                    <nav aria-label="Breadcrumb">
+                        <a href="/">Home</a> &nbsp;/&nbsp; <a href="/legal">Legal</a> &nbsp;/&nbsp; <span>Sitemap</span>
+                    </nav>
 
-                <h1 className={s.content__title}>Sitemap</h1>
-                <p><strong>Last updated:</strong> 11.11.2025</p>
+                    <h1 className={s.content__title}>Sitemap</h1>
+                    <p><strong>Last updated:</strong> 11.11.2025</p>
 
-                <h2>Main sections</h2>
-                <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/features">Features</a></li>
-                    <li><a href="/solutions">Solutions</a></li>
-                    <li><a href="/pricing">Pricing</a></li>
-                    <li><a href="/about">About us</a></li>
-                    <li><a href="/contact">Contact</a></li>
-                    <li><a href="/blog">Blog</a></li>
-                    <li><a href="/help">Help &amp; Support</a></li>
-                </ul>
+                    <h2>Main sections</h2>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/features">Features</a></li>
+                        <li><a href="/solutions">Solutions</a></li>
+                        <li><a href="/pricing">Pricing</a></li>
+                        <li><a href="/about">About us</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                        <li><a href="/help">Help &amp; Support</a></li>
+                    </ul>
 
-                <h2>Legal</h2>
-                <ul>
-                    <li><a href="/legal/imprint">Imprint</a></li>
-                    <li><a href="/legal/privacy">Privacy policy</a></li>
-                    <li><a href="/legal/cookies">Cookie policy</a></li>
-                    <li><a href="/legal/terms">Terms &amp; Conditions</a></li>
-                </ul>
+                    <h2>Legal</h2>
+                    <ul>
+                        <li><a href="/legal/imprint">Imprint</a></li>
+                        <li><a href="/legal/privacy">Privacy policy</a></li>
+                        <li><a href="/legal/cookies">Cookie policy</a></li>
+                        <li><a href="/legal/terms">Terms &amp; Conditions</a></li>
+                    </ul>
 
-                <p>
-                    Note: the XML sitemap for search engines is available at <code>/sitemap.xml</code>.
-                </p>
+                    <p>
+                        Note: the XML sitemap for search engines is available at <code>/sitemap.xml</code>.
+                    </p>
 
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-                />
-            </div>
-        </Page>
+                    <script
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                    />
+                </div>
+            </Page>
+        </>
     );
 }

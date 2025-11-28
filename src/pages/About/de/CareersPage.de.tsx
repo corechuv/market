@@ -1,5 +1,6 @@
 // src/pages/About/de/CareersPage.de.tsx
 import "react"
+import { Helmet } from "react-helmet-async"
 import Page from "../../../components/UI/Page/Page"
 import s from "../About.module.scss"
 
@@ -59,7 +60,28 @@ export default function CareersPageDe() {
         }
     ];
 
-    return (
+    return (<>
+        <Helmet>
+            <title>Karriere bei Dashedo</title>
+            <meta
+                name="description"
+                content="Karriere bei Dashedo: offene Stellen, Arbeitsweise und Bewerbungsprozess für unser Team in Berlin und remote in der EU."
+            />
+            <link rel="canonical" href="https://dashedo.com/about/careers" />
+            <meta property="og:type" content="website" />
+            <meta property="og:title" content="Karriere bei Dashedo" />
+            <meta
+                property="og:description"
+                content="Karriere bei Dashedo: offene Stellen, Arbeitsweise und Bewerbungsprozess."
+            />
+            <meta property="og:url" content="https://dashedo.com/about/careers" />
+            <meta name="twitter:card" content="summary" />
+            <meta name="twitter:title" content="Karriere bei Dashedo" />
+            <meta
+                name="twitter:description"
+                content="Karriere bei Dashedo: offene Stellen, Teamkultur und Bewerbungsprozess."
+            />
+        </Helmet>
         <Page>
             <div className={s.content}>
                 <nav aria-label="Brotkrumen">
@@ -131,5 +153,6 @@ export default function CareersPageDe() {
                 ))}
             </div>
         </Page>
+    </>
     );
 }

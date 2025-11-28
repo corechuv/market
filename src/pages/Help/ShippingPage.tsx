@@ -1,8 +1,8 @@
 // src/pages/Help/ShippingPage.tsx
-import De from "./de/ShippingPage.de";
-import En from "./en/ShippingPage.en";
-import Ru from "./ru/ShippingPage.ru";
-import { useLang } from "../../context/LangContext";
+import De from "./de/ShippingPage.de"
+import En from "./en/ShippingPage.en"
+import Ru from "./ru/ShippingPage.ru"
+import { useLang } from "../../context/LangContext"
 
 export default function ShippingPage() {
   const { lang } = useLang();

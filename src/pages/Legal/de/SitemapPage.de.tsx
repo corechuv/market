@@ -1,5 +1,6 @@
 // src/pages/Legal/de/SitemapPage.de.tsx
 import "react"
+import { Helmet } from "react-helmet-async"
 import Page from "../../../components/UI/Page/Page"
 import s from "../Legal.module.scss"
 
@@ -24,45 +25,63 @@ export default function SitemapPageDe() {
         ]
     };
 
+    const title = "Sitemap – Übersicht aller Seiten | Dashedo";
+    const description =
+        "HTML-Sitemap von Dashedo: Übersicht über Startseite, Funktionen, Preise, Hilfe & Support sowie rechtliche Seiten.";
+
     return (
-        <Page>
-            <div className={s.content}>
-                <nav aria-label="Brotkrumen">
-                    <a href="/">Startseite</a> &nbsp;/&nbsp; <a href="/legal">Rechtliches</a> &nbsp;/&nbsp; <span>Sitemap</span>
-                </nav>
+        <>
+            <Helmet>
+                <title>{title}</title>
+                <meta name="description" content={description} />
+                <link rel="canonical" href="https://dashedo.com/legal/sitemap" />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content={title} />
+                <meta property="og:description" content={description} />
+                <meta property="og:url" content="https://dashedo.com/legal/sitemap" />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content={title} />
+                <meta name="twitter:description" content={description} />
+            </Helmet>
+            <Page>
+                <div className={s.content}>
+                    <nav aria-label="Brotkrumen">
+                        <a href="/">Startseite</a> &nbsp;/&nbsp; <a href="/legal">Rechtliches</a> &nbsp;/&nbsp; <span>Sitemap</span>
+                    </nav>
 
-                <h1 className={s.content__title}>Sitemap</h1>
-                <p><strong>Zuletzt aktualisiert:</strong> 11.11.2025</p>
+                    <h1 className={s.content__title}>Sitemap</h1>
+                    <p><strong>Zuletzt aktualisiert:</strong> 11.11.2025</p>
 
-                <h2>Hauptbereiche</h2>
-                <ul>
-                    <li><a href="/">Startseite</a></li>
-                    <li><a href="/features">Funktionen</a></li>
-                    <li><a href="/solutions">Lösungen</a></li>
-                    <li><a href="/pricing">Preise</a></li>
-                    <li><a href="/about">Über uns</a></li>
-                    <li><a href="/contact">Kontakt</a></li>
-                    <li><a href="/blog">Blog</a></li>
-                    <li><a href="/help">Hilfe &amp; Support</a></li>
-                </ul>
+                    <h2>Hauptbereiche</h2>
+                    <ul>
+                        <li><a href="/">Startseite</a></li>
+                        <li><a href="/features">Funktionen</a></li>
+                        <li><a href="/solutions">Lösungen</a></li>
+                        <li><a href="/pricing">Preise</a></li>
+                        <li><a href="/about">Über uns</a></li>
+                        <li><a href="/contact">Kontakt</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                        <li><a href="/help">Hilfe &amp; Support</a></li>
+                    </ul>
 
-                <h2>Rechtliches</h2>
-                <ul>
-                    <li><a href="/legal/imprint">Impressum</a></li>
-                    <li><a href="/legal/privacy">Datenschutzerklärung</a></li>
-                    <li><a href="/legal/cookies">Cookie-Richtlinie</a></li>
-                    <li><a href="/legal/terms">AGB</a></li>
-                </ul>
+                    <h2>Rechtliches</h2>
+                    <ul>
+                        <li><a href="/legal/imprint">Impressum</a></li>
+                        <li><a href="/legal/privacy">Datenschutzerklärung</a></li>
+                        <li><a href="/legal/cookies">Cookie-Richtlinie</a></li>
+                        <li><a href="/legal/terms">AGB</a></li>
+                    </ul>
 
-                <p>
-                    Hinweis: Die XML-Sitemap für Suchmaschinen ist unter <code>/sitemap.xml</code> erreichbar.
-                </p>
+                    <p>
+                        Hinweis: Die XML-Sitemap für Suchmaschinen ist unter <code>/sitemap.xml</code> erreichbar.
+                    </p>
 
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-                />
-            </div>
-        </Page>
+                    <script
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                    />
+                </div>
+            </Page>
+        </>
     );
 }

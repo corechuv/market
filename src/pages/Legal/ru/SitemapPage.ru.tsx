@@ -1,7 +1,8 @@
 // src/pages/Legal/ru/SitemapPage.ru.tsx
-import "react";
-import Page from "../../../components/UI/Page/Page";
-import s from "../Legal.module.scss";
+import "react"
+import { Helmet } from "react-helmet-async"
+import Page from "../../../components/UI/Page/Page"
+import s from "../Legal.module.scss"
 
 export default function SitemapPageRu() {
     const jsonLd = {
@@ -24,45 +25,63 @@ export default function SitemapPageRu() {
         ]
     };
 
+    const title = "Карта сайта – Обзор всех страниц | Dashedo";
+    const description =
+        "HTML-карта сайта Dashedo: обзор главной страницы, разделов с функциональностью, тарифами, справкой и юридической информацией.";
+
     return (
-        <Page>
-            <div className={s.content}>
-                <nav aria-label="Хлебные крошки">
-                    <a href="/">Главная</a> &nbsp;/&nbsp; <a href="/legal">Правовая информация</a> &nbsp;/&nbsp; <span>Карта сайта</span>
-                </nav>
+        <>
+            <Helmet>
+                <title>{title}</title>
+                <meta name="description" content={description} />
+                <link rel="canonical" href="https://dashedo.com/legal/sitemap" />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content={title} />
+                <meta property="og:description" content={description} />
+                <meta property="og:url" content="https://dashedo.com/legal/sitemap" />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content={title} />
+                <meta name="twitter:description" content={description} />
+            </Helmet>
+            <Page>
+                <div className={s.content}>
+                    <nav aria-label="Хлебные крошки">
+                        <a href="/">Главная</a> &nbsp;/&nbsp; <a href="/legal">Правовая информация</a> &nbsp;/&nbsp; <span>Карта сайта</span>
+                    </nav>
 
-                <h1 className={s.content__title}>Карта сайта</h1>
-                <p><strong>Последнее обновление:</strong> 11.11.2025</p>
+                    <h1 className={s.content__title}>Карта сайта</h1>
+                    <p><strong>Последнее обновление:</strong> 11.11.2025</p>
 
-                <h2>Основные разделы</h2>
-                <ul>
-                    <li><a href="/">Главная</a></li>
-                    <li><a href="/features">Возможности</a></li>
-                    <li><a href="/solutions">Решения</a></li>
-                    <li><a href="/pricing">Цены</a></li>
-                    <li><a href="/about">О нас</a></li>
-                    <li><a href="/contact">Контакты</a></li>
-                    <li><a href="/blog">Блог</a></li>
-                    <li><a href="/help">Помощь &amp; поддержка</a></li>
-                </ul>
+                    <h2>Основные разделы</h2>
+                    <ul>
+                        <li><a href="/">Главная</a></li>
+                        <li><a href="/features">Возможности</a></li>
+                        <li><a href="/solutions">Решения</a></li>
+                        <li><a href="/pricing">Цены</a></li>
+                        <li><a href="/about">О нас</a></li>
+                        <li><a href="/contact">Контакты</a></li>
+                        <li><a href="/blog">Блог</a></li>
+                        <li><a href="/help">Помощь &amp; поддержка</a></li>
+                    </ul>
 
-                <h2>Правовая информация</h2>
-                <ul>
-                    <li><a href="/legal/imprint">Выходные данные (Impressum)</a></li>
-                    <li><a href="/legal/privacy">Политика конфиденциальности</a></li>
-                    <li><a href="/legal/cookies">Политика Cookie</a></li>
-                    <li><a href="/legal/terms">Условия использования</a></li>
-                </ul>
+                    <h2>Правовая информация</h2>
+                    <ul>
+                        <li><a href="/legal/imprint">Выходные данные (Impressum)</a></li>
+                        <li><a href="/legal/privacy">Политика конфиденциальности</a></li>
+                        <li><a href="/legal/cookies">Политика Cookie</a></li>
+                        <li><a href="/legal/terms">Условия использования</a></li>
+                    </ul>
 
-                <p>
-                    Примечание: XML-карта сайта для поисковых систем доступна по адресу <code>/sitemap.xml</code>.
-                </p>
+                    <p>
+                        Примечание: XML-карта сайта для поисковых систем доступна по адресу <code>/sitemap.xml</code>.
+                    </p>
 
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-                />
-            </div>
-        </Page>
+                    <script
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                    />
+                </div>
+            </Page>
+        </>
     );
 }

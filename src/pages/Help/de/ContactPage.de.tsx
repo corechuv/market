@@ -1,5 +1,6 @@
 // src/pages/Help/de/ContactPage.de.tsx
 import "react"
+import { Helmet } from "react-helmet-async"
 import Page from "../../../components/UI/Page/Page"
 import s from "../Help.module.scss"
 
@@ -42,46 +43,63 @@ export default function ContactPageDe() {
             ]
         }
     };
+    const title = "Kontakt – Dashedo";
+    const description =
+        "Kontakt zum Dashedo Support: E-Mail, Telefon und Hilfe bei Fragen zu Konto, Bestellungen und technischen Problemen.";
 
     return (
-        <Page>
-            <section className={s.content} lang="de">
-                <nav aria-label="Brotkrumen">
-                    <a href="/">Startseite</a> &nbsp;/&nbsp; <a href="/help">Hilfe &amp; Support</a> &nbsp;/&nbsp; <span>Kontakt</span>
-                </nav>
+        <>
+            <Helmet>
+                <title>{title}</title>
+                <meta name="description" content={description} />
+                <link rel="canonical" href="https://dashedo.com/help/contact" />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content={title} />
+                <meta property="og:description" content={description} />
+                <meta property="og:url" content="https://dashedo.com/help/contact" />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content={title} />
+                <meta name="twitter:description" content={description} />
+            </Helmet>
+            <Page>
+                <section className={s.content} lang="de">
+                    <nav aria-label="Brotkrumen">
+                        <a href="/">Startseite</a> &nbsp;/&nbsp; <a href="/help">Hilfe &amp; Support</a> &nbsp;/&nbsp; <span>Kontakt</span>
+                    </nav>
 
-                <h1 className={s.content__title}>Kontakt</h1>
-                <p><strong>Zuletzt aktualisiert:</strong> 11.11.2025</p>
+                    <h1 className={s.content__title}>Kontakt</h1>
+                    <p><strong>Zuletzt aktualisiert:</strong> 11.11.2025</p>
 
-                <h2>So erreichen Sie uns</h2>
-                <p>
-                    Unser Support-Team hilft Ihnen Montag–Freitag, 09:00–18:00 Uhr (CET/CEST).
-                    Wir antworten in der Regel innerhalb von 24&nbsp;Stunden.
-                </p>
-                <ul>
-                    <li><strong>E-Mail:</strong> <a href="mailto:support@dashedo.com">support@dashedo.com</a></li>
-                    <li><strong>Telefon:</strong> <a href="tel:+49⟨30⟩⟨1234567⟩">+49 ⟨30⟩ ⟨1234567⟩</a></li>
-                    <li><strong>Adresse (Geschäftssitz):</strong> ⟨Dashedo GmbH, Musterstraße 1, 10115 Berlin⟩</li>
-                </ul>
+                    <h2>So erreichen Sie uns</h2>
+                    <p>
+                        Unser Support-Team hilft Ihnen Montag–Freitag, 09:00–18:00 Uhr (CET/CEST).
+                        Wir antworten in der Regel innerhalb von 24&nbsp;Stunden.
+                    </p>
+                    <ul>
+                        <li><strong>E-Mail:</strong> <a href="mailto:support@dashedo.com">support@dashedo.com</a></li>
+                        <li><strong>Telefon:</strong> <a href="tel:+49⟨30⟩⟨1234567⟩">+49 ⟨30⟩ ⟨1234567⟩</a></li>
+                        <li><strong>Adresse (Geschäftssitz):</strong> ⟨Dashedo GmbH, Musterstraße 1, 10115 Berlin⟩</li>
+                    </ul>
 
-                <h2>Schneller zur Lösung</h2>
-                <ol>
-                    <li>Werfen Sie einen Blick in unsere <a href="/help/faq">FAQ</a> – viele Fragen sind dort bereits beantwortet.</li>
-                    <li>Beschreiben Sie Ihr Anliegen präzise und fügen Sie bei Bedarf Screenshots, Log-IDs oder Links hinzu.</li>
-                    <li>Teilen Sie uns Ihre <em>Account-E-Mail</em> und – falls vorhanden – die <em>Ticket- oder Bestellnummer</em> mit.</li>
-                </ol>
+                    <h2>Schneller zur Lösung</h2>
+                    <ol>
+                        <li>Werfen Sie einen Blick in unsere <a href="/help/faq">FAQ</a> – viele Fragen sind dort bereits beantwortet.</li>
+                        <li>Beschreiben Sie Ihr Anliegen präzise und fügen Sie bei Bedarf Screenshots, Log-IDs oder Links hinzu.</li>
+                        <li>Teilen Sie uns Ihre <em>Account-E-Mail</em> und – falls vorhanden – die <em>Ticket- oder Bestellnummer</em> mit.</li>
+                    </ol>
 
-                <h2>Datenschutz beim Support</h2>
-                <p>
-                    Wir verarbeiten Support-Anfragen gem. Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b/f DSGVO. Details in unserer
-                    <a href="/legal/privacy"> Datenschutzerklärung</a>.
-                </p>
+                    <h2>Datenschutz beim Support</h2>
+                    <p>
+                        Wir verarbeiten Support-Anfragen gem. Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b/f DSGVO. Details in unserer
+                        <a href="/legal/privacy"> Datenschutzerklärung</a>.
+                    </p>
 
-                <p>Weitere Hilfe: <a href="/help/returns-refunds">Rückgaben &amp; Erstattungen</a>, <a href="/help/shipping">Bereitstellung &amp; Lieferung</a>.</p>
+                    <p>Weitere Hilfe: <a href="/help/returns-refunds">Rückgaben &amp; Erstattungen</a>, <a href="/help/shipping">Bereitstellung &amp; Lieferung</a>.</p>
 
-                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
-                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(pageJsonLd) }} />
-            </section>
-        </Page>
+                    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
+                    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(pageJsonLd) }} />
+                </section>
+            </Page>
+        </>
     );
 }

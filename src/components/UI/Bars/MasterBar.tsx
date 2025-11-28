@@ -32,7 +32,7 @@ export default function MasterBar({
     return (
         <div className={clsx(c.mastbar, className)} style={style} {...divProps}>
             <div className={c.mastbar__w} style={w}>
-                {title && <h2 className={c.mastbar__title}>{title}</h2>}
+                {title && <h1 className={c.mastbar__title}>{title}</h1>}
                 {includeBars &&
                     <div className={c.mastbar__bar}>
                         {bar}

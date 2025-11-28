@@ -58,177 +58,176 @@ export default function SettingsPage() {
         <Page padding={false}>
             <MasterBar title={t("panel.title")} includeBars={false} />
             <ScrollArea lockBody={false}>
-                {/* Аккаунт */}
-                <ul className={c.list}>
-                    <li
-                        className={c.list__item}
-                        onClick={() => {
-                            nav("/account/notifications");
-                        }}
-                    >
-                        <svg className={c["list__item--icon-left"]} />
-                        <span className={c["list__item--label"]}>
-                            {t("items.notifications")}
-                        </span>
-                    </li>
-                    <li
-                        className={c.list__item}
-                        onClick={() => {
-                            nav("/account/profile/edit");
-                        }}
-                    >
-                        <svg className={c["list__item--icon-left"]} />
-                        <span className={c["list__item--label"]}>
-                            {t("items.editProfile")}
-                        </span>
-                    </li>
-                    <li
-                        className={c.list__item}
-                        onClick={() => {
-                            nav("/account/orders");
-                        }}
-                    >
-                        <OrdersIcon className={c["list__item--icon-left"]} />
-                        <span className={c["list__item--label"]}>
-                            {t("items.orders")}
-                        </span>
-                    </li>
-                    <li
-                        className={c.list__item}
-                        onClick={() => {
-                            nav("/account/addresses");
-                        }}
-                    >
-                        <AddressIcon className={c["list__item--icon-left"]} />
-                        <span className={c["list__item--label"]}>
-                            {t("items.addresses")}
-                        </span>
-                    </li>
-                    <li
-                        className={c.list__item}
-                        onClick={() => {
-                            nav("/account/security");
-                        }}
-                    >
-                        <svg className={c["list__item--icon-left"]}></svg>
-                        <span className={c["list__item--label"]}>
-                            {t("items.security")}
-                        </span>
-                    </li>
-                </ul>
-
-                {/* Тема */}
-                <h3 className={c.subtitle}>{t("sections.theme")}</h3>
-                <ul className={c.list}>
-                    <li
-                        className={c.list__item}
-                        aria-checked={theme === "light"}
-                        onClick={() => {
-                            setTheme("light");
-                        }}
-                    >
-                        <SunIcon className={c["list__item--icon-left"]} />
-                        <span
-                            className={c["list__item--label"]}
-                            aria-label={t("theme.light")}
-                            title="light"
+                <section aria-labelledby="settings-account">
+                    <h2 id="settings-account" className={c.subtitle}>{t("sections.account")}</h2>
+                    <ul className={c.list}>
+                        <li
+                            className={c.list__item}
+                            onClick={() => {
+                                nav("/account/notifications");
+                            }}
                         >
-                            {t("theme.light")}
-                        </span>
-                    </li>
-                    <li
-                        className={c.list__item}
-                        aria-checked={theme === "dark"}
-                        onClick={() => {
-                            setTheme("dark");
-                        }}
-                    >
-                        <MoonIcon className={c["list__item--icon-left"]} />
-                        <span
-                            className={c["list__item--label"]}
-                            aria-label={t("theme.dark")}
-                            title="dark"
+                            <svg className={c["list__item--icon-left"]} />
+                            <span className={c["list__item--label"]}>
+                                {t("items.notifications")}
+                            </span>
+                        </li>
+                        <li
+                            className={c.list__item}
+                            onClick={() => {
+                                nav("/account/profile/edit");
+                            }}
                         >
-                            {t("theme.dark")}
-                        </span>
-                    </li>
-                </ul>
-
-                {/* Язык */}
-                <h3 className={c.subtitle}>{t("sections.language")}</h3>
-                <ul className={c.list}>
-                    <li
-                        className={c.list__item}
-                        aria-checked={lang === "en"}
-                        onClick={() => handleChangeLanguage("en")}
-                    >
-                        <svg className={c["list__item--icon-left"]}></svg>
-                        <span className={c["list__item--label"]}>
-                            {t("languages.en")}
-                        </span>
-                    </li>
-
-                    <li
-                        className={c.list__item}
-                        aria-checked={lang === "ru"}
-                        onClick={() => handleChangeLanguage("ru")}
-                    >
-                        <svg className={c["list__item--icon-left"]}></svg>
-                        <span className={c["list__item--label"]}>
-                            {t("languages.ru")}
-                        </span>
-                    </li>
-
-                    <li
-                        className={c.list__item}
-                        aria-checked={lang === "de"}
-                        onClick={() => handleChangeLanguage("de")}
-                    >
-                        <svg className={c["list__item--icon-left"]}></svg>
-                        <span className={c["list__item--label"]}>
-                            {t("languages.de")}
-                        </span>
-                    </li>
-                </ul>
-
-                {/* Информация */}
-                <h3 className={c.subtitle}>{t("sections.info")}</h3>
-                <ul className={c.list}>
-                    <li
-                        className={c.list__item}
-                        onClick={() => {
-                            nav("/about");
-                        }}
-                    >
-                        <AboutIcon className={c["list__item--icon-left"]} />
-                        <span className={c["list__item--label"]}>
-                            {t("items.about")}
-                        </span>
-                    </li>
-                    <li
-                        className={c.list__item}
-                        onClick={() => {
-                            nav("/help");
-                        }}
-                    >
-                        <HelpSupportIcon className={c["list__item--icon-left"]} />
-                        <span className={c["list__item--label"]}>
-                            {t("items.help")}
-                        </span>
-                    </li>
-                    <li
-                        className={c.list__item}
-                        onClick={() => {
-                            nav("/legal");
-                        }}
-                    >
-                        <svg className={c["list__item--icon-left"]}></svg>
-                        <span className={c["list__item--label"]}>
-                            {t("items.legal")}
-                        </span>
-                    </li>
-                </ul>
-
+                            <svg className={c["list__item--icon-left"]} />
+                            <span className={c["list__item--label"]}>
+                                {t("items.editProfile")}
+                            </span>
+                        </li>
+                        <li
+                            className={c.list__item}
+                            onClick={() => {
+                                nav("/account/orders");
+                            }}
+                        >
+                            <OrdersIcon className={c["list__item--icon-left"]} />
+                            <span className={c["list__item--label"]}>
+                                {t("items.orders")}
+                            </span>
+                        </li>
+                        <li
+                            className={c.list__item}
+                            onClick={() => {
+                                nav("/account/addresses");
+                            }}
+                        >
+                            <AddressIcon className={c["list__item--icon-left"]} />
+                            <span className={c["list__item--label"]}>
+                                {t("items.addresses")}
+                            </span>
+                        </li>
+                        <li
+                            className={c.list__item}
+                            onClick={() => {
+                                nav("/account/security");
+                            }}
+                        >
+                            <svg className={c["list__item--icon-left"]}></svg>
+                            <span className={c["list__item--label"]}>
+                                {t("items.security")}
+                            </span>
+                        </li>
+                    </ul>
+                </section>
+                <section aria-labelledby="settings-theme">
+                    <h2 id="settings-theme" className={c.subtitle}>{t("sections.theme")}</h2>
+                    <ul className={c.list}>
+                        <li
+                            className={c.list__item}
+                            aria-checked={theme === "light"}
+                            onClick={() => {
+                                setTheme("light");
+                            }}
+                        >
+                            <SunIcon className={c["list__item--icon-left"]} />
+                            <span
+                                className={c["list__item--label"]}
+                                aria-label={t("theme.light")}
+                                title="light"
+                            >
+                                {t("theme.light")}
+                            </span>
+                        </li>
+                        <li
+                            className={c.list__item}
+                            aria-checked={theme === "dark"}
+                            onClick={() => {
+                                setTheme("dark");
+                            }}
+                        >
+                            <MoonIcon className={c["list__item--icon-left"]} />
+                            <span
+                                className={c["list__item--label"]}
+                                aria-label={t("theme.dark")}
+                                title="dark"
+                            >
+                                {t("theme.dark")}
+                            </span>
+                        </li>
+                    </ul>
+                </section>
+                <section aria-labelledby="settings-language">
+                    <h2 id="settings-language" className={c.subtitle}>{t("sections.language")}</h2>
+                    <ul className={c.list}>
+                        <li
+                            className={c.list__item}
+                            aria-checked={lang === "en"}
+                            onClick={() => handleChangeLanguage("en")}
+                        >
+                            <svg className={c["list__item--icon-left"]}></svg>
+                            <span className={c["list__item--label"]}>
+                                {t("languages.en")}
+                            </span>
+                        </li>
+                        <li
+                            className={c.list__item}
+                            aria-checked={lang === "ru"}
+                            onClick={() => handleChangeLanguage("ru")}
+                        >
+                            <svg className={c["list__item--icon-left"]}></svg>
+                            <span className={c["list__item--label"]}>
+                                {t("languages.ru")}
+                            </span>
+                        </li>
+                        <li
+                            className={c.list__item}
+                            aria-checked={lang === "de"}
+                            onClick={() => handleChangeLanguage("de")}
+                        >
+                            <svg className={c["list__item--icon-left"]}></svg>
+                            <span className={c["list__item--label"]}>
+                                {t("languages.de")}
+                            </span>
+                        </li>
+                    </ul>
+                </section>
+                <section aria-labelledby="settings-info">
+                    <h2 id="settings-info" className={c.subtitle}>{t("sections.info")}</h2>
+                    <ul className={c.list}>
+                        <li
+                            className={c.list__item}
+                            onClick={() => {
+                                nav("/about");
+                            }}
+                        >
+                            <AboutIcon className={c["list__item--icon-left"]} />
+                            <span className={c["list__item--label"]}>
+                                {t("items.about")}
+                            </span>
+                        </li>
+                        <li
+                            className={c.list__item}
+                            onClick={() => {
+                                nav("/help");
+                            }}
+                        >
+                            <HelpSupportIcon className={c["list__item--icon-left"]} />
+                            <span className={c["list__item--label"]}>
+                                {t("items.help")}
+                            </span>
+                        </li>
+                        <li
+                            className={c.list__item}
+                            onClick={() => {
+                                nav("/legal");
+                            }}
+                        >
+                            <svg className={c["list__item--icon-left"]}></svg>
+                            <span className={c["list__item--label"]}>
+                                {t("items.legal")}
+                            </span>
+                        </li>
+                    </ul>
+                </section>
                 <h3 className={c.subtitle}></h3>
                 <ul className={c.list}>
                     <li className={c.list__item} onClick={onLogout}>

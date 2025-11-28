@@ -1,8 +1,8 @@
 // src/pages/About/AboutPage.tsx
-import De from "./de/AboutPage.de";
-import En from "./en/AboutPage.en";
-import Ru from "./ru/AboutPage.ru";
-import { useLang } from "../../context/LangContext";
+import De from "./de/AboutPage.de"
+import En from "./en/AboutPage.en"
+import Ru from "./ru/AboutPage.ru"
+import { useLang } from "../../context/LangContext"
 
 export default function AboutPage() {
   const { lang } = useLang();
