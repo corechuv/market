@@ -110,10 +110,11 @@ export default function Home() {
             try {
                 setLoading(true);
 
-                const allReq = (getProducts as any)({ q: "", sort: "name" });
+                const allReq = (getProducts as any)({ q: "", sort: "new" });
                 const newReq = (getProducts as any)({
                     newArrivalsOnly: true,
                     availableOnly: true,
+                    sort: "new",
                     limit: 100
                 });
                 const saleReq = (getProducts as any)({
