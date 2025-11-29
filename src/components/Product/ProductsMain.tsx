@@ -86,10 +86,10 @@ export default function ProductsMain({
   // локализованные опции сортировки
   const sortOptions: SelectOption[] = useMemo(
     () => [
+      { value: "new", label: t("sort.new") },
       { value: "price", label: t("sort.priceAsc") },
       { value: "-price", label: t("sort.priceDesc") },
       { value: "discount", label: t("sort.discount") },
-      { value: "new", label: t("sort.new") },
       { value: "rating", label: t("sort.rating") },
     ],
     [t]
