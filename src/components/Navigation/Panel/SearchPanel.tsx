@@ -87,22 +87,33 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
   const [productsLoadError, setProductsLoadError] = useState<string | null>(
     null
   );
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
+    if (activeTab !== "products") return;
+
+    const q = query.trim();
+    if (!q) {
+      setItems([]);
+      setProductsLoadError(null);
+      setProductsLoading(false);
+      return;
+    }
+
     let cancelled = false;
-    (async () => {
+    setProductsLoading(true);
+    setProductsLoadError(null);
+
+    const timeoutId = window.setTimeout(async () => {
       try {
-        setProductsLoading(true);
-        setProductsLoadError(null);
+        const list = await getProducts({
+          q,
+          sort: "new",        // 👈 новые сверху
+          availableOnly: true,
+          limit: 50,          // сколько подсказок максимум
+        });
 
-        const maybe = (getProducts as any)({ sort: "name" });
-        const list = Array.isArray(maybe) ? maybe : await maybe;
-
-        const arr = Array.isArray(list)
-          ? list
-          : (list?.items ?? list?.data ?? list?.products ?? []);
-
-        const mapped: SearchItem[] = (Array.isArray(arr) ? arr : [])
+        const mapped: SearchItem[] = (Array.isArray(list) ? list : [])
           .map((p: any) => ({
             id: String(p?.id ?? p?.productId ?? ""),
             label: String(p?.name ?? p?.title ?? ""),
@@ -111,15 +122,20 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
 
         if (!cancelled) setItems(mapped);
       } catch {
-        if (!cancelled) setProductsLoadError(t("errors.catalog"));
+        if (!cancelled) {
+          setProductsLoadError(t("errors.catalog"));
+          setItems([]);
+        }
       } finally {
         if (!cancelled) setProductsLoading(false);
       }
-    })();
+    }, 250); // debounce 250 мс
+
     return () => {
       cancelled = true;
+      window.clearTimeout(timeoutId);
     };
-  }, [t]);
+  }, [activeTab, query, t]);
 
   // ----- ЛЮДИ -----
   const [people, setPeople] = useState<PersonSearchItem[]>([]);
@@ -131,14 +147,12 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
   const [videosLoading, setVideosLoading] = useState(false);
   const [videosError, setVideosError] = useState<string | null>(null);
 
-  const [query, setQuery] = useState("");
   const listboxId = useId();
 
-  const productResults = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return [];
-    return items.filter((i) => i.label.toLowerCase().includes(q)).slice(0, 50);
-  }, [query, items]);
+  const productResults = useMemo(
+    () => items.slice(0, 50),
+    [items]
+  );
 
   const peopleResults = people;
   const videoResults = videos;

@@ -358,6 +358,21 @@
             line-height: 1.6;
         }
     }
+
+    &__description {
+        ul {
+            li {
+                ul {
+                    margin-top: 12px;
+                    margin-bottom: 12px;
+                    
+                    li {
+                        padding: 0 10px;
+                    }
+                }
+            }
+        }
+    }
 }
 
 .list {

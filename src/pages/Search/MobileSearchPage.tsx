@@ -130,20 +130,31 @@ export default function MobileSearchPage() {
 
     // Один раз грузим каталог товаров (как в SearchPanel)
     useEffect(() => {
+        if (activeTab !== "products") return;
+
+        const q = query.trim();
+        // если ничего не введено — просто очищаем список и не дёргаем бэк
+        if (!q) {
+            setItems([]);
+            setProductsError(null);
+            setProductsLoading(false);
+            return;
+        }
+
         let cancelled = false;
-        (async () => {
+        setProductsLoading(true);
+        setProductsError(null);
+
+        const timeoutId = window.setTimeout(async () => {
             try {
-                setProductsLoading(true);
-                setProductsError(null);
+                const list = await getProducts({
+                    q,
+                    sort: "new",       // новые сверху
+                    availableOnly: true,
+                    limit: 50,         // максимум подсказок
+                });
 
-                const maybe = (getProducts as any)({ sort: "name" });
-                const list = Array.isArray(maybe) ? maybe : await maybe;
-
-                const arr = Array.isArray(list)
-                    ? list
-                    : (list?.items ?? list?.data ?? list?.products ?? []);
-
-                const mapped: SearchItem[] = (Array.isArray(arr) ? arr : [])
+                const mapped: SearchItem[] = (Array.isArray(list) ? list : [])
                     .map((p: any) => ({
                         id: String(p?.id ?? p?.productId ?? ""),
                         label: String(p?.name ?? p?.title ?? ""),
@@ -159,12 +170,13 @@ export default function MobileSearchPage() {
             } finally {
                 if (!cancelled) setProductsLoading(false);
             }
-        })();
+        }, 250); // debounce 250 мс
 
         return () => {
             cancelled = true;
+            window.clearTimeout(timeoutId);
         };
-    }, [t]);
+    }, [activeTab, query, t]);
 
     // ==== people (дебаунс по query + активная вкладка) ====
     useEffect(() => {
@@ -248,12 +260,10 @@ export default function MobileSearchPage() {
     }, [activeTab, query, t]);
 
     // ==== результаты для активной вкладки ====
-
-    const productResults = useMemo(() => {
-        const q = query.trim().toLowerCase();
-        if (!q) return [];
-        return items.filter((i) => i.label.toLowerCase().includes(q)).slice(0, 50);
-    }, [items, query]);
+    const productResults = useMemo(
+        () => items.slice(0, 50),
+        [items]
+    );
 
     const peopleResults = people;
     const videoResults = videos;

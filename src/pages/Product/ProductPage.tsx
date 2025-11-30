@@ -274,6 +274,11 @@ export default function ProductPage() {
     );
   }
 
+  const descriptionHtml =
+    typeof product.description === "string" && product.description.trim().length > 0
+      ? product.description
+      : `<p>${t("sections.description.empty")}</p>`;
+
   const handleTabChange = (key: TabKey) => {
     setActiveTab(key);
     if (!product) return;
@@ -564,10 +569,11 @@ export default function ProductPage() {
                     {t("sections.description.title")}
                   </h3>
                   <div className={cls.section__content}>
-                    <p>
-                      {product.description ||
-                        t("sections.description.empty")}
-                    </p>
+                    <div
+                      // можно повесить отдельный класс, если захочешь стилизовать списки/заголовки
+                      className={cls.section__description}
+                      dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+                    />
                   </div>
                 </div>
               </>
