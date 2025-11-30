@@ -13,6 +13,9 @@ import IconFilters from "../Icons/IconFilters";
 import MasterBar from "../UI/Bars/MasterBar";
 import CloseIcon from "../Icons/CloseIcon";
 import { useTranslation } from "react-i18next";
+import { useInfiniteList } from "../../utils/useInfiniteList";
+
+const PAGE_SIZE = 50;
 
 // ---- значения сортировки (для типов) ----
 const sortValues = ["price", "-price", "discount", "new", "rating"] as const;
@@ -41,6 +44,19 @@ function calcPriceBounds(products: Product[]) {
     return null;
   }
   return { min, max };
+}
+
+// хелпер: убираем дубли по id
+function uniqById<T extends { id: string | number }>(items: T[]): T[] {
+  const seen = new Set<string | number>();
+  const result: T[] = [];
+  for (const item of items) {
+    if (!seen.has(item.id)) {
+      seen.add(item.id);
+      result.push(item);
+    }
+  }
+  return result;
 }
 
 export default function ProductsMain({
@@ -79,8 +95,6 @@ export default function ProductsMain({
   // ключ для полного ресета Sidebar (чтобы сбрасывались defaultValue)
   const [filtersResetKey, setFiltersResetKey] = useState(0);
 
-  const [products, setProducts] = React.useState<Product[]>([]);
-  const [loading, setLoading] = React.useState<boolean>(true);
   const [, setError] = React.useState<string | null>(null);
 
   // локализованные опции сортировки
@@ -117,19 +131,11 @@ export default function ProductsMain({
     [t]
   );
 
-  // 👉 при смене категории / поискового запроса — сбрасываем диапазон и фильтр по цене
-  React.useEffect(() => {
-    setPriceBounds(null);
-    setPriceRangeState(null);
-    setFiltersResetKey((v) => v + 1);
-  }, [cat?.id, query]);
+  // ====== loadPage с useCallback, чтобы не дёргалось лишний раз ======
+  const loadPage = React.useCallback(
+    async (pageNum: number) => {
+      const offset = pageNum * PAGE_SIZE;
 
-  // Загрузка продуктов
-  React.useEffect(() => {
-    let cancelled = false;
-    async function run() {
-      setLoading(true);
-      setError(null);
       try {
         const res = await getProducts({
           q: query,
@@ -137,38 +143,72 @@ export default function ProductsMain({
           categoryId: cat?.id,
           saleOnly,
           // фильтр новинок + сорт "new" оба включают newArrivalsOnly на бэке
-          newArrivalsOnly: newArrivalsOnly,
+          newArrivalsOnly,
           // значения слайдера (цены в центах)
           minPriceCents: priceRangeState ? priceRangeState[0] : undefined,
           maxPriceCents: priceRangeState ? priceRangeState[1] : undefined,
           minRating: minRating ?? undefined,
+          limit: PAGE_SIZE,
+          offset,
         });
 
-        if (cancelled) return;
-
-        setProducts(res);
-
-        // обновляем глобальный диапазон цен:
-        // 1) если его ещё нет
-        // 2) либо если фильтр по цене сейчас выключен (priceRangeState === null)
-        setPriceBounds((prev) => {
-          const bounds = calcPriceBounds(res);
-          if (!bounds) return prev; // нет нормальных цен — оставляем как есть
-          if (!prev) return bounds; // первый раз — устанавливаем
-          if (priceRangeState == null) return bounds; // фильтр по цене снят — обновляем
-          return prev; // фильтр по цене включен — НЕ сжимаем диапазон
-        });
+        return res;
       } catch (e: any) {
-        if (!cancelled) setError(e?.message ?? "Failed to load products");
-      } finally {
-        if (!cancelled) setLoading(false);
+        setError(e?.message ?? "Failed to load products");
+        return [];
       }
+    },
+    [
+      query,
+      sort,
+      cat?.id,
+      saleOnly,
+      newArrivalsOnly,
+      priceRangeState,
+      minRating,
+    ]
+  );
+
+  // ====== Infinite list (hook) ======
+  const {
+    items: rawItems,
+    loading,
+    hasMore,
+    loadNext,
+    reset,
+    page,
+  } = useInfiniteList<Product>(loadPage, PAGE_SIZE);
+
+  // убираем дубли по id (на всякий случай)
+  const products = useMemo(() => uniqById(rawItems), [rawItems]);
+
+  // 👉 при смене фильтров/сортировки/категории/поиска — сбрасываем список
+  React.useEffect(() => {
+    reset();
+  }, [query, sort, cat?.id, saleOnly, newArrivalsOnly, priceRangeState, minRating, reset]);
+
+  // 👉 при смене категории / поискового запроса — сбрасываем диапазон и фильтр по цене
+  React.useEffect(() => {
+    setPriceBounds(null);
+    setPriceRangeState(null);
+    setFiltersResetKey((v) => v + 1);
+  }, [cat?.id, query]);
+
+  // 👉 перерасчёт priceBounds от текущего списка продуктов
+  React.useEffect(() => {
+    if (!products.length) {
+      setPriceBounds(null);
+      return;
     }
-    run();
-    return () => {
-      cancelled = true;
-    };
-  }, [query, sort, cat?.id, saleOnly, newArrivalsOnly, priceRangeState, minRating]);
+
+    setPriceBounds((prev) => {
+      const bounds = calcPriceBounds(products);
+      if (!bounds) return prev;
+      if (!prev) return bounds; // первый раз
+      if (priceRangeState == null) return bounds; // фильтр по цене снят — обновляем
+      return prev; // фильтр по цене включён — не сжимаем диапазон
+    });
+  }, [products, priceRangeState]);
 
   const openMobileFilters = () => setIsFiltersOpen(true);
   const closeMobileFilters = () => setIsFiltersOpen(false);
@@ -218,6 +258,34 @@ export default function ProductsMain({
     );
   };
 
+  // ====== IntersectionObserver для бесконечной прокрутки ======
+  const loaderRef = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    const el = loaderRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting) {
+          loadNext();
+        }
+      },
+      {
+        root: null,
+        rootMargin: "400px", // подгружаем заранее
+        threshold: 0,
+      }
+    );
+
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [loadNext]);
+
   return (
     <div className={cls.main}>
       {/* Крошки
@@ -231,30 +299,44 @@ export default function ProductsMain({
               ? t("title.resultsFor", { query })
               : cat?.name || t("title.all")}
           </h2>
-          <div className={cls.topbar}>
-            <SelectField
-              className={cls.selectField}
-              id="products-sort"
-              placeholder={t("sort.placeholder")}
-              value={sort}
-              onChange={(v) => setSort(v as SortValue)}
-              options={sortOptions}
-              disabled={loading}
-              showTitleOnHover={false}
-            />
-            <div className={cls.field} onClick={openMobileFilters}>
-              <IconFilters />
-            </div>
+        <div className={cls.topbar}>
+          <SelectField
+            className={cls.selectField}
+            id="products-sort"
+            placeholder={t("sort.placeholder")}
+            value={sort}
+            onChange={(v) => setSort(v as SortValue)}
+            options={sortOptions}
+            disabled={loading && page === 0}
+            showTitleOnHover={false}
+          />
+          <div className={cls.field} onClick={openMobileFilters}>
+            <IconFilters />
           </div>
+        </div>
         </div>
 
         <section className={cls.items}>
           <ProductItemList
             products={products}
-            isLoading={loading}
+            // skeleton только для первой загрузки
+            isLoading={loading && page === 0}
             skeletonCount={12}
             onItemClick={(p) => nav(`/product/${p.id}`)}
           />
+
+          {/* маячок для IntersectionObserver */}
+          <div ref={loaderRef} />
+
+          {/* лоудер при догрузке следующих страниц */}
+          {loading && page > 0 && (
+            <div className={cls.moreLoader}>Загрузка...</div>
+          )}
+
+          {/* конец списка */}
+          {!hasMore && products.length > 0 && (
+            <div className={cls.endMarker}>Это все товары</div>
+          )}
         </section>
       </section>
 
@@ -265,8 +347,9 @@ export default function ProductsMain({
 
       {/* Мобильный сайдбар: bottom-sheet на весь экран */}
       <div
-        className={`${cls.mobileSidebar} ${isFiltersOpen ? cls.mobileSidebarOpen : ""
-          }`}
+        className={`${cls.mobileSidebar} ${
+          isFiltersOpen ? cls.mobileSidebarOpen : ""
+        }`}
       >
         <div className={cls.mobileSidebarBackdrop} onClick={closeMobileFilters} />
         <aside className={cls.mobileSidebarSheet}>

@@ -43,7 +43,7 @@ body[data-theme='light'] {
   --bg-overlay: rgba(218, 218, 218, .2);
 
   /* Banner */
-  --bg-overlay-product: linear-gradient(180deg, rgba(0, 0, 0, 0.07) 0%, rgba(0, 0, 0, 0.07) 55%, rgba(0, 0, 0, 0.07) 100%);
+  --bg-overlay-product: linear-gradient(180deg, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0.03) 55%, rgba(0, 0, 0, 0.03) 100%);
 
   --bg-range-track: #dddddd;
   --bg-range-thumb: #434343;
@@ -208,7 +208,7 @@ body[data-theme='dark'] {
   --bg-overlay: rgba(0, 0, 0, .5);
 
   /* Banner */
-  --bg-overlay-product: linear-gradient(180deg, rgba(0, 0, 0, 0.07) 0%, rgba(0, 0, 0, 0.07) 55%, rgba(0, 0, 0, 0.07) 100%);
+  --bg-overlay-product: linear-gradient(180deg, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0.03) 55%, rgba(0, 0, 0, 0.03) 100%);
   
   --bg-range-track: #272727;
   --bg-range-thumb: #727272;
