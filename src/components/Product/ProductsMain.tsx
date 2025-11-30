@@ -4,7 +4,7 @@ import cls from "./ProductsMain.module.scss";
 import { useNavigate } from "react-router-dom";
 import ProductItemList from "../../components/Product/ProductItemList";
 import SidebarItems from "../../components/Product/SidebarItems";
-import { getProducts } from "../../services/productService";
+import { getProducts, getProductFacets } from "../../services/productService";
 import { getCategoryByFullSlug } from "../../services/categoryService";
 // import Breadcrumbs from "../Common/Breadcrumbs";
 import type { Product } from "../../types/product";
@@ -26,25 +26,6 @@ type ProductsMainProps = {
   showCategories?: boolean;
   categoryFullSlug?: string; // "/electronics/computers/cpu"
 };
-
-// утилита для подсчёта диапазона цен по списку товаров
-function calcPriceBounds(products: Product[]) {
-  let min = Number.POSITIVE_INFINITY;
-  let max = 0;
-
-  for (const p of products) {
-    const cents = (p as any).priceCents as number | undefined;
-    if (typeof cents !== "number" || !Number.isFinite(cents)) continue;
-
-    if (cents < min) min = cents;
-    if (cents > max) max = cents;
-  }
-
-  if (!Number.isFinite(min)) {
-    return null;
-  }
-  return { min, max };
-}
 
 // хелпер: убираем дубли по id
 function uniqById<T extends { id: string | number }>(items: T[]): T[] {
@@ -158,15 +139,7 @@ export default function ProductsMain({
         return [];
       }
     },
-    [
-      query,
-      sort,
-      cat?.id,
-      saleOnly,
-      newArrivalsOnly,
-      priceRangeState,
-      minRating,
-    ]
+    [query, sort, cat?.id, saleOnly, newArrivalsOnly, priceRangeState, minRating]
   );
 
   // ====== Infinite list (hook) ======
@@ -185,30 +158,61 @@ export default function ProductsMain({
   // 👉 при смене фильтров/сортировки/категории/поиска — сбрасываем список
   React.useEffect(() => {
     reset();
-  }, [query, sort, cat?.id, saleOnly, newArrivalsOnly, priceRangeState, minRating, reset]);
+  }, [
+    query,
+    sort,
+    cat?.id,
+    saleOnly,
+    newArrivalsOnly,
+    priceRangeState,
+    minRating,
+    reset,
+  ]);
 
-  // 👉 при смене категории / поискового запроса — сбрасываем диапазон и фильтр по цене
+  // 👉 при смене категории / поискового запроса — сбрасываем фильтр по цене и перерисовываем сайдбар
   React.useEffect(() => {
-    setPriceBounds(null);
     setPriceRangeState(null);
     setFiltersResetKey((v) => v + 1);
   }, [cat?.id, query]);
 
-  // 👉 перерасчёт priceBounds от текущего списка продуктов
+  // 👉 глобальные priceBounds по всем товарам (через /products/facets)
   React.useEffect(() => {
-    if (!products.length) {
-      setPriceBounds(null);
-      return;
+    let cancelled = false;
+
+    async function run() {
+      try {
+        const res = await getProductFacets({
+          q: query || undefined,
+          categoryId: cat?.id,
+          saleOnly,
+          newArrivalsOnly,
+          minRating: minRating ?? undefined,
+          // availableOnly можно добавить, если нужно
+        });
+
+        if (cancelled) return;
+
+        const min = res.price?.min ?? null;
+        const max = res.price?.max ?? null;
+
+        if (min !== null && max !== null) {
+          setPriceBounds({ min, max });
+        } else {
+          setPriceBounds(null);
+        }
+      } catch {
+        if (!cancelled) {
+          setPriceBounds(null);
+        }
+      }
     }
 
-    setPriceBounds((prev) => {
-      const bounds = calcPriceBounds(products);
-      if (!bounds) return prev;
-      if (!prev) return bounds; // первый раз
-      if (priceRangeState == null) return bounds; // фильтр по цене снят — обновляем
-      return prev; // фильтр по цене включён — не сжимаем диапазон
-    });
-  }, [products, priceRangeState]);
+    run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [query, cat?.id, saleOnly, newArrivalsOnly, minRating]);
 
   const openMobileFilters = () => setIsFiltersOpen(true);
   const closeMobileFilters = () => setIsFiltersOpen(false);
@@ -295,25 +299,23 @@ export default function ProductsMain({
       <section className={cls.content}>
         <div className={cls.mastbar}>
           <h2 className={cls.title}>
-            {query
-              ? t("title.resultsFor", { query })
-              : cat?.name || t("title.all")}
+            {query ? t("title.resultsFor", { query }) : cat?.name || t("title.all")}
           </h2>
-        <div className={cls.topbar}>
-          <SelectField
-            className={cls.selectField}
-            id="products-sort"
-            placeholder={t("sort.placeholder")}
-            value={sort}
-            onChange={(v) => setSort(v as SortValue)}
-            options={sortOptions}
-            disabled={loading && page === 0}
-            showTitleOnHover={false}
-          />
-          <div className={cls.field} onClick={openMobileFilters}>
-            <IconFilters />
+          <div className={cls.topbar}>
+            <SelectField
+              className={cls.selectField}
+              id="products-sort"
+              placeholder={t("sort.placeholder")}
+              value={sort}
+              onChange={(v) => setSort(v as SortValue)}
+              options={sortOptions}
+              disabled={loading && page === 0}
+              showTitleOnHover={false}
+            />
+            <div className={cls.field} onClick={openMobileFilters}>
+              <IconFilters />
+            </div>
           </div>
-        </div>
         </div>
 
         <section className={cls.items}>

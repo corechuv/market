@@ -18,6 +18,28 @@ export type GetProductsParams = {
   minRating?: number;         // минимальный рейтинг (1–5)
 };
 
+export type ProductFacets = {
+  total: number;
+  price: {
+    min: number | null;
+    max: number | null;
+  };
+  rating: {
+    min: number | null;
+    max: number | null;
+  };
+};
+
+export type GetProductFacetsParams = {
+  q?: string;
+  availableOnly?: boolean;
+  categoryId?: string;
+  categoryFullSlug?: string;
+  newArrivalsOnly?: boolean;
+  saleOnly?: boolean;
+  minRating?: number;
+};
+
 function qs(params: Record<string, any>) {
   const q = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {
@@ -30,6 +52,15 @@ export async function getProducts(params: GetProductsParams = {}): Promise<Produ
   const url = `${API}/products?${qs(params)}`;
   const r = await fetch(url, { credentials: "omit" });
   if (!r.ok) throw new Error(`Failed to fetch products: ${r.status}`);
+  return r.json();
+}
+
+export async function getProductFacets(
+  params: GetProductFacetsParams = {},
+): Promise<ProductFacets> {
+  const url = `${API}/products/facets?${qs(params)}`;
+  const r = await fetch(url, { credentials: "omit" });
+  if (!r.ok) throw new Error(`Failed to fetch product facets: ${r.status}`);
   return r.json();
 }
 
