@@ -15,11 +15,27 @@
     margin: 0;
 
     &__item {
-        display: flex;
-        gap: 12px;
+        display: grid;
         align-items: center;
+        column-gap: 12px;
         padding: 0.75rem 1.2rem;
         cursor: pointer;
+        grid-template-columns: 1fr; // по дефолту только текст
+
+        // Есть левая иконка
+        &:has(.list__item--icon-left) {
+            grid-template-columns: auto 1fr;
+        }
+
+        // Есть правая иконка
+        &:has(.list__item--icon-right) {
+            grid-template-columns: 1fr auto;
+        }
+
+        // Есть обе иконки
+        &:has(.list__item--icon-left):has(.list__item--icon-right) {
+            grid-template-columns: auto 1fr auto;
+        }
 
         &:hover,
         &:focus-visible {
