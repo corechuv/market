@@ -24,6 +24,9 @@ import UserResultsList from "../../Search/UsersResultList";
 import { buildAvatarSrc } from "../../../utils/avatar";
 import ReelsGridSkeleton from "../../User/Tabs/ReelsGrid.Skeleton";
 import { useTranslation } from "react-i18next";
+import { useInfiniteList } from "../../../utils/useInfiniteList";
+
+const PAGE_SIZE = 50;
 
 export interface SearchItem {
   id: string;
@@ -55,8 +58,7 @@ function mapProfileToPerson(p: any): PersonSearchItem {
   const rawAvatar: string | null =
     p.avatarUrl || p.avatar || p.avatarPath || null;
 
-  const cacheKey: string | null =
-    p.avatarUpdatedAt || p.updatedAt || null;
+  const cacheKey: string | null = p.avatarUpdatedAt || p.updatedAt || null;
 
   return {
     id: String(p.id),
@@ -66,6 +68,16 @@ function mapProfileToPerson(p: any): PersonSearchItem {
       ? buildAvatarSrc(rawAvatar, cacheKey || `${p.id}-${rawAvatar}`)
       : null,
   };
+}
+
+// убираем дубли по id
+function uniqById(items: SearchItem[]): SearchItem[] {
+  const map = new Map<string, SearchItem>();
+  for (const it of items) {
+    if (!it.id) continue;
+    if (!map.has(it.id)) map.set(it.id, it);
+  }
+  return Array.from(map.values());
 }
 
 const SearchPanel: React.FC<SearchPanelProps> = ({
@@ -81,36 +93,27 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
 
   const [activeTab, setActiveTab] = useState<SearchTabKey>("products");
 
-  // ----- ТОВАРЫ -----
-  const [items, setItems] = useState<SearchItem[]>([]);
-  const [productsLoading, setProductsLoading] = useState(false);
-  const [productsLoadError, setProductsLoadError] = useState<string | null>(
-    null
-  );
   const [query, setQuery] = useState("");
+  const trimmedQuery = query.trim();
 
-  useEffect(() => {
-    if (activeTab !== "products") return;
+  // ----- ТОВАРЫ -----
+  const [productsLoadError, setProductsLoadError] = useState<string | null>(null);
 
-    const q = query.trim();
-    if (!q) {
-      setItems([]);
-      setProductsLoadError(null);
-      setProductsLoading(false);
-      return;
-    }
+  const loadProductsPage = useCallback(
+    async (page: number): Promise<SearchItem[]> => {
+      const q = trimmedQuery;
+      if (!q) {
+        setProductsLoadError(null);
+        return [];
+      }
 
-    let cancelled = false;
-    setProductsLoading(true);
-    setProductsLoadError(null);
-
-    const timeoutId = window.setTimeout(async () => {
       try {
         const list = await getProducts({
           q,
-          sort: "new",        // 👈 новые сверху
+          sort: "new", // новые сверху
           availableOnly: true,
-          limit: 50,          // сколько подсказок максимум
+          limit: PAGE_SIZE,
+          offset: page * PAGE_SIZE,
         });
 
         const mapped: SearchItem[] = (Array.isArray(list) ? list : [])
@@ -120,22 +123,25 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
           }))
           .filter((x) => x.id && x.label);
 
-        if (!cancelled) setItems(mapped);
+        setProductsLoadError(null);
+        return uniqById(mapped);
       } catch {
-        if (!cancelled) {
-          setProductsLoadError(t("errors.catalog"));
-          setItems([]);
-        }
-      } finally {
-        if (!cancelled) setProductsLoading(false);
+        setProductsLoadError(t("errors.catalog"));
+        return [];
       }
-    }, 250); // debounce 250 мс
+    },
+    [trimmedQuery, t]
+  );
 
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timeoutId);
-    };
-  }, [activeTab, query, t]);
+  const {
+    items: productResults,
+    loading: productsLoading,
+    hasMore: hasMoreProducts,
+    loadNext: loadNextProducts,
+    reset: resetProducts,
+  } = useInfiniteList<SearchItem>(loadProductsPage, PAGE_SIZE);
+
+  const productsLoaderRef = useRef<HTMLDivElement | null>(null);
 
   // ----- ЛЮДИ -----
   const [people, setPeople] = useState<PersonSearchItem[]>([]);
@@ -148,11 +154,6 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
   const [videosError, setVideosError] = useState<string | null>(null);
 
   const listboxId = useId();
-
-  const productResults = useMemo(
-    () => items.slice(0, 50),
-    [items]
-  );
 
   const peopleResults = people;
   const videoResults = videos;
@@ -189,12 +190,20 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
   const resetAndClose = useCallback(() => {
     onClose();
     setQuery("");
+    resetProducts();
     setActiveIndexByTab({
       products: -1,
       people: -1,
       videos: -1,
     });
-  }, [onClose]);
+  }, [onClose, resetProducts]);
+
+  // сброс списка товаров при смене вкладки/поиска
+  useEffect(() => {
+    if (activeTab === "products") {
+      resetProducts();
+    }
+  }, [activeTab, trimmedQuery, resetProducts]);
 
   // ==== загрузка people / videos (дебаунс по query) ====
 
@@ -202,7 +211,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
   useEffect(() => {
     if (activeTab !== "people") return;
 
-    const q = query.trim();
+    const q = trimmedQuery;
     if (!q) {
       setPeople([]);
       setPeopleError(null);
@@ -240,13 +249,13 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
       cancelled = true;
       window.clearTimeout(timeoutId);
     };
-  }, [activeTab, query, t]);
+  }, [activeTab, trimmedQuery, t]);
 
   // ВИДЕО
   useEffect(() => {
     if (activeTab !== "videos") return;
 
-    const q = query.trim();
+    const q = trimmedQuery;
     if (!q) {
       setVideos([]);
       setVideosError(null);
@@ -276,7 +285,34 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
       cancelled = true;
       window.clearTimeout(timeoutId);
     };
-  }, [activeTab, query, t]);
+  }, [activeTab, trimmedQuery, t]);
+
+  // IntersectionObserver для догрузки товаров
+  useEffect(() => {
+    if (activeTab !== "products") return;
+    if (!trimmedQuery) return;
+    if (!hasMoreProducts) return;
+
+    const node = productsLoaderRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting) {
+          loadNextProducts();
+        }
+      },
+      {
+        root: null,
+        rootMargin: "200px",
+        threshold: 0,
+      }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [activeTab, trimmedQuery, hasMoreProducts, loadNextProducts]);
 
   const moveActive = useCallback(
     (dir: 1 | -1) => {
@@ -284,8 +320,8 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
         activeTab === "products"
           ? productResults.length
           : activeTab === "people"
-            ? peopleResults.length
-            : videoResults.length;
+          ? peopleResults.length
+          : videoResults.length;
 
       if (len === 0) return;
 
@@ -335,11 +371,10 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
         activeTab === "products"
           ? productResults
           : activeTab === "people"
-            ? peopleResults
-            : videoResults;
+          ? peopleResults
+          : videoResults;
 
-      const chosen =
-        idx >= 0 ? collection[idx as number] : collection[0 as number];
+      const chosen = idx >= 0 ? collection[idx as number] : collection[0 as number];
       if (!chosen) return;
 
       if (activeTab === "products") {
@@ -376,22 +411,22 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
     activeTab === "products"
       ? productResults.length
       : activeTab === "people"
-        ? peopleResults.length
-        : videoResults.length;
+      ? peopleResults.length
+      : videoResults.length;
 
   const searchLoading =
     activeTab === "products"
       ? productsLoading
       : activeTab === "people"
-        ? peopleLoading
-        : videosLoading;
+      ? peopleLoading
+      : videosLoading;
 
   const searchError =
     activeTab === "products"
       ? productsLoadError
       : activeTab === "people"
-        ? peopleError
-        : videosError;
+      ? peopleError
+      : videosError;
 
   return (
     <section
@@ -447,21 +482,27 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
 
         <ScrollArea lockBody={false}>
           {activeTab === "products" && (
-            <SearchResultsList
-              items={productResults}
-              getKey={(x) => x.id}
-              getLabel={(x) => x.label}
-              onSelect={(item) => onSelectProduct(item)}
-              loading={productsLoading}
-              role="listbox"
-              ariaLabel={t("ariaResults.products")}
-              listId={listboxId}
-              skeletonRows={6}
-              activeIndex={activeIndexByTab.products}
-              onActiveIndexChange={(idx) =>
-                setActiveIndexForTab("products", idx)
-              }
-            />
+            <>
+              <SearchResultsList
+                items={productResults}
+                getKey={(x) => x.id}
+                getLabel={(x) => x.label}
+                onSelect={(item) => onSelectProduct(item)}
+                // 👇 ВАЖНО: просто productsLoading,
+                // чтобы скелеты были и на первой, и на последующих страницах
+                loading={productsLoading}
+                role="listbox"
+                ariaLabel={t("ariaResults.products")}
+                listId={listboxId}
+                skeletonRows={6}
+                activeIndex={activeIndexByTab.products}
+                onActiveIndexChange={(idx) =>
+                  setActiveIndexForTab("products", idx)
+                }
+              />
+              {/* маячок для IntersectionObserver */}
+              <div ref={productsLoaderRef} />
+            </>
           )}
 
           {activeTab === "people" && (
@@ -489,7 +530,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
               role="listbox"
               aria-label={t("ariaResults.videos")}
             >
-              {videosLoading && query.trim() && !videosError ? (
+              {videosLoading && trimmedQuery && !videosError ? (
                 <ReelsGridSkeleton layout="search" />
               ) : (
                 <ReelsGrid
@@ -498,10 +539,10 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
                     searchError
                       ? searchError
                       : videosLoading
-                        ? ""
-                        : query.trim()
-                          ? t("empty.videos")
-                          : ""
+                      ? ""
+                      : trimmedQuery
+                      ? t("empty.videos")
+                      : ""
                   }
                   onItemClick={(review) => {
                     onSelectVideo(review);
