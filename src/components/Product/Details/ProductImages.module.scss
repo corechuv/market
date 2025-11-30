@@ -1,4 +1,9 @@
-$bg-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.07) 0%, rgba(0, 0, 0, 0.07) 55%, rgba(0, 0, 0, 0.07) 100%);
+$bg-overlay: linear-gradient(
+  180deg,
+  rgba(0, 0, 0, 0.07) 0%,
+  rgba(0, 0, 0, 0.07) 55%,
+  rgba(0, 0, 0, 0.07) 100%
+);
 
 /* ---------- базовые переменные и брейкпоинты ---------- */
 .banner {
@@ -20,15 +25,6 @@ $bg-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.07) 0%, rgba(0, 0, 0, 0.07)
   overflow: clip;
 }
 
-.withOverlay::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: var(--bg-overlay-product);
-  z-index: 1;
-}
-
 .viewport {
   position: relative;
   width: 100%;
@@ -42,6 +38,21 @@ $bg-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.07) 0%, rgba(0, 0, 0, 0.07)
     display: block;
     padding-top: calc(var(--ar-h) / var(--ar-w) * 100%);
   }
+}
+
+/* Оверлей включён — готовим контейнер */
+.withOverlay {
+  position: relative;
+}
+
+/* Оверлей: полностью покрывает слайд (и, соответственно, картинку) */
+.withOverlay .slide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--bg-overlay-product, #{$bg-overlay});
+  z-index: 1; // между картинкой и caption
 }
 
 @supports (aspect-ratio: 1 / 1) {
@@ -77,6 +88,7 @@ $bg-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.07) 0%, rgba(0, 0, 0, 0.07)
   transition: opacity 600ms ease;
   display: grid;
   place-items: end start;
+  z-index: 0; // база для image/overlay/caption
 }
 
 .active {
@@ -91,11 +103,12 @@ $bg-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.07) 0%, rgba(0, 0, 0, 0.07)
   object-fit: cover;
   transform: scale(1.03);
   animation: kenburns 6s ease-in-out both;
+  z-index: 0; // под оверлеем
 }
 
 .caption {
   position: relative;
-  z-index: 2;
+  z-index: 2; // над оверлеем (::after)
   margin: 0 16px 16px;
   padding: 10px 14px;
   color: #fff;
@@ -112,7 +125,7 @@ $bg-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.07) 0%, rgba(0, 0, 0, 0.07)
 /* ---------- контролы ---------- */
 .ctrl {
   position: absolute;
-  z-index: 3;
+  z-index: 3; // выше всего внутри viewport
   top: 50%;
   transform: translateY(-50%);
   width: 24px;
@@ -130,7 +143,7 @@ $bg-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.07) 0%, rgba(0, 0, 0, 0.07)
   svg {
     width: 20px;
     height: 20px;
-    color: white;
+    color: black;
   }
 }
 
@@ -153,7 +166,7 @@ $bg-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.07) 0%, rgba(0, 0, 0, 0.07)
 /* ---------- точки ---------- */
 .dots {
   position: absolute;
-  z-index: 3;
+  z-index: 3; // тоже поверх оверлея
   bottom: 10px;
   left: 0;
   right: 0;
@@ -179,7 +192,7 @@ $bg-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.07) 0%, rgba(0, 0, 0, 0.07)
 }
 
 .dotActive {
-  background: #fff;
+  background: black;
 }
 
 /* ---------- анимации + accessibility ---------- */
@@ -189,7 +202,7 @@ $bg-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.07) 0%, rgba(0, 0, 0, 0.07)
   }
 
   to {
-    transform: scale(1.00) translate3d(0, 0, 0);
+    transform: scale(1) translate3d(0, 0, 0);
   }
 }
 
@@ -222,6 +235,7 @@ $bg-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.07) 0%, rgba(0, 0, 0, 0.07)
   }
 }
 
+/* ---------- режим "contain" ---------- */
 .fitContain {
   .image {
     object-fit: contain;     // показываем картинку целиком

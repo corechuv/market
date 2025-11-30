@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import s from "./ProductImages.module.scss";
-import Left  from "../../Icons/ChevronLeftIcon";
+import Left from "../../Icons/ChevronLeftIcon";
 import Right from "../../Icons/ChevronRightIcon";
 
 export type BannerImage = {
@@ -29,6 +29,7 @@ export type BannerProps = {
   rounded?: boolean;
   /** Градиентная маска поверх картинки */
   overlay?: "none" | "gradient";
+  /** Как вписывать картинку */
   fit?: "cover" | "contain";
   className?: string;
 };
@@ -104,6 +105,7 @@ const Banner: React.FC<BannerProps> = ({
     touchStartX.current = e.touches[0].clientX;
     if (pauseOnHover) setPaused(true);
   };
+
   const onTouchEnd = (e: React.TouchEvent) => {
     const start = touchStartX.current;
     if (start != null) {
@@ -137,7 +139,6 @@ const Banner: React.FC<BannerProps> = ({
         s.banner,
         rounded ? s.rounded : "",
         className || "",
-        overlay === "gradient" ? s.withOverlay : "",
         fit === "contain" ? s.fitContain : "",
       ].join(" ")}
       role="region"
@@ -154,7 +155,12 @@ const Banner: React.FC<BannerProps> = ({
       onTouchEnd={onTouchEnd}
       style={arStyle}
     >
-      <div className={s.viewport}>
+      <div
+        className={[
+          s.viewport,
+          overlay === "gradient" ? s.withOverlay : "",
+        ].join(" ")}
+      >
         {images.map((img, i) => (
           <div
             className={[s.slide, i === index ? s.active : ""].join(" ")}
@@ -180,7 +186,11 @@ const Banner: React.FC<BannerProps> = ({
           >
             <Left />
           </button>
-          <button className={[s.ctrl, s.next].join(" ")} aria-label="Следующий слайд" onClick={next}>
+          <button
+            className={[s.ctrl, s.next].join(" ")}
+            aria-label="Следующий слайд"
+            onClick={next}
+          >
             <Right />
           </button>
         </>
@@ -205,4 +215,3 @@ const Banner: React.FC<BannerProps> = ({
 };
 
 export default Banner;
-
