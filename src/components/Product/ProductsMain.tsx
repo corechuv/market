@@ -322,18 +322,13 @@ export default function ProductsMain({
           <ProductItemList
             products={products}
             // skeleton только для первой загрузки
-            isLoading={loading && page === 0}
+            isLoading={loading}
             skeletonCount={12}
             onItemClick={(p) => nav(`/product/${p.id}`)}
           />
 
           {/* маячок для IntersectionObserver */}
           <div ref={loaderRef} />
-
-          {/* лоудер при догрузке следующих страниц */}
-          {loading && page > 0 && (
-            <div className={cls.moreLoader}>Загрузка...</div>
-          )}
 
           {/* конец списка */}
           {!hasMore && products.length > 0 && (

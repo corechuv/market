@@ -22,7 +22,8 @@ function computeProductComputed(product: Product) {
         ? getInitialVariant(product)
         : undefined;
 
-    const images = (variant?.images?.length ? variant.images : product.images) ?? [];
+    const images =
+        (variant?.images?.length ? variant.images : product.images) ?? [];
 
     const price = variant?.price ?? product.price;
     const compareAt = variant?.compareAtPrice;
@@ -67,21 +68,24 @@ const ProductItemList: React.FC<Props> = ({
     isLoading = false,
     skeletonCount = 8,
 }) => {
-    if (isLoading) {
-        const placeholders = Array.from({ length: skeletonCount }, (_, i) => i);
+    const gridClassName = [cls.grid, className].filter(Boolean).join(" ");
+    const placeholders = Array.from({ length: skeletonCount }, (_, i) => i);
 
+    // 👉 Первая загрузка: товаров ещё нет, но уже грузим — показываем только скелетоны
+    if (isLoading && products.length === 0) {
         return (
-            <div className={[cls.grid, className].filter(Boolean).join(" ")}>
+            <div className={gridClassName}>
                 {placeholders.map((n) => (
-                    <ProductCardSkeleton key={`skeleton-${n}`} />
+                    <ProductCardSkeleton key={`skeleton-initial-${n}`} />
                 ))}
             </div>
         );
     }
 
-    // Обычный режим
+    // 👉 Дальше: товары уже есть — рендерим их,
+    // а при загрузке следующей страницы добавляем скелетоны внизу
     return (
-        <div className={[cls.grid, className].filter(Boolean).join(" ")}>
+        <div className={gridClassName}>
             {products.map((product, i) => {
                 const {
                     imageSrc,
@@ -93,9 +97,14 @@ const ProductItemList: React.FC<Props> = ({
                     energyClass,
                 } = computeProductComputed(product);
 
+                const key =
+                    (product as any).id ??
+                    (product as any).slug ??
+                    `${product.name}-${i}`;
+
                 return (
                     <ProductCard
-                        key={(product as any).id ?? (product as any).slug ?? `${product.name}-${i}`}
+                        key={key}
                         name={product.name}
                         discountPercent={discountPercent}
                         compareAt={compareAt}
@@ -108,6 +117,12 @@ const ProductItemList: React.FC<Props> = ({
                     />
                 );
             })}
+
+            {isLoading &&
+                products.length > 0 &&
+                placeholders.map((n) => (
+                    <ProductCardSkeleton key={`skeleton-more-${n}`} />
+                ))}
         </div>
     );
 };
