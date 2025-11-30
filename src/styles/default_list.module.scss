@@ -37,6 +37,14 @@
             grid-template-columns: auto 1fr auto;
         }
 
+        &:has(.list__item--photo) {
+            display: flex;
+        }
+
+        &:has(.list__item--placeholder) {
+            display: flex;
+        }
+
         &:hover,
         &:focus-visible {
             background: var(--bg-hover-item);
