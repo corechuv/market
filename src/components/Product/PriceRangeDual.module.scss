@@ -9,7 +9,7 @@
 
 .rangeWrapper {
     position: relative;
-    height: 2px;
+    height: 5px;
     border-radius: 2px;
     /* динамический градиент для активного сегмента приходит из инлайна */
 }
@@ -28,8 +28,8 @@
         pointer-events: auto;
         /* вернуть события бегунку */
         appearance: none;
-        width: 16px;
-        height: 16px;
+        width: 20px;
+        height: 20px;
         background: var(--bg-range-thumb);
         border-radius: 50%;
         border: none;
@@ -44,8 +44,8 @@
 
     &::-moz-range-thumb {
         pointer-events: auto;
-        width: 16px;
-        height: 16px;
+        width: 20px;
+        height: 20px;
         background: var(--bg-range-thumb);
         border: none;
         border-radius: 50%;
