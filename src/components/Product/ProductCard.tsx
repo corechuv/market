@@ -90,7 +90,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                         className={
                             available
                                 ? `${cls["item__available--badge"]} ${cls["item__available--badge--true"]}`
-                                : cls["item__available--badge--false"]
+                                : `${cls["item__available--badge"]} ${cls["item__available--badge--false"]}`
                         }
                     />
                     <span
