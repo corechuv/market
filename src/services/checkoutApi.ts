@@ -1,5 +1,5 @@
 // src/services/checkoutApi.ts
-const API = import.meta.env.VITE_API_BASE_URL; // e.g. "http://127.0.0.1:8000/api/v1"
+const API = import.meta.env.VITE_API_BASE_URL;
 
 import { toISO2 } from "../utils/country";
 
