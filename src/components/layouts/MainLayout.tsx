@@ -144,13 +144,12 @@ export default function MainLayout() {
     <>
       <div className={c.m}>
         <Navigation hideOnMobile />
+        <Outlet />
         <BottomNavigation
           items={items}
-          bottomOffset={12}
-          rounded={18}
+          bottomOffset={0}
           visibleOnDesktop={false}
         />
-        <Outlet />
       </div>
     </>
   );

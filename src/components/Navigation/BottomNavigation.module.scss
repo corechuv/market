@@ -1,53 +1,21 @@
 /* src/components/Navigation/BottomNavigation.module.scss */
-
-/* Обёртка: фиксируем и центрируем панель */
 .outer {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: calc(var(--bottom-offset, 12px) + env(safe-area-inset-bottom) + var(--vb-offset, 0px));
+  bottom: calc(var(--bottom-offset, 0px) + env(safe-area-inset-bottom) + var(--vb-offset, 0px));
   display: flex;
   justify-content: center;
   z-index: 10000;
-}
-
-/* Сама панель — анимируем её по X */
-.bar {
   background: var(--n-bg-desktop);
-  backdrop-filter: saturate(180%) blur(14px);
-  -webkit-backdrop-filter: saturate(180%) blur(14px);
-  border-radius: var(--radius, 16px);
-  padding: 12px 26px;
-
-  transform: translate3d(0, 0, 0);
-  transition: transform 260ms ease, opacity 260ms ease;
-  will-change: transform, opacity;
 }
 
-/* Скрываем полностью вправо за пределы экрана */
-.hidden .bar {
-  transform: translateX(100vmax);
-  /* гарантированно за экран, независимо от ширины панели */
-  opacity: 0.98;
-}
-
-/* Показ: одноразовый въезд слева → центр.
-   Важно: на время входа отключаем transition, чтобы он не перебивал keyframes. */
-.opening .bar {
-  transition: none;
-  animation: slideInFromLeft 260ms cubic-bezier(.2, .7, 0, 1) both;
-}
-
-@keyframes slideInFromLeft {
-  from {
-    transform: translateX(-100vmax);
-    opacity: 0.01;
-  }
-
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+/* Сама панель — без анимаций/трансформов */
+.bar {
+  padding: 0 26px;
+  height: 60px;
+  display: flex;
+  align-items: center;
 }
 
 /* Контейнер для пунктов */
@@ -61,7 +29,6 @@
 }
 
 .navItem {
-  role: none;
   position: relative;
 }
 
@@ -132,18 +99,5 @@
 
   .outer.forceDesktop {
     display: flex;
-  }
-}
-
-/* Доступность: меньше анимаций при reduce motion */
-@media (prefers-reduced-motion: reduce) {
-
-  .bar,
-  .hidden .bar,
-  .opening .bar {
-    transition: none;
-    animation: none;
-    transform: none;
-    opacity: 1;
   }
 }
