@@ -58,7 +58,7 @@ export default function ProductsMain({
   const [isFiltersOpen, setIsFiltersOpen] = React.useState(false);
 
   // сортировка
-  const [sort, setSort] = useState<SortValue>("price");
+  const [sort, setSort] = useState<SortValue>("new");
 
   // фильтры
   const [saleOnly, setSaleOnly] = useState(false);
@@ -332,7 +332,7 @@ export default function ProductsMain({
 
           {/* конец списка */}
           {!hasMore && products.length > 0 && (
-            <div className={cls.endMarker}>Это все товары</div>
+            <div className={cls.endMarker}></div>
           )}
         </section>
       </section>
