@@ -418,7 +418,7 @@ export default function ProductPage() {
         </script>
       </Helmet>
       <Page padding={false}>
-        <ScrollArea lockBody>
+        <ScrollArea>
           <div className={cls.product}>
             <div className={cls.productDetails}>
               <Tabs<TabKey>
