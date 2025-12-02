@@ -57,7 +57,7 @@ export default function SettingsPage() {
     return (
         <Page padding={false}>
             <MasterBar title={t("panel.title")} includeBars={false} />
-            <ScrollArea lockBody={false}>
+            <ScrollArea lockBody={true}>
                 <section aria-labelledby="settings-account">
                     <h2 id="settings-account" className={c.subtitle}>{t("sections.account")}</h2>
                     <ul className={c.list}>

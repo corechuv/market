@@ -32,6 +32,8 @@ import Page from "../../components/UI/Page/Page";
 import Footer from "../../components/Footer/Footer";
 import ProductVideos from "../../components/Product/Review/ProductVideos";
 import ProductImages from "../../components/Product/Details/ProductImages";
+import ScrollArea from "../../components/UI/ScrollArea/ScrollArea";
+import { useVisualViewport } from "../../hooks/useViewportUnits";
 
 type TabKey = "details" | "reviews" | "other";
 
@@ -47,6 +49,7 @@ const normalizeTab = (tabParam?: string): TabKey => {
 };
 
 export default function ProductPage() {
+  useVisualViewport();
   const nav = useNavigate();
   const { productId, tab } = useParams<{ productId: string; tab?: string }>();
   const { t } = useTranslation("product");
@@ -415,242 +418,244 @@ export default function ProductPage() {
         </script>
       </Helmet>
       <Page padding={false}>
-        <div className={cls.product}>
-          <div className={cls.productDetails}>
-            <Tabs<TabKey>
-              items={productTabs}
-              activeKey={activeTab}
-              onChange={handleTabChange}
-              ariaLabel={t("tabs.ariaLabel")}
-            />
+        <ScrollArea lockBody>
+          <div className={cls.product}>
+            <div className={cls.productDetails}>
+              <Tabs<TabKey>
+                items={productTabs}
+                activeKey={activeTab}
+                onChange={handleTabChange}
+                ariaLabel={t("tabs.ariaLabel")}
+              />
 
-            {activeTab === "details" && (
-              <>
-                <div style={{ marginBottom: 10, padding: "0 var(--gap)" }}>
-                  <div className={cls.productMeta}>
-                    <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
-                    <div className={cls.productMeta__articleNumber}>
-                      {t("meta.articlePrefix")} {articleNumber}
+              {activeTab === "details" && (
+                <>
+                  <div style={{ marginBottom: 10, padding: "0 var(--gap)" }}>
+                    <div className={cls.productMeta}>
+                      <RatingBadge size="small" ratingValue={ratingValue} reviewCount={reviewCount} />
+                      <div className={cls.productMeta__articleNumber}>
+                        {t("meta.articlePrefix")} {articleNumber}
+                      </div>
                     </div>
+                    <h1 className={cls.productName}>{product.name}</h1>
                   </div>
-                  <h1 className={cls.productName}>{product.name}</h1>
-                </div>
-                <div style={{ padding: "0 var(--gap)" }}>
-                  <ProductImages
-                    images={bannerImages}
-                    interval={4500}
-                    autoPlay={true}
-                    loop
-                    pauseOnHover
-                    showControls
-                    showDots
-                    rounded
-                    overlay="gradient"
-                    aspectRatio="16 / 9"
-                    fit="contain"
-                  />
-                </div>
-                <div className={cls.productInfo} style={{ padding: "0 var(--gap)" }}>
-                  <div className={cls.productTitle}>
-                    <div className={cls.productPrice}>
-                      <div className={cls.meta__container}>
-                        <div className={"cls.meta_container--item"}>
-                          <div className={cls.price}>
-                            {!!discountPercent && compareAt && (
-                              <div className={cls.price__old}>
-                                <span className={cls.price__discount}>-{discountPercent}%</span>
-                                <span className={cls.price__compareAt}>{compareAt}</span>
-                              </div>
-                            )}
-                            <span className={cls.price__current}>{price}</span>
+                  <div style={{ padding: "0 var(--gap)" }}>
+                    <ProductImages
+                      images={bannerImages}
+                      interval={4500}
+                      autoPlay={true}
+                      loop
+                      pauseOnHover
+                      showControls
+                      showDots
+                      rounded
+                      overlay="gradient"
+                      aspectRatio="16 / 9"
+                      fit="contain"
+                    />
+                  </div>
+                  <div className={cls.productInfo} style={{ padding: "0 var(--gap)" }}>
+                    <div className={cls.productTitle}>
+                      <div className={cls.productPrice}>
+                        <div className={cls.meta__container}>
+                          <div className={"cls.meta_container--item"}>
+                            <div className={cls.price}>
+                              {!!discountPercent && compareAt && (
+                                <div className={cls.price__old}>
+                                  <span className={cls.price__discount}>-{discountPercent}%</span>
+                                  <span className={cls.price__compareAt}>{compareAt}</span>
+                                </div>
+                              )}
+                              <span className={cls.price__current}>{price}</span>
+                            </div>
+                            <div className={cls.product__infoBelow}>
+                              <span className={cls.productVat}>{t("price.vatIncluded")}</span>&nbsp;
+                              <span className={cls.productDelivery}>{t("price.freeShipping")}</span>
+                            </div>
                           </div>
-                          <div className={cls.product__infoBelow}>
-                            <span className={cls.productVat}>{t("price.vatIncluded")}</span>&nbsp;
-                            <span className={cls.productDelivery}>{t("price.freeShipping")}</span>
+                          <div className={"cls.meta_container--item"}>
+                            <div className={cls.product__info}>
+                              {(energyClass || energyClassArrow || datasheetUrl) && (
+                                <div className={cls.productEnergy}>
+                                  {(energyClass || energyClassArrow) && (
+                                    <EnergyLabel
+                                      className={cls.energyLabel}
+                                      energyClassUrl={energyClass || undefined}
+                                      energyClassArrowUrl={energyClassArrow || undefined}
+                                      label="Energieklasse"
+                                    />
+                                  )}
+                                  {datasheetUrl && (
+                                    <ProductDatasheet pdfUrl={datasheetUrl} label="Produktdatenblatt" />
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                        <div className={"cls.meta_container--item"}>
-                          <div className={cls.product__info}>
-                            {(energyClass || energyClassArrow || datasheetUrl) && (
-                              <div className={cls.productEnergy}>
-                                {(energyClass || energyClassArrow) && (
-                                  <EnergyLabel
-                                    className={cls.energyLabel}
-                                    energyClassUrl={energyClass || undefined}
-                                    energyClassArrowUrl={energyClassArrow || undefined}
-                                    label="Energieklasse"
-                                  />
-                                )}
-                                {datasheetUrl && (
-                                  <ProductDatasheet pdfUrl={datasheetUrl} label="Produktdatenblatt" />
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className={cls.section}>
-                      <div className={cls.section__content}>
-                        <div className={cls.available}>
-                          <span className={available ? cls.inStock : cls.outOfStock} />
-                          <span className={available ? cls.inStockText : cls.outOfStockText}>
-                            {available
-                              ? t("availability.inStock")
-                              : t("availability.outOfStock")}
-                          </span>
                         </div>
                       </div>
-                    </div>
 
-                    {hasVariants && (
                       <div className={cls.section}>
                         <div className={cls.section__content}>
-                          <VariantPicker product={product} value={variant} onChange={setVariant} />
+                          <div className={cls.available}>
+                            <span className={available ? cls.inStock : cls.outOfStock} />
+                            <span className={available ? cls.inStockText : cls.outOfStockText}>
+                              {available
+                                ? t("availability.inStock")
+                                : t("availability.outOfStock")}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    )}
 
-                    <div className={cls.section}>
-                      <h3 className={cls.section__title}>
-                        {t("sections.delivery.title")}
-                      </h3>
-                      <div className={cls.section__content}>
-                        <DeliveryBadge minDays={2} maxDays={4} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div ref={actionsRef} className={cls.productActions}>
-                    <Button
-                      className={cls.addToCart}
-                      disabled={!available}
-                      onClick={handleAddToCart}
-                    >
-                      {t("actions.addToCart")}
-                    </Button>
-                  </div>
-                </div>
-
-                <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
-                  <h3 className={cls.section__title}>
-                    {t("sections.shortDescription.title")}
-                  </h3>
-                  <div className={cls.section__content}>
-                    <ul className={cls.list}>
-                      {product.shortDescription?.length ? (
-                        product.shortDescription.map((line, idx) => (
-                          <li key={idx}>{line}</li>
-                        ))
-                      ) : (
-                        <li>{t("sections.shortDescription.empty")}</li>
+                      {hasVariants && (
+                        <div className={cls.section}>
+                          <div className={cls.section__content}>
+                            <VariantPicker product={product} value={variant} onChange={setVariant} />
+                          </div>
+                        </div>
                       )}
-                    </ul>
-                  </div>
-                </div>
 
-                <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
-                  <h3 className={cls.section__title}>
-                    {t("sections.specifications.title")}
-                  </h3>
-                  <div className={cls.section__content}>
-                    <SpecTable
-                      specs={entries}
-                      dictionary={dictionary}
-                      showEmpty="dash"
-                      mergeStrategy="dict-first"
-                    />
-                  </div>
-                </div>
-
-                <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
-                  <h3 className={cls.section__title}>
-                    {t("sections.description.title")}
-                  </h3>
-                  <div className={cls.section__content}>
-                    <div
-                      // можно повесить отдельный класс, если захочешь стилизовать списки/заголовки
-                      className={cls.section__description}
-                      dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-
-            {activeTab === "other" && <></>}
-
-            {activeTab === "reviews" && (
-              <>
-                <div className={cls.section}>
-                  <div className={cls.section__content}>
-                    <div className={cls.reviews}>
-                      <div className={cls.rating}>
-                        <RatingBadge
-                          size="default"
-                          ratingValue={ratingValue}
-                          reviewCount={reviewCount}
-                        />
-                        <Button
-                          variant="secondary"
-                          size="small"
-                          onClick={() => setIsOpenUpload(true)}
-                        >
-                          {t("reviews.addButton")}
-                        </Button>
+                      <div className={cls.section}>
+                        <h3 className={cls.section__title}>
+                          {t("sections.delivery.title")}
+                        </h3>
+                        <div className={cls.section__content}>
+                          <DeliveryBadge minDays={2} maxDays={4} />
+                        </div>
                       </div>
-                      <ProductVideos
-                        label={t("reviews.videoLabel")}
-                        limit={10}
-                        productId={product.id}
-                      />
-                      <ProductPlainReviews productId={product.id} limit={5} />
+                    </div>
+
+                    <div ref={actionsRef} className={cls.productActions}>
+                      <Button
+                        className={cls.addToCart}
+                        disabled={!available}
+                        onClick={handleAddToCart}
+                      >
+                        {t("actions.addToCart")}
+                      </Button>
                     </div>
                   </div>
-                </div>
-              </>
-            )}
 
-            <ProductCarousel
-              products={moreProducts}
-              label={t("related.title")}
-              onItemClick={(p) => nav(`/product/${p.id}`)}
-            />
-          </div>
-        </div>
+                  <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
+                    <h3 className={cls.section__title}>
+                      {t("sections.shortDescription.title")}
+                    </h3>
+                    <div className={cls.section__content}>
+                      <ul className={cls.list}>
+                        {product.shortDescription?.length ? (
+                          product.shortDescription.map((line, idx) => (
+                            <li key={idx}>{line}</li>
+                          ))
+                        ) : (
+                          <li>{t("sections.shortDescription.empty")}</li>
+                        )}
+                      </ul>
+                    </div>
+                  </div>
 
-        {showStickyCta && (
-          <div
-            className={cls.stickyCta}
-            role="region"
-            aria-label={t("sticky.ariaLabel")}
-          >
-            <div className={cls.stickyCta__price}>
-              {!!discountPercent && compareAt && (
-                <div className={cls.price__old}>
-                  <span className={cls.price__discount}>-{discountPercent}%</span>
-                  <span className={cls.price__compareAt}>{compareAt}</span>
-                </div>
+                  <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
+                    <h3 className={cls.section__title}>
+                      {t("sections.specifications.title")}
+                    </h3>
+                    <div className={cls.section__content}>
+                      <SpecTable
+                        specs={entries}
+                        dictionary={dictionary}
+                        showEmpty="dash"
+                        mergeStrategy="dict-first"
+                      />
+                    </div>
+                  </div>
+
+                  <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
+                    <h3 className={cls.section__title}>
+                      {t("sections.description.title")}
+                    </h3>
+                    <div className={cls.section__content}>
+                      <div
+                        // можно повесить отдельный класс, если захочешь стилизовать списки/заголовки
+                        className={cls.section__description}
+                        dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+                      />
+                    </div>
+                  </div>
+                </>
               )}
-              <span className={cls.stickyCta__currentPrice}>{price}</span>
-            </div>
-            <Button disabled={!available} onClick={handleAddToCart}>
-              {t("actions.addToCart")}
-            </Button>
-          </div>
-        )}
 
-        <Modal
-          isOpen={isOpenUpload}
-          onClose={() => setIsOpenUpload(false)}
-          variant="center"
-          headerBorder={false}
-          bodyStyles={true}
-        >
-          <ReviewComposer productId={product.id} />
-        </Modal>
-        <Footer />
+              {activeTab === "other" && <></>}
+
+              {activeTab === "reviews" && (
+                <>
+                  <div className={cls.section}>
+                    <div className={cls.section__content}>
+                      <div className={cls.reviews}>
+                        <div className={cls.rating}>
+                          <RatingBadge
+                            size="default"
+                            ratingValue={ratingValue}
+                            reviewCount={reviewCount}
+                          />
+                          <Button
+                            variant="secondary"
+                            size="small"
+                            onClick={() => setIsOpenUpload(true)}
+                          >
+                            {t("reviews.addButton")}
+                          </Button>
+                        </div>
+                        <ProductVideos
+                          label={t("reviews.videoLabel")}
+                          limit={10}
+                          productId={product.id}
+                        />
+                        <ProductPlainReviews productId={product.id} limit={5} />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <ProductCarousel
+                products={moreProducts}
+                label={t("related.title")}
+                onItemClick={(p) => nav(`/product/${p.id}`)}
+              />
+            </div>
+          </div>
+
+          {showStickyCta && (
+            <div
+              className={cls.stickyCta}
+              role="region"
+              aria-label={t("sticky.ariaLabel")}
+            >
+              <div className={cls.stickyCta__price}>
+                {!!discountPercent && compareAt && (
+                  <div className={cls.price__old}>
+                    <span className={cls.price__discount}>-{discountPercent}%</span>
+                    <span className={cls.price__compareAt}>{compareAt}</span>
+                  </div>
+                )}
+                <span className={cls.stickyCta__currentPrice}>{price}</span>
+              </div>
+              <Button disabled={!available} onClick={handleAddToCart}>
+                {t("actions.addToCart")}
+              </Button>
+            </div>
+          )}
+
+          <Modal
+            isOpen={isOpenUpload}
+            onClose={() => setIsOpenUpload(false)}
+            variant="center"
+            headerBorder={false}
+            bodyStyles={true}
+          >
+            <ReviewComposer productId={product.id} />
+          </Modal>
+          <Footer />
+        </ScrollArea>
       </Page>
     </>
   );

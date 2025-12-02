@@ -12,6 +12,8 @@ import {
 type ScrollAreaProps = React.HTMLAttributes<HTMLDivElement> & {
   /** Блокировать скролл документа при маунте */
   lockBody?: boolean;
+  /** Отступ снизу под нижнюю навигацию (в px). Необязателен */
+  bottomOffset?: number;
 };
 
 function mergeRefs<T>(...refs: (React.Ref<T> | undefined)[]) {
@@ -25,12 +27,11 @@ function mergeRefs<T>(...refs: (React.Ref<T> | undefined)[]) {
 }
 
 const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(function ScrollArea(
-  { className, children, lockBody = true, ...rest },
+  { className, children, lockBody = true, bottomOffset = 0, style, ...rest },
   ref
 ) {
   const areaRef = useRef<HTMLDivElement>(null);
 
-  // Регистрируем область как «разрешённую» для тач-скролла
   useEffect(() => {
     const el = areaRef.current;
     if (!el) return;
@@ -38,7 +39,6 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(function ScrollAr
     return () => unregisterScrollArea(el);
   }, []);
 
-  // Единая глобальная локировка через менеджер
   useEffect(() => {
     if (!lockBody) return;
     acquireBodyLock();
@@ -50,6 +50,11 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(function ScrollAr
       ref={mergeRefs(areaRef, ref)}
       className={clsx(s.s, className)}
       data-scroll-area
+      style={{
+        ...style,
+        // место под навигацию + учёт клавиатуры, если хочешь
+        paddingBottom: `calc(${bottomOffset}px + var(--kb, 0px))`,
+      }}
       {...rest}
     >
       {children}
