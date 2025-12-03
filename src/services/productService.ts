@@ -1,3 +1,4 @@
+// src/services/prodcutService.ts
 import type { Product } from "../types/product";
 import i18n from "../i18n";
 import type { AppLanguage } from "../utils/lang/lang";
@@ -99,7 +100,7 @@ export async function getProducts(params: GetProductsParams = {}): Promise<Produ
 
   const query = qs({
     ...rest,
-    attrFilters: attrFilters && Object.keys(attrFilters).length
+    attributeFilters: attrFilters && Object.keys(attrFilters).length
       ? JSON.stringify(attrFilters)
       : undefined,
   });
@@ -117,7 +118,7 @@ export async function getProductFacets(
 
   const query = qs({
     ...rest,
-    attrFilters: attrFilters && Object.keys(attrFilters).length
+    attributeFilters: attrFilters && Object.keys(attrFilters).length
       ? JSON.stringify(attrFilters)
       : undefined,
   });
