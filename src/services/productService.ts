@@ -1,9 +1,30 @@
-// src/services/productService.ts
 import type { Product } from "../types/product";
 import i18n from "../i18n";
 import type { AppLanguage } from "../utils/lang/lang";
 
 const API = import.meta.env.VITE_API_BASE_URL;
+
+export type AttrPrimitive = string | number | boolean;
+
+export type AttributeFacetOption = {
+  value: string;
+  label: string;
+  count: number;
+  sortOrder: number;
+  rawValue: AttrPrimitive;
+};
+
+export type AttributeFacet = {
+  code: string;
+  type: string;
+  scope: string;
+  groupKey: string | null;
+  groupLabel?: string | null;
+  label: string;
+  options: AttributeFacetOption[];
+};
+
+export type AttributeFilterPayload = Record<string, AttrPrimitive[]>;
 
 export type GetProductsParams = {
   q?: string;
@@ -19,6 +40,9 @@ export type GetProductsParams = {
   maxPriceCents?: number;     // верхняя граница цены в центах
   minRating?: number;         // минимальный рейтинг (1–5)
   lang?: AppLanguage;         // 👈 можно явно передать язык, если нужно
+
+  // НОВОЕ: фильтры по атрибутам
+  attrFilters?: AttributeFilterPayload;
 };
 
 export type ProductFacets = {
@@ -31,6 +55,7 @@ export type ProductFacets = {
     min: number | null;
     max: number | null;
   };
+  attributes: AttributeFacet[];
 };
 
 export type GetProductFacetsParams = {
@@ -42,6 +67,9 @@ export type GetProductFacetsParams = {
   saleOnly?: boolean;
   minRating?: number;
   lang?: AppLanguage;         // 👈 тоже можно переопределить при желании
+
+  // те же фильтры по атрибутам, что и для списка
+  attrFilters?: AttributeFilterPayload;
 };
 
 function resolveLang(explicit?: string | null): AppLanguage {
@@ -53,14 +81,11 @@ function resolveLang(explicit?: string | null): AppLanguage {
 function qs(params: Record<string, any>) {
   const q = new URLSearchParams();
 
-  // 1) берём lang из params.lang, если передан
-  // 2) иначе — из i18n.language
-  // 3) иначе — "de"
   const lang = resolveLang(params.lang);
   q.set("lang", lang);
 
   Object.entries(params).forEach(([k, v]) => {
-    if (k === "lang") return; // lang уже добавили нормализованный
+    if (k === "lang") return;
     if (v !== undefined && v !== null && v !== "") {
       q.set(k, String(v));
     }
@@ -70,7 +95,16 @@ function qs(params: Record<string, any>) {
 }
 
 export async function getProducts(params: GetProductsParams = {}): Promise<Product[]> {
-  const url = `${API}/products?${qs(params)}`;
+  const { attrFilters, ...rest } = params;
+
+  const query = qs({
+    ...rest,
+    attrFilters: attrFilters && Object.keys(attrFilters).length
+      ? JSON.stringify(attrFilters)
+      : undefined,
+  });
+
+  const url = `${API}/products?${query}`;
   const r = await fetch(url, { credentials: "omit" });
   if (!r.ok) throw new Error(`Failed to fetch products: ${r.status}`);
   return r.json();
@@ -79,7 +113,16 @@ export async function getProducts(params: GetProductsParams = {}): Promise<Produ
 export async function getProductFacets(
   params: GetProductFacetsParams = {},
 ): Promise<ProductFacets> {
-  const url = `${API}/products/facets?${qs(params)}`;
+  const { attrFilters, ...rest } = params;
+
+  const query = qs({
+    ...rest,
+    attrFilters: attrFilters && Object.keys(attrFilters).length
+      ? JSON.stringify(attrFilters)
+      : undefined,
+  });
+
+  const url = `${API}/products/facets?${query}`;
   const r = await fetch(url, { credentials: "omit" });
   if (!r.ok) throw new Error(`Failed to fetch product facets: ${r.status}`);
   return r.json();
@@ -114,7 +157,7 @@ export async function getMoreProducts(options?: {
       availableOnly: options.availableOnly ?? true,
       shuffle: options.shuffle ?? true,
       fillFromAllIfShort: options.fillFromAllIfShort ?? true,
-      lang, // явно прокидываем, чтобы не терять оверрайд
+      lang,
     });
     const r = await fetch(`${API}/products/${options.currentId}/similar?${q}`);
     if (!r.ok) throw new Error(`Failed to fetch similar: ${r.status}`);

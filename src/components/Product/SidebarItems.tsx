@@ -6,6 +6,7 @@ import CheckboxGroup from "../../components/Product/CheckboxGroup";
 import PriceRangeDual from "../../components/Product/PriceRangeDual";
 import Button from "../UI/Button";
 import cls from "./SidebarItems.module.scss";
+import type { AttributeFacet } from "../../services/productService";
 
 import {
     getRootCategories,
@@ -38,6 +39,11 @@ type SidebarItemsProps = {
         defaultValue?: [number, number];
     };
 
+    // НОВОЕ: facets по атрибутам
+    attributeFacets?: AttributeFacet[];
+    selectedAttributeValues?: Record<string, string[]>;
+    onChangeAttributeValues?: (code: string, values: string[]) => void;
+
     // НОВЫЕ коллбеки фильтров
     onChangePriceRange?: (min: number, max: number) => void;
     onToggleSaleOnly?: (value: boolean) => void;
@@ -65,6 +71,9 @@ const SidebarItems: React.FC<SidebarItemsProps> = ({
     onToggleNewArrivalsOnly,
     onChangeMinRating,
     onResetFilters,
+    attributeFacets = [],
+    selectedAttributeValues = {},
+    onChangeAttributeValues,
 }) => {
     const { t } = useTranslation("products");
     const nav = useNavigate();
@@ -292,6 +301,21 @@ const SidebarItems: React.FC<SidebarItemsProps> = ({
                     direction="vertical"
                 />
             </Accordion>
+
+            {/* Динамические фильтры по атрибутам */}
+            {attributeFacets.map((facet) => (
+                <Accordion key={facet.code} title={facet.label} defaultOpen>
+                    <CheckboxGroup
+                        options={facet.options.map((opt) => ({
+                            value: opt.value,
+                            label: opt.label,
+                        }))}
+                        value={selectedAttributeValues[facet.code] ?? []}
+                        onChange={(vals) => onChangeAttributeValues?.(facet.code, vals)}
+                        direction="vertical"
+                    />
+                </Accordion>
+            ))}
 
             <Accordion title={t("filters.ratingTitle")} defaultOpen>
                 <CheckboxGroup

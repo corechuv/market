@@ -4,7 +4,7 @@ import cls from "./ProductsMain.module.scss";
 import { useNavigate } from "react-router-dom";
 import ProductItemList from "../../components/Product/ProductItemList";
 import SidebarItems from "../../components/Product/SidebarItems";
-import { getProducts, getProductFacets } from "../../services/productService";
+import { getProducts, getProductFacets, type AttributeFacet, type AttributeFilterPayload } from "../../services/productService";
 import { getCategoryByFullSlug } from "../../services/categoryService";
 // import Breadcrumbs from "../Common/Breadcrumbs";
 import type { Product } from "../../types/product";
@@ -16,6 +16,41 @@ import { useTranslation } from "react-i18next";
 import { useInfiniteList } from "../../utils/useInfiniteList";
 
 const PAGE_SIZE = 50;
+
+// Собирает payload для attrFilters: code -> [rawValue,...]
+function buildAttrFiltersPayload(
+  facets: AttributeFacet[],
+  selected: Record<string, string[]>,
+): AttributeFilterPayload | undefined {
+  if (!facets.length) return undefined;
+
+  const byCode: Record<string, AttributeFacet> = {};
+  facets.forEach((f) => {
+    byCode[f.code] = f;
+  });
+
+  const result: AttributeFilterPayload = {};
+
+  Object.entries(selected).forEach(([code, values]) => {
+    const facet = byCode[code];
+    if (!facet || !values.length) return;
+
+    const rawValues: (string | number | boolean)[] = [];
+
+    values.forEach((val) => {
+      const opt = facet.options.find((o) => o.value === val);
+      if (!opt) return;
+      rawValues.push(opt.rawValue);
+    });
+
+    if (rawValues.length) {
+      result[code] = rawValues;
+    }
+  });
+
+  return Object.keys(result).length ? result : undefined;
+}
+
 
 // ---- значения сортировки (для типов) ----
 const sortValues = ["price", "-price", "discount", "new", "rating"] as const;
@@ -47,6 +82,12 @@ export default function ProductsMain({
 }: ProductsMainProps) {
   const { t } = useTranslation("products");
   const nav = useNavigate();
+
+  // фасеты по атрибутам
+  const [attrFacets, setAttrFacets] = useState<AttributeFacet[]>([]);
+  // выбранные значения атрибутов: code -> [value,...] (value === facet.options[].value)
+  const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string[]>>({});
+
 
   const cat = useMemo(
     () => (categoryFullSlug ? getCategoryByFullSlug(categoryFullSlug) : undefined),
@@ -118,6 +159,8 @@ export default function ProductsMain({
       const offset = pageNum * PAGE_SIZE;
 
       try {
+        const attrFiltersPayload = buildAttrFiltersPayload(attrFacets, selectedAttrs);
+
         const res = await getProducts({
           q: query,
           sort,
@@ -131,6 +174,7 @@ export default function ProductsMain({
           minRating: minRating ?? undefined,
           limit: PAGE_SIZE,
           offset,
+          attrFilters: attrFiltersPayload,
         });
 
         return res;
@@ -139,8 +183,19 @@ export default function ProductsMain({
         return [];
       }
     },
-    [query, sort, cat?.id, saleOnly, newArrivalsOnly, priceRangeState, minRating]
+    [
+      query,
+      sort,
+      cat?.id,
+      saleOnly,
+      newArrivalsOnly,
+      priceRangeState,
+      minRating,
+      attrFacets,
+      selectedAttrs,
+    ]
   );
+
 
   // ====== Infinite list (hook) ======
   const {
@@ -166,14 +221,17 @@ export default function ProductsMain({
     newArrivalsOnly,
     priceRangeState,
     minRating,
+    selectedAttrs,
     reset,
   ]);
 
   // 👉 при смене категории / поискового запроса — сбрасываем фильтр по цене и перерисовываем сайдбар
   React.useEffect(() => {
     setPriceRangeState(null);
+    setSelectedAttrs({});
     setFiltersResetKey((v) => v + 1);
   }, [cat?.id, query]);
+
 
   // 👉 глобальные priceBounds по всем товарам (через /products/facets)
   React.useEffect(() => {
@@ -200,9 +258,13 @@ export default function ProductsMain({
         } else {
           setPriceBounds(null);
         }
+
+        // 👇 Сохраняем фасеты по атрибутам
+        setAttrFacets(res.attributes ?? []);
       } catch {
         if (!cancelled) {
           setPriceBounds(null);
+          setAttrFacets([]);
         }
       }
     }
@@ -214,8 +276,25 @@ export default function ProductsMain({
     };
   }, [query, cat?.id, saleOnly, newArrivalsOnly, minRating]);
 
+
   const openMobileFilters = () => setIsFiltersOpen(true);
   const closeMobileFilters = () => setIsFiltersOpen(false);
+
+  const handleAttrFilterChange = React.useCallback(
+    (code: string, values: string[]) => {
+      setSelectedAttrs((prev) => {
+        const next = { ...prev };
+        if (!values.length) {
+          delete next[code];
+        } else {
+          next[code] = values;
+        }
+        return next;
+      });
+    },
+    []
+  );
+
 
   const handleResetFilters = React.useCallback(() => {
     setSort("price");
@@ -223,8 +302,10 @@ export default function ProductsMain({
     setNewArrivalsOnly(false);
     setPriceRangeState(null);
     setMinRating(null);
+    setSelectedAttrs({});
     setFiltersResetKey((v) => v + 1);
   }, []);
+
 
   // общий рендер сайдбара, чтобы не дублировать пропсы
   const renderSidebar = () => {
@@ -258,6 +339,9 @@ export default function ProductsMain({
         onToggleNewArrivalsOnly={setNewArrivalsOnly}
         onChangeMinRating={setMinRating}
         onResetFilters={handleResetFilters}
+        attributeFacets={attrFacets}
+        selectedAttributeValues={selectedAttrs}
+        onChangeAttributeValues={handleAttrFilterChange}
       />
     );
   };
@@ -344,9 +428,8 @@ export default function ProductsMain({
 
       {/* Мобильный сайдбар: bottom-sheet на весь экран */}
       <div
-        className={`${cls.mobileSidebar} ${
-          isFiltersOpen ? cls.mobileSidebarOpen : ""
-        }`}
+        className={`${cls.mobileSidebar} ${isFiltersOpen ? cls.mobileSidebarOpen : ""
+          }`}
       >
         <div className={cls.mobileSidebarBackdrop} onClick={closeMobileFilters} />
         <aside className={cls.mobileSidebarSheet}>
