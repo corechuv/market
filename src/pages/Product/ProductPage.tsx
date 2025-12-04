@@ -339,6 +339,8 @@ export default function ProductPage() {
 
   const ratingValue = reviewAvg !== null ? Math.round(reviewAvg * 10) / 10 : null;
 
+  const manufacturerNumber = variant?.sku ?? undefined;
+
 
   // WARNING
   const canonicalUrl = `https://dashedo.com/product/${product.id}`;
@@ -547,6 +549,12 @@ export default function ProductPage() {
                         <li>{t("sections.shortDescription.empty")}</li>
                       )}
                     </ul>
+                  </div>
+                </div>
+
+                <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
+                  <div className={cls.section__content}>
+                     {t("sections.meta.manufacturerNumber")}: {manufacturerNumber}
                   </div>
                 </div>
 

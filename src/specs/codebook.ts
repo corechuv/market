@@ -3,12 +3,6 @@ import type { SpecDictionary } from "../components/Product/SpecTable";
 
 
 export const codebook: SpecDictionary = {
-    // Базовые поля
-    name: { label: "Модель", group: "Общее", priority: 1 },
-    price: { label: "Цена", group: "Общее", priority: 2 },
-    available: { label: "Наличие", group: "Общее", priority: 3 },
-    sku: { label: "Артикул", group: "Общее", priority: 4 },
-
     // Energy class
     "energy.class.arrow": { label: "Стрелка класса энергоэффективности", group: "Энергоэффективность", priority: 0 },
     "energy.class": { label: "Класс энергоэффективности", group: "Энергоэффективность", priority: 0,

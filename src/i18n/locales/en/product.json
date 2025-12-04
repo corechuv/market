@@ -30,6 +30,9 @@
         "description": {
             "title": "Description",
             "empty": "No description available for this product."
+        },
+        "meta": {
+            "manufacturerNumber": "Manufacturer number"
         }
     },
     "reviews": {

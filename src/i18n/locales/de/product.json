@@ -30,6 +30,9 @@
         "description": {
             "title": "Beschreibung",
             "empty": "Für dieses Produkt ist keine Beschreibung verfügbar."
+        },
+        "meta": {
+            "manufacturerNumber": "Herstellernummer"
         }
     },
     "reviews": {

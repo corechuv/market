@@ -17,14 +17,6 @@ export type VariantPickerProps = {
 
 // ───────── helpers ─────────
 
-// Маппинг кодов атрибутов → имена осей (то, что увидит пользователь)
-const CODE_TO_OPTION_NAME: Record<string, string> = {
-  color: "Color",
-  colour: "Color",
-  storage: "Memory",
-  memory: "Memory",
-};
-
 function isColorOption(name: string) {
   const s = name.trim().toLowerCase();
   return s === "color" || s === "colour" || s === "цвет";
@@ -32,19 +24,7 @@ function isColorOption(name: string) {
 
 /** Берём variant.options; если они пустые — конструируем из variant.attributes */
 function getVariantOptions(v: ProductVariant): Record<string, string> {
-  const hasRealOptions = v.options && Object.keys(v.options).length > 0;
-  if (hasRealOptions) return { ...v.options };
-
-  const out: Record<string, string> = {};
-  for (const a of v.attributes ?? []) {
-    const rawCode = String(a.code ?? "").toLowerCase();
-    const axis = CODE_TO_OPTION_NAME[rawCode] || a.label || a.code;
-    const val = a.value;
-    if (!axis || val == null) continue;
-    const str = typeof val === "string" ? val : String(val);
-    if (!out[axis]) out[axis] = str; // не перезаписываем первое найденное
-  }
-  return out;
+  return { ...(v.options ?? {}) };
 }
 
 function getInitialPartial(product: Product, value?: ProductVariant): Record<string, string> {

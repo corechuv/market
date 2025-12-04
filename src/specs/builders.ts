@@ -40,32 +40,16 @@ export function getInitialVariant(product: Product): ProductVariant | undefined 
     return variants.find(v => v.available) ?? variants[0];
 }
 
-// 4) билд спецификаций с учётом выбранного варианта (цена/наличие/атрибуты перекрываются)
+// 4) билд спецификаций с учётом выбранного варианта
 export function buildSpecs(
     product: Product,
     opts?: { variant?: ProductVariant; dictionary?: SpecDictionary }
 ) {
     const v = opts?.variant;
-    // NEW: энерго-класс и даташит (SKU → fallback SPU)
-    const energy = v?.energyClassUrl ?? product.energyClassUrl;
-    const datasheet = v?.datasheetPdfUrl ?? product.datasheetPdfUrl;
-    const energyClassArrow = v?.energyClassArrowUrl ?? product.energyClassArrowUrl;
 
-
-    const base: ProductAttribute[] = [
-        { code: "name", value: product.name },
-        { code: "price", value: v?.price ?? product.price }, // цена варианта перекрывает базовую
-        { code: "available", value: (v?.available ?? product.available) ?? null },
-        { code: "sku", value: v?.sku ?? null }, // артикул варианта
-        ...(energyClassArrow ? [{ code: "energy.class.arrow", value: "SVG", href: energyClassArrow, hidden: true }] : []),
-        ...(energy ? [{ code: "energy.class", value: "SVG", href: energy, hidden: true }] : []),
-        ...(datasheet ? [{ code: "docs.datasheet", value: "PDF", href: datasheet }] : []),
-    ];
-
-
-    const merged = mergeAttributes([...base, ...(product.attributes ?? [])], v?.attributes ?? []);
+    // 👇 Никаких energy/datasheet на фронте — всё пришло из API
+    const merged = mergeAttributes(product.attributes ?? [], v?.attributes ?? []);
     const entries = buildSpecEntries(merged);
-
 
     const dictionary: SpecDictionary = { ...(opts?.dictionary ?? {}), ...codebook };
     return { entries, dictionary };

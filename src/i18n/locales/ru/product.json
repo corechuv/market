@@ -30,6 +30,9 @@
         "description": {
             "title": "Описание",
             "empty": "Для этого товара нет описания."
+        },
+        "meta": {
+            "manufacturerNumber": "Номер производителя"
         }
     },
     "reviews": {
