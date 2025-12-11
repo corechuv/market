@@ -270,9 +270,18 @@ export function getChildren(
 export function getCategoryById(id: string) {
   return ensureIndex().byId.get(id);
 }
-export function getCategoryByFullSlug(fullSlug: string) {
-  return ensureIndex().byFullSlug.get(fullSlug);
+
+function normalizeFullSlug(fullSlug: string) {
+  const s = (fullSlug ?? "").trim();
+  if (!s) return s;
+  return "/" + s.replace(/^\/+/, "");
 }
+
+export function getCategoryByFullSlug(fullSlug: string) {
+  const norm = normalizeFullSlug(fullSlug);
+  return ensureIndex().byFullSlug.get(norm);
+}
+
 export function findCategoriesBySlug(slug: string) {
   return ensureIndex().list.filter((c) => c.slug === slug);
 }

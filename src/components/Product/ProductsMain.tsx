@@ -14,6 +14,7 @@ import MasterBar from "../UI/Bars/MasterBar";
 import CloseIcon from "../Icons/CloseIcon";
 import { useTranslation } from "react-i18next";
 import { useInfiniteList } from "../../utils/useInfiniteList";
+import { useCategoriesVersion } from "../../utils/useCategoriesVersion";
 
 const PAGE_SIZE = 50;
 
@@ -74,7 +75,6 @@ function uniqById<T extends { id: string | number }>(items: T[]): T[] {
   }
   return result;
 }
-
 export default function ProductsMain({
   query = "",
   showCategories = true,
@@ -87,11 +87,15 @@ export default function ProductsMain({
   const [attrFacets, setAttrFacets] = useState<AttributeFacet[]>([]);
   // выбранные значения атрибутов: code -> [value,...] (value === facet.options[].value)
   const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string[]>>({});
+  const categoriesVersion = useCategoriesVersion();
 
+  const normalized = categoryFullSlug
+    ? `/${categoryFullSlug.replace(/^\/+/, "")}`
+    : undefined;
 
   const cat = useMemo(
-    () => (categoryFullSlug ? getCategoryByFullSlug(categoryFullSlug) : undefined),
-    [categoryFullSlug]
+    () => (normalized ? getCategoryByFullSlug(normalized) : undefined),
+    [normalized, categoriesVersion]
   );
   // const crumbs = useMemo(() => (cat ? getBreadcrumbs(cat.id) : []), [cat]);
 

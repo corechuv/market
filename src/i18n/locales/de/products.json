@@ -14,7 +14,7 @@
     },
     "filters": {
         "title": "Filter",
-        "reset": "Filter zurücksetzen",
+        "reset": "Alle löschen",
         "priceTitle": "Preis",
         "offerTitle": "Angebote",
         "ratingTitle": "Bewertung",
