@@ -20,8 +20,6 @@ import SearchPanel from "./Panel/SearchPanel";
 import SettingsIcon from "../Icons/SettingsIcon";
 import SettingsPanel from "./Panel/SettingsPanel";
 import CatalogPanel from "./Panel/CatalogPanel";
-import NotificationsPanel from "./Panel/NotificationsPanel";
-import NotificationIcon from "../Icons/NotificationIcon";
 import HamburgerIcon from "../Icons/HamburgerIcon";
 import { buildAvatarSrc } from "../../utils/avatar";
 
@@ -30,7 +28,7 @@ export interface Props {
   hideOnMobile?: boolean;
 }
 
-type PanelId = "search" | "catalog" | "notifications" | "settings";
+type PanelId = "search" | "catalog" | "settings";
 
 type BaseItem = {
   id: string;
@@ -122,15 +120,6 @@ const Navigation: FC<Props> = ({ className, hideOnMobile }) => {
       icon: <PlayIcon />,
       action: "link",
       to: "/videos?sort=trending",
-      align: "top",
-    },
-    {
-      id: "notifications",
-      ariaLabel: "Notifications",
-      icon: <NotificationIcon />,
-      action: "panel",
-      panel: "notifications",
-      controlsId: "notifications-panel",
       align: "top",
     },
     {
@@ -251,13 +240,6 @@ const Navigation: FC<Props> = ({ className, hideOnMobile }) => {
           )}
           {activePanel === "catalog" && (
             <CatalogPanel open onClose={closePanels} anchorRole="catalog" />
-          )}
-          {activePanel === "notifications" && (
-            <NotificationsPanel
-              open
-              onClose={closePanels}
-              anchorRole="notifications"
-            />
           )}
           {activePanel === "settings" && (
             <SettingsPanel open onClose={closePanels} anchorRole="settings" />

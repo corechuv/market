@@ -15,13 +15,11 @@ import {
 } from "../../services/categoryService";
 import { useLang } from "../../context/LangContext";
 
-
 export default function CategoryPage() {
   const { pathname } = useLocation();
   const { lang } = useLang();
   const { t } = useTranslation("category");
 
-  // нормализованный slug категории
   const full = React.useMemo(() => {
     const tail = decodeURI(pathname.replace(/^\/category/, "")) || "";
     let s = tail.startsWith("/") ? tail : `/${tail}`;
@@ -37,7 +35,7 @@ export default function CategoryPage() {
       setStatus(getStatus());
       force();
     });
-    void syncFromApi(lang).catch(() => { });
+    void syncFromApi(lang).catch(() => {});
     return off;
   }, [lang]);
 
@@ -48,12 +46,9 @@ export default function CategoryPage() {
     if (!cat) return null;
 
     const name = cat.meta?.title || cat.name;
-    const descriptionText =
-      cat.meta?.description || cat.description || "";
+    const descriptionText = cat.meta?.description || cat.description || "";
 
-    const descKey = descriptionText
-      ? "seo.description"
-      : "seo.descriptionShort";
+    const descKey = descriptionText ? "seo.description" : "seo.descriptionShort";
 
     return {
       title: cat.meta?.title || t("seo.title", { name }),
@@ -70,18 +65,17 @@ export default function CategoryPage() {
   const breadcrumbSchema =
     cat && breadcrumbs.length
       ? {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        itemListElement: breadcrumbs.map((c, idx) => ({
-          "@type": "ListItem",
-          position: idx + 1,
-          name: c.name,
-          item: `https://dashedo.com/category${c.fullSlug}`
-        }))
-      }
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: breadcrumbs.map((c, idx) => ({
+            "@type": "ListItem",
+            position: idx + 1,
+            name: c.name,
+            item: `https://dashedo.com/category${c.fullSlug}`
+          }))
+        }
       : null;
 
-  // Пока индексы ещё не построены — показываем загрузку
   if (!status.loaded && !cat) {
     return (
       <>
@@ -97,16 +91,12 @@ export default function CategoryPage() {
     );
   }
 
-  // После загрузки категория так и не нашлась — 404
   if (!cat) {
     return (
       <>
         <Helmet>
           <title>{t("notFound.title")}</title>
-          <meta
-            name="description"
-            content={t("notFound.description")}
-          />
+          <meta name="description" content={t("notFound.description")} />
           <meta name="robots" content="noindex,follow" />
         </Helmet>
         <NotFound />
@@ -124,20 +114,17 @@ export default function CategoryPage() {
         <meta name="description" content={seoDescription} />
         <link rel="canonical" href={canonicalUrl} />
 
-        {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:title" content={seoTitle} />
         <meta property="og:description" content={seoDescription} />
         <meta property="og:url" content={canonicalUrl} />
         {cat.image && <meta property="og:image" content={cat.image} />}
 
-        {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={seoTitle} />
         <meta name="twitter:description" content={seoDescription} />
         {cat.image && <meta name="twitter:image" content={cat.image} />}
 
-        {/* JSON-LD Breadcrumbs */}
         {breadcrumbSchema && (
           <script type="application/ld+json">
             {JSON.stringify(breadcrumbSchema)}
@@ -149,4 +136,3 @@ export default function CategoryPage() {
     </>
   );
 }
-

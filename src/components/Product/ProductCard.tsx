@@ -28,7 +28,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     onClick,
 }) => {
     const availabilityText = available ? "In stock" : "Out of stock";
-    const dicountPercentText = discountPercent ? `-${discountPercent}%` : "Out of stock";
+    const discountText =
+        typeof discountPercent === "number" ? `-${discountPercent}%` : "";
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
         if (!onClick) return;
@@ -72,19 +73,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                     </div>
                 )}
             </div>
+
             <div className={cls.item__meta}>
                 <h2 className={cls["item--name"]} title={name}>
                     {name}
                 </h2>
+
                 <div className={cls.item__price}>
-                    {discountPercent && compareAt ? (
+                    {discountPercent != null && compareAt ? (
                         <div className={cls["item__price--row"]}>
-                            <div className={cls["item__price--discount"]}>{dicountPercentText}</div>
+                            <div className={cls["item__price--discount"]}>{discountText}</div>
                             <div className={cls["item__price--compare"]}>{compareAt}</div>
                         </div>
                     ) : null}
+
                     <span className={cls["item__price--current"]}>{price}</span>
                 </div>
+
                 <div className={cls.item__available}>
                     <span
                         className={

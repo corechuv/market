@@ -148,7 +148,7 @@ export default function MainLayout() {
         <BottomNavigation
           items={items}
           bottomOffset={0}
-          visibleOnDesktop={false}
+          visibleOnDesktop={true}
         />
       </div>
     </>

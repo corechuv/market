@@ -338,10 +338,21 @@ const SidebarItems: React.FC<SidebarItemsProps> = ({
       {attributeFacets.map((facet) => (
         <Accordion key={facet.code} title={facet.label} defaultOpen>
           <CheckboxGroup
-            options={facet.options.map((opt) => ({
-              value: opt.value,
-              label: opt.label,
-            }))}
+            options={facet.options.map((opt) => {
+              const unit = (facet.unitLabel ?? "").trim();
+              const base = String(opt.label ?? "");
+
+              const hasUnit =
+                unit && base.toLowerCase().includes(unit.toLowerCase());
+
+              // добавляем unit, если он есть и его ещё нет в label
+              const withUnit = unit && !hasUnit ? `${base} ${unit}` : base;
+
+              const label =
+                typeof opt.count === "number" ? `${withUnit} (${opt.count})` : withUnit;
+
+              return { value: opt.value, label };
+            })}
             value={selectedAttributeValues[facet.code] ?? []}
             onChange={(vals) => onChangeAttributeValues?.(facet.code, vals)}
             direction="vertical"

@@ -1,13 +1,17 @@
-// src/components/Product/ProductMain.tsx
+// src/components/Product/ProductsMain.tsx
 import React, { useMemo, useState } from "react";
 import cls from "./ProductsMain.module.scss";
 import { useNavigate } from "react-router-dom";
 import ProductItemList from "../../components/Product/ProductItemList";
 import SidebarItems from "../../components/Product/SidebarItems";
-import { getProducts, getProductFacets, type AttributeFacet, type AttributeFilterPayload } from "../../services/productService";
+import {
+  getProducts,
+  getProductFacets,
+  type AttributeFacet,
+  type AttributeFilterPayload,
+} from "../../services/productService";
 import { getCategoryByFullSlug } from "../../services/categoryService";
-// import Breadcrumbs from "../Common/Breadcrumbs";
-import type { Product } from "../../types/product";
+import type { VariantListItem } from "../../types/product";
 import { SelectField, type SelectOption } from "../UI/SelectField";
 import IconFilters from "../Icons/IconFilters";
 import MasterBar from "../UI/Bars/MasterBar";
@@ -18,10 +22,9 @@ import { useCategoriesVersion } from "../../utils/useCategoriesVersion";
 
 const PAGE_SIZE = 50;
 
-// Собирает payload для attrFilters: code -> [rawValue,...]
 function buildAttrFiltersPayload(
   facets: AttributeFacet[],
-  selected: Record<string, string[]>,
+  selected: Record<string, string[]>
 ): AttributeFilterPayload | undefined {
   if (!facets.length) return undefined;
 
@@ -44,26 +47,21 @@ function buildAttrFiltersPayload(
       rawValues.push(opt.rawValue);
     });
 
-    if (rawValues.length) {
-      result[code] = rawValues;
-    }
+    if (rawValues.length) result[code] = rawValues;
   });
 
   return Object.keys(result).length ? result : undefined;
 }
 
-
-// ---- значения сортировки (для типов) ----
 const sortValues = ["price", "-price", "discount", "new", "rating"] as const;
 type SortValue = (typeof sortValues)[number];
 
 type ProductsMainProps = {
   query?: string;
   showCategories?: boolean;
-  categoryFullSlug?: string; // "/electronics/computers/cpu"
+  categoryFullSlug?: string;
 };
 
-// хелпер: убираем дубли по id
 function uniqById<T extends { id: string | number }>(items: T[]): T[] {
   const seen = new Set<string | number>();
   const result: T[] = [];
@@ -75,6 +73,7 @@ function uniqById<T extends { id: string | number }>(items: T[]): T[] {
   }
   return result;
 }
+
 export default function ProductsMain({
   query = "",
   showCategories = true,
@@ -83,9 +82,7 @@ export default function ProductsMain({
   const { t } = useTranslation("products");
   const nav = useNavigate();
 
-  // фасеты по атрибутам
   const [attrFacets, setAttrFacets] = useState<AttributeFacet[]>([]);
-  // выбранные значения атрибутов: code -> [value,...] (value === facet.options[].value)
   const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string[]>>({});
   const categoriesVersion = useCategoriesVersion();
 
@@ -97,33 +94,19 @@ export default function ProductsMain({
     () => (normalized ? getCategoryByFullSlug(normalized) : undefined),
     [normalized, categoriesVersion]
   );
-  // const crumbs = useMemo(() => (cat ? getBreadcrumbs(cat.id) : []), [cat]);
 
-  // 👉 мобильный bottom-sheet для фильтров
   const [isFiltersOpen, setIsFiltersOpen] = React.useState(false);
-
-  // сортировка
   const [sort, setSort] = useState<SortValue>("new");
 
-  // фильтры
   const [saleOnly, setSaleOnly] = useState(false);
   const [newArrivalsOnly, setNewArrivalsOnly] = useState(false);
-  const [priceRangeState, setPriceRangeState] = useState<[number, number] | null>(
-    null
-  );
+  const [priceRangeState, setPriceRangeState] = useState<[number, number] | null>(null);
   const [minRating, setMinRating] = useState<number | null>(null);
 
-  // диапазон цен для слайдера (ГЛОБАЛЬНЫЙ для текущей категории/поиска)
-  const [priceBounds, setPriceBounds] = useState<{ min: number; max: number } | null>(
-    null
-  );
-
-  // ключ для полного ресета Sidebar (чтобы сбрасывались defaultValue)
+  const [priceBounds, setPriceBounds] = useState<{ min: number; max: number } | null>(null);
   const [filtersResetKey, setFiltersResetKey] = useState(0);
-
   const [, setError] = React.useState<string | null>(null);
 
-  // локализованные опции сортировки
   const sortOptions: SelectOption[] = useMemo(
     () => [
       { value: "new", label: t("sort.new") },
@@ -135,7 +118,6 @@ export default function ProductsMain({
     [t]
   );
 
-  // офферы: распродажа и новинки (для фильтра)
   const offerings = useMemo(
     () => [
       { value: "sale", label: t("filters.sale") },
@@ -144,7 +126,6 @@ export default function ProductsMain({
     [t]
   );
 
-  // рейтинг: только "Select all" требует текста
   const stars = useMemo(
     () => [
       { value: "6", label: t("filters.stars.all") },
@@ -157,7 +138,6 @@ export default function ProductsMain({
     [t]
   );
 
-  // ====== loadPage с useCallback, чтобы не дёргалось лишний раз ======
   const loadPage = React.useCallback(
     async (pageNum: number) => {
       const offset = pageNum * PAGE_SIZE;
@@ -169,19 +149,23 @@ export default function ProductsMain({
           q: query,
           sort,
           categoryId: cat?.id,
+
           saleOnly,
-          // фильтр новинок + сорт "new" оба включают newArrivalsOnly на бэке
           newArrivalsOnly,
-          // значения слайдера (цены в центах)
+
           minPriceCents: priceRangeState ? priceRangeState[0] : undefined,
           maxPriceCents: priceRangeState ? priceRangeState[1] : undefined,
           minRating: minRating ?? undefined,
+
           limit: PAGE_SIZE,
           offset,
+
           attrFilters: attrFiltersPayload,
+
+          view: "variant",
         });
 
-        return res;
+        return res as VariantListItem[];
       } catch (e: any) {
         setError(e?.message ?? "Failed to load products");
         return [];
@@ -200,21 +184,12 @@ export default function ProductsMain({
     ]
   );
 
+  const { items: rawItems, loading, hasMore, loadNext, reset, page } =
+    useInfiniteList<VariantListItem>(loadPage, PAGE_SIZE);
 
-  // ====== Infinite list (hook) ======
-  const {
-    items: rawItems,
-    loading,
-    hasMore,
-    loadNext,
-    reset,
-    page,
-  } = useInfiniteList<Product>(loadPage, PAGE_SIZE);
+  const items = useMemo(() => uniqById(rawItems), [rawItems]);
 
-  // убираем дубли по id (на всякий случай)
-  const products = useMemo(() => uniqById(rawItems), [rawItems]);
-
-  // 👉 при смене фильтров/сортировки/категории/поиска — сбрасываем список
+  // при изменении фильтров — перезагрузка списка
   React.useEffect(() => {
     reset();
   }, [
@@ -229,15 +204,14 @@ export default function ProductsMain({
     reset,
   ]);
 
-  // 👉 при смене категории / поискового запроса — сбрасываем фильтр по цене и перерисовываем сайдбар
+  // при смене категории/поиска — сброс UI-фильтров
   React.useEffect(() => {
     setPriceRangeState(null);
     setSelectedAttrs({});
     setFiltersResetKey((v) => v + 1);
   }, [cat?.id, query]);
 
-
-  // 👉 глобальные priceBounds по всем товарам (через /products/facets)
+  // facets
   React.useEffect(() => {
     let cancelled = false;
 
@@ -245,11 +219,12 @@ export default function ProductsMain({
       try {
         const res = await getProductFacets({
           q: query || undefined,
+          availableOnly: true,
           categoryId: cat?.id,
           saleOnly,
           newArrivalsOnly,
           minRating: minRating ?? undefined,
-          // availableOnly можно добавить, если нужно
+          view: "variant",
         });
 
         if (cancelled) return;
@@ -257,13 +232,9 @@ export default function ProductsMain({
         const min = res.price?.min ?? null;
         const max = res.price?.max ?? null;
 
-        if (min !== null && max !== null) {
-          setPriceBounds({ min, max });
-        } else {
-          setPriceBounds(null);
-        }
+        if (min !== null && max !== null) setPriceBounds({ min, max });
+        else setPriceBounds(null);
 
-        // 👇 Сохраняем фасеты по атрибутам
         setAttrFacets(res.attributes ?? []);
       } catch {
         if (!cancelled) {
@@ -274,31 +245,22 @@ export default function ProductsMain({
     }
 
     run();
-
     return () => {
       cancelled = true;
     };
   }, [query, cat?.id, saleOnly, newArrivalsOnly, minRating]);
 
-
   const openMobileFilters = () => setIsFiltersOpen(true);
   const closeMobileFilters = () => setIsFiltersOpen(false);
 
-  const handleAttrFilterChange = React.useCallback(
-    (code: string, values: string[]) => {
-      setSelectedAttrs((prev) => {
-        const next = { ...prev };
-        if (!values.length) {
-          delete next[code];
-        } else {
-          next[code] = values;
-        }
-        return next;
-      });
-    },
-    []
-  );
-
+  const handleAttrFilterChange = React.useCallback((code: string, values: string[]) => {
+    setSelectedAttrs((prev) => {
+      const next = { ...prev };
+      if (!values.length) delete next[code];
+      else next[code] = values;
+      return next;
+    });
+  }, []);
 
   const handleResetFilters = React.useCallback(() => {
     setSort("price");
@@ -310,13 +272,10 @@ export default function ProductsMain({
     setFiltersResetKey((v) => v + 1);
   }, []);
 
-
-  // общий рендер сайдбара, чтобы не дублировать пропсы
   const renderSidebar = () => {
     const min = priceBounds?.min ?? 0;
     const max = priceBounds?.max ?? 0;
 
-    // если пользователь ещё не трогал диапазон — показываем полностью весь доступный
     const defaultRange: [number, number] =
       priceRangeState ?? (priceBounds ? [min, max] : [0, 0]);
 
@@ -332,12 +291,7 @@ export default function ProductsMain({
         onChangeSort={(val) => setSort(val as SortValue)}
         offerings={offerings}
         stars={stars}
-        priceRange={{
-          min,
-          max,
-          step: 1,
-          defaultValue: defaultRange,
-        }}
+        priceRange={{ min, max, step: 1, defaultValue: defaultRange }}
         onChangePriceRange={(minVal, maxVal) => setPriceRangeState([minVal, maxVal])}
         onToggleSaleOnly={setSaleOnly}
         onToggleNewArrivalsOnly={setNewArrivalsOnly}
@@ -350,8 +304,13 @@ export default function ProductsMain({
     );
   };
 
-  // ====== IntersectionObserver для бесконечной прокрутки ======
   const loaderRef = React.useRef<HTMLDivElement | null>(null);
+
+  // ✅ refs, чтобы observer не зависел от кучи стейтов
+  const obsStateRef = React.useRef({ loading: false, hasMore: true, itemsLen: 0 });
+  React.useEffect(() => {
+    obsStateRef.current = { loading, hasMore, itemsLen: items.length };
+  }, [loading, hasMore, items.length]);
 
   React.useEffect(() => {
     const el = loaderRef.current;
@@ -360,30 +319,29 @@ export default function ProductsMain({
     const observer = new IntersectionObserver(
       (entries) => {
         const first = entries[0];
-        if (first.isIntersecting) {
-          loadNext();
-        }
+        if (!first?.isIntersecting) return;
+
+        const s = obsStateRef.current;
+
+        // ✅ супер-важно: не грузим next-page, если:
+        // - уже грузим
+        // - нет следующей страницы
+        // - список пустой (после reset), чтобы не перескочить на offset=50
+        if (s.loading) return;
+        if (!s.hasMore) return;
+        if (s.itemsLen === 0) return;
+
+        loadNext();
       },
-      {
-        root: null,
-        rootMargin: "400px", // подгружаем заранее
-        threshold: 0,
-      }
+      { root: null, rootMargin: "400px", threshold: 0 }
     );
 
     observer.observe(el);
-
-    return () => {
-      observer.disconnect();
-    };
+    return () => observer.disconnect();
   }, [loadNext]);
 
   return (
     <div className={cls.main}>
-      {/* Крошки
-      <Breadcrumbs crumbs={crumbs as any} />*/}
-
-      {/* Секция со списком товаров */}
       <section className={cls.content}>
         <div className={cls.mastbar}>
           <h2 className={cls.title}>
@@ -408,20 +366,15 @@ export default function ProductsMain({
 
         <section className={cls.items}>
           <ProductItemList
-            products={products}
-            // skeleton только для первой загрузки
+            items={items}
             isLoading={loading}
             skeletonCount={12}
-            onItemClick={(p) => nav(`/product/${p.id}`)}
+            onItemClick={(it) => nav(it.url)}
           />
 
-          {/* маячок для IntersectionObserver */}
           <div ref={loaderRef} />
 
-          {/* конец списка */}
-          {!hasMore && products.length > 0 && (
-            <div className={cls.endMarker}></div>
-          )}
+          {!hasMore && items.length > 0 && <div className={cls.endMarker}></div>}
         </section>
       </section>
 
@@ -430,11 +383,7 @@ export default function ProductsMain({
         {renderSidebar()}
       </aside>
 
-      {/* Мобильный сайдбар: bottom-sheet на весь экран */}
-      <div
-        className={`${cls.mobileSidebar} ${isFiltersOpen ? cls.mobileSidebarOpen : ""
-          }`}
-      >
+      <div className={`${cls.mobileSidebar} ${isFiltersOpen ? cls.mobileSidebarOpen : ""}`}>
         <div className={cls.mobileSidebarBackdrop} onClick={closeMobileFilters} />
         <aside className={cls.mobileSidebarSheet}>
           <MasterBar title={t("filters.title")}>

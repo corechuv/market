@@ -1,13 +1,20 @@
 // src/types/product.ts
-export type AttrValue = string | number | boolean | Array<string | number> | null | undefined;
+
+export type AttrValue =
+  | string
+  | number
+  | boolean
+  | Array<string | number>
+  | null
+  | undefined;
 
 export interface ProductAttribute {
-  code: string; // стабильный код характеристики (например: "cpu.cores")
-  value: AttrValue; // значение
-  label?: string; // метка, если словарь не знает такой код
-  unit?: string; // юнит
-  group?: string; // группа/секция
-  priority?: number; // сортировка внутри группы
+  code: string;
+  value: AttrValue;
+  label?: string;
+  unit?: string;
+  group?: string;
+  priority?: number;
   tooltip?: string;
   href?: string;
   hidden?: boolean;
@@ -16,45 +23,95 @@ export interface ProductAttribute {
 
 export interface ProductBase {
   id: string;
+
   // Внутренний номер товара
   articleNumber?: string;
+
   name: string;
   price: string;
   imageUrl: string;
+
   images?: string[];
   link: string;
+
   available?: boolean;
   description?: string;
   shortDescription?: string[];
-  /** Привязка к категориям */
-  categoryId?: string;     // если товар в одной категории
-  categoryIds?: string[];  // если товар в нескольких категориях
 
-  datasheetPdfUrl?: string,
-  energyClassUrl?: string,
-  energyClassArrowUrl?: string; // URL картинки с энерго-классом
-  
+  /** Привязка к категориям */
+  categoryId?: string;
+  categoryIds?: string[];
+
+  datasheetPdfUrl?: string;
+  energyClassUrl?: string;
+  energyClassArrowUrl?: string;
+
   attributes?: ProductAttribute[];
 }
 
-// вариант (SKU)
+// вариант (SKU) — для PDP
 export type ProductVariant = {
   id: string;
   sku?: string;
-  options: Record<string, string>; // { Color: 'Black', Memory: '256 GB' }
-  price: string;                   // цена именно этого варианта
-  compareAtPrice?: string;         // старая цена/перечёркнутая
+
+  // оси вариантов (уже локализованные label/value строки)
+  options: Record<string, string>;
+
+  price: string;
+  priceCents?: number;
+
+  compareAtPrice?: string;
   compareAtCents?: number | null;
+
   available: boolean;
-  images?: string[];               // фотки для цвета
-  attributes?: ProductAttribute[]; // атрибуты-override (например, цвет/память)
-  datasheetPdfUrl?: string;      // PDF именно этого SKU
-  energyClassUrl?: string;     // класс именно этого SKU
-  energyClassArrowUrl?: string; // URL картинки с энерго-классом
+
+  stockQty?: number | null;
+
+  images?: string[];
+  attributes?: ProductAttribute[];
+
+  datasheetPdfUrl?: string;
+  energyClassUrl?: string;
+  energyClassArrowUrl?: string;
 };
 
 export type Product = ProductBase & {
-  options: Array<{ name: string; values: string[] }>; // определение осей выбора
+  // определение осей выбора на PDP
+  options: Array<{ name: string; values: string[] }>;
+
   variants: ProductVariant[];
   defaultVariantId?: string;
+};
+
+/**
+ * Variant listing item — для каталога (view=variant)
+ * Это отдельная "карточка" на каждый SKU.
+ */
+export type VariantListItem = {
+  id: string; // variantId
+  productId: string;
+
+  productName: string;
+
+  options: Record<string, string>;
+
+  price: string;
+  priceCents?: number;
+
+  compareAtPrice?: string;
+  compareAtCents?: number | null;
+
+  available: boolean;
+
+  imageUrl: string;
+
+  // сразу готовый URL на PDP с выбранным вариантом
+  url: string; // /product/:productId?variant=:variantId
+
+  sku?: string;
+  stockQty?: number | null;
+
+  datasheetPdfUrl?: string;
+  energyClassUrl?: string;
+  energyClassArrowUrl?: string;
 };

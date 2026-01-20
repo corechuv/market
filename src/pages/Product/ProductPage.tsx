@@ -1,6 +1,6 @@
 // src/pages/Product/ProductPage.tsx
 import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import type { SeoConfig } from "../../types/seo/seoConfig";
 import { useTranslation } from "react-i18next";
@@ -48,13 +48,12 @@ const normalizeTab = (tabParam?: string): TabKey => {
 
 export default function ProductPage() {
   const nav = useNavigate();
+  const loc = useLocation();
   const { productId, tab } = useParams<{ productId: string; tab?: string }>();
   const { t } = useTranslation("product");
 
-  // --- табы ---
   const [activeTab, setActiveTab] = React.useState<TabKey>(normalizeTab(tab));
 
-  // табы с переводами
   const productTabs = React.useMemo<TabItem<TabKey>[]>(() => {
     return [
       { key: "details", label: t("tabs.details") },
@@ -67,7 +66,6 @@ export default function ProductPage() {
     setActiveTab(normalizeTab(tab));
   }, [tab]);
 
-  // --- загрузка товара ---
   const [product, setProduct] = React.useState<Product | undefined>(undefined);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -93,13 +91,39 @@ export default function ProductPage() {
     };
   }, [productId]);
 
-  // --- варианты ---
-  const [variant, setVariant] = React.useState<ProductVariant | undefined>(undefined);
-  React.useEffect(() => {
-    if (product) setVariant(getInitialVariant(product));
-  }, [product?.id]); // при смене товара — переинициализировать вариант
+  // ✅ variant из querystring
+  const variantFromUrl = React.useMemo(() => {
+    const sp = new URLSearchParams(loc.search);
+    return sp.get("variant");
+  }, [loc.search]);
 
-  // --- ещё товары (после загрузки товара) ---
+  const [variant, setVariant] = React.useState<ProductVariant | undefined>(undefined);
+
+  // ✅ выбираем вариант: из URL → иначе default
+  React.useEffect(() => {
+    if (!product) return;
+
+    if (variantFromUrl) {
+      const found = product.variants?.find((v) => v.id === variantFromUrl);
+      setVariant(found ?? getInitialVariant(product));
+      return;
+    }
+
+    setVariant(getInitialVariant(product));
+  }, [product?.id, variantFromUrl]);
+
+  // ✅ когда пользователь меняет вариант — обновим querystring (чтобы ссылку можно было копировать)
+  const handleVariantChange = React.useCallback(
+    (v?: ProductVariant) => {
+      setVariant(v);
+      if (!v?.id) return;
+      const sp = new URLSearchParams(loc.search);
+      sp.set("variant", v.id);
+      nav(`${loc.pathname}?${sp.toString()}`, { replace: true });
+    },
+    [nav, loc.pathname, loc.search]
+  );
+
   const [moreProducts, setMoreProducts] = React.useState<Product[]>([]);
   React.useEffect(() => {
     let cancelled = false;
@@ -124,10 +148,8 @@ export default function ProductPage() {
     };
   }, [product?.id]);
 
-  // --- модалка отзыва ---
   const [isOpenUpload, setIsOpenUpload] = React.useState(false);
 
-  // --- sticky CTA visibility ---
   const actionsRef = React.useRef<HTMLDivElement | null>(null);
   const [showStickyCta, setShowStickyCta] = React.useState(false);
   React.useEffect(() => {
@@ -141,7 +163,6 @@ export default function ProductPage() {
     return () => io.disconnect();
   }, []);
 
-  // --- корзина ---
   const { add } = useCart();
   const handleAddToCart = React.useCallback(() => {
     if (!product) return;
@@ -149,10 +170,8 @@ export default function ProductPage() {
     add(line);
   }, [product, variant, add]);
 
-  // --- агрегаты отзывов (средняя оценка + количество всех типов) ---
   const [reviewAvg, setReviewAvg] = React.useState<number | null>(null);
   const [reviewCount, setReviewCount] = React.useState<number>(0);
-
 
   const seo: SeoConfig | null = React.useMemo(() => {
     if (!product) return null;
@@ -163,40 +182,31 @@ export default function ProductPage() {
       (typeof product.description === "string" ? product.description : "") ||
       "";
 
-    // по вкладке берём разные ключи, но всегда есть fallback
     if (activeTab === "reviews") {
       return {
-        title:
-          t("seo.reviewsTitle", { name }) ||
-          t("seo.title", { name }),
+        title: t("seo.reviewsTitle", { name }) || t("seo.title", { name }),
         description:
           t("seo.reviewsDescription", { name, short }) ||
-          t("seo.description", { name, short })
+          t("seo.description", { name, short }),
       };
     }
 
     if (activeTab === "other") {
       return {
-        title:
-          t("seo.otherTitle", { name }) ||
-          t("seo.title", { name }),
+        title: t("seo.otherTitle", { name }) || t("seo.title", { name }),
         description:
           t("seo.otherDescription", { name, short }) ||
-          t("seo.description", { name, short })
+          t("seo.description", { name, short }),
       };
     }
 
-    // default: details
     return {
-      title:
-        t("seo.detailsTitle", { name }) ||
-        t("seo.title", { name }),
+      title: t("seo.detailsTitle", { name }) || t("seo.title", { name }),
       description:
         t("seo.detailsDescription", { name, short }) ||
-        t("seo.description", { name, short })
+        t("seo.description", { name, short }),
     };
   }, [product, activeTab, t]);
-
 
   React.useEffect(() => {
     let cancelled = false;
@@ -249,9 +259,7 @@ export default function ProductPage() {
   if (loading && !product) {
     return (
       <Page padding={false}>
-        <div className={cls.product}>
-          {/* тут можно потом повесить skeleton / спиннер */}
-        </div>
+        <div className={cls.product}></div>
       </Page>
     );
   }
@@ -261,10 +269,7 @@ export default function ProductPage() {
       <>
         <Helmet>
           <title>Produkt nicht gefunden – Dashedo</title>
-          <meta
-            name="description"
-            content="Das gesuchte Produkt wurde nicht gefunden."
-          />
+          <meta name="description" content="Das gesuchte Produkt wurde nicht gefunden." />
           <meta name="robots" content="noindex,follow" />
         </Helmet>
         <Page padding={false}>
@@ -283,16 +288,11 @@ export default function ProductPage() {
     setActiveTab(key);
     if (!product) return;
 
-    if (key === "reviews") {
-      nav(`/product/${product.id}/reviews`, { replace: false });
-    } else if (key === "other") {
-      nav(`/product/${product.id}/other`, { replace: false });
-    } else {
-      nav(`/product/${product.id}`, { replace: false });
-    }
+    if (key === "reviews") nav(`/product/${product.id}/reviews`, { replace: false });
+    else if (key === "other") nav(`/product/${product.id}/other`, { replace: false });
+    else nav(`/product/${product.id}`, { replace: false });
   };
 
-  // --- вычисления под UI (теперь товар точно есть) ---
   const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
 
   const images = (() => {
@@ -338,11 +338,8 @@ export default function ProductPage() {
   const datasheetUrl = variant?.datasheetPdfUrl ?? product.datasheetPdfUrl;
 
   const ratingValue = reviewAvg !== null ? Math.round(reviewAvg * 10) / 10 : null;
-
   const manufacturerNumber = variant?.sku ?? undefined;
 
-
-  // WARNING
   const canonicalUrl = `https://dashedo.com/product/${product.id}`;
   const primaryImage = images[0];
 
@@ -353,11 +350,8 @@ export default function ProductPage() {
     (product.shortDescription && product.shortDescription.join(" ")) ||
     "";
 
-  // JSON-LD Product schema
   const numericPrice =
-    typeof priceNum === "number" && Number.isFinite(priceNum)
-      ? priceNum
-      : null;
+    typeof priceNum === "number" && Number.isFinite(priceNum) ? priceNum : null;
 
   const productSchema = {
     "@context": "https://schema.org",
@@ -367,10 +361,7 @@ export default function ProductPage() {
     sku: articleNumber,
     description: seoDescription,
     brand: (product as any).brand
-      ? {
-        "@type": "Brand",
-        name: (product as any).brand
-      }
+      ? { "@type": "Brand", name: (product as any).brand }
       : undefined,
     offers: {
       "@type": "Offer",
@@ -379,16 +370,12 @@ export default function ProductPage() {
       availability: available
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
-      url: canonicalUrl
+      url: canonicalUrl,
     },
     aggregateRating:
       ratingValue && reviewCount > 0
-        ? {
-          "@type": "AggregateRating",
-          ratingValue,
-          reviewCount
-        }
-        : undefined
+        ? { "@type": "AggregateRating", ratingValue, reviewCount }
+        : undefined,
   };
 
   return (
@@ -398,24 +385,20 @@ export default function ProductPage() {
         <meta name="description" content={seoDescription} />
         <link rel="canonical" href={canonicalUrl} />
 
-        {/* Open Graph */}
         <meta property="og:type" content="product" />
         <meta property="og:title" content={seoTitle} />
         <meta property="og:description" content={seoDescription} />
         <meta property="og:url" content={canonicalUrl} />
         {primaryImage && <meta property="og:image" content={primaryImage} />}
 
-        {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={seoTitle} />
         <meta name="twitter:description" content={seoDescription} />
         {primaryImage && <meta name="twitter:image" content={primaryImage} />}
 
-        {/* JSON-LD Product */}
-        <script type="application/ld+json">
-          {JSON.stringify(productSchema)}
-        </script>
+        <script type="application/ld+json">{JSON.stringify(productSchema)}</script>
       </Helmet>
+
       <Page padding={false}>
         <div className={cls.product}>
           <div className={cls.productDetails}>
@@ -509,7 +492,11 @@ export default function ProductPage() {
                     {hasVariants && (
                       <div className={cls.section}>
                         <div className={cls.section__content}>
-                          <VariantPicker product={product} value={variant} onChange={setVariant} />
+                          <VariantPicker
+                            product={product}
+                            value={variant}
+                            onChange={handleVariantChange}
+                          />
                         </div>
                       </div>
                     )}
@@ -554,7 +541,7 @@ export default function ProductPage() {
 
                 <div className={cls.section} style={{ padding: "0 var(--gap)" }}>
                   <div className={cls.section__content}>
-                     {t("sections.meta.manufacturerNumber")}: {manufacturerNumber}
+                    {t("sections.meta.manufacturerNumber")}: {manufacturerNumber}
                   </div>
                 </div>
 
@@ -578,7 +565,6 @@ export default function ProductPage() {
                   </h3>
                   <div className={cls.section__content}>
                     <div
-                      // можно повесить отдельный класс, если захочешь стилизовать списки/заголовки
                       className={cls.section__description}
                       dangerouslySetInnerHTML={{ __html: descriptionHtml }}
                     />

@@ -16,6 +16,8 @@
   height: 60px;
   display: flex;
   align-items: center;
+  width: 100%;
+  max-width: 1024px;
 }
 
 /* Контейнер для пунктов */
@@ -26,6 +28,7 @@
   display: inline-flex;
   justify-content: space-between;
   gap: 20px;
+  width: 100%;
 }
 
 .navItem {

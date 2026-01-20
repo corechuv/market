@@ -1,5 +1,5 @@
-// src/services/prodcutService.ts
-import type { Product } from "../types/product";
+// src/services/productService.ts
+import type { Product, VariantListItem } from "../types/product";
 import i18n from "../i18n";
 import type { AppLanguage } from "../utils/lang/lang";
 
@@ -21,6 +21,7 @@ export type AttributeFacet = {
   scope: string;
   groupKey: string | null;
   groupLabel?: string | null;
+  unitLabel?: string | null;
   label: string;
   options: AttributeFacetOption[];
 };
@@ -35,27 +36,27 @@ export type GetProductsParams = {
   categoryFullSlug?: string;
   limit?: number;
   offset?: number;
-  newArrivalsOnly?: boolean;  // фильтр "только новинки"
-  saleOnly?: boolean;         // фильтр "только со скидкой"
-  minPriceCents?: number;     // нижняя граница цены в центах
-  maxPriceCents?: number;     // верхняя граница цены в центах
-  minRating?: number;         // минимальный рейтинг (1–5)
-  lang?: AppLanguage;         // 👈 можно явно передать язык, если нужно
+  newArrivalsOnly?: boolean;
+  saleOnly?: boolean;
+  minPriceCents?: number;
+  maxPriceCents?: number;
+  minRating?: number;
+  lang?: AppLanguage;
 
-  // НОВОЕ: фильтры по атрибутам
+  /** Опционально: фильтрация витрины по продавцу */
+  sellerCode?: string;
+
+  // фильтры по атрибутам
   attrFilters?: AttributeFilterPayload;
+
+  // view каталога
+  view?: "product" | "variant";
 };
 
 export type ProductFacets = {
   total: number;
-  price: {
-    min: number | null;
-    max: number | null;
-  };
-  rating: {
-    min: number | null;
-    max: number | null;
-  };
+  price: { min: number | null; max: number | null };
+  rating: { min: number | null; max: number | null };
   attributes: AttributeFacet[];
 };
 
@@ -67,10 +68,16 @@ export type GetProductFacetsParams = {
   newArrivalsOnly?: boolean;
   saleOnly?: boolean;
   minRating?: number;
-  lang?: AppLanguage;         // 👈 тоже можно переопределить при желании
+  minPriceCents?: number;
+  maxPriceCents?: number;
+  lang?: AppLanguage;
 
-  // те же фильтры по атрибутам, что и для списка
+  /** Опционально: фильтрация витрины по продавцу */
+  sellerCode?: string;
+
   attrFilters?: AttributeFilterPayload;
+
+  view?: "product" | "variant";
 };
 
 function resolveLang(explicit?: string | null): AppLanguage {
@@ -95,14 +102,24 @@ function qs(params: Record<string, any>) {
   return q.toString();
 }
 
-export async function getProducts(params: GetProductsParams = {}): Promise<Product[]> {
+// ✅ overloads
+export async function getProducts(
+  params?: GetProductsParams & { view?: "product" }
+): Promise<Product[]>;
+export async function getProducts(
+  params: GetProductsParams & { view: "variant" }
+): Promise<VariantListItem[]>;
+export async function getProducts(
+  params: GetProductsParams = {}
+): Promise<Product[] | VariantListItem[]> {
   const { attrFilters, ...rest } = params;
 
   const query = qs({
     ...rest,
-    attributeFilters: attrFilters && Object.keys(attrFilters).length
-      ? JSON.stringify(attrFilters)
-      : undefined,
+    attributeFilters:
+      attrFilters && Object.keys(attrFilters).length
+        ? JSON.stringify(attrFilters)
+        : undefined,
   });
 
   const url = `${API}/products?${query}`;
@@ -112,15 +129,16 @@ export async function getProducts(params: GetProductsParams = {}): Promise<Produ
 }
 
 export async function getProductFacets(
-  params: GetProductFacetsParams = {},
+  params: GetProductFacetsParams = {}
 ): Promise<ProductFacets> {
   const { attrFilters, ...rest } = params;
 
   const query = qs({
     ...rest,
-    attributeFilters: attrFilters && Object.keys(attrFilters).length
-      ? JSON.stringify(attrFilters)
-      : undefined,
+    attributeFilters:
+      attrFilters && Object.keys(attrFilters).length
+        ? JSON.stringify(attrFilters)
+        : undefined,
   });
 
   const url = `${API}/products/facets?${query}`;
@@ -132,9 +150,15 @@ export async function getProductFacets(
 export async function getProductById(
   id: string,
   langOverride?: AppLanguage,
+  opts?: { sellerCode?: string }
 ): Promise<Product | undefined> {
   const lang = resolveLang(langOverride);
-  const r = await fetch(`${API}/products/${id}?lang=${lang}`);
+
+  const q = new URLSearchParams();
+  q.set("lang", lang);
+  if (opts?.sellerCode) q.set("sellerCode", opts.sellerCode);
+
+  const r = await fetch(`${API}/products/${id}?${q.toString()}`);
   if (r.status === 404) return undefined;
   if (!r.ok) throw new Error(`Failed to load product: ${r.status}`);
   return r.json();
@@ -148,7 +172,8 @@ export async function getMoreProducts(options?: {
   fillFromAllIfShort?: boolean;
   categoryId?: string;
   categoryFullSlug?: string;
-  lang?: AppLanguage; // опциональный оверрайд
+  lang?: AppLanguage;
+  sellerCode?: string;
 }): Promise<Product[]> {
   const lang = resolveLang(options?.lang);
 
@@ -159,19 +184,24 @@ export async function getMoreProducts(options?: {
       shuffle: options.shuffle ?? true,
       fillFromAllIfShort: options.fillFromAllIfShort ?? true,
       lang,
+      sellerCode: options.sellerCode,
     });
     const r = await fetch(`${API}/products/${options.currentId}/similar?${q}`);
     if (!r.ok) throw new Error(`Failed to fetch similar: ${r.status}`);
     return r.json();
   }
 
-  // Без currentId — просто list по категории/фильтрам
-  return getProducts({
+  // Без currentId — просто list по категории/фильтрам (product-view)
+  const res = await getProducts({
     sort: "new",
     availableOnly: options?.availableOnly ?? true,
     categoryId: options?.categoryId,
     categoryFullSlug: options?.categoryFullSlug,
     limit: options?.limit ?? 8,
     lang,
+    sellerCode: options?.sellerCode,
+    view: "product",
   });
+
+  return res as Product[];
 }
