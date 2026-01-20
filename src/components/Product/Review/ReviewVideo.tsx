@@ -35,6 +35,7 @@ const isAndroid = (() => {
   return /Android/i.test(navigator.userAgent || '');
 })();
 const FORCE_MUTED_AUTOPLAY = isIOS || isAndroid;
+const UNMUTE_EVENT = 'reels:unmute_now';
 
 export const ReviewVideo: React.FC<Props> = ({
   hlsUrl,
@@ -79,6 +80,19 @@ export const ReviewVideo: React.FC<Props> = ({
       retryPlayTimer.current = null;
     }
   }, []);
+
+  const tryUnmute = useCallback(() => {
+    const v = videoRef.current;
+    if (!v || !activeRef.current) return;
+    if (userMutedRef.current || muted) return;
+    if (FORCE_MUTED_AUTOPLAY && autoPlay && !allowAudibleOnMobileRef.current) return;
+
+    v.muted = false;
+    v.removeAttribute('muted');
+    setIsMuted(false);
+    const p = v.play?.();
+    if (p && typeof p.catch === 'function') p.catch(() => { });
+  }, [autoPlay, muted]);
 
   const emit = useCallback((name: string, detail?: any) => {
     try { window.dispatchEvent(new CustomEvent(name, { detail })); } catch { /* noop */ }
@@ -363,10 +377,13 @@ export const ReviewVideo: React.FC<Props> = ({
           const p = v.play?.(); if (p && typeof p.catch === 'function') p.catch(() => { });
         } catch { }
       }
+      if (FORCE_MUTED_AUTOPLAY) {
+        tryUnmute();
+      }
     } else {
       if (!v.paused) v.pause();
     }
-  }, [active, autoPlay, playSafely]);
+  }, [active, autoPlay, playSafely, tryUnmute]);
 
 
   // синхронизация mute (отдельный маленький эффект — без пересоздания источника)
@@ -397,6 +414,18 @@ export const ReviewVideo: React.FC<Props> = ({
       }
     }
   }, [muted, autoPlay]);
+
+  useEffect(() => {
+    const onUnmute = (ev: Event) => {
+      const detail = (ev as CustomEvent<{ reviewId?: string }>).detail;
+      if (!detail || detail.reviewId !== reviewId) return;
+      allowAudibleOnMobileRef.current = true;
+      tryUnmute();
+    };
+
+    window.addEventListener(UNMUTE_EVENT, onUnmute as EventListener);
+    return () => window.removeEventListener(UNMUTE_EVENT, onUnmute as EventListener);
+  }, [reviewId, tryUnmute]);
 
   const poster =
     posterUrl ||
