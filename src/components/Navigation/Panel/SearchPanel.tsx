@@ -444,6 +444,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
           title={t("panel.title")}
           includeBars
           background="var(--n-bg-desktop)"
+          onClose={onClose}
           bar={
             <SearchField
               ref={inputRef}

@@ -2,9 +2,11 @@
 import React from "react";
 import clsx from "clsx";
 import c from "./MasterBar.module.scss";
+import CloseIcon from "../../Icons/CloseIcon";
 
 export interface MasterBarProps extends React.HTMLAttributes<HTMLDivElement> {
     title?: string;
+    onClose?: () => void;
     includeBars?: boolean;
     bar?: React.ReactNode;
     background?: React.CSSProperties["background"];
@@ -14,6 +16,7 @@ export default function MasterBar({
     children,
     className,
     title,
+    onClose,
     includeBars = false,
     bar,
     background,
@@ -32,7 +35,21 @@ export default function MasterBar({
     return (
         <div className={clsx(c.mastbar, className)} style={style} {...divProps}>
             <div className={c.mastbar__w} style={w}>
-                {title && <h1 className={c.mastbar__title}>{title}</h1>}
+                {(title || onClose) &&
+                    <div className={c.mastbar__h}>
+                        {title && <h1 className={c.mastbar__title}>{title}</h1>}
+                        {onClose && (
+                            <button
+                                type="button"
+                                className={c.mastbar__close}
+                                onClick={onClose}
+                                aria-label="Close"
+                            >
+                                <CloseIcon />
+                            </button>
+                        )}
+                    </div>
+                }
                 {includeBars &&
                     <div className={c.mastbar__bar}>
                         {bar}

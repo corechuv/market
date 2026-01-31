@@ -19,6 +19,31 @@
         @extend .titlebase;
     }
 
+    &__h {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+
+    &__close {
+        margin-left: auto;
+        border: none;
+        background: transparent;
+        color: var(--text);
+        cursor: pointer;
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+
+        svg {
+            width: 22px;
+            height: 22px;
+        }
+    }
+
     &__w {
         display: flex;
         flex-direction: column;
