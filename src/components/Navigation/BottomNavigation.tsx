@@ -46,6 +46,7 @@ export default function BottomNavigation({
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    const root = document.documentElement;
     const setViewportOffsets = () => {
       const vv = (window as any).visualViewport as VisualViewport | undefined;
       let vb = 0;
@@ -58,17 +59,20 @@ export default function BottomNavigation({
       if (outerRef.current) {
         outerRef.current.style.setProperty("--vb-offset", `${vb}px`);
       }
+      root.style.setProperty("--bottom-nav-vb", `${vb}px`);
     };
 
     const setBarHeight = () => {
       if (outerRef.current && barRef.current) {
         const h = barRef.current.offsetHeight;
         outerRef.current.style.setProperty("--bar-h", `${h}px`);
+        root.style.setProperty("--bottom-nav-h", `${h}px`);
       }
     };
 
     setViewportOffsets();
     setBarHeight();
+    root.style.setProperty("--bottom-nav-offset", `${bottomOffset}px`);
 
     window.addEventListener("resize", setViewportOffsets);
     window.addEventListener("orientationchange", setViewportOffsets);
@@ -90,8 +94,11 @@ export default function BottomNavigation({
         vv.removeEventListener("scroll", setViewportOffsets);
       }
       ro.disconnect();
+      root.style.setProperty("--bottom-nav-vb", "0px");
+      root.style.setProperty("--bottom-nav-h", "0px");
+      root.style.setProperty("--bottom-nav-offset", "0px");
     };
-  }, [items]);
+  }, [items, bottomOffset]);
 
   const styleVars: CSSVars = {
     "--bottom-offset": `${bottomOffset}px`,
