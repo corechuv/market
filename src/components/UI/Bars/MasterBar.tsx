@@ -3,10 +3,14 @@ import React from "react";
 import clsx from "clsx";
 import c from "./MasterBar.module.scss";
 import CloseIcon from "../../Icons/CloseIcon";
+import BackButton from "../BackButton";
 
 export interface MasterBarProps extends React.HTMLAttributes<HTMLDivElement> {
     title?: string;
     onClose?: () => void;
+    onBack?: () => void;
+    backSize?: "small" | "medium" | "large";
+    backLabel?: boolean;
     includeBars?: boolean;
     bar?: React.ReactNode;
     background?: React.CSSProperties["background"];
@@ -17,6 +21,9 @@ export default function MasterBar({
     className,
     title,
     onClose,
+    onBack,
+    backSize = "small",
+    backLabel = false,
     includeBars = false,
     bar,
     background,
@@ -35,8 +42,16 @@ export default function MasterBar({
     return (
         <div className={clsx(c.mastbar, className)} style={style} {...divProps}>
             <div className={c.mastbar__w} style={w}>
-                {(title || onClose) &&
+                {(title || onClose || onBack) &&
                     <div className={c.mastbar__h}>
+                        {onBack && (
+                            <BackButton
+                                onClick={onBack}
+                                size={backSize}
+                                label={backLabel}
+                                className={c.mastbar__back}
+                            />
+                        )}
                         {title && <h1 className={c.mastbar__title}>{title}</h1>}
                         {onClose && (
                             <button

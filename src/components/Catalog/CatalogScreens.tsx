@@ -6,7 +6,6 @@ import ScrollArea from "../UI/ScrollArea/ScrollArea";
 import type { Category as Cat } from "../../types/category";
 import c from "./CatalogScreens.module.scss";
 import { useNavigate } from "react-router-dom";
-import BackButton from "../UI/BackButton";
 import { useTranslation } from "react-i18next";
 
 interface Props {
@@ -49,8 +48,9 @@ export const CatalogScreens: React.FC<Props> = (p) => {
         title={p.stage === "L1" ? (p.title ?? t("title")) : ""}
         background={p.mastbarBg}
         onClose={p.onCloseNav}
+        onBack={p.stage !== "L1" ? p.back : undefined}
+        backSize="small"
       >
-        {p.stage !== "L1" && <BackButton onClick={p.back} size="small" />}
       </MasterBar>
 
       <div className={c.drawer}>

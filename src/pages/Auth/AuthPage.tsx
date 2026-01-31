@@ -22,6 +22,7 @@ import {
 
 import { Tabs, type TabItem } from "../../components/UI/Tabs"
 import { useTranslation, Trans } from "react-i18next"
+import { useNavigate } from "react-router-dom"
 
 export type Mode = "login" | "register";
 
@@ -64,6 +65,7 @@ export default function AuthPage({
     onRegister,
 }: AuthPageProps) {
     const { t } = useTranslation("auth");
+    const navigate = useNavigate();
 
     const seoTitle =
         mode === "login"
@@ -204,7 +206,7 @@ export default function AuthPage({
                 <div className={s.center}>
                     <div className={s.card} role="dialog" aria-labelledby="auth-title">
                         <header className={s.brand}>
-                            <Logo />
+                            <Logo onClick={() => navigate("/")} ariaLabel="Home" compact />
                         </header>
 
                         {/* Табы c общим UI-компонентом */}
