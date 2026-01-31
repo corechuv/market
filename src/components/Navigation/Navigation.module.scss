@@ -5,6 +5,9 @@
     flex-direction: column;
     justify-content: space-between;
     height: 100vh;
+    transition:
+        opacity var(--nav-anim, .22s) var(--nav-ease, ease),
+        transform var(--nav-anim, .22s) var(--nav-ease, ease);
 
     &__container {
         width: var(--nav-vw);
@@ -82,6 +85,8 @@
     align-items: start;
     height: 100vh;
     flex: 0 0 var(--nav-vw);
+    --nav-anim: .22s;
+    --nav-ease: cubic-bezier(.22,.61,.36,1);
 
     /* по умолчанию без затемнения */
     background-color: transparent;
@@ -94,33 +99,42 @@
 
     &__main {
         box-sizing: border-box;
-        height: 100%;
-        width: 0;
+        height: 100vh;
+        width: min(280px, 100vw);
+        max-width: 100vw;
         /* скрыта по умолчанию */
-        padding-left: 10px;
+        padding-left: 0;
         opacity: 0;
         pointer-events: none;
         overflow: hidden;
-        transition: width .22s ease, opacity .2s ease;
-        display: none;
+        transition:
+            opacity var(--nav-anim) var(--nav-ease),
+            transform var(--nav-anim) var(--nav-ease),
+            visibility 0s linear var(--nav-anim);
+        transform: translateX(-100%);
+        display: block;
+        visibility: hidden;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 10000;
+        will-change: transform, opacity;
 
         &[data-open] {
-            display: block;
             /* «полностью» раскрыта */
             opacity: 1;
             pointer-events: auto;
-            position: fixed;
-            top: 0;
-            height: 100vh;
-            left: 60px;
-            z-index: 10000;
-            max-width: calc(100vw - var(--nav-vw));
             background-color: var(--n-bg-desktop);
             backdrop-filter: blur(24px);
-            width: min(280px, calc(100vw - var(--nav-vw)));
             overscroll-behavior: contain;
             touch-action: none;
             /* гасим тач-скролл на фоне */
+            transform: translateX(0);
+            visibility: visible;
+            transition:
+                opacity var(--nav-anim) var(--nav-ease),
+                transform var(--nav-anim) var(--nav-ease),
+                visibility 0s linear 0s;
         }
     }
 
@@ -135,4 +149,17 @@
         display: none !important;
         /* чтобы не занимал var(--nav-vw) */
     }
+}
+
+@media (min-width: 769px) {
+    /* Когда открыта панель — прячем левую навигацию и прижимаем меню к краю */
+    .f[data-has-open] .nav {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateX(-12px);
+        transition:
+            opacity var(--nav-anim) var(--nav-ease),
+            transform var(--nav-anim) var(--nav-ease);
+    }
+
 }
