@@ -90,6 +90,8 @@ const Banner: React.FC<BannerProps> = ({
   // Автопрокрутка
   useEffect(() => {
     if (!autoPlay || isPaused || count <= 1) return;
+    const current = images[index];
+    if (current && isVideoItem(current)) return;
     timerRef.current = window.setInterval(() => {
       setIndex((i) => (loop ? clampIndex(i + 1, count) : Math.min(i + 1, count - 1)));
     }, interval) as unknown as number;
@@ -100,7 +102,7 @@ const Banner: React.FC<BannerProps> = ({
         timerRef.current = null;
       }
     };
-  }, [autoPlay, isPaused, count, interval, loop]);
+  }, [autoPlay, isPaused, count, interval, loop, index, images]);
 
   // Клавиатура
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -143,6 +145,19 @@ const Banner: React.FC<BannerProps> = ({
     : undefined;
 
   const videoRefs = useRef<Array<HTMLVideoElement | null>>([]);
+  useEffect(() => {
+    const item = images[index];
+    if (!autoPlay || !item || !isVideoItem(item)) return;
+    if (item.autoPlay === false) return;
+    const v = videoRefs.current[index];
+    if (!v) return;
+    const onEnded = () => {
+      if (!autoPlay) return;
+      next();
+    };
+    v.addEventListener("ended", onEnded);
+    return () => v.removeEventListener("ended", onEnded);
+  }, [autoPlay, index, images]);
   useEffect(() => {
     videoRefs.current.forEach((v, i) => {
       if (!v) return;
@@ -199,7 +214,7 @@ const Banner: React.FC<BannerProps> = ({
                 src={img.src}
                 poster={img.poster}
                 muted={img.muted ?? true}
-                loop={img.loop ?? true}
+                loop={img.loop ?? false}
                 playsInline={img.playsInline ?? true}
                 controls={img.controls ?? false}
                 preload="metadata"
