@@ -47,6 +47,11 @@ const demoImages = [
     src: "https://www.apple.com/v/iphone-17-pro/a/images/overview/highlights/highlights_ios__empnwsdz698i_large_2x.jpg",
     alt: "3",
     caption: ""
+  },
+  {
+    src: "/___1080p_202602011243.mp4",
+    alt: "4",
+    caption: ""
   }
 ];
 

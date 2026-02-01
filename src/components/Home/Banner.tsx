@@ -7,6 +7,13 @@ export type BannerImage = {
   src: string;
   alt?: string;
   caption?: string;
+  type?: "image" | "video";
+  poster?: string;
+  autoPlay?: boolean;
+  muted?: boolean;
+  loop?: boolean;
+  playsInline?: boolean;
+  controls?: boolean;
 };
 
 export type BannerProps = {
@@ -47,6 +54,12 @@ const parseAspect = (val?: string) => {
   if (!isFinite(w) || !isFinite(h) || w <= 0 || h <= 0) return null;
   return { css: `${w} / ${h}`, w, h };
 };
+
+const isVideoSrc = (src: string) =>
+  /\.(mp4|webm|ogg|m4v|mov)(\?.*)?$/i.test(src);
+
+const isVideoItem = (item: BannerImage) =>
+  item.type === "video" || (item.type !== "image" && isVideoSrc(item.src));
 
 const Banner: React.FC<BannerProps> = ({
   images,
@@ -129,6 +142,25 @@ const Banner: React.FC<BannerProps> = ({
       } as React.CSSProperties)
     : undefined;
 
+  const videoRefs = useRef<Array<HTMLVideoElement | null>>([]);
+  useEffect(() => {
+    videoRefs.current.forEach((v, i) => {
+      if (!v) return;
+      if (i === index) {
+        const item = images[i];
+        const shouldPlay = item ? isVideoItem(item) && (item.autoPlay ?? true) : false;
+        if (!shouldPlay) return;
+        const p = v.play?.();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+      } else {
+        v.pause?.();
+        try {
+          v.currentTime = 0;
+        } catch { }
+      }
+    });
+  }, [index, images]);
+
   return (
     <div
       className={[
@@ -158,7 +190,25 @@ const Banner: React.FC<BannerProps> = ({
             key={i}
             aria-hidden={i !== index}
           >
-            <img className={s.image} src={img.src} alt={img.alt ?? ""} />
+            {isVideoItem(img) ? (
+              <video
+                ref={(el) => {
+                  videoRefs.current[i] = el;
+                }}
+                className={s.video}
+                src={img.src}
+                poster={img.poster}
+                muted={img.muted ?? true}
+                loop={img.loop ?? true}
+                playsInline={img.playsInline ?? true}
+                controls={img.controls ?? false}
+                preload="metadata"
+                autoPlay={i === index && (img.autoPlay ?? true)}
+                aria-label={img.alt ?? ""}
+              />
+            ) : (
+              <img className={s.image} src={img.src} alt={img.alt ?? ""} />
+            )}
             {img.caption && (
               <div className={s.caption} aria-hidden={i !== index}>
                 {img.caption}
