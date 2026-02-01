@@ -34,7 +34,7 @@ import type { SeoConfig } from "../../types/seo/seoConfig";
 
 const demoImages = [
   {
-    src: "https://www.apple.com/v/iphone-17-pro/a/images/overview/highlights/highlights_apple_intelligence__bs20h6298f36_medium_2x.jpg",
+    src: "/___1080p_202602011243.mp4",
     alt: "1",
     caption: ""
   },
@@ -49,7 +49,7 @@ const demoImages = [
     caption: ""
   },
   {
-    src: "/___1080p_202602011243.mp4",
+    src: "https://www.apple.com/v/iphone-17-pro/a/images/overview/highlights/highlights_apple_intelligence__bs20h6298f36_medium_2x.jpg",
     alt: "4",
     caption: ""
   }
