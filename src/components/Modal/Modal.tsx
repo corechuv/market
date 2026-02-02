@@ -76,7 +76,7 @@ export interface ModalProps {
   children: React.ReactNode;
   isOpen: boolean;
   onClose: () => void;
-  variant?: 'center' | 'left' | 'right';
+  variant?: 'center' | 'left' | 'right' | 'bottom';
   header?: React.ReactNode;
   bodyClassName?: string;
   bodyStyles?: boolean;

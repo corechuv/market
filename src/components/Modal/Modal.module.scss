@@ -19,6 +19,10 @@ $anim-time: 0.3s;
   &.right {
     justify-content: flex-end;
   }
+
+  &.bottom {
+    align-items: flex-end;
+  }
 }
 
 .modalOverlay {
@@ -60,6 +64,21 @@ $anim-time: 0.3s;
     height: 100dvh;
     /* NEW: стабильная высота, мобильный safe */
     border-radius: 0;
+  }
+
+  &.bottom {
+    width: min(520px, 100vw);
+    max-width: 100vw;
+    height: auto;
+    max-height: 80vh;
+    border-radius: 20px 20px 0 0;
+    overflow: hidden;
+    transform: translateY(100%);
+    animation: slideUp $anim-time forwards;
+
+    @supports (height: 100dvh) {
+      max-height: 80dvh;
+    }
   }
 
   &.left {
@@ -162,6 +181,12 @@ $anim-time: 0.3s;
   }
 }
 
+@keyframes slideUp {
+  to {
+    transform: translateY(0);
+  }
+}
+
 
 @media (max-width: 520px) {
   .modalContent {
@@ -176,6 +201,12 @@ $anim-time: 0.3s;
       max-width: 100vw;
       max-height: 100dvh;
       border-radius: 0;
+    }
+
+    &.bottom {
+      width: 100%;
+      max-width: 100vw;
+      border-radius: 20px 20px 0 0;
     }
   }
 }

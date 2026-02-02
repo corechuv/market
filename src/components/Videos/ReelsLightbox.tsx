@@ -595,7 +595,12 @@ export default function ReelsLightbox({
         </div>
 
         {canOpenMenu && (
-          <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} variant="center" bodyStyles>
+          <Modal
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            variant={isMobile ? "bottom" : "center"}
+            bodyStyles
+          >
             <MenuList items={menuItems} role="menu" ariaLabel="Video actions" />
           </Modal>
         )}
