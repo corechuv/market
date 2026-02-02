@@ -34,11 +34,13 @@ interface Props {
   onOpenSlug: (slug: string) => void;
   mastbarBg?: string;
   lockBody?: boolean;
+  useBottomNavOffset?: boolean;
   onCloseNav?: () => void;
 }
 
 export const CatalogScreens: React.FC<Props> = (p) => {
   const lock = p.lockBody ?? true; // default: true
+  const useBottomNavOffset = p.useBottomNavOffset ?? false;
   const nav = useNavigate();
   const { t } = useTranslation("catalog");
 
@@ -56,7 +58,11 @@ export const CatalogScreens: React.FC<Props> = (p) => {
       <div className={c.drawer}>
         {/* L1 */}
         <div className={p.screenClass("L1", c)}>
-          <ScrollArea lockBody={lock && p.stage === "L1"} ref={p.refs.l1 as any}>
+          <ScrollArea
+            lockBody={lock && p.stage === "L1"}
+            ref={p.refs.l1 as any}
+            useBottomNavOffset={useBottomNavOffset}
+          >
             {p.isLoading ? (
               <div className={c.skeleton} role="status" aria-live="polite">
                 {t("loading")}
@@ -122,7 +128,11 @@ export const CatalogScreens: React.FC<Props> = (p) => {
           onTouchStart={p.touch.onTouchStart}
           onTouchEnd={p.touch.onTouchEnd}
         >
-          <ScrollArea lockBody={lock && p.stage === "L2"} ref={p.refs.l2 as any}>
+          <ScrollArea
+            lockBody={lock && p.stage === "L2"}
+            ref={p.refs.l2 as any}
+            useBottomNavOffset={useBottomNavOffset}
+          >
             {p.rootCat && (
               <ul className={c.list}>
                 <li
@@ -161,7 +171,11 @@ export const CatalogScreens: React.FC<Props> = (p) => {
           onTouchStart={p.touch.onTouchStart}
           onTouchEnd={p.touch.onTouchEnd}
         >
-          <ScrollArea lockBody={lock && p.stage === "L3"} ref={p.refs.l3 as any}>
+          <ScrollArea
+            lockBody={lock && p.stage === "L3"}
+            ref={p.refs.l3 as any}
+            useBottomNavOffset={useBottomNavOffset}
+          >
             {p.l2Cat && (
               <ul className={c.list}>
                 <li

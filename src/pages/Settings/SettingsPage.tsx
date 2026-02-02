@@ -68,7 +68,7 @@ export default function SettingsPage() {
                 <ScrollArea
                     lockBody={true}
                     className={c.scroll}
-                    bottomOffset="var(--bottom-nav-h, 60px) + var(--bottom-nav-offset, 0px) + env(safe-area-inset-bottom) + var(--bottom-nav-vb, 0px)"
+                    useBottomNavOffset
                 >
                     <section aria-labelledby="settings-account">
                         <h2 id="settings-account" className={c.subtitle}>{t("sections.account")}</h2>

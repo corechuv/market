@@ -62,6 +62,7 @@ export default function MobileCatalogPage() {
             l2: flow.l2ScrollRef,
             l3: flow.l3ScrollRef,
           }}
+          useBottomNavOffset
           touch={{
             onTouchStart: flow.onTouchStart,
             onTouchEnd: flow.onTouchEnd,

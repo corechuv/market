@@ -414,7 +414,7 @@ export default function MobileSearchPage() {
             />
           </MasterBar>
 
-          <ScrollArea bottomOffset={60}>
+          <ScrollArea useBottomNavOffset>
             {activeTab === "products" && (
               <>
                 <SearchResultsList

@@ -14,6 +14,8 @@ type ScrollAreaProps = React.HTMLAttributes<HTMLDivElement> & {
   lockBody?: boolean;
   /** Отступ снизу под нижнюю навигацию (px или CSS-выражение). Необязателен */
   bottomOffset?: number | string;
+  /** Автоматически учитывать нижнюю навигацию */
+  useBottomNavOffset?: boolean;
 };
 
 function mergeRefs<T>(...refs: (React.Ref<T> | undefined)[]) {
@@ -27,7 +29,15 @@ function mergeRefs<T>(...refs: (React.Ref<T> | undefined)[]) {
 }
 
 const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(function ScrollArea(
-  { className, children, lockBody = true, bottomOffset = 0, style, ...rest },
+  {
+    className,
+    children,
+    lockBody = true,
+    bottomOffset = 0,
+    useBottomNavOffset = false,
+    style,
+    ...rest
+  },
   ref
 ) {
   const areaRef = useRef<HTMLDivElement>(null);
@@ -45,6 +55,11 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(function ScrollAr
     return () => releaseBodyLock();
   }, [lockBody]);
 
+  const offsetStr =
+    typeof bottomOffset === "string" ? bottomOffset : `${bottomOffset}px`;
+  const navStr =
+    "var(--bottom-nav-h, 60px) + var(--bottom-nav-offset, 0px) + env(safe-area-inset-bottom) + var(--bottom-nav-vb, 0px)";
+
   return (
     <div
       ref={mergeRefs(areaRef, ref)}
@@ -53,10 +68,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(function ScrollAr
       style={{
         ...style,
         // место под навигацию + учёт клавиатуры, если хочешь
-        paddingBottom:
-          typeof bottomOffset === "string"
-            ? `calc(${bottomOffset} + var(--kb, 0px))`
-            : `calc(${bottomOffset}px + var(--kb, 0px))`,
+        paddingBottom: `calc(${useBottomNavOffset ? navStr : "0px"} + ${offsetStr} + var(--kb, 0px))`,
       }}
       {...rest}
     >
