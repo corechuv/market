@@ -62,7 +62,7 @@ export default function SettingsPage() {
     if (!isMobile) return null;
 
     return (
-        <Page padding={false}>
+        <Page padding={false} className={c.pageMain}>
             <div className={c.page}>
                 <MasterBar title={t("panel.title")} includeBars={false} />
                 <ScrollArea

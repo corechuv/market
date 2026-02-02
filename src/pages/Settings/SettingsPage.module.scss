@@ -1,10 +1,16 @@
 // src/pages/Settings/SettingsPage.module.scss
 @use "../../styles/default_list.module.scss";
 
+.pageMain {
+  padding-bottom: 0;
+  height: var(--vv-h, 100dvh);
+  overflow: hidden;
+}
+
 .page {
   display: flex;
   flex-direction: column;
-  height: var(--vv-h, 100dvh);
+  height: 100%;
   min-height: 0;
   overflow: hidden;
 }

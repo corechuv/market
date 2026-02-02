@@ -5,9 +5,11 @@ import c from "./Page.module.scss"
 type PageProps = {
     children?: React.ReactNode;
     padding?: boolean;
+    className?: string;
+    style?: React.CSSProperties;
 }
 
-export default function Page({ children, padding = true }: PageProps) {
+export default function Page({ children, padding = true, className, style }: PageProps) {
 
     const paddingStyles: React.CSSProperties = {
         paddingLeft: padding ? "var(--page-pad)" : "",
@@ -17,7 +19,10 @@ export default function Page({ children, padding = true }: PageProps) {
     return (
         <>
             {children && (
-                <main className={`${c.main}`} style={paddingStyles}>
+                <main
+                    className={className ? `${c.main} ${className}` : c.main}
+                    style={{ ...paddingStyles, ...style }}
+                >
                     {children}
                 </main>
             )}
