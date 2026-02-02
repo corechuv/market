@@ -12,8 +12,8 @@ import {
 type ScrollAreaProps = React.HTMLAttributes<HTMLDivElement> & {
   /** Блокировать скролл документа при маунте */
   lockBody?: boolean;
-  /** Отступ снизу под нижнюю навигацию (в px). Необязателен */
-  bottomOffset?: number;
+  /** Отступ снизу под нижнюю навигацию (px или CSS-выражение). Необязателен */
+  bottomOffset?: number | string;
 };
 
 function mergeRefs<T>(...refs: (React.Ref<T> | undefined)[]) {
@@ -53,7 +53,10 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(function ScrollAr
       style={{
         ...style,
         // место под навигацию + учёт клавиатуры, если хочешь
-        paddingBottom: `calc(${bottomOffset}px + var(--kb, 0px))`,
+        paddingBottom:
+          typeof bottomOffset === "string"
+            ? `calc(${bottomOffset} + var(--kb, 0px))`
+            : `calc(${bottomOffset}px + var(--kb, 0px))`,
       }}
       {...rest}
     >

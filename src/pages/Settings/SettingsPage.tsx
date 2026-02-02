@@ -63,11 +63,16 @@ export default function SettingsPage() {
 
     return (
         <Page padding={false}>
-            <MasterBar title={t("panel.title")} includeBars={false} />
-            <ScrollArea lockBody={true}>
-                <section aria-labelledby="settings-account">
-                    <h2 id="settings-account" className={c.subtitle}>{t("sections.account")}</h2>
-                    <ul className={c.list}>
+            <div className={c.page}>
+                <MasterBar title={t("panel.title")} includeBars={false} />
+                <ScrollArea
+                    lockBody={true}
+                    className={c.scroll}
+                    bottomOffset="var(--bottom-nav-h, 60px) + var(--bottom-nav-offset, 0px) + env(safe-area-inset-bottom) + var(--bottom-nav-vb, 0px)"
+                >
+                    <section aria-labelledby="settings-account">
+                        <h2 id="settings-account" className={c.subtitle}>{t("sections.account")}</h2>
+                        <ul className={c.list}>
                         <li
                             className={c.list__item}
                             onClick={() => {
@@ -108,9 +113,9 @@ export default function SettingsPage() {
                                 {t("items.security")}
                             </span>
                         </li>
-                    </ul>
-                </section>
-                <section aria-labelledby="settings-theme">
+                        </ul>
+                    </section>
+                    <section aria-labelledby="settings-theme">
                     <h2 id="settings-theme" className={c.subtitle}>{t("sections.theme")}</h2>
                     <ul className={c.list}>
                         <li
@@ -144,8 +149,8 @@ export default function SettingsPage() {
                             </span>
                         </li>
                     </ul>
-                </section>
-                <section aria-labelledby="settings-language">
+                    </section>
+                    <section aria-labelledby="settings-language">
                     <h2 id="settings-language" className={c.subtitle}>{t("sections.language")}</h2>
                     <ul className={c.list}>
                         <li
@@ -176,8 +181,8 @@ export default function SettingsPage() {
                             </span>
                         </li>
                     </ul>
-                </section>
-                <section aria-labelledby="settings-info">
+                    </section>
+                    <section aria-labelledby="settings-info">
                     <h2 id="settings-info" className={c.subtitle}>{t("sections.info")}</h2>
                     <ul className={c.list}>
                         <li
@@ -211,16 +216,17 @@ export default function SettingsPage() {
                             </span>
                         </li>
                     </ul>
-                </section>
-                <h3 className={c.subtitle}></h3>
-                <ul className={c.list}>
-                    <li className={c.list__item} onClick={onLogout}>
-                        <span className={c["list__item--label"]}>
-                            {t("items.logout")}
-                        </span>
-                    </li>
-                </ul>
-            </ScrollArea>
+                    </section>
+                    <h3 className={c.subtitle}></h3>
+                    <ul className={c.list}>
+                        <li className={c.list__item} onClick={onLogout}>
+                            <span className={c["list__item--label"]}>
+                                {t("items.logout")}
+                            </span>
+                        </li>
+                    </ul>
+                </ScrollArea>
+            </div>
         </Page>
     );
 }

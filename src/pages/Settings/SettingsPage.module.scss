@@ -1,2 +1,13 @@
 // src/pages/Settings/SettingsPage.module.scss
 @use "../../styles/default_list.module.scss";
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+}
