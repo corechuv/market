@@ -16,6 +16,8 @@ import { buildAvatarSrc } from "../../utils/avatar";
 import WrapperSkeleton from "../../components/User/Wrapper.Skeleton";
 import type { Profile } from "../../types/user/profile";
 import { useTranslation } from "react-i18next";
+import { useIsMobile } from "../../utils/useIsMobile";
+import { openSettingsPanel } from "../../utils/navEvents";
 
 type TabKey = "videos";
 
@@ -35,6 +37,7 @@ export default function ProfilePage() {
     }>();
     const navigate = useNavigate();
     const { user } = useAuth();
+    const isMobile = useIsMobile(768);
 
     const username = (usernameParam || "").toLowerCase();
 
@@ -205,7 +208,9 @@ export default function ProfilePage() {
                                     size="small"
                                     variant="secondary"
                                     onClick={() =>
-                                        navigate(`/account/settings?back=${backAfter}`)
+                                        isMobile
+                                            ? navigate(`/account/settings?back=${backAfter}`)
+                                            : openSettingsPanel()
                                     }
                                 >
                                     {t("buttons.settings")}

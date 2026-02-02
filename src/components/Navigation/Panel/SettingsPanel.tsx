@@ -1,17 +1,9 @@
 // src/components/Navigation/Panel/SettingsPanel.tsx
 import React, { useEffect, useState } from "react";
 import c from "./SettingsPanel.module.scss";
-import SunIcon from "../../Icons/SunIcon";
-import MoonIcon from "../../Icons/MoonIcon";
 import { useNavigate } from "react-router-dom";
-import AccountIcon from "../../Icons/AccountIcon";
-import NotificationIcon from "../../Icons/NotificationIcon";
 import MasterBar from "../../UI/Bars/MasterBar";
-import AboutIcon from "../../Icons/AboutIcon";
-import HelpSupportIcon from "../../Icons/HelpSupportIcon";
 import { useAuth } from "../../../context/AuthContext";
-import OrdersIcon from "../../Icons/OrdersIcon";
-import AddressIcon from "../../Icons/AddressIcon";
 import {
     applyTheme,
     getInitialTheme,
@@ -92,21 +84,9 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <li
                             className={c.list__item}
                             onClick={() => {
-                                nav("/account/notifications");
-                            }}
-                        >
-                            <NotificationIcon className={c["list__item--icon-left"]} />
-                            <span className={c["list__item--label"]}>
-                                {t("items.notifications")}
-                            </span>
-                        </li>
-                        <li
-                            className={c.list__item}
-                            onClick={() => {
                                 nav("/account/profile/edit");
                             }}
                         >
-                            <AccountIcon className={c["list__item--icon-left"]} />
                             <span className={c["list__item--label"]}>
                                 {t("items.editProfile")}
                             </span>
@@ -117,7 +97,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 nav("/account/orders");
                             }}
                         >
-                            <OrdersIcon className={c["list__item--icon-left"]} />
                             <span className={c["list__item--label"]}>
                                 {t("items.orders")}
                             </span>
@@ -128,7 +107,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 nav("/account/addresses");
                             }}
                         >
-                            <AddressIcon className={c["list__item--icon-left"]} />
                             <span className={c["list__item--label"]}>
                                 {t("items.addresses")}
                             </span>
@@ -139,7 +117,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 nav("/account/security");
                             }}
                         >
-                            <svg className={c["list__item--icon-left"]}></svg>
                             <span className={c["list__item--label"]}>
                                 {t("items.security")}
                             </span>
@@ -156,7 +133,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 setTheme("light");
                             }}
                         >
-                            <SunIcon className={c["list__item--icon-left"]} />
                             <span
                                 className={c["list__item--label"]}
                                 aria-label={t("theme.light")}
@@ -172,7 +148,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 setTheme("dark");
                             }}
                         >
-                            <MoonIcon className={c["list__item--icon-left"]} />
                             <span
                                 className={c["list__item--label"]}
                                 aria-label={t("theme.dark")}
@@ -191,7 +166,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             aria-checked={lang === "en"}
                             onClick={() => handleChangeLanguage("en")}
                         >
-                            <svg className={c["list__item--icon-left"]}></svg>
                             <span className={c["list__item--label"]}>
                                 {t("languages.en")}
                             </span>
@@ -202,7 +176,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             aria-checked={lang === "ru"}
                             onClick={() => handleChangeLanguage("ru")}
                         >
-                            <svg className={c["list__item--icon-left"]}></svg>
                             <span className={c["list__item--label"]}>
                                 {t("languages.ru")}
                             </span>
@@ -213,7 +186,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             aria-checked={lang === "de"}
                             onClick={() => handleChangeLanguage("de")}
                         >
-                            <svg className={c["list__item--icon-left"]}></svg>
                             <span className={c["list__item--label"]}>
                                 {t("languages.de")}
                             </span>
@@ -229,7 +201,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 nav("/about");
                             }}
                         >
-                            <AboutIcon className={c["list__item--icon-left"]} />
                             <span className={c["list__item--label"]}>
                                 {t("items.about")}
                             </span>
@@ -240,7 +211,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 nav("/help");
                             }}
                         >
-                            <HelpSupportIcon className={c["list__item--icon-left"]} />
                             <span className={c["list__item--label"]}>
                                 {t("items.help")}
                             </span>
@@ -251,7 +221,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 nav("/legal");
                             }}
                         >
-                            <svg className={c["list__item--icon-left"]}></svg>
                             <span className={c["list__item--label"]}>
                                 {t("items.legal")}
                             </span>
@@ -261,7 +230,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     <h3 className={c.subtitle}></h3>
                     <ul className={c.list}>
                         <li className={c.list__item} onClick={onLogout}>
-                            <svg className={c["list__item--icon-left"]}></svg>
                             <span className={c["list__item--label"]}>
                                 {t("items.logout")}
                             </span>

@@ -22,6 +22,7 @@ import SettingsPanel from "./Panel/SettingsPanel";
 import CatalogPanel from "./Panel/CatalogPanel";
 import HamburgerIcon from "../Icons/HamburgerIcon";
 import { buildAvatarSrc } from "../../utils/avatar";
+import { NAV_OPEN_SETTINGS } from "../../utils/navEvents";
 
 export interface Props {
   className?: string;
@@ -60,6 +61,14 @@ const Navigation: FC<Props> = ({ className, hideOnMobile }) => {
   );
 
   const [activePanel, setActivePanel] = useState<PanelId | null>(null);
+
+  useEffect(() => {
+    const onOpenSettings = () => setActivePanel("settings");
+    window.addEventListener(NAV_OPEN_SETTINGS, onOpenSettings as EventListener);
+    return () => {
+      window.removeEventListener(NAV_OPEN_SETTINGS, onOpenSettings as EventListener);
+    };
+  }, []);
 
   // абсолютный URL аватара + cache-buster по updatedAt
   const avatarSrc = useMemo(

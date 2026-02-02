@@ -1,20 +1,14 @@
 // src/pages/Settings/SettingsPage.tsx
 import "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import c from "./SettingsPage.module.scss";
 
 import Page from "../../components/UI/Page/Page";
 import { useVisualViewport } from "../../hooks/useViewportUnits";
 import MasterBar from "../../components/UI/Bars/MasterBar";
 import ScrollArea from "../../components/UI/ScrollArea/ScrollArea";
-import SunIcon from "../../components/Icons/SunIcon";
-import MoonIcon from "../../components/Icons/MoonIcon";
-import AboutIcon from "../../components/Icons/AboutIcon";
-import HelpSupportIcon from "../../components/Icons/HelpSupportIcon";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import OrdersIcon from "../../components/Icons/OrdersIcon";
-import AddressIcon from "../../components/Icons/AddressIcon";
 import {
     applyTheme,
     getInitialTheme,
@@ -23,12 +17,23 @@ import {
 import { useLang } from "../../context/LangContext";
 import type { AppLanguage } from "../../utils/lang/lang";
 import { useTranslation } from "react-i18next";
+import { useIsMobile } from "../../utils/useIsMobile";
+import { openSettingsPanel } from "../../utils/navEvents";
 
 export default function SettingsPage() {
     useVisualViewport();
     const nav = useNavigate();
+    const location = useLocation();
     const { logout } = useAuth();
     const { t } = useTranslation("settings");
+    const isMobile = useIsMobile(768);
+
+    useEffect(() => {
+        if (isMobile) return;
+        const back = new URLSearchParams(location.search).get("back") || "/account";
+        openSettingsPanel();
+        nav(back, { replace: true });
+    }, [isMobile, location.search, nav]);
 
     async function onLogout() {
         try {
@@ -54,6 +59,8 @@ export default function SettingsPage() {
         window.location.reload();
     };
 
+    if (!isMobile) return null;
+
     return (
         <Page padding={false}>
             <MasterBar title={t("panel.title")} includeBars={false} />
@@ -64,21 +71,9 @@ export default function SettingsPage() {
                         <li
                             className={c.list__item}
                             onClick={() => {
-                                nav("/account/notifications");
-                            }}
-                        >
-                            <svg className={c["list__item--icon-left"]} />
-                            <span className={c["list__item--label"]}>
-                                {t("items.notifications")}
-                            </span>
-                        </li>
-                        <li
-                            className={c.list__item}
-                            onClick={() => {
                                 nav("/account/profile/edit");
                             }}
                         >
-                            <svg className={c["list__item--icon-left"]} />
                             <span className={c["list__item--label"]}>
                                 {t("items.editProfile")}
                             </span>
@@ -89,7 +84,6 @@ export default function SettingsPage() {
                                 nav("/account/orders");
                             }}
                         >
-                            <OrdersIcon className={c["list__item--icon-left"]} />
                             <span className={c["list__item--label"]}>
                                 {t("items.orders")}
                             </span>
@@ -100,7 +94,6 @@ export default function SettingsPage() {
                                 nav("/account/addresses");
                             }}
                         >
-                            <AddressIcon className={c["list__item--icon-left"]} />
                             <span className={c["list__item--label"]}>
                                 {t("items.addresses")}
                             </span>
@@ -111,7 +104,6 @@ export default function SettingsPage() {
                                 nav("/account/security");
                             }}
                         >
-                            <svg className={c["list__item--icon-left"]}></svg>
                             <span className={c["list__item--label"]}>
                                 {t("items.security")}
                             </span>
@@ -128,7 +120,6 @@ export default function SettingsPage() {
                                 setTheme("light");
                             }}
                         >
-                            <SunIcon className={c["list__item--icon-left"]} />
                             <span
                                 className={c["list__item--label"]}
                                 aria-label={t("theme.light")}
@@ -144,7 +135,6 @@ export default function SettingsPage() {
                                 setTheme("dark");
                             }}
                         >
-                            <MoonIcon className={c["list__item--icon-left"]} />
                             <span
                                 className={c["list__item--label"]}
                                 aria-label={t("theme.dark")}
@@ -163,7 +153,6 @@ export default function SettingsPage() {
                             aria-checked={lang === "en"}
                             onClick={() => handleChangeLanguage("en")}
                         >
-                            <svg className={c["list__item--icon-left"]}></svg>
                             <span className={c["list__item--label"]}>
                                 {t("languages.en")}
                             </span>
@@ -173,7 +162,6 @@ export default function SettingsPage() {
                             aria-checked={lang === "ru"}
                             onClick={() => handleChangeLanguage("ru")}
                         >
-                            <svg className={c["list__item--icon-left"]}></svg>
                             <span className={c["list__item--label"]}>
                                 {t("languages.ru")}
                             </span>
@@ -183,7 +171,6 @@ export default function SettingsPage() {
                             aria-checked={lang === "de"}
                             onClick={() => handleChangeLanguage("de")}
                         >
-                            <svg className={c["list__item--icon-left"]}></svg>
                             <span className={c["list__item--label"]}>
                                 {t("languages.de")}
                             </span>
@@ -199,7 +186,6 @@ export default function SettingsPage() {
                                 nav("/about");
                             }}
                         >
-                            <AboutIcon className={c["list__item--icon-left"]} />
                             <span className={c["list__item--label"]}>
                                 {t("items.about")}
                             </span>
@@ -210,7 +196,6 @@ export default function SettingsPage() {
                                 nav("/help");
                             }}
                         >
-                            <HelpSupportIcon className={c["list__item--icon-left"]} />
                             <span className={c["list__item--label"]}>
                                 {t("items.help")}
                             </span>
@@ -221,7 +206,6 @@ export default function SettingsPage() {
                                 nav("/legal");
                             }}
                         >
-                            <svg className={c["list__item--icon-left"]}></svg>
                             <span className={c["list__item--label"]}>
                                 {t("items.legal")}
                             </span>
@@ -231,7 +215,6 @@ export default function SettingsPage() {
                 <h3 className={c.subtitle}></h3>
                 <ul className={c.list}>
                     <li className={c.list__item} onClick={onLogout}>
-                        <svg className={c["list__item--icon-left"]}></svg>
                         <span className={c["list__item--label"]}>
                             {t("items.logout")}
                         </span>
