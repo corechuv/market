@@ -143,6 +143,7 @@ export default function ReelsLightbox({
   // клавиатура (десктоп)
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (isOpen) return;
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
       if (e.key === "Escape") onClose();
@@ -162,12 +163,12 @@ export default function ReelsLightbox({
     };
     window.addEventListener("keydown", onKey, { passive: true });
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose, ensureSoundUnlocked, unmuteCurrentNow, hasNext, hasPrev, busy, index, items]);
+  }, [isOpen, onClose, ensureSoundUnlocked, unmuteCurrentNow, hasNext, hasPrev, busy, index, items]);
 
   // колесо — аккумулируем
   const wheelAgg = React.useRef({ sum: 0, lastTs: 0 });
   const onWheel = (e: React.WheelEvent) => {
-    if (busy || anim.running || dragRef.current.active) return;
+    if (isOpen || busy || anim.running || dragRef.current.active) return;
     const now = performance.now();
     const h = shellRef.current?.clientHeight || window.innerHeight || 800;
 
@@ -237,7 +238,7 @@ export default function ReelsLightbox({
 
   // ====== pointer-свайп (drag) ======
   const onPointerDown = (e: React.PointerEvent) => {
-    if (busy || anim.running) return;
+    if (isOpen || busy || anim.running) return;
     ensureSoundUnlocked();
     if (cur) unmuteCurrentNow(cur.review.id);
 
@@ -254,6 +255,7 @@ export default function ReelsLightbox({
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
+    if (isOpen) return;
     const st = dragRef.current;
     if (!st.active || e.pointerId !== st.id) return;
     st.y = e.clientY;
@@ -273,6 +275,7 @@ export default function ReelsLightbox({
   };
 
   const onPointerEnd = (e: React.PointerEvent) => {
+    if (isOpen) return;
     const st = dragRef.current;
     if (!st.active || e.pointerId !== st.id) return;
     dragRef.current.active = false;
@@ -380,6 +383,7 @@ export default function ReelsLightbox({
       aria-modal="true"
       onWheel={onWheel}
       onPointerDown={() => {
+        if (isOpen) return;
         ensureSoundUnlocked();
         if (cur) unmuteCurrentNow(cur.review.id);
       }}
@@ -398,7 +402,7 @@ export default function ReelsLightbox({
             if (cur) unmuteCurrentNow(cur.review.id);
             if (hasPrev) snapTo(100);
           }}
-          disabled={!hasPrev || busy || anim.running}
+          disabled={isOpen || !hasPrev || busy || anim.running}
           aria-label="Previous (Up)"
         >
           <ArrowTopIcon />
@@ -410,7 +414,7 @@ export default function ReelsLightbox({
             if (cur) unmuteCurrentNow(cur.review.id);
             if (hasNext) snapTo(-100);
           }}
-          disabled={!hasNext || busy || anim.running}
+          disabled={isOpen || !hasNext || busy || anim.running}
           aria-label="Next (Down)"
         >
           <ArrowBottomIcon />
@@ -420,7 +424,7 @@ export default function ReelsLightbox({
       <div
         className={styles.shell}
         ref={shellRef}
-        onWheel={onWheel}
+        onWheel={(e) => { e.stopPropagation(); onWheel(e); }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerEnd}
@@ -523,7 +527,11 @@ export default function ReelsLightbox({
             </div>
           </div>
 
-          <div className={styles.bar__right} aria-label="Actions">
+          <div
+            className={styles.bar__right}
+            aria-label="Actions"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
             <button
               className={clsx(styles.meta__btn, helpful.mine && styles["meta__btn--active"])}
               onClick={(e) => { e.stopPropagation(); toggleHelpful(); }}

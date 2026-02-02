@@ -17,41 +17,50 @@ function lockBodyScroll() {
   const body = document.body;
 
   if (__lockCount === 0) {
-    const scrollY =
-      window.scrollY || document.documentElement.scrollTop || 0;
-    const scrollbarW = window.innerWidth - html.clientWidth;
+    const htmlStyle = getComputedStyle(html);
+    const bodyStyle = getComputedStyle(body);
+    const alreadyLocked =
+      bodyStyle.position === 'fixed' || htmlStyle.overflow === 'hidden';
 
-    const prev = {
-      htmlOverflow: html.style.overflow,
-      bodyPosition: body.style.position,
-      bodyTop: body.style.top,
-      bodyWidth: body.style.width,
-      bodyPaddingRight: body.style.paddingRight,
-      scrollY,
-    };
+    if (alreadyLocked) {
+      __restore = () => { __restore = null; };
+    } else {
+      const scrollY =
+        window.scrollY || document.documentElement.scrollTop || 0;
+      const scrollbarW = window.innerWidth - html.clientWidth;
 
-    // Блокируем фон без «просачиваний» на iOS
-    html.style.overflow = 'hidden';
-    body.style.position = 'fixed';
-    body.style.top = `-${scrollY}px`;
-    body.style.width = '100%';
+      const prev = {
+        htmlOverflow: html.style.overflow,
+        bodyPosition: body.style.position,
+        bodyTop: body.style.top,
+        bodyWidth: body.style.width,
+        bodyPaddingRight: body.style.paddingRight,
+        scrollY,
+      };
 
-    // Компенсация исчезнувшего скроллбара
-    if (scrollbarW > 0) {
-      const currentPadding =
-        parseFloat(getComputedStyle(body).paddingRight || '0') || 0;
-      body.style.paddingRight = `${currentPadding + scrollbarW}px`;
+      // Блокируем фон без «просачиваний» на iOS
+      html.style.overflow = 'hidden';
+      body.style.position = 'fixed';
+      body.style.top = `-${scrollY}px`;
+      body.style.width = '100%';
+
+      // Компенсация исчезнувшего скроллбара
+      if (scrollbarW > 0) {
+        const currentPadding =
+          parseFloat(getComputedStyle(body).paddingRight || '0') || 0;
+        body.style.paddingRight = `${currentPadding + scrollbarW}px`;
+      }
+
+      __restore = () => {
+        html.style.overflow = prev.htmlOverflow;
+        body.style.position = prev.bodyPosition;
+        body.style.top = prev.bodyTop;
+        body.style.width = prev.bodyWidth;
+        body.style.paddingRight = prev.bodyPaddingRight;
+        window.scrollTo(0, prev.scrollY);
+        __restore = null;
+      };
     }
-
-    __restore = () => {
-      html.style.overflow = prev.htmlOverflow;
-      body.style.position = prev.bodyPosition;
-      body.style.top = prev.bodyTop;
-      body.style.width = prev.bodyWidth;
-      body.style.paddingRight = prev.bodyPaddingRight;
-      window.scrollTo(0, prev.scrollY);
-      __restore = null;
-    };
   }
 
   __lockCount++;

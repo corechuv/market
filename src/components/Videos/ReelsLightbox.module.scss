@@ -3,7 +3,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 9000;
   display: grid;
   padding-top: 60px;
   --reels-bottom: calc(
@@ -12,7 +12,7 @@
       + env(safe-area-inset-bottom)
       + var(--bottom-nav-vb, 0px)
   );
-  padding-bottom: var(--reels-bottom);
+  padding-bottom: max(60px, var(--reels-bottom));
   place-items: center;
 
   @media screen and (max-width: 768px) {
@@ -119,8 +119,8 @@
 
 .closeBtn {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: max(8px, env(safe-area-inset-top));
+  right: max(8px, env(safe-area-inset-right));
   padding: 16px;
   background-color: transparent;
   border: none;
@@ -130,10 +130,6 @@
   z-index: 4;
 
   svg { width: 28px; height: 28px; }
-
-  @media screen and (max-width: 768px) {
-    display: none;
-  }
 }
 
 /* уважим системные настройки — отключим анимацию при reduced motion */
