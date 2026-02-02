@@ -13,6 +13,7 @@ import Modal from "../Modal/Modal";
 import MenuList, { type MenuListItem } from "../UI/MenuList/MenuList";
 import { ReelsAudio } from "../../utils/reelsAudio";
 import { useAuth } from "../../context/AuthContext";
+import { useIsMobile } from "../../utils/useIsMobile";
 
 type Item = {
   review: ReviewOut;
@@ -83,6 +84,7 @@ export default function ReelsLightbox({
   onIndexChange,
 }: Props) {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const isMobile = useIsMobile(768);
   useBodyScrollLock(true);
 
   const [index, setIndex] = React.useState(startIndex);
@@ -422,37 +424,41 @@ export default function ReelsLightbox({
       }}
     >
       <button className={styles.backdrop} aria-label="Close" onClick={onClose} />
-      <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
-        <CloseIcon />
-      </button>
+      {!isMobile && (
+        <>
+          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
+            <CloseIcon />
+          </button>
 
-      {/* стрелки (desktop) */}
-      <div className={styles.navV}>
-        <button
-          className={styles.navBtn}
-          onClick={() => {
-            ensureSoundUnlocked();
-            if (cur) unmuteCurrentNow(cur.review.id);
-            if (hasPrev) snapTo(100);
-          }}
-          disabled={isOpen || !hasPrev || busy || anim.running}
-          aria-label="Previous (Up)"
-        >
-          <ArrowTopIcon />
-        </button>
-        <button
-          className={styles.navBtn}
-          onClick={() => {
-            ensureSoundUnlocked();
-            if (cur) unmuteCurrentNow(cur.review.id);
-            if (hasNext) snapTo(-100);
-          }}
-          disabled={isOpen || !hasNext || busy || anim.running}
-          aria-label="Next (Down)"
-        >
-          <ArrowBottomIcon />
-        </button>
-      </div>
+          {/* стрелки (desktop) */}
+          <div className={styles.navV}>
+            <button
+              className={styles.navBtn}
+              onClick={() => {
+                ensureSoundUnlocked();
+                if (cur) unmuteCurrentNow(cur.review.id);
+                if (hasPrev) snapTo(100);
+              }}
+              disabled={isOpen || !hasPrev || busy || anim.running}
+              aria-label="Previous (Up)"
+            >
+              <ArrowTopIcon />
+            </button>
+            <button
+              className={styles.navBtn}
+              onClick={() => {
+                ensureSoundUnlocked();
+                if (cur) unmuteCurrentNow(cur.review.id);
+                if (hasNext) snapTo(-100);
+              }}
+              disabled={isOpen || !hasNext || busy || anim.running}
+              aria-label="Next (Down)"
+            >
+              <ArrowBottomIcon />
+            </button>
+          </div>
+        </>
+      )}
 
       <div
         className={styles.shell}
