@@ -8,11 +8,11 @@ import CloseIcon from "../Icons/CloseIcon";
 import HeartIcon from "../Icons/HeartIcon";
 import ArrowBottomIcon from "../Icons/ArrowBottomIcon";
 import ArrowTopIcon from "../Icons/ArrowTopIcon";
-import LinkIcon from "../Icons/LinkIcon";
 import MoreHorizontalIcon from "../Icons/MoreHorizontalIcon";
 import Modal from "../Modal/Modal";
-import Button from "../UI/Button";
+import MenuList, { type MenuListItem } from "../UI/MenuList/MenuList";
 import { ReelsAudio } from "../../utils/reelsAudio";
+import { useAuth } from "../../context/AuthContext";
 
 type Item = {
   review: ReviewOut;
@@ -82,6 +82,7 @@ export default function ReelsLightbox({
   onClose,
   onIndexChange,
 }: Props) {
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   useBodyScrollLock(true);
 
   const [index, setIndex] = React.useState(startIndex);
@@ -106,6 +107,13 @@ export default function ReelsLightbox({
   const prevItem = hasPrev ? items[index - 1] : null;
   const cur = items[index];
   const nextItem = hasNext ? items[index + 1] : null;
+  const myId = (user as any)?.id ?? (user as any)?.user?.id ?? (user as any)?.customerId ?? null;
+  const canDelete =
+    !!myId &&
+    !authLoading &&
+    isAuthenticated &&
+    !!cur?.review?.authorId &&
+    String(cur.review.authorId) === String(myId);
 
   // ===== свайп/drag =====
   const shellRef = React.useRef<HTMLDivElement | null>(null);
@@ -360,6 +368,31 @@ export default function ReelsLightbox({
 
   if (!cur) return null;
 
+  const menuItems: MenuListItem[] = [
+    {
+      key: "share",
+      label: "Share",
+      onSelect: () => {
+        setIsOpen(false);
+        onShare();
+      },
+    },
+    ...(canDelete
+      ? [
+          {
+            key: "delete",
+            label: "Delete",
+            tone: "danger",
+            onSelect: () => {
+              setIsOpen(false);
+              onDelete(cur.review.id);
+            },
+          } as MenuListItem,
+        ]
+      : []),
+  ];
+  const canOpenMenu = menuItems.length > 0;
+
   // финальный translateY сцены:
   const sceneTranslatePct = anim.running ? -100 + anim.toPct : -100 + dragPct;
 
@@ -542,30 +575,24 @@ export default function ReelsLightbox({
               <HeartIcon fill="white" />
               <span className={styles["meta__btn--count"]}>{helpful.count}</span>
             </button>
-            <button
-              className={styles.meta__btn}
-              onClick={(e) => { e.stopPropagation(); onShare(); }}
-              aria-label="Share"
-              title="Share"
-            >
-              <LinkIcon />
-            </button>
-            <button
-              className={styles.meta__btn}
-              onClick={(e) => { e.stopPropagation(); setIsOpen(true); }}
-              aria-label="More"
-              title="More"
-            >
-              <MoreHorizontalIcon />
-            </button>
+            {canOpenMenu && (
+              <button
+                className={styles.meta__btn}
+                onClick={(e) => { e.stopPropagation(); setIsOpen(true); }}
+                aria-label="More"
+                title="More"
+              >
+                <MoreHorizontalIcon />
+              </button>
+            )}
           </div>
         </div>
 
-        <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} variant="center">
-          <Button variant="link" onClick={() => onDelete(cur.review.id)}>
-            Delete
-          </Button>
-        </Modal>
+        {canOpenMenu && (
+          <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} variant="center" bodyStyles>
+            <MenuList items={menuItems} role="menu" ariaLabel="Video actions" />
+          </Modal>
+        )}
       </div>
     </div>
   );

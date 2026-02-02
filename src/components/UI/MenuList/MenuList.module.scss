@@ -1,0 +1,21 @@
+// src/components/UI/MenuList/MenuList.module.scss
+@use "../../../styles/default_list.module.scss";
+
+.list {
+  padding: 6px 0;
+}
+
+.danger {
+  color: var(--red);
+}
+
+.danger .list__item--label,
+.danger .list__item--icon-left,
+.danger .list__item--icon-right {
+  color: var(--red);
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
