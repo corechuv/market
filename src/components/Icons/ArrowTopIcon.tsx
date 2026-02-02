@@ -16,7 +16,7 @@ export default function ArrowTopIcon(
             <path
                 d="M6 15l6-6 6 6"
                 stroke="currentColor"
-                strokeWidth="1"
+                strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
             />
