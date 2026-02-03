@@ -25,4 +25,5 @@ export type ReviewOut = {
   media: ReviewMedia[];
   helpfulCount: number;
   helpfulByMe?: boolean | null;
+  viewsCount: number;
 };

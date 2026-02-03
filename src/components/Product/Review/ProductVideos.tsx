@@ -72,6 +72,7 @@ export default function ProductVideos({
         id: it.review.id,
         poster: it.poster,
         title: it.review.text,
+        viewsCount: it.review.viewsCount,
         onClick: () => {
             ReelsAudio.unlock();
             setStartIndex(i);

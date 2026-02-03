@@ -7,6 +7,7 @@ export type VideoItem = {
   id: string | number;
   poster?: string;
   title?: string | null;
+  viewsCount?: number;
   onClick?: () => void;
 };
 
@@ -45,7 +46,12 @@ const VideoCarousel: React.FC<VideoCarouselProps> = ({
       label={label}
       getKey={(it) => it.id}
       renderItem={({ item }) => (
-        <VideoCard poster={item.poster} title={item.title} onClick={item.onClick} />
+        <VideoCard
+          poster={item.poster}
+          title={item.title}
+          viewsCount={item.viewsCount}
+          onClick={item.onClick}
+        />
       )}
     />
   );

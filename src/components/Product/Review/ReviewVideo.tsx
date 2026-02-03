@@ -5,6 +5,7 @@ import styles from './ReviewVideo.module.scss';
 import VolumeOffIcon from '../../Icons/VolumeOffIcon';
 import VolumeOnIcon from '../../Icons/VolumeOnIcon';
 import { ReelsAudio } from '../../../utils/reelsAudio';
+import { recordReviewView } from '../../../services/reviewApi';
 
 type ReviewType = 'plain' | 'reel';
 
@@ -70,6 +71,9 @@ export const ReviewVideo: React.FC<Props> = ({
   const [duration, setDuration] = useState<number>(0);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [bufferedEnd, setBufferedEnd] = useState<number>(0);
+  const viewTrackedRef = useRef(false);
+  const playedSecRef = useRef(0);
+  const lastTimeRef = useRef(0);
 
   const wasPlayingBeforeHide = useRef(false);
   const retryPlayTimer = useRef<number | null>(null);
@@ -281,7 +285,27 @@ export const ReviewVideo: React.FC<Props> = ({
       emit('reels:ended', { reviewId });
     };
     const onLoadedMeta = () => setDuration(Number.isFinite(video.duration) ? video.duration : 0);
-    const onTimeUpdate = () => setCurrentTime(video.currentTime);
+    const onTimeUpdate = () => {
+      const t = video.currentTime;
+      setCurrentTime(t);
+
+      // аккуратный подсчёт реального времени просмотра (без мгновенных скрабов)
+      const delta = t - lastTimeRef.current;
+      lastTimeRef.current = t;
+
+      if (!video.paused && delta > 0) {
+        playedSecRef.current += Math.min(delta, 1.5);
+      }
+
+      if (
+        !viewTrackedRef.current &&
+        activeRef.current &&
+        playedSecRef.current >= 3
+      ) {
+        viewTrackedRef.current = true;
+        recordReviewView(reviewId, Math.round(playedSecRef.current * 1000)).catch(() => { });
+      }
+    };
     const onProgress = () => {
       try {
         const b = video.buffered;
@@ -384,6 +408,12 @@ export const ReviewVideo: React.FC<Props> = ({
       if (!v.paused) v.pause();
     }
   }, [active, autoPlay, playSafely, tryUnmute]);
+
+  useEffect(() => {
+    viewTrackedRef.current = false;
+    playedSecRef.current = 0;
+    lastTimeRef.current = 0;
+  }, [reviewId]);
 
 
   // синхронизация mute (отдельный маленький эффект — без пересоздания источника)

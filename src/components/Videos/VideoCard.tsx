@@ -1,14 +1,17 @@
 // src/components/Videos/VideoCard.tsx
 import React from "react";
 import cls from "./VideoCard.module.scss";
+import { formatViewsCount } from "../../utils/formatViews";
 
 export type VideoCardProps = {
     poster?: string;
     title?: string | null;
+    viewsCount?: number;
     onClick?: () => void;
 };
 
-const VideoCard: React.FC<VideoCardProps> = ({ poster, title, onClick }) => {
+const VideoCard: React.FC<VideoCardProps> = ({ poster, title, viewsCount, onClick }) => {
+    const safeViews = typeof viewsCount === "number" ? viewsCount : 0;
     return (
         <article className={cls.item} onClick={onClick} role={onClick ? "button" : undefined} tabIndex={onClick ? 0 : -1}>
             <div className={cls.item__preview} aria-hidden>
@@ -17,6 +20,9 @@ const VideoCard: React.FC<VideoCardProps> = ({ poster, title, onClick }) => {
                 ) : (
                     <div className={cls["item__preview--placeholder"]}>Processing…</div>
                 )}
+                <div className={cls.item__views} aria-label={`Views: ${safeViews}`}>
+                    {formatViewsCount(safeViews)}
+                </div>
             </div>
             {title ? <div className={cls.item__title} title={title}>{title}</div> : null}
         </article>

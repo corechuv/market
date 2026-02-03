@@ -94,6 +94,42 @@ export async function setReviewHelpful(
   return r.json();
 }
 
+const VIEWER_ID_KEY = "mp_viewer_id";
+
+function getViewerId(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const existing = localStorage.getItem(VIEWER_ID_KEY);
+    if (existing) return existing;
+    const generated =
+      (typeof crypto !== "undefined" && "randomUUID" in crypto && crypto.randomUUID())
+        ? crypto.randomUUID()
+        : `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+    localStorage.setItem(VIEWER_ID_KEY, generated);
+    return generated;
+  } catch {
+    return null;
+  }
+}
+
+export async function recordReviewView(
+  reviewId: string,
+  watchedMs?: number
+): Promise<{ viewsCount: number; accepted: boolean }> {
+  const viewerId = getViewerId();
+  const r = await fetch(`${API}/reviews/${reviewId}/view`, {
+    method: "POST",
+    headers: buildHeaders("application/json"),
+    credentials: "omit",
+    body: JSON.stringify({ viewerId, watchedMs }),
+  });
+  if (!r.ok) {
+    const t = await r.text().catch(() => "");
+    throw new Error(`Record view failed: ${r.status} ${t}`);
+  }
+  return r.json();
+}
+
 // постер для Mux HLS или плейсхолдера mux:upload:{id}
 export function posterFromMediaUrl(url: string | undefined): string | undefined {
   if (!url) return;

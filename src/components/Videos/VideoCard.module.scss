@@ -30,6 +30,17 @@
         }
     }
 
+    &__views {
+        position: absolute;
+        left: 14px;
+        bottom: 12px;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1;
+        text-shadow: 0 0 8px rgba(0, 0, 0, 0.231372549);
+    }
+
     &__title {
         padding: 6px 3px;
         color: var(--text);

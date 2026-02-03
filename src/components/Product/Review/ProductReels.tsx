@@ -8,6 +8,7 @@ import styles from "./ProductReels.module.scss";
 import ReelsLightbox from "../../Videos/ReelsLightbox";
 import Preloader from "../../UI/Preloader/Preloader";
 import RatingBadge from "../../Rating/RatingBadge";
+import { formatViewsCount } from "../../../utils/formatViews";
 
 type Props = {
   productId: string;
@@ -68,6 +69,12 @@ export default function ProductReels({ productId, limit = 12, className }: Props
                     <Preloader sweepDeg={240} label="Processing.." />
                   </div>
                 )}
+                <div
+                  className={styles.list__views}
+                  aria-label={`Views: ${typeof it.review.viewsCount === "number" ? it.review.viewsCount : 0}`}
+                >
+                  {formatViewsCount(it.review.viewsCount)}
+                </div>
               </div>
               <div className={styles["list__item--caption"]}>
                 <RatingBadge ratingValue={it.review.rating} count={false} reviewCount={0} />

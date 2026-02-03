@@ -5,6 +5,7 @@ import styles from "./Videos.module.scss";
 import type { ReviewOut } from "../../../types/review/review";
 import { posterFromMediaUrl } from "../../../services/reviewApi";
 import ReelsLightbox from "../../Videos/ReelsLightbox";
+import { formatViewsCount } from "../../../utils/formatViews";
 
 type Props = {
     items: ReviewOut[];
@@ -82,6 +83,12 @@ export default function ReelsGrid({ items, emptyText, onItemClick, layout = "def
                                             Processing…
                                         </div>
                                     )}
+                                    <div
+                                        className={styles.list__views}
+                                        aria-label={`Views: ${typeof it.review.viewsCount === "number" ? it.review.viewsCount : 0}`}
+                                    >
+                                        {formatViewsCount(it.review.viewsCount)}
+                                    </div>
                                 </div>
                             </button>
                         </div>
