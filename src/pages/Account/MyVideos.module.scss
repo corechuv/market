@@ -72,5 +72,18 @@
         font-weight: 500;
         line-height: 1;
         text-shadow: 0 0 8px rgba(0, 0, 0, 0.231372549);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    &__viewsIcon {
+        width: 14px;
+        height: 14px;
+        flex: 0 0 auto;
+    }
+
+    &__viewsText {
+        display: inline-block;
     }
 }

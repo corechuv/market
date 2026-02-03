@@ -9,6 +9,7 @@ import ReelsLightbox from "../../Videos/ReelsLightbox";
 import Preloader from "../../UI/Preloader/Preloader";
 import RatingBadge from "../../Rating/RatingBadge";
 import { formatViewsCount } from "../../../utils/formatViews";
+import PlayIcon from "../../Icons/PlayIcon";
 
 type Props = {
   productId: string;
@@ -73,7 +74,10 @@ export default function ProductReels({ productId, limit = 12, className }: Props
                   className={styles.list__views}
                   aria-label={`Views: ${typeof it.review.viewsCount === "number" ? it.review.viewsCount : 0}`}
                 >
-                  {formatViewsCount(it.review.viewsCount)}
+                  <PlayIcon className={styles.list__viewsIcon} />
+                  <span className={styles.list__viewsText}>
+                    {formatViewsCount(it.review.viewsCount)}
+                  </span>
                 </div>
               </div>
               <div className={styles["list__item--caption"]}>
