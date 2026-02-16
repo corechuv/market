@@ -7,6 +7,7 @@ import { listMyReels, posterFromMediaUrl } from "../../services/reviewApi";
 import type { ReviewOut } from "../../types/review/review";
 import { formatViewsCount } from "../../utils/formatViews";
 import PlayIcon from "../../components/Icons/PlayIcon";
+import viewsStyles from "../../styles/videos.module.scss";
 
 export default function MyVideos() {
     const [items, setItems] = React.useState<ReviewOut[]>([]);
@@ -66,11 +67,11 @@ export default function MyVideos() {
                                         <div className={styles["list__preview--placeholder"]}>Processing…</div>
                                     )}
                                     <div
-                                        className={styles.list__views}
+                                        className={viewsStyles.list__views}
                                         aria-label={`Views: ${typeof it.review.viewsCount === "number" ? it.review.viewsCount : 0}`}
                                     >
-                                        <PlayIcon className={styles.list__viewsIcon} />
-                                        <span className={styles.list__viewsText}>
+                                        <PlayIcon className={viewsStyles.list__viewsIcon} />
+                                        <span className={viewsStyles.list__viewsText}>
                                             {formatViewsCount(it.review.viewsCount)}
                                         </span>
                                     </div>

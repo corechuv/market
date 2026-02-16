@@ -3,6 +3,7 @@ import React from "react";
 import cls from "./VideoCard.module.scss";
 import { formatViewsCount } from "../../utils/formatViews";
 import PlayIcon from "../Icons/PlayIcon";
+import viewsStyles from "../../styles/videos.module.scss";
 
 export type VideoCardProps = {
     poster?: string;
@@ -21,9 +22,9 @@ const VideoCard: React.FC<VideoCardProps> = ({ poster, title, viewsCount, onClic
                 ) : (
                     <div className={cls["item__preview--placeholder"]}>Processing…</div>
                 )}
-                <div className={cls.item__views} aria-label={`Views: ${safeViews}`}>
-                    <PlayIcon className={cls.item__viewsIcon} />
-                    <span className={cls.item__viewsText}>{formatViewsCount(safeViews)}</span>
+                <div className={viewsStyles.list__views} aria-label={`Views: ${safeViews}`}>
+                    <PlayIcon className={viewsStyles.list__viewsIcon} />
+                    <span className={viewsStyles.list__viewsText}>{formatViewsCount(safeViews)}</span>
                 </div>
             </div>
             {title ? <div className={cls.item__title} title={title}>{title}</div> : null}

@@ -81,30 +81,6 @@
         }
     }
 
-    &__views {
-        position: absolute;
-        left: 14px;
-        bottom: 12px;
-        color: #fff;
-        font-size: 16px;
-        font-weight: 500;
-        line-height: 1;
-        text-shadow: 0 0 8px rgba(0, 0, 0, 0.231372549);
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    &__viewsIcon {
-        width: 20px;
-        height: 20px;
-        flex: 0 0 auto;
-    }
-
-    &__viewsText {
-        display: inline-block;
-    }
-
     &--skeleton {
         pointer-events: none;
         user-select: none;
