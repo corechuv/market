@@ -20,16 +20,19 @@ import SearchPanel from "./Panel/SearchPanel";
 import SettingsIcon from "../Icons/SettingsIcon";
 import SettingsPanel from "./Panel/SettingsPanel";
 import CatalogPanel from "./Panel/CatalogPanel";
+import NotificationsPanel from "./Panel/NotificationsPanel";
+import NotificationIcon from "../Icons/NotificationIcon";
 import HamburgerIcon from "../Icons/HamburgerIcon";
 import { buildAvatarSrc } from "../../utils/avatar";
 import { NAV_OPEN_SETTINGS } from "../../utils/navEvents";
+import { NotificationsApi } from "../../services/notificationsApi";
 
 export interface Props {
   className?: string;
   hideOnMobile?: boolean;
 }
 
-type PanelId = "search" | "catalog" | "settings";
+type PanelId = "search" | "catalog" | "settings" | "notifications";
 
 type BaseItem = {
   id: string;
@@ -61,6 +64,7 @@ const Navigation: FC<Props> = ({ className, hideOnMobile }) => {
   );
 
   const [activePanel, setActivePanel] = useState<PanelId | null>(null);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   useEffect(() => {
     const onOpenSettings = () => setActivePanel("settings");
@@ -69,6 +73,77 @@ const Navigation: FC<Props> = ({ className, hideOnMobile }) => {
       window.removeEventListener(NAV_OPEN_SETTINGS, onOpenSettings as EventListener);
     };
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setUnreadNotifications(0);
+      return;
+    }
+
+    let alive = true;
+    let stopStream = () => {};
+    let lastEventId: string | null = null;
+
+    const refreshUnread = async () => {
+      try {
+        const data = await NotificationsApi.unreadCount();
+        if (alive) setUnreadNotifications(data.unreadCount);
+      } catch {
+        // keep previous value
+      }
+    };
+
+    void refreshUnread();
+
+    const pollId = window.setInterval(() => {
+      void refreshUnread();
+    }, 60_000);
+
+    void (async () => {
+      try {
+        const { token } = await NotificationsApi.createStreamToken();
+        if (!alive) return;
+
+        stopStream = NotificationsApi.openStream({
+          token,
+          lastEventId: lastEventId ?? undefined,
+          onEvent: (event, incomingLastEventId) => {
+            if (incomingLastEventId) lastEventId = incomingLastEventId;
+
+            switch (event.type) {
+              case "notification.unread_count":
+                setUnreadNotifications(event.unreadCount);
+                break;
+              case "notification.created":
+                setUnreadNotifications((prev) =>
+                  event.notification.isRead ? prev : prev + 1,
+                );
+                break;
+              case "notification.updated":
+                if (event.isRead) {
+                  setUnreadNotifications((prev) => Math.max(prev - 1, 0));
+                }
+                break;
+              case "notification.deleted":
+              case "keepalive":
+                break;
+            }
+          },
+          onError: () => {
+            // polling remains as fallback
+          },
+        });
+      } catch {
+        // polling remains as fallback
+      }
+    })();
+
+    return () => {
+      alive = false;
+      window.clearInterval(pollId);
+      stopStream();
+    };
+  }, [isAuthenticated]);
 
   // абсолютный URL аватара + cache-buster по updatedAt
   const avatarSrc = useMemo(
@@ -170,6 +245,21 @@ const Navigation: FC<Props> = ({ className, hideOnMobile }) => {
       align: "top",
     },
     {
+      id: "notifications",
+      ariaLabel: "Notifications",
+      icon: <NotificationIcon width={24} />,
+      action: "panel",
+      panel: "notifications",
+      controlsId: "notifications-panel",
+      renderAfterIcon: (
+        <CounterBadge
+          count={unreadNotifications}
+          title={`Unread notifications: ${unreadNotifications}`}
+        />
+      ),
+      align: "top",
+    },
+    {
       id: "settings",
       ariaLabel: "Settings",
       icon: <SettingsIcon />,
@@ -252,6 +342,14 @@ const Navigation: FC<Props> = ({ className, hideOnMobile }) => {
           )}
           {activePanel === "settings" && (
             <SettingsPanel open onClose={closePanels} anchorRole="settings" />
+          )}
+          {activePanel === "notifications" && (
+            <NotificationsPanel
+              open
+              onClose={closePanels}
+              anchorRole="notifications"
+              onUnreadCountChange={setUnreadNotifications}
+            />
           )}
         </div>
       </section>

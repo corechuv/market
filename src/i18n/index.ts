@@ -53,6 +53,11 @@ import enSearch from "./locales/en/search.json";
 import deSearch from "./locales/de/search.json";
 import ruSearch from "./locales/ru/search.json";
 
+// NOTIFICATIONS
+import enNotifications from "./locales/en/notifications.json";
+import deNotifications from "./locales/de/notifications.json";
+import ruNotifications from "./locales/ru/notifications.json";
+
 // SETTINGS
 import enSettings from "./locales/en/settings.json";
 import deSettings from "./locales/de/settings.json";
@@ -105,6 +110,7 @@ i18n
                 success: enSuccess,
                 notFound: enNotFound,
                 search: enSearch,
+                notifications: enNotifications,
                 settings: enSettings,
                 catalog: enCatalog,
                 home: enHome,
@@ -124,6 +130,7 @@ i18n
                 success: deSuccess,
                 notFound: deNotFound,
                 search: deSearch,
+                notifications: deNotifications,
                 settings: deSettings,
                 catalog: deCatalog,
                 home: deHome,
@@ -143,6 +150,7 @@ i18n
                 success: ruSuccess,
                 notFound: ruNotFound,
                 search: ruSearch,
+                notifications: ruNotifications,
                 settings: ruSettings,
                 catalog: ruCatalog,
                 home: ruHome,

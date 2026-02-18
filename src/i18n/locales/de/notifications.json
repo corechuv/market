@@ -1,0 +1,23 @@
+{
+  "panel": {
+    "title": "Benachrichtigungen",
+    "ariaLabel": "Benachrichtigungen"
+  },
+  "actions": {
+    "markAllRead": "Alle als gelesen markieren",
+    "marking": "Wird aktualisiert...",
+    "goToAuth": "Anmelden",
+    "retry": "Erneut versuchen",
+    "loadMore": "Mehr laden",
+    "loadingMore": "Wird geladen..."
+  },
+  "states": {
+    "authLoading": "Sitzung wird geprüft...",
+    "requireAuth": "Melde dich an, um Benachrichtigungen zu sehen.",
+    "loading": "Benachrichtigungen werden geladen...",
+    "loadError": "Benachrichtigungen konnten nicht geladen werden.",
+    "empty": "Noch keine Benachrichtigungen.",
+    "markReadError": "Status konnte nicht aktualisiert werden.",
+    "markingOne": "Wird aktualisiert..."
+  }
+}

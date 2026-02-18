@@ -29,6 +29,7 @@ const PriceRangeDual: React.FC<PriceRangeDualProps> = ({
     const [internal, setInternal] = useState<[number, number]>(
         defaultValue ?? [min, max],
     );
+    const [dragging, setDragging] = useState(false);
 
     // если компонент используют в неконтролируемом режиме —
     // обновляем внутреннее состояние, когда меняется defaultValue/min/max
@@ -42,7 +43,13 @@ const PriceRangeDual: React.FC<PriceRangeDualProps> = ({
         }
     }, [defaultValue, min, max, isControlled]);
 
-    const [lower, upper] = isControlled ? (value as [number, number]) : internal;
+    useEffect(() => {
+        if (!isControlled) return;
+        if (dragging) return;
+        if (value) setInternal(value);
+    }, [value, isControlled, dragging]);
+
+    const [lower, upper] = internal;
 
     const id = useId();
     const lowerId = `${id}-low`;
@@ -63,7 +70,7 @@ const PriceRangeDual: React.FC<PriceRangeDualProps> = ({
         (e: React.ChangeEvent<HTMLInputElement>) => {
             const raw = Number(e.currentTarget.value);
             const nextLow = clamp(raw, min, upper);
-            commit([nextLow, upper]);
+            setInternal([nextLow, upper]);
         },
         [upper, commit, min],
     );
@@ -72,10 +79,15 @@ const PriceRangeDual: React.FC<PriceRangeDualProps> = ({
         (e: React.ChangeEvent<HTMLInputElement>) => {
             const raw = Number(e.currentTarget.value);
             const nextHigh = clamp(raw, lower, max);
-            commit([lower, nextHigh]);
+            setInternal([lower, nextHigh]);
         },
         [lower, commit, max],
     );
+
+    const commitNow = useCallback(() => {
+        setDragging(false);
+        commit([lower, upper]);
+    }, [commit, lower, upper]);
 
     // защита от деления на ноль
     const range = max - min || 1;
@@ -108,6 +120,12 @@ const PriceRangeDual: React.FC<PriceRangeDualProps> = ({
                     step={step}
                     value={lower}
                     onChange={handleLower}
+                    onPointerDown={() => setDragging(true)}
+                    onPointerUp={commitNow}
+                    onPointerCancel={commitNow}
+                    onKeyUp={commitNow}
+                    onMouseUp={commitNow}
+                    onTouchEnd={commitNow}
                     className={cls.range}
                     aria-valuemin={min}
                     aria-valuemax={upper}
@@ -122,6 +140,12 @@ const PriceRangeDual: React.FC<PriceRangeDualProps> = ({
                     step={step}
                     value={upper}
                     onChange={handleUpper}
+                    onPointerDown={() => setDragging(true)}
+                    onPointerUp={commitNow}
+                    onPointerCancel={commitNow}
+                    onKeyUp={commitNow}
+                    onMouseUp={commitNow}
+                    onTouchEnd={commitNow}
                     className={`${cls.range} ${cls.rangeUpper}`}
                     aria-valuemin={lower}
                     aria-valuemax={max}

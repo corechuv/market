@@ -1,0 +1,23 @@
+{
+  "panel": {
+    "title": "Notifications",
+    "ariaLabel": "Notifications"
+  },
+  "actions": {
+    "markAllRead": "Mark all as read",
+    "marking": "Updating...",
+    "goToAuth": "Sign in",
+    "retry": "Retry",
+    "loadMore": "Load more",
+    "loadingMore": "Loading..."
+  },
+  "states": {
+    "authLoading": "Checking session...",
+    "requireAuth": "Sign in to see your notifications.",
+    "loading": "Loading notifications...",
+    "loadError": "Failed to load notifications.",
+    "empty": "No notifications yet.",
+    "markReadError": "Failed to update notification state.",
+    "markingOne": "Updating..."
+  }
+}

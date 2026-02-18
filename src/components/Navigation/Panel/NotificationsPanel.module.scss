@@ -1,2 +1,155 @@
-// src/components/Navigation/Panel/NotificationsPanel.module.scss
 @use "../../../styles/default_list.module.scss";
+
+.content {
+  position: absolute;
+  top: var(--vv-top, 0);
+  left: var(--vv-left, 0);
+  width: 100%;
+  height: var(--vv-h, 100dvh);
+  display: flex;
+  flex-direction: column;
+  overscroll-behavior: none;
+  padding-bottom: env(safe-area-inset-bottom);
+  color: var(--text);
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 12px;
+  background: var(--n-bg-desktop);
+
+  &__btn {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font: inherit;
+    color: var(--text);
+    background: transparent;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
+}
+
+.stateWrap {
+  display: grid;
+  gap: 10px;
+  padding: 16px 12px;
+}
+
+.state {
+  margin: 0;
+  padding: 12px;
+  color: var(--muted);
+}
+
+.error {
+  margin: 0;
+  padding: 12px;
+  color: #d44;
+}
+
+.errorInline {
+  margin: 0;
+  padding: 6px 12px 0;
+  color: #d44;
+  font-size: 13px;
+}
+
+.actionBtn {
+  width: fit-content;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  &__item {
+    display: grid;
+    gap: 6px;
+    padding: 14px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+
+    &:hover,
+    &:focus-visible {
+      background: var(--bg-hover-item);
+    }
+  }
+}
+
+.unread {
+  background: color-mix(in srgb, var(--n-bg-desktop) 80%, #2d7cff 20%);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  margin: 0;
+  flex: 1;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.body {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.time {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.pending {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2d7cff;
+}
+
+.loadMoreWrap {
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+}
