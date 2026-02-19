@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { createPortal } from "react-dom";
 import cls from "../components/UI/Toast/ToastViewport.module.scss";
+import CloseIcon from "../components/Icons/CloseIcon";
 
 export type ToastTone = "success" | "info" | "warning" | "error";
 
@@ -38,6 +39,7 @@ const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
 const DEFAULT_DURATION_MS = 2200;
 const MIN_DURATION_MS = 900;
+const MAX_VISIBLE_TOASTS = 3;
 
 function makeToastId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -49,6 +51,7 @@ function makeToastId(): string {
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<ToastItem[]>([]);
   const timersRef = useRef<Map<string, number>>(new Map());
+  const itemsRef = useRef<ToastItem[]>([]);
 
   const dismiss = useCallback((id: string) => {
     const timer = timersRef.current.get(id);
@@ -65,22 +68,59 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     setItems([]);
   }, []);
 
-  const show = useCallback(
-    (input: ToastInput) => {
-      const id = makeToastId();
-      const tone = input.tone ?? "info";
-      const durationMs = Math.max(MIN_DURATION_MS, input.durationMs ?? DEFAULT_DURATION_MS);
-
-      setItems((prev) => [...prev, { id, message: input.message, tone }]);
-
+  const scheduleDismiss = useCallback(
+    (id: string, durationMs: number) => {
+      const existingTimer = timersRef.current.get(id);
+      if (existingTimer) {
+        window.clearTimeout(existingTimer);
+      }
       const timerId = window.setTimeout(() => {
         dismiss(id);
       }, durationMs);
       timersRef.current.set(id, timerId);
+    },
+    [dismiss],
+  );
+
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
+
+  const show = useCallback(
+    (input: ToastInput) => {
+      const tone = input.tone ?? "info";
+      const durationMs = Math.max(MIN_DURATION_MS, input.durationMs ?? DEFAULT_DURATION_MS);
+      const duplicate = itemsRef.current.find(
+        (item) => item.message === input.message && item.tone === tone,
+      );
+
+      if (duplicate) {
+        scheduleDismiss(duplicate.id, durationMs);
+        return duplicate.id;
+      }
+
+      const id = makeToastId();
+
+      setItems((prev) => {
+        const next = [...prev, { id, message: input.message, tone }];
+        if (next.length <= MAX_VISIBLE_TOASTS) return next;
+
+        const removed = next.slice(0, next.length - MAX_VISIBLE_TOASTS);
+        removed.forEach((item) => {
+          const timer = timersRef.current.get(item.id);
+          if (timer) {
+            window.clearTimeout(timer);
+            timersRef.current.delete(item.id);
+          }
+        });
+        return next.slice(-MAX_VISIBLE_TOASTS);
+      });
+
+      scheduleDismiss(id, durationMs);
 
       return id;
     },
-    [dismiss],
+    [scheduleDismiss],
   );
 
   const success = useCallback(
@@ -131,6 +171,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             {items.map((item) => (
               <div key={item.id} className={`${cls.toast} ${cls[item.tone]}`}>
                 <span className={cls.toast__message}>{item.message}</span>
+                <CloseIcon
+                  className={cls.toast__close}
+                  aria-label="Close notification"
+                  onClick={() => dismiss(item.id)}
+                />
               </div>
             ))}
           </div>,
