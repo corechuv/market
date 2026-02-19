@@ -1,5 +1,5 @@
 // src/components/UI/Carousel/Carousel.tsx
-import React, { useRef, useCallback } from "react";
+import React, { useRef, useCallback, useEffect, useState } from "react";
 import cls from "./Carousel.module.scss";
 import Right from "../../Icons/ChevronRightIcon";
 import Left from "../../Icons/ChevronLeftIcon";
@@ -34,6 +34,22 @@ export default function Carousel<T>({
     controls = { show: true, prevAria: "Scroll left", nextAria: "Scroll right" },
 }: CarouselProps<T>) {
     const viewportRef = useRef<HTMLDivElement>(null);
+    const [canPrev, setCanPrev] = useState(false);
+    const [canNext, setCanNext] = useState(items.length > 1);
+
+    const updateControlsState = useCallback(() => {
+        const vp = viewportRef.current;
+        if (!vp) {
+            setCanPrev(false);
+            setCanNext(false);
+            return;
+        }
+        const maxLeft = Math.max(0, vp.scrollWidth - vp.clientWidth);
+        const left = vp.scrollLeft;
+        const epsilon = 2;
+        setCanPrev(left > epsilon);
+        setCanNext(left < maxLeft - epsilon);
+    }, []);
 
     const getVisibleFromCSS = useCallback(() => {
         const vp = viewportRef.current;
@@ -62,9 +78,40 @@ export default function Carousel<T>({
         return { step, count, visible };
     }, [getVisibleFromCSS]);
 
+    useEffect(() => {
+        const vp = viewportRef.current;
+        if (!vp) {
+            setCanPrev(false);
+            setCanNext(false);
+            return;
+        }
+
+        updateControlsState();
+
+        const onScroll = () => updateControlsState();
+        vp.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", updateControlsState);
+
+        let ro: ResizeObserver | null = null;
+        if (typeof ResizeObserver !== "undefined") {
+            ro = new ResizeObserver(() => updateControlsState());
+            ro.observe(vp);
+            const track = vp.querySelector(`.${cls["carousel__track"]}`) as Element | null;
+            if (track) ro.observe(track);
+        }
+
+        return () => {
+            vp.removeEventListener("scroll", onScroll);
+            window.removeEventListener("resize", updateControlsState);
+            ro?.disconnect();
+        };
+    }, [items.length, updateControlsState]);
+
     const scrollByCard = useCallback((dir: "prev" | "next") => {
         const vp = viewportRef.current;
         if (!vp) return;
+        if (dir === "prev" && !canPrev) return;
+        if (dir === "next" && !canNext) return;
         const { step, count, visible } = computeStep();
         if (!step) return;
 
@@ -74,7 +121,7 @@ export default function Carousel<T>({
         const targetIndex = Math.max(0, Math.min(currentIndex + delta, maxIndex));
 
         vp.scrollTo({ left: targetIndex * step, behavior: "smooth" });
-    }, [computeStep]);
+    }, [canNext, canPrev, computeStep]);
 
     return (
         <section className={cls.carousel}>
@@ -87,6 +134,7 @@ export default function Carousel<T>({
                             className={cls["carousel__controls--btn"]}
                             aria-label={controls?.prevAria || "Scroll left"}
                             onClick={() => scrollByCard("prev")}
+                            disabled={!canPrev}
                         >
                             <Left />
                         </button>
@@ -95,6 +143,7 @@ export default function Carousel<T>({
                             className={cls["carousel__controls--btn"]}
                             aria-label={controls?.nextAria || "Scroll right"}
                             onClick={() => scrollByCard("next")}
+                            disabled={!canNext}
                         >
                             <Right />
                         </button>

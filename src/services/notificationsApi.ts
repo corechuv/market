@@ -35,6 +35,8 @@ function buildListQuery(params: NotificationListParams = {}): string {
   if (params.unreadOnly) q.set("unreadOnly", "true");
   if (params.category) q.set("category", params.category);
   if (params.priority) q.set("priority", params.priority);
+  if (params.createdFrom) q.set("createdFrom", params.createdFrom);
+  if (params.createdTo) q.set("createdTo", params.createdTo);
 
   if (params.types?.length) {
     params.types.forEach((type) => {

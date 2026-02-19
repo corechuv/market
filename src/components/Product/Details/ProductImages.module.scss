@@ -138,7 +138,12 @@ $bg-overlay: linear-gradient(
   display: grid;
   place-items: center;
   cursor: pointer;
-  transition: transform 120ms ease, background 120ms ease;
+  transition: transform 120ms ease, background 120ms ease, opacity 140ms ease;
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
 
   svg {
     width: 20px;

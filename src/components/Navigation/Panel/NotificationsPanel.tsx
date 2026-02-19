@@ -4,6 +4,7 @@ import c from "./NotificationsPanel.module.scss";
 import MasterBar from "../../UI/Bars/MasterBar";
 import ScrollArea from "../../UI/ScrollArea/ScrollArea";
 import { useAuth } from "../../../context/AuthContext";
+import { useLang } from "../../../context/LangContext";
 import { useVisualViewport } from "../../../hooks/useViewportUnits";
 import { NotificationsApi } from "../../../services/notificationsApi";
 import type { NotificationItem } from "../../../types/notification";
@@ -68,6 +69,7 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
   useVisualViewport();
 
   const { t } = useTranslation("notifications");
+  const { lang } = useLang();
   const nav = useNavigate();
   const { isAuthenticated, loading: authLoading } = useAuth();
 
@@ -84,13 +86,13 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
 
   const dateFormatter = useMemo(
     () =>
-      new Intl.DateTimeFormat(undefined, {
+      new Intl.DateTimeFormat(lang, {
         day: "2-digit",
         month: "short",
         hour: "2-digit",
         minute: "2-digit",
       }),
-    [],
+    [lang],
   );
 
   const formatCreatedAt = useCallback(

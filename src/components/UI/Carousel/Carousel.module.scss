@@ -41,6 +41,12 @@ $bp-lg: 1024px;
       border: none;
       background-color: transparent;
       cursor: pointer;
+      transition: opacity 140ms ease;
+
+      &:disabled {
+        opacity: 0.35;
+        cursor: default;
+      }
 
       svg {
         width: 1.6rem;

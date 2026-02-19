@@ -52,6 +52,8 @@ export type NotificationListParams = {
   category?: string;
   priority?: NotificationPriority;
   types?: string[];
+  createdFrom?: string;
+  createdTo?: string;
 };
 
 export type NotificationListResponse = {

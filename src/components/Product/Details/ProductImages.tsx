@@ -70,12 +70,18 @@ const Banner: React.FC<BannerProps> = ({
   const touchStartX = useRef<number | null>(null);
 
   const count = images.length;
+  const canPrev = loop || index > 0;
+  const canNext = loop || index < count - 1;
 
   const goTo = (i: number) => setIndex(() => clampIndex(i, count));
-  const next = () =>
+  const next = () => {
+    if (!canNext) return;
     setIndex((prev) => (loop ? clampIndex(prev + 1, count) : Math.min(prev + 1, count - 1)));
-  const prev = () =>
+  };
+  const prev = () => {
+    if (!canPrev) return;
     setIndex((prev) => (loop ? clampIndex(prev - 1, count) : Math.max(prev - 1, 0)));
+  };
 
   // Автопрокрутка
   useEffect(() => {
@@ -94,8 +100,8 @@ const Banner: React.FC<BannerProps> = ({
 
   // Клавиатура
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "ArrowRight") next();
-    if (e.key === "ArrowLeft") prev();
+    if (e.key === "ArrowRight" && canNext) next();
+    if (e.key === "ArrowLeft" && canPrev) prev();
     if (e.key === "Home") goTo(0);
     if (e.key === "End") goTo(count - 1);
   };
@@ -111,8 +117,8 @@ const Banner: React.FC<BannerProps> = ({
     if (start != null) {
       const dx = e.changedTouches[0].clientX - start;
       const threshold = 40; // px
-      if (dx > threshold) prev();
-      else if (dx < -threshold) next();
+      if (dx > threshold && canPrev) prev();
+      else if (dx < -threshold && canNext) next();
     }
     if (pauseOnHover) setPaused(false);
     touchStartX.current = null;
@@ -183,6 +189,7 @@ const Banner: React.FC<BannerProps> = ({
             className={[s.ctrl, s.prev].join(" ")}
             aria-label="Предыдущий слайд"
             onClick={prev}
+            disabled={!canPrev}
           >
             <Left />
           </button>
@@ -190,6 +197,7 @@ const Banner: React.FC<BannerProps> = ({
             className={[s.ctrl, s.next].join(" ")}
             aria-label="Следующий слайд"
             onClick={next}
+            disabled={!canNext}
           >
             <Right />
           </button>
