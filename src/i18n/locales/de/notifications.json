@@ -19,5 +19,23 @@
     "empty": "Noch keine Benachrichtigungen.",
     "markReadError": "Status konnte nicht aktualisiert werden.",
     "markingOne": "Wird aktualisiert..."
+  },
+  "events": {
+    "order.created": {
+      "title": "Bestellung {{orderNumber}} erstellt",
+      "body": "Wir haben deine Bestellung erhalten und warten auf die Zahlungsbestätigung."
+    },
+    "payment.succeeded": {
+      "title": "Zahlung für Bestellung {{orderNumber}} eingegangen",
+      "body": "Deine Zahlung ist bestätigt. Wir bereiten den Versand vor."
+    },
+    "order.shipped": {
+      "title": "Bestellung {{orderNumber}} wurde versendet",
+      "body": "Deine Bestellung wurde an den Versanddienstleister übergeben."
+    },
+    "order.delivered": {
+      "title": "Bestellung {{orderNumber}} zugestellt",
+      "body": "Deine Bestellung wurde erfolgreich zugestellt."
+    }
   }
 }

@@ -19,5 +19,23 @@
     "empty": "No notifications yet.",
     "markReadError": "Failed to update notification state.",
     "markingOne": "Updating..."
+  },
+  "events": {
+    "order.created": {
+      "title": "Order {{orderNumber}} created",
+      "body": "We received your order and are waiting for payment confirmation."
+    },
+    "payment.succeeded": {
+      "title": "Payment received for order {{orderNumber}}",
+      "body": "Your payment is confirmed. We are preparing your shipment."
+    },
+    "order.shipped": {
+      "title": "Order {{orderNumber}} has been shipped",
+      "body": "Your order has been handed over to the carrier."
+    },
+    "order.delivered": {
+      "title": "Order {{orderNumber}} delivered",
+      "body": "Your order was delivered successfully."
+    }
   }
 }

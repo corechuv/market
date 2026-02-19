@@ -1,4 +1,5 @@
 export type NotificationChannel = "in_app" | "email" | "push" | "sms";
+export type NotificationLanguageCode = "en" | "ru" | "de" | (string & {});
 
 export type NotificationPriority = "low" | "normal" | "high" | "critical";
 
@@ -32,7 +33,7 @@ export type NotificationItem = {
   category: string;
   title: string;
   body: string;
-  lang: string;
+  lang: NotificationLanguageCode;
   priority: NotificationPriority;
   payload: Record<string, unknown>;
   action?: NotificationAction | null;
@@ -84,6 +85,7 @@ export type MarkNotificationsReadResponse = {
 
 export type NotificationPreferences = {
   userId: string;
+  locale: NotificationLanguageCode;
   channels: Record<NotificationChannel, boolean>;
   topics: Record<NotificationTopic, boolean>;
   quietHours: {
@@ -101,6 +103,7 @@ export type NotificationPreferences = {
 };
 
 export type UpdateNotificationPreferencesRequest = {
+  locale?: NotificationLanguageCode;
   channels?: Partial<Record<NotificationChannel, boolean>>;
   topics?: Partial<Record<NotificationTopic, boolean>>;
   quietHours?: Partial<NotificationPreferences["quietHours"]>;

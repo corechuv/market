@@ -26,6 +26,7 @@ import HamburgerIcon from "../Icons/HamburgerIcon";
 import { buildAvatarSrc } from "../../utils/avatar";
 import { NAV_OPEN_SETTINGS } from "../../utils/navEvents";
 import { NotificationsApi } from "../../services/notificationsApi";
+import { useLang } from "../../context/LangContext";
 
 export interface Props {
   className?: string;
@@ -51,6 +52,7 @@ type NavItem =
 const Navigation: FC<Props> = ({ className, hideOnMobile }) => {
   const nav = useNavigate();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { lang } = useLang();
   const { lines } = useCart();
 
   const username = useMemo(() => {
@@ -144,6 +146,22 @@ const Navigation: FC<Props> = ({ className, hideOnMobile }) => {
       stopStream();
     };
   }, [isAuthenticated]);
+
+  const lastSyncedLocaleRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (authLoading || !isAuthenticated) {
+      lastSyncedLocaleRef.current = null;
+      return;
+    }
+    if (lastSyncedLocaleRef.current === lang) return;
+
+    lastSyncedLocaleRef.current = lang;
+    void NotificationsApi.updatePreferences({ locale: lang }).catch(() => {
+      if (lastSyncedLocaleRef.current === lang) {
+        lastSyncedLocaleRef.current = null;
+      }
+    });
+  }, [authLoading, isAuthenticated, lang]);
 
   // абсолютный URL аватара + cache-buster по updatedAt
   const avatarSrc = useMemo(

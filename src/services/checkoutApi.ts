@@ -2,12 +2,23 @@
 const API = import.meta.env.VITE_API_BASE_URL;
 
 import { toISO2 } from "../utils/country";
+import { getCurrentLanguage } from "../utils/lang/lang";
 
 // ---- fetch helper
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
+  const headers = new Headers({
+    "Content-Type": "application/json",
+    "X-App-Lang": getCurrentLanguage(),
+  });
+  if (init?.headers) {
+    new Headers(init.headers).forEach((value, key) => {
+      headers.set(key, value);
+    });
+  }
+
   const r = await fetch(`${API}${path}`, {
     method: "GET",
-    headers: { "Content-Type": "application/json" },
+    headers,
     credentials: "omit",
     ...init,
   });

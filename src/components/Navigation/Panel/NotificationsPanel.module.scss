@@ -81,13 +81,7 @@
 }
 
 .unread {
-  background: color-mix(in srgb, var(--n-bg-desktop) 80%, #2d7cff 20%);
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  background: color-mix(in srgb, var(--n-bg-desktop) 80%, #c9ddff 20%);
 }
 
 .title {
@@ -122,13 +116,6 @@
 .pending {
   font-size: 12px;
   color: var(--muted);
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #2d7cff;
 }
 
 .loadMoreWrap {

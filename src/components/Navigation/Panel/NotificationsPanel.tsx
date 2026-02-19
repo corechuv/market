@@ -21,6 +21,24 @@ interface NotificationsPanelProps {
 
 const PAGE_SIZE = 20;
 
+function toTranslationVars(payload: Record<string, unknown>): Record<string, string | number | boolean> {
+  const out: Record<string, string | number | boolean> = {};
+  Object.entries(payload).forEach(([key, value]) => {
+    if (
+      typeof value === "string" ||
+      typeof value === "number" ||
+      typeof value === "boolean"
+    ) {
+      out[key] = value;
+      return;
+    }
+    if (value !== null && value !== undefined) {
+      out[key] = String(value);
+    }
+  });
+  return out;
+}
+
 function mergeNotifications(
   current: NotificationItem[],
   incoming: NotificationItem[],
@@ -82,6 +100,18 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
       return dateFormatter.format(d);
     },
     [dateFormatter],
+  );
+
+  const getLocalizedText = useCallback(
+    (item: NotificationItem) => {
+      const keyBase = `events.${item.type}`;
+      const vars = toTranslationVars(item.payload || {});
+      return {
+        title: t(`${keyBase}.title`, { ...vars, defaultValue: item.title }),
+        body: t(`${keyBase}.body`, { ...vars, defaultValue: item.body }),
+      };
+    },
+    [t],
   );
 
   const rememberBusyId = useCallback((id: string) => {
@@ -305,6 +335,7 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
             <ul className={c.list}>
               {items.map((item) => {
                 const isBusy = busyIds.includes(item.id);
+                const text = getLocalizedText(item);
 
                 return (
                   <li
@@ -315,12 +346,9 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
                     }}
                     aria-busy={isBusy}
                   >
-                    <div className={c.row}>
-                      <p className={c.title}>{item.title}</p>
-                      {!item.isRead && <span className={c.dot} aria-hidden />}
-                    </div>
+                    <p className={c.title}>{text.title}</p>
 
-                    <p className={c.body}>{item.body}</p>
+                    <p className={c.body}>{text.body}</p>
 
                     <div className={c.meta}>
                       <span className={c.time}>{formatCreatedAt(item.createdAt)}</span>

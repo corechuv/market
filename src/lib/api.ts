@@ -1,10 +1,17 @@
 // src/lib/api.ts
 import axios from "axios";
+import { getCurrentLanguage } from "../utils/lang/lang";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
   timeout: 15000,
+});
+
+api.interceptors.request.use((config) => {
+  config.headers = config.headers ?? {};
+  (config.headers as Record<string, string>)["X-App-Lang"] = getCurrentLanguage();
+  return config;
 });
 
 export default api;
