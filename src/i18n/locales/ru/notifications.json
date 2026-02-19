@@ -4,7 +4,7 @@
     "ariaLabel": "Уведомления"
   },
   "actions": {
-    "markAllRead": "Отметить все прочитанными",
+    "markAllRead": "Отметить всё",
     "marking": "Обновление...",
     "goToAuth": "Войти",
     "retry": "Повторить",

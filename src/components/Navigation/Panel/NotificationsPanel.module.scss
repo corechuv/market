@@ -14,22 +14,8 @@
 }
 
 .toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  display: flex;
-  justify-content: flex-end;
-  padding: 10px 12px;
-  background: var(--n-bg-desktop);
-
   &__btn {
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 8px 12px;
-    font: inherit;
-    color: var(--text);
-    background: transparent;
-    cursor: pointer;
+    width: 100%;
 
     &:disabled {
       opacity: 0.5;
@@ -39,14 +25,17 @@
 }
 
 .stateWrap {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
   gap: 10px;
   padding: 16px 12px;
 }
 
 .state {
   margin: 0;
-  padding: 12px;
   color: var(--muted);
 }
 
@@ -64,14 +53,6 @@
 }
 
 .actionBtn {
-  width: fit-content;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 8px 12px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  cursor: pointer;
 
   &:disabled {
     opacity: 0.5;
@@ -86,10 +67,11 @@
 
   &__item {
     display: grid;
-    gap: 6px;
-    padding: 14px 12px;
+    align-items: center;
+    column-gap: 12px;
+    padding: 0.75rem 1.2rem;
     cursor: pointer;
-    border-bottom: 1px solid var(--border);
+    grid-template-columns: 1fr;
 
     &:hover,
     &:focus-visible {
@@ -110,6 +92,7 @@
 
 .title {
   margin: 0;
+  padding: 0;
   flex: 1;
   color: var(--text);
   font-size: 15px;

@@ -55,6 +55,9 @@
     "actions": {
         "addToCart": "In den Warenkorb"
     },
+    "toast": {
+        "addedToCart": "Zum Warenkorb hinzugefügt"
+    },
     "sticky": {
         "ariaLabel": "Schnell in den Warenkorb"
     },

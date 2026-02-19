@@ -4,7 +4,7 @@
     "ariaLabel": "Notifications"
   },
   "actions": {
-    "markAllRead": "Mark all as read",
+    "markAllRead": "Mark all read",
     "marking": "Updating...",
     "goToAuth": "Sign in",
     "retry": "Retry",

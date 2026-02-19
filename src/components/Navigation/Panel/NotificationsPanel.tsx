@@ -8,6 +8,7 @@ import { useVisualViewport } from "../../../hooks/useViewportUnits";
 import { NotificationsApi } from "../../../services/notificationsApi";
 import type { NotificationItem } from "../../../types/notification";
 import { useTranslation } from "react-i18next";
+import Button from "../../UI/Button";
 
 interface NotificationsPanelProps {
   open: boolean;
@@ -154,10 +155,10 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
           prev.map((x) =>
             x.id === item.id
               ? {
-                  ...x,
-                  isRead: true,
-                  readAt: x.readAt ?? new Date().toISOString(),
-                }
+                ...x,
+                isRead: true,
+                readAt: x.readAt ?? new Date().toISOString(),
+              }
               : x,
           ),
         );
@@ -222,22 +223,27 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
       className={c.g}
     >
       <div className={c.content}>
-        <MasterBar title={t("panel.title")} background="var(--n-bg-desktop)" />
-
-        <ScrollArea lockBody={false}>
-          <div className={c.toolbar}>
-            <button
-              type="button"
-              className={c.toolbar__btn}
+        <MasterBar
+          title={t("panel.title")}
+          background="var(--n-bg-desktop)"
+          onClose={onClose}
+          includeBars={!authLoading && isAuthenticated}
+          bar={
+            <Button
+              size="small"
+              variant="secondary"
               onClick={() => {
                 void handleMarkAllRead();
               }}
+              className={c.toolbar__btn}
               disabled={markAllBusy || !items.some((item) => !item.isRead)}
             >
               {markAllBusy ? t("actions.marking") : t("actions.markAllRead")}
-            </button>
-          </div>
+            </Button>
+          }
+        />
 
+        <ScrollArea lockBody={false}>
           {!authLoading && isAuthenticated && actionError && (
             <p className={c.errorInline}>{actionError}</p>
           )}
@@ -251,16 +257,16 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
           {!authLoading && !isAuthenticated && (
             <div className={c.stateWrap}>
               <p className={c.state}>{t("states.requireAuth")}</p>
-              <button
-                type="button"
-                className={c.actionBtn}
+              <Button
+                variant="secondary"
+                size="small"
                 onClick={() => {
                   onClose();
                   nav("/auth");
                 }}
               >
                 {t("actions.goToAuth")}
-              </button>
+              </Button>
             </div>
           )}
 
@@ -275,18 +281,18 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
             !loading &&
             loadError &&
             items.length === 0 && (
-            <div className={c.stateWrap}>
-              <p className={c.error}>{loadError}</p>
-              <button
-                type="button"
-                className={c.actionBtn}
-                onClick={() => {
-                  void loadFirstPage();
-                }}
-              >
-                {t("actions.retry")}
-              </button>
-            </div>
+              <div className={c.stateWrap}>
+                <p className={c.error}>{loadError}</p>
+                <button
+                  type="button"
+                  className={c.actionBtn}
+                  onClick={() => {
+                    void loadFirstPage();
+                  }}
+                >
+                  {t("actions.retry")}
+                </button>
+              </div>
             )}
 
           {!authLoading &&

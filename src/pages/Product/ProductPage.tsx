@@ -22,6 +22,7 @@ import VariantPicker from "../../components/Product/Details/VariantPicker";
 import ProductDatasheet from "../../components/Product/Details/ProductDatasheet";
 import EnergyLabel from "../../components/Product/Details/EnergyLabel";
 import { useCart } from "../../context/CartContext";
+import { useToast } from "../../context/ToastContext";
 import { toCartLine } from "../../services/cartAdapter";
 import ProductCarousel from "../../components/Product/ProductCarousel";
 
@@ -164,11 +165,14 @@ export default function ProductPage() {
   }, []);
 
   const { add } = useCart();
+  const toast = useToast();
+
   const handleAddToCart = React.useCallback(() => {
     if (!product) return;
     const line = toCartLine(product, variant, 1);
     add(line);
-  }, [product, variant, add]);
+    toast.success(t("toast.addedToCart"));
+  }, [product, variant, add, toast, t]);
 
   const [reviewAvg, setReviewAvg] = React.useState<number | null>(null);
   const [reviewCount, setReviewCount] = React.useState<number>(0);

@@ -10,16 +10,19 @@ import "./styles/theme.module.scss" // Import global styles
 import { CartProvider } from './context/CartContext.tsx'
 import ScrollToTop from './components/ScrollToTop.tsx'
 import { LangProvider } from './context/LangContext.tsx'
+import { ToastProvider } from './context/ToastContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HelmetProvider>
       <LangProvider>
         <CartProvider>
-          <BrowserRouter>
-            <ScrollToTop />
-            <App />
-          </BrowserRouter>
+          <ToastProvider>
+            <BrowserRouter>
+              <ScrollToTop />
+              <App />
+            </BrowserRouter>
+          </ToastProvider>
         </CartProvider>
       </LangProvider>
     </HelmetProvider>

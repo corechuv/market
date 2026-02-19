@@ -4,7 +4,7 @@
     "ariaLabel": "Benachrichtigungen"
   },
   "actions": {
-    "markAllRead": "Alle als gelesen markieren",
+    "markAllRead": "Als gelesen",
     "marking": "Wird aktualisiert...",
     "goToAuth": "Anmelden",
     "retry": "Erneut versuchen",

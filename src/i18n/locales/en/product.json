@@ -55,6 +55,9 @@
     "actions": {
         "addToCart": "Add to cart"
     },
+    "toast": {
+        "addedToCart": "Added to cart"
+    },
     "sticky": {
         "ariaLabel": "Quick add to cart"
     },
