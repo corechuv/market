@@ -5,14 +5,14 @@
   inset: 0;
   z-index: 9000;
   display: grid;
-  padding-top: 60px;
+  padding-top: 26px;
   --reels-bottom: calc(
     var(--bottom-nav-h, 60px)
       + var(--bottom-nav-offset, 0px)
       + env(safe-area-inset-bottom)
       + var(--bottom-nav-vb, 0px)
   );
-  padding-bottom: max(60px, var(--reels-bottom));
+  padding-bottom: max(26px, var(--reels-bottom));
   place-items: center;
 
   @media screen and (max-width: 768px) {
