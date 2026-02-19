@@ -214,7 +214,7 @@ const SidebarItems: React.FC<SidebarItemsProps> = ({
   return (
     <aside className={[cls.sidebar, cls[variant]].join(" ")}>
       <div className={cls.actions}>
-        <Button variant="primary" size="small" onClick={onResetFilters}>
+        <Button variant="secondary" size="small" onClick={onResetFilters}>
           {t("filters.reset")}
         </Button>
       </div>
