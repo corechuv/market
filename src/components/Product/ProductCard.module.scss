@@ -65,6 +65,20 @@ $bp-md: 768px;
     margin: 0 3px;
   }
 
+  &__sponsored {
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 8px;
+    height: 18px;
+    border-radius: 999px;
+    background: rgb(114 114 114 / 14%);
+    color: var(--text);
+    font-size: 11px;
+    line-height: 1.2;
+    font-weight: 400;
+  }
+
   &--disable {
     opacity: .75;
   }

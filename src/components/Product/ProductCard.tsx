@@ -17,6 +17,8 @@ export type ProductCardProps = {
     energyClass?: string;
     deliveryBadge?: DeliveryBadge;
     deliveryMode?: "full" | "etaOnly";
+    isSponsored?: boolean;
+    sponsoredLabel?: string | null;
     onClick?: () => void;
 };
 
@@ -31,6 +33,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     energyClass,
     deliveryBadge,
     deliveryMode = "full",
+    isSponsored = false,
+    sponsoredLabel,
     onClick,
 }) => {
     const { t, i18n } = useTranslation("product");
@@ -88,6 +92,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         return shippingLabel || etaText;
     }, [deliveryBadge, deliveryMode, i18n.language, t]);
 
+    const sponsoredText = React.useMemo(() => {
+        if (!isSponsored) return "";
+        const explicit = (sponsoredLabel || "").trim();
+        if (explicit) return explicit;
+
+        const lang = (i18n.language || "en").slice(0, 2).toLowerCase();
+        if (lang === "ru") return "Реклама";
+        if (lang === "de") return "Anzeige";
+        return "Sponsored";
+    }, [i18n.language, isSponsored, sponsoredLabel]);
+
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
         if (!onClick) return;
         if (e.key === "Enter" || e.key === " ") {
@@ -132,6 +147,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </div>
 
             <div className={cls.item__meta}>
+                {sponsoredText ? <div className={cls.item__sponsored}>{sponsoredText}</div> : null}
+
                 <h2 className={cls["item--name"]} title={name}>
                     {name}
                 </h2>

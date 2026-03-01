@@ -163,6 +163,9 @@ export default function ProductsMain({
           attrFilters: attrFiltersPayload,
 
           view: "variant",
+          includeSponsored: true,
+          sponsoredSlotEvery: 8,
+          sponsoredSlotOffset: 5,
         });
 
         return res as VariantListItem[];

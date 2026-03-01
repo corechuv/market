@@ -66,6 +66,8 @@ const ProductItemList: React.FC<Props> = ({
           energyClass={item.energyClassUrl}
           energyClassArrow={item.energyClassArrowUrl}
           deliveryBadge={item.deliveryBadge}
+          isSponsored={Boolean(item.isSponsored)}
+          sponsoredLabel={item.sponsorship?.label}
           onClick={() => onItemClick?.(item)}
         />
       ),

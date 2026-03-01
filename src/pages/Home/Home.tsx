@@ -128,7 +128,10 @@ export default function Home() {
           sort: "new",
           availableOnly: true,
           limit: 50,
-          view: "variant"
+          view: "variant",
+          includeSponsored: true,
+          sponsoredSlotEvery: 8,
+          sponsoredSlotOffset: 5,
         });
 
         const newReq = (getProducts as any)({
@@ -136,14 +139,20 @@ export default function Home() {
           availableOnly: true,
           sort: "new",
           limit: 20,
-          view: "variant"
+          view: "variant",
+          includeSponsored: true,
+          sponsoredSlotEvery: 8,
+          sponsoredSlotOffset: 5,
         });
 
         const saleReq = (getProducts as any)({
           saleOnly: true,
           availableOnly: true,
           limit: 20,
-          view: "variant"
+          view: "variant",
+          includeSponsored: true,
+          sponsoredSlotEvery: 8,
+          sponsoredSlotOffset: 5,
         });
 
         const [all, newest, sale] = await Promise.all([

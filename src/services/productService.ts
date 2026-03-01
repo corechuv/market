@@ -51,6 +51,9 @@ export type GetProductsParams = {
 
   // view каталога
   view?: "product" | "variant";
+  includeSponsored?: boolean;
+  sponsoredSlotEvery?: number;
+  sponsoredSlotOffset?: number;
 };
 
 export type ProductFacets = {

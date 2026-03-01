@@ -35,6 +35,17 @@ export type DeliveryBadge = {
   freeFromCents?: number | null;
 };
 
+export type SponsorshipMeta = {
+  campaignId: string;
+  campaignName?: string | null;
+  campaignItemId?: string | null;
+  label?: string | null;
+  ownerSellerId?: string | null;
+  advertiserSellerId?: string | null;
+  advertiserCompanyName?: string | null;
+  advertiserDisplayName?: string | null;
+};
+
 export interface ProductBase {
   id: string;
 
@@ -134,4 +145,8 @@ export type VariantListItem = {
   energyClassArrowUrl?: string;
 
   deliveryBadge?: DeliveryBadge;
+
+  isSponsored?: boolean;
+  sponsoredVariantId?: string;
+  sponsorship?: SponsorshipMeta | null;
 };
