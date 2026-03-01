@@ -25,6 +25,10 @@ import { useCart } from "../../context/CartContext";
 import { useToast } from "../../context/ToastContext";
 import { toCartLine } from "../../services/cartAdapter";
 import ProductCarousel from "../../components/Product/ProductCarousel";
+import {
+  listShippingOptions,
+  type ShippingOption,
+} from "../../services/checkoutApi";
 
 import ProductPlainReviews from "../../components/Product/Review/ProductPlainReviews";
 import ReviewComposer from "../../components/Product/Review/ReviewComposer";
@@ -46,6 +50,40 @@ const normalizeTab = (tabParam?: string): TabKey => {
       return "details";
   }
 };
+
+type DeliveryPick = {
+  id: string;
+  effectivePriceCents: number;
+  priceCents: number;
+  currency: string;
+  etaMinDays?: number | null;
+  etaMaxDays?: number | null;
+};
+
+function normalizePickFromOption(o: ShippingOption): DeliveryPick {
+  return {
+    id: o.id,
+    effectivePriceCents: o.effectivePriceCents ?? o.priceCents ?? 0,
+    priceCents: o.priceCents ?? 0,
+    currency: o.currency || "EUR",
+    etaMinDays: o.etaMinDays ?? null,
+    etaMaxDays: o.etaMaxDays ?? null,
+  };
+}
+
+function normalizePickFromBadge(
+  badge?: Product["deliveryBadge"] | ProductVariant["deliveryBadge"] | null
+): DeliveryPick | null {
+  if (!badge) return null;
+  return {
+    id: badge.id || badge.serviceId || "badge-fallback",
+    effectivePriceCents: badge.effectivePriceCents ?? badge.priceCents ?? 0,
+    priceCents: badge.priceCents ?? 0,
+    currency: badge.currency || "EUR",
+    etaMinDays: badge.etaMinDays ?? null,
+    etaMaxDays: badge.etaMaxDays ?? null,
+  };
+}
 
 export default function ProductPage() {
   const nav = useNavigate();
@@ -260,6 +298,67 @@ export default function ProductPage() {
     };
   }, [product?.id]);
 
+  const [deliveryOptions, setDeliveryOptions] = React.useState<ShippingOption[]>([]);
+
+  React.useEffect(() => {
+    let cancelled = false;
+
+    async function run() {
+      if (!product?.id) {
+        setDeliveryOptions([]);
+        return;
+      }
+
+      const rawPriceCents =
+        typeof variant?.priceCents === "number"
+          ? variant.priceCents
+          : Number.isFinite(parseMoney(variant?.price ?? product.price))
+            ? Math.max(
+              0,
+              Math.round((parseMoney(variant?.price ?? product.price) as number) * 100)
+            )
+            : 0;
+
+      try {
+        const options = await listShippingOptions({
+          country: "DE",
+          subtotalCents: rawPriceCents,
+          productId: product.id,
+          variantId: variant?.id,
+        });
+        if (!cancelled) setDeliveryOptions(Array.isArray(options) ? options : []);
+      } catch {
+        if (!cancelled) setDeliveryOptions([]);
+      }
+    }
+
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [product?.id, product?.price, variant?.id, variant?.price, variant?.priceCents]);
+
+  const cheapestDeliveryFromOptions = React.useMemo<DeliveryPick | null>(() => {
+    if (!deliveryOptions.length) return null;
+    let best = normalizePickFromOption(deliveryOptions[0]);
+    for (const row of deliveryOptions.slice(1)) {
+      const cur = normalizePickFromOption(row);
+      const curEffective = cur.effectivePriceCents;
+      const bestEffective = best.effectivePriceCents;
+
+      if (curEffective < bestEffective) {
+        best = cur;
+        continue;
+      }
+      if (curEffective === bestEffective) {
+        const curEta = cur.etaMinDays ?? cur.etaMaxDays ?? Number.MAX_SAFE_INTEGER;
+        const bestEta = best.etaMinDays ?? best.etaMaxDays ?? Number.MAX_SAFE_INTEGER;
+        if (curEta < bestEta) best = cur;
+      }
+    }
+    return best;
+  }, [deliveryOptions]);
+
   if (loading && !product) {
     return (
       <Page padding={false}>
@@ -297,7 +396,7 @@ export default function ProductPage() {
     else nav(`/product/${product.id}`, { replace: false });
   };
 
-  const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
+  const hasVariantOptions = Array.isArray(product.variants) && product.variants.length > 1;
 
   const images = (() => {
     const vImgs = variant?.images ?? [];
@@ -320,7 +419,9 @@ export default function ProductPage() {
 
   const price = variant?.price ?? product.price;
   const compareAt = variant?.compareAtPrice;
-  const available = (variant?.available ?? product.available) ?? false;
+  const availabilityValue = variant?.available ?? product.available;
+  const hasAvailability = typeof availabilityValue === "boolean";
+  const available = availabilityValue === true;
 
   const { entries, dictionary } = buildSpecs(product, { variant });
 
@@ -340,7 +441,11 @@ export default function ProductPage() {
   const energyClassArrow = variant?.energyClassArrowUrl ?? product.energyClassArrowUrl;
   const energyClass = variant?.energyClassUrl ?? product.energyClassUrl;
   const datasheetUrl = variant?.datasheetPdfUrl ?? product.datasheetPdfUrl;
-  const activeDeliveryBadge = variant?.deliveryBadge ?? product.deliveryBadge ?? null;
+  const fallbackDeliveryPick = normalizePickFromBadge(
+    variant?.deliveryBadge ?? product.deliveryBadge ?? null
+  );
+
+  const cheapestDelivery = cheapestDeliveryFromOptions ?? fallbackDeliveryPick;
 
   const deliveryLocale = (() => {
     const lang = (i18n.language || "de").slice(0, 2).toLowerCase();
@@ -349,44 +454,27 @@ export default function ProductPage() {
     return "de-DE";
   })();
 
-  const deliveryPriceCents =
-    activeDeliveryBadge?.effectivePriceCents ?? activeDeliveryBadge?.priceCents ?? 0;
-  const deliveryCurrency = activeDeliveryBadge?.currency || "EUR";
+  const deliveryBadgePropsFromPick = (pick: DeliveryPick | null) => {
+    const minRaw =
+      typeof pick?.etaMinDays === "number"
+        ? pick.etaMinDays
+        : typeof pick?.etaMaxDays === "number"
+          ? pick.etaMaxDays
+          : 2;
+    const maxRaw =
+      typeof pick?.etaMaxDays === "number"
+        ? pick.etaMaxDays
+        : typeof pick?.etaMinDays === "number"
+          ? pick.etaMinDays
+          : 4;
 
-  const rawDeliveryMinDays =
-    typeof activeDeliveryBadge?.etaMinDays === "number"
-      ? activeDeliveryBadge.etaMinDays
-      : typeof activeDeliveryBadge?.etaMaxDays === "number"
-        ? activeDeliveryBadge.etaMaxDays
-        : 2;
-
-  const rawDeliveryMaxDays =
-    typeof activeDeliveryBadge?.etaMaxDays === "number"
-      ? activeDeliveryBadge.etaMaxDays
-      : typeof activeDeliveryBadge?.etaMinDays === "number"
-        ? activeDeliveryBadge.etaMinDays
-        : 4;
-
-  const deliveryMinDays = Math.min(rawDeliveryMinDays, rawDeliveryMaxDays);
-  const deliveryMaxDays = Math.max(rawDeliveryMinDays, rawDeliveryMaxDays);
-
-  const deliverySummary =
-    deliveryPriceCents <= 0
-      ? t("price.freeShipping")
-      : t("price.shippingFromPrice", {
-        price: new Intl.NumberFormat(deliveryLocale, {
-          style: "currency",
-          currency: deliveryCurrency,
-        }).format(deliveryPriceCents / 100),
-      });
-
-  const deliveryEta =
-    deliveryMinDays === deliveryMaxDays
-      ? t("price.deliveryDaysExact", { count: deliveryMinDays })
-      : t("price.deliveryDaysRange", {
-        min: deliveryMinDays,
-        max: deliveryMaxDays,
-      });
+    return {
+      price: (pick?.effectivePriceCents ?? 0) / 100,
+      currency: pick?.currency || "EUR",
+      minDays: Math.min(minRaw, maxRaw),
+      maxDays: Math.max(minRaw, maxRaw),
+    };
+  };
 
   const ratingValue = reviewAvg !== null ? Math.round(reviewAvg * 10) / 10 : null;
   const manufacturerNumber = variant?.sku ?? undefined;
@@ -418,9 +506,11 @@ export default function ProductPage() {
       "@type": "Offer",
       priceCurrency: "EUR",
       price: numericPrice !== null ? String(numericPrice) : undefined,
-      availability: available
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
+      availability: hasAvailability
+        ? available
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock"
+        : undefined,
       url: canonicalUrl,
     },
     aggregateRating:
@@ -501,8 +591,7 @@ export default function ProductPage() {
                             <span className={cls.price__current}>{price}</span>
                           </div>
                           <div className={cls.product__infoBelow}>
-                            <span className={cls.productVat}>{t("price.vatIncluded")}</span>&nbsp;
-                            <span className={cls.productDelivery}>{deliverySummary} • {deliveryEta}</span>
+                            <span className={cls.productVat}>{t("price.vatIncluded")}</span>
                           </div>
                         </div>
                         <div className={"cls.meta_container--item"}>
@@ -526,21 +615,24 @@ export default function ProductPage() {
                         </div>
                       </div>
                     </div>
-
-                    <div className={cls.section}>
-                      <div className={cls.section__content}>
-                        <div className={cls.available}>
-                          <span className={available ? cls.inStock : cls.outOfStock} />
-                          <span className={available ? cls.inStockText : cls.outOfStockText}>
-                            {available
-                              ? t("availability.inStock")
-                              : t("availability.outOfStock")}
-                          </span>
+                    
+                    {/* Временно не показываем вообще доступность */}
+                    {hasAvailability !== true && (
+                      <div className={cls.section}>
+                        <div className={cls.section__content}>
+                          <div className={cls.available}>
+                            <span className={available ? cls.inStock : cls.outOfStock} />
+                            <span className={available ? cls.inStockText : cls.outOfStockText}>
+                              {available
+                                ? t("availability.inStock")
+                                : t("availability.outOfStock")}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
 
-                    {hasVariants && (
+                    {hasVariantOptions && (
                       <div className={cls.section}>
                         <div className={cls.section__content}>
                           <VariantPicker
@@ -552,30 +644,29 @@ export default function ProductPage() {
                       </div>
                     )}
 
-                    <div className={cls.section}>
-                      <h3 className={cls.section__title}>
-                        {t("sections.delivery.title")}
-                      </h3>
-                      <div className={cls.section__content}>
-                        <DeliveryBadge
-                          price={deliveryPriceCents / 100}
-                          currency={deliveryCurrency}
-                          locale={deliveryLocale}
-                          minDays={deliveryMinDays}
-                          maxDays={deliveryMaxDays}
-                          freeLabel={t("deliveryBadge.freeLabel")}
-                          paidLabel={t("deliveryBadge.paidLabel")}
-                          betweenLabel={t("deliveryBadge.betweenLabel")}
-                          andLabel={t("deliveryBadge.andLabel")}
-                        />
+                    {cheapestDelivery && (
+                      <div className={cls.section}>
+                        <h3 className={cls.section__title}>
+                          {t("sections.delivery.title")}
+                        </h3>
+                        <div className={cls.section__content}>
+                          <DeliveryBadge
+                            {...deliveryBadgePropsFromPick(cheapestDelivery)}
+                            locale={deliveryLocale}
+                            freeLabel={t("deliveryBadge.freeLabel")}
+                            paidLabel={t("deliveryBadge.paidLabel")}
+                            betweenLabel={t("deliveryBadge.betweenLabel")}
+                            andLabel={t("deliveryBadge.andLabel")}
+                          />
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   <div ref={actionsRef} className={cls.productActions}>
                     <Button
                       className={cls.addToCart}
-                      disabled={!available}
+                      disabled={hasAvailability ? !available : false}
                       onClick={handleAddToCart}
                     >
                       {t("actions.addToCart")}
