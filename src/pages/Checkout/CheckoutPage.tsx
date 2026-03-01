@@ -6,7 +6,7 @@ import "./Checkout.scss";
 import styles from "./Checkout.module.scss";
 import {
   quoteTotals,
-  listShippingOptions,
+  listShippingOptionsForCart,
   type ShippingOption,
 } from "../../services/checkoutApi";
 import { useCart } from "../../context/CartContext";
@@ -245,6 +245,8 @@ const CheckoutPage: React.FC = () => {
   const [shipping, setShipping] = useState<ShippingUi | null>(null);
   const [shipLoading, setShipLoading] = useState(false);
   const [shipError, setShipError] = useState<string | null>(null);
+  const [splitRequired, setSplitRequired] = useState(false);
+  const [splitGroupsCount, setSplitGroupsCount] = useState(0);
 
   const [promo, setPromo] = useState<string>("");
   const [promoApplied, setPromoApplied] = useState<string | null>(null);
@@ -358,11 +360,28 @@ const CheckoutPage: React.FC = () => {
       setShipLoading(true);
       setShipError(null);
       try {
-        const raw: ShippingOption[] = await listShippingOptions({
+        const payloadLines = selectedLines.map((line) => ({
+          productId: line.productId || undefined,
+          variantId: line.variantId || undefined,
+          qty: Math.max(1, Number(line.qty) || 1),
+        }));
+
+        const result = await listShippingOptionsForCart({
           country: countryISO2,
           subtotalCents: subtotal,
+          lines: payloadLines,
         });
         if (cancelled) return;
+        setSplitRequired(Boolean(result.splitRequired));
+        setSplitGroupsCount(Array.isArray(result.splitGroups) ? result.splitGroups.length : 0);
+
+        if (result.splitRequired) {
+          setShippingOptions([]);
+          setShipping(null);
+          return;
+        }
+
+        const raw: ShippingOption[] = result.options || [];
         const ui: ShippingUi[] = raw.map((o) => ({
           id: o.id,
           label: o.label,
@@ -383,6 +402,8 @@ const CheckoutPage: React.FC = () => {
           setShipError(e?.message || "Failed to load shipping options");
           setShippingOptions([]);
           setShipping(null);
+          setSplitRequired(false);
+          setSplitGroupsCount(0);
         }
       } finally {
         if (!cancelled) setShipLoading(false);
@@ -391,7 +412,7 @@ const CheckoutPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [countryISO2, subtotal, etaToStr]);
+  }, [countryISO2, subtotal, selectedLines, etaToStr]);
 
   // базовая стоимость доставки
   const baseShippingCents = useMemo(() => {
@@ -518,6 +539,7 @@ const CheckoutPage: React.FC = () => {
       !!shipping &&
       !shipLoading &&
       !shipError &&
+      !splitRequired &&
       shippingOptions.length > 0 &&
       selectedLines.length > 0,
     [
@@ -525,6 +547,7 @@ const CheckoutPage: React.FC = () => {
       shipping,
       shipLoading,
       shipError,
+      splitRequired,
       shippingOptions.length,
       selectedLines.length,
     ]
@@ -583,6 +606,8 @@ const CheckoutPage: React.FC = () => {
               shippingOptions={shippingOptions}
               shipLoading={shipLoading}
               shipError={shipError}
+              splitRequired={splitRequired}
+              splitGroupsCount={splitGroupsCount}
               isAuthed={isAuthenticated}
               savedAddresses={savedAddresses}
               selectedAddrId={selectedAddressId}
@@ -665,6 +690,8 @@ type AddressSectionProps = {
   shippingOptions: ShippingUi[];
   shipLoading: boolean;
   shipError: string | null;
+  splitRequired: boolean;
+  splitGroupsCount: number;
 
   // + новое
   isAuthed?: boolean;
@@ -682,6 +709,8 @@ const AddressSection: React.FC<AddressSectionProps> = ({
   shippingOptions,
   shipLoading,
   shipError,
+  splitRequired,
+  splitGroupsCount,
   isAuthed = false,
   savedAddresses,
   selectedAddrId,
@@ -865,7 +894,12 @@ const AddressSection: React.FC<AddressSectionProps> = ({
             {t("shipping.error")}
           </div>
         )}
-        {!shipLoading && !shipError && shippingOptions.length === 0 && (
+        {!shipLoading && !shipError && splitRequired && (
+          <div className="warn" style={{ marginBottom: 8 }}>
+            {t("shipping.splitRequired", { groups: splitGroupsCount })}
+          </div>
+        )}
+        {!shipLoading && !shipError && !splitRequired && shippingOptions.length === 0 && (
           <div className="muted">
             {t("shipping.none")}
           </div>

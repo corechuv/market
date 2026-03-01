@@ -73,6 +73,7 @@ const ProductItemList: React.FC<Props> = ({
             available={!!item.available}
             energyClass={item.energyClassUrl}
             energyClassArrow={item.energyClassArrowUrl}
+            deliveryBadge={item.deliveryBadge}
             onClick={() => onItemClick?.(item)}
           />
         );

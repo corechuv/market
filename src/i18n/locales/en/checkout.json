@@ -43,6 +43,7 @@
         "accordionTitle": "Shipping Method",
         "loading": "Loading options…",
         "error": "Failed to load shipping options. Try again later.",
+        "splitRequired": "No common shipping method is available for this cart. Please split the order into {{groups}} shipment(s).",
         "none": "No shipping methods available for your country.",
         "free": "Free",
         "eta": {

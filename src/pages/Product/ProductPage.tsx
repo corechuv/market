@@ -51,7 +51,7 @@ export default function ProductPage() {
   const nav = useNavigate();
   const loc = useLocation();
   const { productId, tab } = useParams<{ productId: string; tab?: string }>();
-  const { t } = useTranslation("product");
+  const { t, i18n } = useTranslation("product");
 
   const [activeTab, setActiveTab] = React.useState<TabKey>(normalizeTab(tab));
 
@@ -340,6 +340,53 @@ export default function ProductPage() {
   const energyClassArrow = variant?.energyClassArrowUrl ?? product.energyClassArrowUrl;
   const energyClass = variant?.energyClassUrl ?? product.energyClassUrl;
   const datasheetUrl = variant?.datasheetPdfUrl ?? product.datasheetPdfUrl;
+  const activeDeliveryBadge = variant?.deliveryBadge ?? product.deliveryBadge ?? null;
+
+  const deliveryLocale = (() => {
+    const lang = (i18n.language || "de").slice(0, 2).toLowerCase();
+    if (lang === "ru") return "ru-RU";
+    if (lang === "en") return "en-GB";
+    return "de-DE";
+  })();
+
+  const deliveryPriceCents =
+    activeDeliveryBadge?.effectivePriceCents ?? activeDeliveryBadge?.priceCents ?? 0;
+  const deliveryCurrency = activeDeliveryBadge?.currency || "EUR";
+
+  const rawDeliveryMinDays =
+    typeof activeDeliveryBadge?.etaMinDays === "number"
+      ? activeDeliveryBadge.etaMinDays
+      : typeof activeDeliveryBadge?.etaMaxDays === "number"
+        ? activeDeliveryBadge.etaMaxDays
+        : 2;
+
+  const rawDeliveryMaxDays =
+    typeof activeDeliveryBadge?.etaMaxDays === "number"
+      ? activeDeliveryBadge.etaMaxDays
+      : typeof activeDeliveryBadge?.etaMinDays === "number"
+        ? activeDeliveryBadge.etaMinDays
+        : 4;
+
+  const deliveryMinDays = Math.min(rawDeliveryMinDays, rawDeliveryMaxDays);
+  const deliveryMaxDays = Math.max(rawDeliveryMinDays, rawDeliveryMaxDays);
+
+  const deliverySummary =
+    deliveryPriceCents <= 0
+      ? t("price.freeShipping")
+      : t("price.shippingFromPrice", {
+        price: new Intl.NumberFormat(deliveryLocale, {
+          style: "currency",
+          currency: deliveryCurrency,
+        }).format(deliveryPriceCents / 100),
+      });
+
+  const deliveryEta =
+    deliveryMinDays === deliveryMaxDays
+      ? t("price.deliveryDaysExact", { count: deliveryMinDays })
+      : t("price.deliveryDaysRange", {
+        min: deliveryMinDays,
+        max: deliveryMaxDays,
+      });
 
   const ratingValue = reviewAvg !== null ? Math.round(reviewAvg * 10) / 10 : null;
   const manufacturerNumber = variant?.sku ?? undefined;
@@ -455,7 +502,7 @@ export default function ProductPage() {
                           </div>
                           <div className={cls.product__infoBelow}>
                             <span className={cls.productVat}>{t("price.vatIncluded")}</span>&nbsp;
-                            <span className={cls.productDelivery}>{t("price.freeShipping")}</span>
+                            <span className={cls.productDelivery}>{deliverySummary} • {deliveryEta}</span>
                           </div>
                         </div>
                         <div className={"cls.meta_container--item"}>
@@ -510,7 +557,17 @@ export default function ProductPage() {
                         {t("sections.delivery.title")}
                       </h3>
                       <div className={cls.section__content}>
-                        <DeliveryBadge minDays={2} maxDays={4} />
+                        <DeliveryBadge
+                          price={deliveryPriceCents / 100}
+                          currency={deliveryCurrency}
+                          locale={deliveryLocale}
+                          minDays={deliveryMinDays}
+                          maxDays={deliveryMaxDays}
+                          freeLabel={t("deliveryBadge.freeLabel")}
+                          paidLabel={t("deliveryBadge.paidLabel")}
+                          betweenLabel={t("deliveryBadge.betweenLabel")}
+                          andLabel={t("deliveryBadge.andLabel")}
+                        />
                       </div>
                     </div>
                   </div>

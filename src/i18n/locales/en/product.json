@@ -10,7 +10,17 @@
     },
     "price": {
         "vatIncluded": "incl. VAT",
-        "freeShipping": "free shipping"
+        "freeShipping": "free shipping",
+        "shippingFromPrice": "Shipping {{price}}",
+        "deliveryDaysRange": "{{min}}–{{max}} days",
+        "deliveryDaysExact_one": "{{count}} day",
+        "deliveryDaysExact_other": "{{count}} days"
+    },
+    "deliveryBadge": {
+        "freeLabel": "Free delivery",
+        "paidLabel": "Delivery",
+        "betweenLabel": "Delivery between",
+        "andLabel": "and"
     },
     "availability": {
         "inStock": "In stock",

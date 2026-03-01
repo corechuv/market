@@ -2,6 +2,8 @@
 import React from "react";
 import cls from "./ProductCard.module.scss";
 import EnergyLabel from "./Details/EnergyLabel";
+import { useTranslation } from "react-i18next";
+import type { DeliveryBadge } from "../../types/product";
 
 export type ProductCardProps = {
     name: string;
@@ -13,6 +15,7 @@ export type ProductCardProps = {
     available?: boolean;
     energyClassArrow?: string;
     energyClass?: string;
+    deliveryBadge?: DeliveryBadge;
     onClick?: () => void;
 };
 
@@ -25,11 +28,56 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     available = true,
     energyClassArrow,
     energyClass,
+    deliveryBadge,
     onClick,
 }) => {
+    const { t, i18n } = useTranslation("product");
+
     const availabilityText = available ? "In stock" : "Out of stock";
     const discountText =
         typeof discountPercent === "number" ? `-${discountPercent}%` : "";
+
+    const deliveryText = React.useMemo(() => {
+        if (!deliveryBadge) return "";
+
+        const lang = (i18n.language || "de").slice(0, 2).toLowerCase();
+        const locale = lang === "ru" ? "ru-RU" : lang === "en" ? "en-GB" : "de-DE";
+        const effective =
+            typeof deliveryBadge.effectivePriceCents === "number"
+                ? deliveryBadge.effectivePriceCents
+                : deliveryBadge.priceCents;
+
+        const shippingLabel =
+            !effective || effective <= 0
+                ? t("price.freeShipping")
+                : t("price.shippingFromPrice", {
+                    price: new Intl.NumberFormat(locale, {
+                        style: "currency",
+                        currency: deliveryBadge.currency || "EUR",
+                    }).format((effective || 0) / 100),
+                });
+
+        const minDays =
+            typeof deliveryBadge.etaMinDays === "number"
+                ? deliveryBadge.etaMinDays
+                : null;
+        const maxDays =
+            typeof deliveryBadge.etaMaxDays === "number"
+                ? deliveryBadge.etaMaxDays
+                : null;
+
+        if (minDays === null && maxDays === null) return shippingLabel;
+
+        if (minDays !== null && maxDays !== null && minDays !== maxDays) {
+            return `${shippingLabel} • ${t("price.deliveryDaysRange", {
+                min: Math.min(minDays, maxDays),
+                max: Math.max(minDays, maxDays),
+            })}`;
+        }
+
+        const days = minDays ?? maxDays ?? 0;
+        return `${shippingLabel} • ${t("price.deliveryDaysExact", { count: days })}`;
+    }, [deliveryBadge, i18n.language, t]);
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
         if (!onClick) return;
@@ -89,6 +137,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
                     <span className={cls["item__price--current"]}>{price}</span>
                 </div>
+
+                {deliveryText ? <div className={cls.item__delivery}>{deliveryText}</div> : null}
 
                 <div className={cls.item__available}>
                     <span

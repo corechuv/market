@@ -10,7 +10,19 @@
     },
     "price": {
         "vatIncluded": "вкл. НДС",
-        "freeShipping": "бесплатная доставка"
+        "freeShipping": "бесплатная доставка",
+        "shippingFromPrice": "Доставка {{price}}",
+        "deliveryDaysRange": "{{min}}–{{max}} дней",
+        "deliveryDaysExact_one": "{{count}} день",
+        "deliveryDaysExact_few": "{{count}} дня",
+        "deliveryDaysExact_many": "{{count}} дней",
+        "deliveryDaysExact_other": "{{count}} дней"
+    },
+    "deliveryBadge": {
+        "freeLabel": "Бесплатная доставка",
+        "paidLabel": "Доставка",
+        "betweenLabel": "Доставка между",
+        "andLabel": "и"
     },
     "availability": {
         "inStock": "В наличии",

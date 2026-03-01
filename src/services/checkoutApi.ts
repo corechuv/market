@@ -82,22 +82,67 @@ export type ShippingOption = {
   freeFromCents?: number | null;
 };
 
+export type ShippingOptionLineIn = {
+  productId?: string;
+  variantId?: string;
+  qty?: number;
+};
+
+export type ShippingSplitGroup = {
+  groupId: string;
+  lineIndexes: number[];
+  source: string;
+  options: ShippingOption[];
+};
+
+export type ShippingOptionsForCartOut = {
+  options: ShippingOption[];
+  splitRequired: boolean;
+  splitGroups: ShippingSplitGroup[];
+};
+
 // --- API calls ---
 export async function listShippingOptions(params: {
   country: string;           // ISO-2
   subtotalCents: number;
+  productId?: string;
+  variantId?: string;
 }): Promise<ShippingOption[]> {
-  const q = new URLSearchParams({
-    country: (params.country || "DE").toUpperCase(),
-    subtotalCents: String(Math.max(0, params.subtotalCents || 0)),
-  });
+  const q = new URLSearchParams();
+  q.set("country", (params.country || "DE").toUpperCase());
+  q.set("subtotalCents", String(Math.max(0, params.subtotalCents || 0)));
+  if (params.productId) q.set("productId", params.productId);
+  if (params.variantId) q.set("variantId", params.variantId);
+
   return api<ShippingOption[]>(`/shipping/options?${q.toString()}`);
+}
+
+export async function listShippingOptionsForCart(params: {
+  country: string;
+  subtotalCents: number;
+  lines: ShippingOptionLineIn[];
+}): Promise<ShippingOptionsForCartOut> {
+  const body = {
+    country: (params.country || "DE").toUpperCase(),
+    subtotalCents: Math.max(0, params.subtotalCents || 0),
+    lines: (params.lines || []).map((line) => ({
+      productId: line.productId || undefined,
+      variantId: line.variantId || undefined,
+      qty: Math.max(1, Number(line.qty) || 1),
+    })),
+  };
+
+  return api<ShippingOptionsForCartOut>("/shipping/options/for-cart", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
 }
 
 // ---- helpers
 export function toOrderItems(lines: CartLine[]) {
   return lines.map((l) => ({
     productId: l.productId || undefined,
+    variantId: l.variantId || undefined,
     sku: l.variantId || l.productId || l.id,
     name: l.title,
     qty: l.qty,

@@ -143,6 +143,7 @@ const ProductCarouselInner = <TItem extends AnyItem>({
               available={!!item.available}
               energyClass={item.energyClassUrl}
               energyClassArrow={item.energyClassArrowUrl}
+              deliveryBadge={item.deliveryBadge}
               onClick={() => onItemClick?.(item as TItem)}
             />
           );
@@ -162,6 +163,7 @@ const ProductCarouselInner = <TItem extends AnyItem>({
         const available = (v?.available ?? product.available) ?? false;
         const energyClass = v?.energyClassUrl ?? product.energyClassUrl;
         const energyClassArrow = v?.energyClassArrowUrl ?? product.energyClassArrowUrl;
+        const deliveryBadge = v?.deliveryBadge ?? product.deliveryBadge;
 
         return (
           <ProductCard
@@ -173,6 +175,7 @@ const ProductCarouselInner = <TItem extends AnyItem>({
             available={!!available}
             energyClass={energyClass}
             energyClassArrow={energyClassArrow}
+            deliveryBadge={deliveryBadge}
             onClick={() => onItemClick?.(item as TItem)}
           />
         );

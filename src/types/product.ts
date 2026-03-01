@@ -21,6 +21,20 @@ export interface ProductAttribute {
   highlight?: boolean;
 }
 
+export type DeliveryBadge = {
+  serviceId?: string;
+  id?: string;
+  carrierCode?: string;
+  serviceCode?: string;
+  label?: string;
+  priceCents: number;
+  effectivePriceCents: number;
+  currency: string;
+  etaMinDays?: number | null;
+  etaMaxDays?: number | null;
+  freeFromCents?: number | null;
+};
+
 export interface ProductBase {
   id: string;
 
@@ -73,6 +87,8 @@ export type ProductVariant = {
   datasheetPdfUrl?: string;
   energyClassUrl?: string;
   energyClassArrowUrl?: string;
+
+  deliveryBadge?: DeliveryBadge;
 };
 
 export type Product = ProductBase & {
@@ -81,6 +97,8 @@ export type Product = ProductBase & {
 
   variants: ProductVariant[];
   defaultVariantId?: string;
+
+  deliveryBadge?: DeliveryBadge;
 };
 
 /**
@@ -114,4 +132,6 @@ export type VariantListItem = {
   datasheetPdfUrl?: string;
   energyClassUrl?: string;
   energyClassArrowUrl?: string;
+
+  deliveryBadge?: DeliveryBadge;
 };
