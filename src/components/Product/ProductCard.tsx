@@ -16,6 +16,7 @@ export type ProductCardProps = {
     energyClassArrow?: string;
     energyClass?: string;
     deliveryBadge?: DeliveryBadge;
+    deliveryMode?: "full" | "etaOnly";
     onClick?: () => void;
 };
 
@@ -29,6 +30,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     energyClassArrow,
     energyClass,
     deliveryBadge,
+    deliveryMode = "full",
     onClick,
 }) => {
     const { t, i18n } = useTranslation("product");
@@ -48,14 +50,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 : deliveryBadge.priceCents;
 
         const shippingLabel =
-            !effective || effective <= 0
-                ? t("price.freeShipping")
-                : t("price.shippingFromPrice", {
-                    price: new Intl.NumberFormat(locale, {
-                        style: "currency",
-                        currency: deliveryBadge.currency || "EUR",
-                    }).format((effective || 0) / 100),
-                });
+            typeof effective === "number"
+                ? effective <= 0
+                    ? t("price.freeShipping")
+                    : t("price.shippingFromPrice", {
+                        price: new Intl.NumberFormat(locale, {
+                            style: "currency",
+                            currency: deliveryBadge.currency || "EUR",
+                        }).format(effective / 100),
+                    })
+                : "";
 
         const minDays =
             typeof deliveryBadge.etaMinDays === "number"
@@ -66,18 +70,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 ? deliveryBadge.etaMaxDays
                 : null;
 
-        if (minDays === null && maxDays === null) return shippingLabel;
+        const etaText =
+            minDays === null && maxDays === null
+                ? ""
+                : minDays !== null && maxDays !== null && minDays !== maxDays
+                    ? t("price.deliveryDaysRange", {
+                        min: Math.min(minDays, maxDays),
+                        max: Math.max(minDays, maxDays),
+                    })
+                    : t("price.deliveryDaysExact", { count: minDays ?? maxDays ?? 0 });
 
-        if (minDays !== null && maxDays !== null && minDays !== maxDays) {
-            return `${shippingLabel} • ${t("price.deliveryDaysRange", {
-                min: Math.min(minDays, maxDays),
-                max: Math.max(minDays, maxDays),
-            })}`;
+        if (deliveryMode === "etaOnly") {
+            return etaText || shippingLabel;
         }
 
-        const days = minDays ?? maxDays ?? 0;
-        return `${shippingLabel} • ${t("price.deliveryDaysExact", { count: days })}`;
-    }, [deliveryBadge, i18n.language, t]);
+        if (shippingLabel && etaText) return `${shippingLabel} • ${etaText}`;
+        return shippingLabel || etaText;
+    }, [deliveryBadge, deliveryMode, i18n.language, t]);
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
         if (!onClick) return;
