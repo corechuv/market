@@ -259,6 +259,7 @@ export default function Home() {
                     items={newArrivals}
                     isLoading={loading}
                     skeletonCount={12}
+                    layout="masonry"
                     onItemClick={(it) => nav(toUrl(it))}
                   />
                 </div>
@@ -282,6 +283,7 @@ export default function Home() {
                     items={saleProducts}
                     isLoading={loading}
                     skeletonCount={12}
+                    layout="masonry"
                     onItemClick={(it) => nav(toUrl(it))}
                   />
                 </div>

@@ -1,6 +1,5 @@
 // src/components/Product/ProductItemList.module.scss
 $bp-sm: 480px;
-$bp-md: 768px;
 $bp-lg: 1024px;
 $bp-bg: 1200px;
 
@@ -19,5 +18,33 @@ $bp-bg: 1200px;
 
   @media (max-width: $bp-sm) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.masonry {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--gap);
+
+  @media (max-width: $bp-bg) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  @media (max-width: $bp-lg) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (max-width: $bp-sm) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  &__column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+  }
+
+  &__item {
+    width: 100%;
   }
 }

@@ -369,6 +369,7 @@ export default function ProductsMain({
             items={items}
             isLoading={loading}
             skeletonCount={12}
+            layout="masonry"
             onItemClick={(it) => nav(it.url)}
           />
 
