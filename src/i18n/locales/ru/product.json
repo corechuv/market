@@ -11,7 +11,8 @@
     "price": {
         "vatIncluded": "вкл. НДС",
         "freeShipping": "бесплатная доставка",
-        "shippingFromPrice": "Доставка {{price}}",
+        "shippingPrice": "Доставка {{price}}",
+        "shippingFromPrice": "Доставка от {{price}}",
         "deliveryDaysRange": "{{min}}–{{max}} дней",
         "deliveryDaysExact_one": "{{count}} день",
         "deliveryDaysExact_few": "{{count}} дня",
@@ -21,6 +22,7 @@
     "deliveryBadge": {
         "freeLabel": "Бесплатная доставка",
         "paidLabel": "Доставка",
+        "paidFromLabel": "Доставка от",
         "betweenLabel": "Доставка между",
         "andLabel": "и"
     },

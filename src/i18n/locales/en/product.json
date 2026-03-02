@@ -11,7 +11,8 @@
     "price": {
         "vatIncluded": "incl. VAT",
         "freeShipping": "free shipping",
-        "shippingFromPrice": "Shipping {{price}}",
+        "shippingPrice": "Shipping {{price}}",
+        "shippingFromPrice": "Shipping from {{price}}",
         "deliveryDaysRange": "{{min}}–{{max}} days",
         "deliveryDaysExact_one": "{{count}} day",
         "deliveryDaysExact_other": "{{count}} days"
@@ -19,6 +20,7 @@
     "deliveryBadge": {
         "freeLabel": "Free delivery",
         "paidLabel": "Delivery",
+        "paidFromLabel": "Delivery from",
         "betweenLabel": "Delivery between",
         "andLabel": "and"
     },

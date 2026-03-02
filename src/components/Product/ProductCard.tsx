@@ -16,7 +16,7 @@ export type ProductCardProps = {
     energyClassArrow?: string;
     energyClass?: string;
     deliveryBadge?: DeliveryBadge;
-    deliveryMode?: "full" | "etaOnly";
+    deliveryMode?: "full" | "etaOnly" | "priceOnly";
     isSponsored?: boolean;
     sponsoredLabel?: string | null;
     onClick?: () => void;
@@ -57,7 +57,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             typeof effective === "number"
                 ? effective <= 0
                     ? t("price.freeShipping")
-                    : t("price.shippingFromPrice", {
+                    : t(
+                        deliveryBadge.isFromPrice ? "price.shippingFromPrice" : "price.shippingPrice",
+                        {
                         price: new Intl.NumberFormat(locale, {
                             style: "currency",
                             currency: deliveryBadge.currency || "EUR",
@@ -83,6 +85,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                         max: Math.max(minDays, maxDays),
                     })
                     : t("price.deliveryDaysExact", { count: minDays ?? maxDays ?? 0 });
+
+        if (deliveryMode === "priceOnly") {
+            return shippingLabel;
+        }
 
         if (deliveryMode === "etaOnly") {
             return etaText || shippingLabel;

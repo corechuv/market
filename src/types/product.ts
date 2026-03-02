@@ -27,6 +27,7 @@ export type DeliveryBadge = {
   carrierCode?: string;
   serviceCode?: string;
   label?: string;
+  isFromPrice?: boolean;
   priceCents: number;
   effectivePriceCents: number;
   currency: string;

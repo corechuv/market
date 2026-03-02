@@ -58,6 +58,7 @@ type DeliveryPick = {
   currency: string;
   etaMinDays?: number | null;
   etaMaxDays?: number | null;
+  isFromPrice?: boolean;
 };
 
 function normalizePickFromOption(o: ShippingOption): DeliveryPick {
@@ -82,6 +83,7 @@ function normalizePickFromBadge(
     currency: badge.currency || "EUR",
     etaMinDays: badge.etaMinDays ?? null,
     etaMaxDays: badge.etaMaxDays ?? null,
+    isFromPrice: Boolean(badge.isFromPrice),
   };
 }
 
@@ -446,6 +448,8 @@ export default function ProductPage() {
   );
 
   const cheapestDelivery = cheapestDeliveryFromOptions ?? fallbackDeliveryPick;
+  const showFromPriceInDeliveryBadge =
+    deliveryOptions.length > 1 || (deliveryOptions.length === 0 && Boolean(fallbackDeliveryPick?.isFromPrice));
 
   const deliveryLocale = (() => {
     const lang = (i18n.language || "de").slice(0, 2).toLowerCase();
@@ -654,7 +658,11 @@ export default function ProductPage() {
                             {...deliveryBadgePropsFromPick(cheapestDelivery)}
                             locale={deliveryLocale}
                             freeLabel={t("deliveryBadge.freeLabel")}
-                            paidLabel={t("deliveryBadge.paidLabel")}
+                            paidLabel={
+                              showFromPriceInDeliveryBadge
+                                ? t("deliveryBadge.paidFromLabel")
+                                : t("deliveryBadge.paidLabel")
+                            }
                             betweenLabel={t("deliveryBadge.betweenLabel")}
                             andLabel={t("deliveryBadge.andLabel")}
                           />

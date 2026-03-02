@@ -144,6 +144,7 @@ const ProductCarouselInner = <TItem extends AnyItem>({
               energyClass={item.energyClassUrl}
               energyClassArrow={item.energyClassArrowUrl}
               deliveryBadge={item.deliveryBadge}
+              deliveryMode="priceOnly"
               isSponsored={Boolean(item.isSponsored)}
               sponsoredLabel={item.sponsorship?.label}
               onClick={() => onItemClick?.(item as TItem)}
@@ -178,6 +179,7 @@ const ProductCarouselInner = <TItem extends AnyItem>({
             energyClass={energyClass}
             energyClassArrow={energyClassArrow}
             deliveryBadge={deliveryBadge}
+            deliveryMode="priceOnly"
             onClick={() => onItemClick?.(item as TItem)}
           />
         );
