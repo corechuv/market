@@ -44,6 +44,7 @@
         "loading": "Versandoptionen werden geladen…",
         "error": "Versandoptionen konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
         "splitRequired": "Gemeinsamer Versand ist für diesen Warenkorb nicht verfügbar. Bitte teilen Sie die Bestellung in {{groups}} Sendung(en) auf.",
+        "splitGroupTitle": "Sendung {{index}} ({{count}} Artikel)",
         "none": "Für Ihr Land sind keine Versandarten verfügbar.",
         "free": "Kostenlos",
         "eta": {

@@ -8,6 +8,8 @@ import {
   quoteTotals,
   listShippingOptionsForCart,
   type ShippingOption,
+  type ShippingSplitGroup,
+  type SplitShippingSelectionIn,
 } from "../../services/checkoutApi";
 import { useCart } from "../../context/CartContext";
 import { formatMoney } from "../../utils/money";
@@ -47,6 +49,7 @@ type FormAddress = {
   email: string;
   phone: string;
   line1: string;
+  houseNo: string;
   line2?: string;
   city: string;
   postalCode: string;
@@ -63,6 +66,7 @@ type AccountAddress = {
   region?: string | null;
   city: string;
   line1: string;
+  houseNo?: string | null;
   line2?: string | null;
   phone?: string | null;
   email?: string | null;
@@ -76,6 +80,7 @@ const accountToForm = (a: AccountAddress, u?: any): FormAddress => ({
   email: a.email || u?.email || "",
   phone: a.phone || u?.phone || "",
   line1: a.line1 || "",
+  houseNo: a.houseNo || "",
   line2: a.line2 || "",
   city: a.city || "",
   postalCode: a.postalCode || "",
@@ -84,6 +89,7 @@ const accountToForm = (a: AccountAddress, u?: any): FormAddress => ({
 
 // Вариант доставки для UI
 export type ShippingUi = {
+  serviceId?: string;
   id: string;
   label: string;
   eta: string;
@@ -92,6 +98,18 @@ export type ShippingUi = {
   carrierCode: string;
   serviceCode: string;
   freeFromCents?: number | null;
+};
+
+type ShippingSplitGroupUi = {
+  groupId: string;
+  lineIndexes: number[];
+  source: string;
+  options: ShippingUi[];
+};
+
+type SplitSelectionUi = SplitShippingSelectionIn & {
+  effectivePriceCents: number;
+  label?: string | null;
 };
 
 // --- Config
@@ -107,6 +125,7 @@ function readCheckoutDraft(): FormAddress {
     email: "",
     phone: "",
     line1: "",
+    houseNo: "",
     line2: "",
     city: "",
     postalCode: "",
@@ -124,6 +143,7 @@ function readCheckoutDraft(): FormAddress {
       email: String(parsed.email ?? ""),
       phone: String(parsed.phone ?? ""),
       line1: String(parsed.line1 ?? ""),
+      houseNo: String(parsed.houseNo ?? ""),
       line2: parsed.line2 ? String(parsed.line2) : "",
       city: String(parsed.city ?? ""),
       postalCode: String(parsed.postalCode ?? ""),
@@ -246,7 +266,8 @@ const CheckoutPage: React.FC = () => {
   const [shipLoading, setShipLoading] = useState(false);
   const [shipError, setShipError] = useState<string | null>(null);
   const [splitRequired, setSplitRequired] = useState(false);
-  const [splitGroupsCount, setSplitGroupsCount] = useState(0);
+  const [splitGroups, setSplitGroups] = useState<ShippingSplitGroupUi[]>([]);
+  const [splitSelectedByGroup, setSplitSelectedByGroup] = useState<Record<string, ShippingUi>>({});
 
   const [promo, setPromo] = useState<string>("");
   const [promoApplied, setPromoApplied] = useState<string | null>(null);
@@ -291,6 +312,7 @@ const CheckoutPage: React.FC = () => {
             setAddress((a) => ({
               ...a,
               line1: "",
+              houseNo: "",
               line2: "",
               city: "",
               postalCode: "",
@@ -353,6 +375,31 @@ const CheckoutPage: React.FC = () => {
     [t]
   );
 
+  const toShippingUi = React.useCallback(
+    (o: ShippingOption): ShippingUi => ({
+      serviceId: o.serviceId,
+      id: o.id,
+      label: o.label,
+      eta: etaToStr(o.etaMinDays ?? undefined, o.etaMaxDays ?? undefined),
+      priceCents: o.priceCents,
+      effectivePriceCents: o.effectivePriceCents,
+      carrierCode: o.carrierCode,
+      serviceCode: o.serviceCode,
+      freeFromCents: o.freeFromCents ?? undefined,
+    }),
+    [etaToStr]
+  );
+
+  const toSplitGroupUi = React.useCallback(
+    (g: ShippingSplitGroup): ShippingSplitGroupUi => ({
+      groupId: g.groupId,
+      lineIndexes: Array.isArray(g.lineIndexes) ? g.lineIndexes : [],
+      source: g.source,
+      options: Array.isArray(g.options) ? g.options.map(toShippingUi) : [],
+    }),
+    [toShippingUi]
+  );
+
   // Загрузка вариантов доставки
   useEffect(() => {
     let cancelled = false;
@@ -373,25 +420,34 @@ const CheckoutPage: React.FC = () => {
         });
         if (cancelled) return;
         setSplitRequired(Boolean(result.splitRequired));
-        setSplitGroupsCount(Array.isArray(result.splitGroups) ? result.splitGroups.length : 0);
 
         if (result.splitRequired) {
+          const uiGroups = (Array.isArray(result.splitGroups) ? result.splitGroups : []).map(toSplitGroupUi);
+          setSplitGroups(uiGroups);
+          setSplitSelectedByGroup((current) => {
+            const next: Record<string, ShippingUi> = {};
+            for (const group of uiGroups) {
+              const currentPick = current[group.groupId];
+              const matched = currentPick
+                ? group.options.find((x) => x.id === currentPick.id)
+                : undefined;
+              if (matched) {
+                next[group.groupId] = matched;
+              } else if (group.options[0]) {
+                next[group.groupId] = group.options[0];
+              }
+            }
+            return next;
+          });
           setShippingOptions([]);
           setShipping(null);
           return;
         }
 
+        setSplitGroups([]);
+        setSplitSelectedByGroup({});
         const raw: ShippingOption[] = result.options || [];
-        const ui: ShippingUi[] = raw.map((o) => ({
-          id: o.id,
-          label: o.label,
-          eta: etaToStr(o.etaMinDays ?? undefined, o.etaMaxDays ?? undefined),
-          priceCents: o.priceCents,
-          effectivePriceCents: o.effectivePriceCents,
-          carrierCode: o.carrierCode,
-          serviceCode: o.serviceCode,
-          freeFromCents: o.freeFromCents ?? undefined,
-        }));
+        const ui: ShippingUi[] = raw.map(toShippingUi);
         setShippingOptions(ui);
         setShipping((cur) => {
           if (cur && ui.find((x) => x.id === cur.id)) return cur;
@@ -403,7 +459,8 @@ const CheckoutPage: React.FC = () => {
           setShippingOptions([]);
           setShipping(null);
           setSplitRequired(false);
-          setSplitGroupsCount(0);
+          setSplitGroups([]);
+          setSplitSelectedByGroup({});
         }
       } finally {
         if (!cancelled) setShipLoading(false);
@@ -412,13 +469,51 @@ const CheckoutPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [countryISO2, subtotal, selectedLines, etaToStr]);
+  }, [countryISO2, subtotal, selectedLines, toShippingUi, toSplitGroupUi]);
+
+  const splitSelections = useMemo<SplitSelectionUi[]>(() => {
+    if (!splitRequired || splitGroups.length === 0) return [];
+    const out: SplitSelectionUi[] = [];
+    for (const group of splitGroups) {
+      const selected = splitSelectedByGroup[group.groupId];
+      if (!selected || !group.lineIndexes.length) continue;
+      out.push({
+        groupId: group.groupId,
+        lineIndexes: [...group.lineIndexes],
+        serviceId: selected.serviceId || null,
+        selectedCarrierCode: selected.carrierCode || null,
+        selectedServiceCode: selected.serviceCode || null,
+        effectivePriceCents:
+          selected.effectivePriceCents ?? selected.priceCents ?? 0,
+        label: selected.label || null,
+      });
+    }
+    return out;
+  }, [splitRequired, splitGroups, splitSelectedByGroup]);
+
+  const hasValidSplitSelections = useMemo(() => {
+    if (!splitRequired) return false;
+    if (!splitGroups.length) return false;
+    return splitGroups.every((group) => {
+      const selected = splitSelectedByGroup[group.groupId];
+      return (
+        !!selected &&
+        group.options.some((candidate) => candidate.id === selected.id)
+      );
+    });
+  }, [splitRequired, splitGroups, splitSelectedByGroup]);
 
   // базовая стоимость доставки
   const baseShippingCents = useMemo(() => {
+    if (splitRequired) {
+      return splitSelections.reduce(
+        (sum, row) => sum + Math.max(0, row.effectivePriceCents || 0),
+        0
+      );
+    }
     if (!shipping) return 0;
     return shipping.effectivePriceCents ?? shipping.priceCents ?? 0;
-  }, [shipping]);
+  }, [splitRequired, splitSelections, shipping]);
 
   // --- серверный квот
   const [qLoading, setQLoading] = useState(false);
@@ -524,10 +619,11 @@ const CheckoutPage: React.FC = () => {
       address.firstName,
       address.lastName,
       address.line1,
+      address.houseNo,
       address.city,
       address.postalCode,
       address.country,
-    ].every((x) => x.trim().length > 1);
+    ].every((x) => String(x || "").trim().length > 1);
     const phoneLen = address.phone.trim().length;
     const phoneOk = phoneLen === 0 || phoneLen >= 6;
     return emailOk && requiredOk && phoneOk;
@@ -536,11 +632,11 @@ const CheckoutPage: React.FC = () => {
   const canPay = useMemo(
     () =>
       addressValid &&
-      !!shipping &&
       !shipLoading &&
       !shipError &&
-      !splitRequired &&
-      shippingOptions.length > 0 &&
+      (splitRequired
+        ? splitGroups.length > 0 && hasValidSplitSelections
+        : !!shipping && shippingOptions.length > 0) &&
       selectedLines.length > 0,
     [
       addressValid,
@@ -548,6 +644,8 @@ const CheckoutPage: React.FC = () => {
       shipLoading,
       shipError,
       splitRequired,
+      splitGroups.length,
+      hasValidSplitSelections,
       shippingOptions.length,
       selectedLines.length,
     ]
@@ -558,13 +656,16 @@ const CheckoutPage: React.FC = () => {
   };
 
   const handleGoToPayment = () => {
-    if (!canPay || !shipping) return;
+    if (!canPay) return;
+    if (!splitRequired && !shipping) return;
 
     navigate("/checkout/payment", {
       state: {
         provider,
         address,
-        shipping,
+        shipping: splitRequired ? null : shipping,
+        splitRequired,
+        splitSelections,
         promoApplied,
       },
     });
@@ -576,12 +677,19 @@ const CheckoutPage: React.FC = () => {
   const displayVat = serverQuote?.vat ?? vat;
   const displayTotal = serverQuote?.total ?? total;
 
+  const allVisibleOptions = useMemo(() => {
+    if (splitRequired) {
+      return splitGroups.flatMap((group) => group.options);
+    }
+    return shippingOptions;
+  }, [splitRequired, splitGroups, shippingOptions]);
+
   const minFreeThreshold = useMemo(() => {
-    const vals = shippingOptions
+    const vals = allVisibleOptions
       .map((o) => o.freeFromCents ?? 0)
       .filter((v) => v && v > 0) as number[];
     return vals.length ? Math.min(...vals) : undefined;
-  }, [shippingOptions]);
+  }, [allVisibleOptions]);
 
   return (
     <>
@@ -607,7 +715,15 @@ const CheckoutPage: React.FC = () => {
               shipLoading={shipLoading}
               shipError={shipError}
               splitRequired={splitRequired}
-              splitGroupsCount={splitGroupsCount}
+              splitGroups={splitGroups}
+              splitGroupsCount={splitGroups.length}
+              splitSelectedByGroup={splitSelectedByGroup}
+              onSelectSplitOption={(groupId, option) =>
+                setSplitSelectedByGroup((current) => ({
+                  ...current,
+                  [groupId]: option,
+                }))
+              }
               isAuthed={isAuthenticated}
               savedAddresses={savedAddresses}
               selectedAddrId={selectedAddressId}
@@ -691,7 +807,10 @@ type AddressSectionProps = {
   shipLoading: boolean;
   shipError: string | null;
   splitRequired: boolean;
+  splitGroups: ShippingSplitGroupUi[];
   splitGroupsCount: number;
+  splitSelectedByGroup: Record<string, ShippingUi>;
+  onSelectSplitOption: (groupId: string, option: ShippingUi) => void;
 
   // + новое
   isAuthed?: boolean;
@@ -710,7 +829,10 @@ const AddressSection: React.FC<AddressSectionProps> = ({
   shipLoading,
   shipError,
   splitRequired,
+  splitGroups,
   splitGroupsCount,
+  splitSelectedByGroup,
+  onSelectSplitOption,
   isAuthed = false,
   savedAddresses,
   selectedAddrId,
@@ -769,7 +891,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({
                   {selectedSavedAddr.company && (
                     <div>{selectedSavedAddr.company}</div>
                   )}
-                  <div>{selectedSavedAddr.line1}</div>
+                  <div>{selectedSavedAddr.line1} {selectedSavedAddr.houseNo || ""}</div>
                   {selectedSavedAddr.line2 && (
                     <div>{selectedSavedAddr.line2}</div>
                   )}
@@ -839,6 +961,16 @@ const AddressSection: React.FC<AddressSectionProps> = ({
                       disabled={fieldsDisabled}
                     />
                     <TextField
+                      label="House No."
+                      value={address.houseNo}
+                      onChange={set("houseNo")}
+                      placeholder="12A"
+                      required
+                      disabled={fieldsDisabled}
+                    />
+                  </div>
+                  <div className="form__row">
+                    <TextField
                       label={t("address.form.cityLabel")}
                       value={address.city}
                       onChange={set("city")}
@@ -895,8 +1027,55 @@ const AddressSection: React.FC<AddressSectionProps> = ({
           </div>
         )}
         {!shipLoading && !shipError && splitRequired && (
-          <div className="warn" style={{ marginBottom: 8 }}>
+          <div className="warn" style={{ marginBottom: 12 }}>
             {t("shipping.splitRequired", { groups: splitGroupsCount })}
+          </div>
+        )}
+        {!shipLoading && !shipError && splitRequired && (
+          <div>
+            {splitGroups.map((group, groupIndex) => {
+              const selected = splitSelectedByGroup[group.groupId] ?? null;
+              return (
+                <div key={group.groupId} style={{ marginBottom: 14 }}>
+                  <div className="muted" style={{ marginBottom: 8 }}>
+                    {t("shipping.splitGroupTitle", {
+                      index: groupIndex + 1,
+                      count: group.lineIndexes.length,
+                    })}
+                  </div>
+
+                  {group.options.length === 0 ? (
+                    <div className="muted">{t("shipping.none")}</div>
+                  ) : (
+                    <div className={styles.radio__list}>
+                      {group.options.map((m) => (
+                        <RadioField
+                          key={`${group.groupId}-${m.id}`}
+                          name={`shipping-split-${group.groupId}`}
+                          value={m.id}
+                          checked={selected?.id === m.id}
+                          onChange={() => onSelectSplitOption(group.groupId, m)}
+                          label={
+                            <RadioLabel
+                              icon={carrierIconFor(m)}
+                              title={m.label}
+                              meta={
+                                <span>
+                                  {m.effectivePriceCents === 0
+                                    ? t("shipping.free")
+                                    : formatMoney(m.effectivePriceCents)}
+                                </span>
+                              }
+                              caption={m.eta && <span className="muted">{m.eta}</span>}
+                            />
+                          }
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
         {!shipLoading && !shipError && !splitRequired && shippingOptions.length === 0 && (
@@ -905,33 +1084,33 @@ const AddressSection: React.FC<AddressSectionProps> = ({
           </div>
         )}
 
-        <div className={styles.radio__list}>
-          {shippingOptions.map((m) => (
-            <RadioField
-              key={m.id}
-              name="shipping"
-              value={m.id}
-              checked={shipping?.id === m.id}
-              onChange={() => setShipping(m)}
-              label={
-                <RadioLabel
-                  icon={carrierIconFor(m)}
-                  title={m.label}
-                  meta={
-                    <span>
-                      {m.effectivePriceCents === 0
-                        ? t("shipping.free")
-                        : formatMoney(m.effectivePriceCents)}
-                    </span>
-                  }
-                  caption={
-                    m.eta && <span className="muted">{m.eta}</span>
-                  }
-                />
-              }
-            />
-          ))}
-        </div>
+        {!splitRequired && (
+          <div className={styles.radio__list}>
+            {shippingOptions.map((m) => (
+              <RadioField
+                key={m.id}
+                name="shipping"
+                value={m.id}
+                checked={shipping?.id === m.id}
+                onChange={() => setShipping(m)}
+                label={
+                  <RadioLabel
+                    icon={carrierIconFor(m)}
+                    title={m.label}
+                    meta={
+                      <span>
+                        {m.effectivePriceCents === 0
+                          ? t("shipping.free")
+                          : formatMoney(m.effectivePriceCents)}
+                      </span>
+                    }
+                    caption={m.eta && <span className="muted">{m.eta}</span>}
+                  />
+                }
+              />
+            ))}
+          </div>
+        )}
       </Accordion>
     </div>
   );

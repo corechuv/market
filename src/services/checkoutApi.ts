@@ -70,6 +70,7 @@ export type PaymentOut = {
 
 // --- TYPES ---
 export type ShippingOption = {
+  serviceId?: string;
   id: string;                 // "DHL:DHL_PAKET_EU"
   carrierCode: string;
   serviceCode: string;
@@ -93,6 +94,14 @@ export type ShippingSplitGroup = {
   lineIndexes: number[];
   source: string;
   options: ShippingOption[];
+};
+
+export type SplitShippingSelectionIn = {
+  lineIndexes: number[];
+  groupId?: string | null;
+  serviceId?: string | null;
+  selectedCarrierCode?: string | null;
+  selectedServiceCode?: string | null;
 };
 
 export type ShippingOptionsForCartOut = {
@@ -140,10 +149,11 @@ export async function listShippingOptionsForCart(params: {
 
 // ---- helpers
 export function toOrderItems(lines: CartLine[]) {
+  const lineSku = (l: CartLine) => (l.sku || l.variantId || l.productId || l.id);
   return lines.map((l) => ({
     productId: l.productId || undefined,
     variantId: l.variantId || undefined,
-    sku: l.variantId || l.productId || l.id,
+    sku: lineSku(l),
     name: l.title,
     qty: l.qty,
     priceCents: l.priceCents,
@@ -153,13 +163,13 @@ export function toOrderItems(lines: CartLine[]) {
 
 export function toAddressIn(a: {
   firstName: string; lastName: string; email: string; phone: string;
-  line1: string; line2?: string; city: string; postalCode: string; country: string;
+  line1: string; houseNo?: string; line2?: string; city: string; postalCode: string; country: string;
 }) {
   return {
     firstName: a.firstName, lastName: a.lastName,
     country: toISO2(a.country || "DE"),
     postalCode: a.postalCode, city: a.city,
-    line1: a.line1, line2: a.line2 || undefined,
+    line1: a.line1, houseNo: a.houseNo || undefined, line2: a.line2 || undefined,
     phone: a.phone || undefined, email: a.email || undefined,
   };
 }
@@ -172,13 +182,14 @@ export async function quoteTotals(params: {
   country?: string;         // ISO2 или человекочитаемое, напр. "Deutschland"
   customerId?: string | null;
 }): Promise<QuoteOut> {
+  const lineSku = (l: CartLine) => (l.sku || l.variantId || l.productId || l.id);
   const body = {
     code: params.promoCode || null,
     country: toISO2(params.country || "DE"),
     customerId: params.customerId || null,
     items: params.lines.map((l) => ({
       productId: l.productId || null,
-      sku: l.variantId || l.productId || l.id,
+      sku: lineSku(l),
       qty: l.qty,
       priceCents: l.priceCents,
       vatClass: "standard", // сервер может подтянуть из products по productId; так безопаснее
@@ -202,6 +213,7 @@ export async function createOrder(payload: {
   shippingMethod?: string | null;
   selectedCarrierCode?: string | null;
   selectedServiceCode?: string | null;
+  splitShippingSelections?: SplitShippingSelectionIn[] | null;
   deliveryAddress: ReturnType<typeof toAddressIn>;
   billingAddress?: ReturnType<typeof toAddressIn> | null;
   promoCode?: string | null;

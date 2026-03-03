@@ -6,6 +6,7 @@ export type CartLine = {
     id: string;
     productId: string;
     variantId?: string;
+    sku?: string;
     title: string;
     image?: string;
     /** Price in cents, GROSS (incl. VAT) */

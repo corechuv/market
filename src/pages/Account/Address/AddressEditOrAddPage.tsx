@@ -76,6 +76,7 @@ type AddressFormState = {
     region?: string;
     city: string;
     line1: string;
+    houseNo: string;
     line2?: string;
     phone?: string;
     email?: string;
@@ -92,6 +93,7 @@ type AddressOut = {
     region?: string | null;
     city: string;
     line1: string;
+    houseNo?: string | null;
     line2?: string | null;
     phone?: string | null;
     email?: string | null;
@@ -125,6 +127,7 @@ export default function AddressEditOrAddPage() {
         region: "",
         city: "",
         line1: "",
+        houseNo: "",
         line2: "",
         phone: "",
         email: "",
@@ -152,6 +155,7 @@ export default function AddressEditOrAddPage() {
                         region: data.region || "",
                         city: data.city,
                         line1: data.line1,
+                        houseNo: data.houseNo || "",
                         line2: data.line2 || "",
                         phone: data.phone || "",
                         email: data.email || "",
@@ -189,6 +193,7 @@ export default function AddressEditOrAddPage() {
             postalCode: validatePostal,
             city: required("Required"),
             line1: required("Required"),
+            houseNo: required("Required"),
             phone: optional(validatePhone),
             email: optional(validateEmail),
         } as const;
@@ -216,6 +221,7 @@ export default function AddressEditOrAddPage() {
             region: form.region || null,
             city: form.city,
             line1: form.line1,
+            houseNo: form.houseNo || null,
             line2: form.line2 || null,
             phone: form.phone || null,
             email: form.email || null,
@@ -320,6 +326,15 @@ export default function AddressEditOrAddPage() {
                             error={errs.line1}
                             name="line1"
                             autoComplete="address-line1"
+                        />
+
+                        <TextField
+                            label="House No. *"
+                            value={form.houseNo}
+                            onChange={(e) => setForm({ ...form, houseNo: e.target.value })}
+                            error={errs.houseNo}
+                            name="houseNo"
+                            autoComplete="address-line2"
                         />
 
                         <TextField

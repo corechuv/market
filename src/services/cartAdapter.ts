@@ -21,6 +21,7 @@ export function toCartLine(product: Product, variant?: ProductVariant, qty = 1):
         id,
         productId: String(product.id),
         variantId: variant?.id,
+        sku: variant?.sku,
         title: buildTitle(product, variant),
         image: pickImage(product, variant),
         priceCents: cents,

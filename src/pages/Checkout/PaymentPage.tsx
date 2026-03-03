@@ -19,6 +19,7 @@ import {
     createOrder,
     createPaymentIntent,
     confirmPayment,
+    type SplitShippingSelectionIn,
 } from "../../services/checkoutApi";
 
 import { toISO2 } from "../../utils/country";
@@ -57,6 +58,7 @@ type FormAddress = {
     email: string;
     phone: string;
     line1: string;
+    houseNo: string;
     line2?: string;
     city: string;
     postalCode: string;
@@ -64,6 +66,7 @@ type FormAddress = {
 };
 
 type ShippingUi = {
+    serviceId?: string;
     id: string;
     label: string;
     eta: string;
@@ -74,10 +77,17 @@ type ShippingUi = {
     freeFromCents?: number | null;
 };
 
+type SplitSelectionUi = SplitShippingSelectionIn & {
+    effectivePriceCents: number;
+    label?: string | null;
+};
+
 type PaymentLocationState = {
     provider: ProviderId;
     address: FormAddress;
-    shipping: ShippingUi;
+    shipping?: ShippingUi | null;
+    splitRequired?: boolean;
+    splitSelections?: SplitSelectionUi[];
     promoApplied: string | null;
 };
 
@@ -111,12 +121,31 @@ const PaymentPage: React.FC = () => {
         [lines]
     );
 
+    const splitRequired = Boolean(state?.splitRequired);
+    const splitSelections = useMemo<SplitSelectionUi[]>(
+        () =>
+            Array.isArray(state?.splitSelections)
+                ? state.splitSelections.filter((row) => Array.isArray(row.lineIndexes) && row.lineIndexes.length > 0)
+                : [],
+        [state?.splitSelections]
+    );
+    const hasSplitSelections = splitSelections.length > 0;
+    const hasSingleShipping = Boolean(state?.shipping);
+
     // Редиректы, если зашли "криво"
     useEffect(() => {
-        if (!state || !state.address || !state.shipping) {
+        if (!state || !state.address) {
+            navigate("/checkout", { replace: true });
+            return;
+        }
+        if (splitRequired && !hasSplitSelections) {
+            navigate("/checkout", { replace: true });
+            return;
+        }
+        if (!splitRequired && !hasSingleShipping) {
             navigate("/checkout", { replace: true });
         }
-    }, [state, navigate]);
+    }, [state, splitRequired, hasSplitSelections, hasSingleShipping, navigate]);
 
     useEffect(() => {
         if (state && selectedLines.length === 0) {
@@ -124,7 +153,10 @@ const PaymentPage: React.FC = () => {
         }
     }, [selectedLines.length, state, navigate]);
 
-    if (!state || !state.address || !state.shipping || selectedLines.length === 0) {
+    if (!state || !state.address || (!splitRequired && !state.shipping) || selectedLines.length === 0) {
+        return null;
+    }
+    if (splitRequired && !hasSplitSelections) {
         return null;
     }
 
@@ -135,8 +167,12 @@ const PaymentPage: React.FC = () => {
         [selectedLines]
     );
 
-    const baseShippingCents =
-        shipping.effectivePriceCents ?? shipping.priceCents ?? 0;
+    const baseShippingCents = splitRequired
+        ? splitSelections.reduce(
+            (sum, row) => sum + Math.max(0, Number(row.effectivePriceCents) || 0),
+            0
+        )
+        : shipping?.effectivePriceCents ?? shipping?.priceCents ?? 0;
 
     const discount = useMemo(() => {
         if (!promoApplied) return 0;
@@ -175,16 +211,17 @@ const PaymentPage: React.FC = () => {
             address.firstName,
             address.lastName,
             address.line1,
+            address.houseNo,
             address.city,
             address.postalCode,
             address.country,
-        ].every((x) => x.trim().length > 1);
+        ].every((x) => String(x || "").trim().length > 1);
         const phoneLen = address.phone.trim().length;
         const phoneOk = phoneLen === 0 || phoneLen >= 6;
         return emailOk && requiredOk && phoneOk;
     }, [address]);
 
-    const canPay = addressValid && !!shipping;
+    const canPay = addressValid && (splitRequired ? hasSplitSelections : !!shipping);
 
     const handleBack = () => {
         navigate("/checkout", { replace: true });
@@ -200,6 +237,35 @@ const PaymentPage: React.FC = () => {
         }).catch(() => ({ id: undefined } as any));
         return created?.id ?? null;
     };
+
+    const splitSelectionsForOrder = useMemo<SplitShippingSelectionIn[]>(
+        () =>
+            splitSelections.map((row) => ({
+                lineIndexes: [...row.lineIndexes],
+                groupId: row.groupId || null,
+                serviceId: row.serviceId || null,
+                selectedCarrierCode: row.selectedCarrierCode || null,
+                selectedServiceCode: row.selectedServiceCode || null,
+            })),
+        [splitSelections]
+    );
+
+    const buildShippingPayload = React.useCallback(() => {
+        if (splitRequired) {
+            return {
+                shippingMethod: `Split shipment (${splitSelectionsForOrder.length})`,
+                selectedCarrierCode: null,
+                selectedServiceCode: null,
+                splitShippingSelections: splitSelectionsForOrder,
+            };
+        }
+        return {
+            shippingMethod: shipping?.label || null,
+            selectedCarrierCode: shipping?.carrierCode || null,
+            selectedServiceCode: shipping?.serviceCode || null,
+            splitShippingSelections: null,
+        };
+    }, [splitRequired, splitSelectionsForOrder, shipping]);
 
     // --- Invoice / bank transfer
     const handlePayManual = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -225,9 +291,7 @@ const PaymentPage: React.FC = () => {
                 items: toOrderItems(selectedLines),
                 currency: "EUR",
                 shippingCents: clientShipping,
-                shippingMethod: shipping.label,
-                selectedCarrierCode: shipping.carrierCode,
-                selectedServiceCode: shipping.serviceCode,
+                ...buildShippingPayload(),
                 deliveryAddress: toAddressIn(address),
                 billingAddress: null,
                 promoCode: promoApplied,
@@ -284,9 +348,7 @@ const PaymentPage: React.FC = () => {
                 items: toOrderItems(selectedLines),
                 currency: "EUR",
                 shippingCents: clientShipping,
-                shippingMethod: shipping.label,
-                selectedCarrierCode: shipping.carrierCode,
-                selectedServiceCode: shipping.serviceCode,
+                ...buildShippingPayload(),
                 deliveryAddress: toAddressIn(address),
                 billingAddress: null,
                 promoCode: promoApplied,
@@ -361,9 +423,7 @@ const PaymentPage: React.FC = () => {
             items: toOrderItems(selectedLines),
             currency: "EUR",
             shippingCents: clientShipping,
-            shippingMethod: shipping.label,
-            selectedCarrierCode: shipping.carrierCode,
-            selectedServiceCode: shipping.serviceCode,
+            ...buildShippingPayload(),
             deliveryAddress: toAddressIn(address),
             billingAddress: null,
             promoCode: promoApplied,

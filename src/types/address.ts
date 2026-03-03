@@ -7,6 +7,7 @@ export type Address = {
   firstName: string;
   lastName: string;
   line1: string;
+  houseNo?: string;
   line2?: string;
   city: string;
   region?: string; // Bundesland / Region

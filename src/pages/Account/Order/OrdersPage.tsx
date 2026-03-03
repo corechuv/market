@@ -71,9 +71,50 @@ export default function OrdersPage() {
         }).format(d);
     };
 
+    const normalizeOrderStatus = (status?: string | null) => {
+        const raw = String(status || "").trim().toLowerCase();
+        if (!raw) return "new";
+        const key = raw.replace(/\s+/g, "_");
+        const aliases: Record<string, string> = {
+            open: "new",
+            pending: "awaiting_payment",
+            processing: "paid",
+            done: "fulfilled",
+            canceled: "cancelled",
+        };
+        return aliases[key] || key;
+    };
+
+    const humanizeStatus = (status?: string | null) => {
+        const normalized = normalizeOrderStatus(status);
+        const labels: Record<string, string> = {
+            new: "New",
+            awaiting_payment: "Awaiting payment",
+            paid: "Paid",
+            fulfilled: "Fulfilled",
+            cancelled: "Cancelled",
+            refunded: "Refunded",
+            created: "Created",
+            packing: "Packing",
+            label_printed: "Label printed",
+            shipped: "Shipped",
+            in_transit: "In transit",
+            out_for_delivery: "Out for delivery",
+            delivered: "Delivered",
+            exception: "Delivery issue",
+            return: "Returned",
+        };
+        if (labels[normalized]) return labels[normalized];
+        return normalized
+            .replace(/[_-]+/g, " ")
+            .replace(/\s+/g, " ")
+            .trim()
+            .replace(/\b\w/g, (m) => m.toUpperCase());
+    };
+
     const statusBadgeClass = (st: string) => {
         // мапа под ваши стили: st_awaiting_payment, st_paid, st_shipped, st_delivered, st_exception...
-        const key = `st_${(st || "").toLowerCase()}`;
+        const key = `st_${normalizeOrderStatus(st)}`;
         return `${styles.badge} ${styles[key] || ""}`;
     };
 
@@ -115,7 +156,7 @@ export default function OrdersPage() {
                                             </div>
                                         </div>
                                         <span className={statusBadgeClass(o.status)}>
-                                            {o.status}
+                                            {humanizeStatus(o.status)}
                                         </span>
                                     </div>
 

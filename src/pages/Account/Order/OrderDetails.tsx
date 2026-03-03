@@ -1,5 +1,5 @@
 // src/pages/Account/OrderDetails.tsx
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styles from "../AccountPage.module.scss";
 import cls from "./OrderDetails.module.scss";
@@ -13,6 +13,92 @@ import Page from "../../../components/UI/Page/Page";
 
 function classNames(...xs: Array<string | false | undefined | null>) {
     return xs.filter(Boolean).join(" ");
+}
+
+const ACTIVE_TRACKABLE_STATUSES = new Set([
+    "label_printed",
+    "shipped",
+    "in_transit",
+    "out_for_delivery",
+    "exception",
+]);
+const TRACK_REFRESH_TTL_MS = 3 * 60 * 1000;
+
+function normalizeShipmentStatus(status?: string | null): string {
+    const raw = String(status || "").trim().toLowerCase();
+    if (!raw) return "created";
+    const key = raw.replace(/\s+/g, "_");
+    const aliases: Record<string, string> = {
+        new: "created",
+        open: "created",
+        draft: "created",
+        pre_transit: "label_printed",
+        "pre-transit": "label_printed",
+        pretransit: "label_printed",
+        transit: "in_transit",
+        "in-transit": "in_transit",
+        "out-for-delivery": "out_for_delivery",
+        failure: "exception",
+        failed: "exception",
+        error: "exception",
+        returned: "return",
+        "return-to-sender": "return",
+        return_to_sender: "return",
+    };
+    return aliases[key] || key;
+}
+
+function shipmentStatusLabel(status?: string | null): string {
+    const s = normalizeShipmentStatus(status);
+    const labels: Record<string, string> = {
+        created: "Created",
+        packing: "Packing",
+        label_printed: "Label printed",
+        shipped: "Shipped",
+        in_transit: "In transit",
+        out_for_delivery: "Out for delivery",
+        delivered: "Delivered",
+        exception: "Delivery issue",
+        cancelled: "Cancelled",
+        return: "Returned",
+    };
+    if (labels[s]) return labels[s];
+    return s
+        .replace(/[_-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .replace(/\b\w/g, (m) => m.toUpperCase());
+}
+
+function shouldAutoTrack(sh: Shipment): boolean {
+    const carrier = String(sh.carrierCode || "").trim().toUpperCase();
+    if (carrier !== "DHL") return false;
+    const status = normalizeShipmentStatus(sh.status);
+    if (!ACTIVE_TRACKABLE_STATUSES.has(status)) return false;
+    const hasTracking = Boolean(
+        sh.masterTracking ||
+        (sh.packages || []).some((p) => Boolean(p.tracking)),
+    );
+    return hasTracking;
+}
+
+function shouldSkipByTtl(shipmentId: string): boolean {
+    try {
+        const key = `order_track_auto:${shipmentId}`;
+        const prev = Number(window.localStorage.getItem(key) || "0");
+        if (!prev) return false;
+        return Date.now() - prev < TRACK_REFRESH_TTL_MS;
+    } catch {
+        return false;
+    }
+}
+
+function markTrackedNow(shipmentId: string): void {
+    try {
+        window.localStorage.setItem(`order_track_auto:${shipmentId}`, String(Date.now()));
+    } catch {
+        // ignore storage errors
+    }
 }
 
 // + тип инвойса
@@ -30,7 +116,7 @@ type InvoiceDto = {
 type AddressSnap = {
     firstName: string; lastName: string; company?: string | null;
     country: string; postalCode: string; region?: string | null;
-    city: string; line1: string; line2?: string | null;
+    city: string; line1: string; houseNo?: string | null; line2?: string | null;
     phone?: string | null; email?: string | null;
 };
 
@@ -41,8 +127,24 @@ type Item = {
     imageUrl?: string | null;
 };
 
-type ShipmentPkg = { seq: number; tracking?: string | null; status?: string | null; labelUrl?: string | null; };
-type Shipment = { id: string; carrierCode?: string | null; serviceCode?: string | null; status?: string | null; masterTracking?: string | null; packages?: ShipmentPkg[] | null; };
+type ShipmentPkg = {
+    seq: number;
+    tracking?: string | null;
+    trackingUrl?: string | null;
+    status?: string | null;
+};
+type Shipment = {
+    id: string;
+    shippingPartNo?: number | null;
+    carrierCode?: string | null;
+    carrierName?: string | null;
+    serviceCode?: string | null;
+    serviceName?: string | null;
+    status?: string | null;
+    masterTracking?: string | null;
+    masterTrackingUrl?: string | null;
+    packages?: ShipmentPkg[] | null;
+};
 
 type Payment = {
     id: string; status?: string; provider?: string; amountCents?: number; currency?: string; approvalUrl?: string | null;
@@ -96,9 +198,42 @@ export default function OrderDetails() {
     const [data, setData] = useState<OrderDetailsDto | null>(null);
     const [loading, setLoading] = useState(true);
     const [err, setErr] = useState<string | null>(null);
+    const autoTrackedByOrderRef = useRef<Record<string, boolean>>({});
 
     useEffect(() => {
         let mounted = true;
+        if (id) {
+            autoTrackedByOrderRef.current[id] = false;
+        }
+
+        async function refreshTrackingIfNeeded(orderData: OrderDetailsDto) {
+            if (!id) return;
+            if (autoTrackedByOrderRef.current[id]) return;
+            autoTrackedByOrderRef.current[id] = true;
+
+            const candidates = (orderData.shipments || []).filter(shouldAutoTrack);
+            if (candidates.length === 0) return;
+
+            let updated = false;
+            for (const sh of candidates) {
+                if (!sh.id || shouldSkipByTtl(sh.id)) continue;
+                markTrackedNow(sh.id);
+                try {
+                    await api.get(`/shipments/${sh.id}/track`);
+                    updated = true;
+                } catch {
+                    // ignore carrier availability issues; keep page usable
+                }
+            }
+            if (!updated || !mounted) return;
+
+            try {
+                const { data: fresh } = await api.get<OrderDetailsDto>(`/orders/${id}/details`);
+                if (mounted) setData(fresh);
+            } catch {
+                // keep previously loaded data if refresh fails
+            }
+        }
 
         async function load() {
             if (!id) return;
@@ -107,8 +242,9 @@ export default function OrderDetails() {
 
             try {
                 // основной путь — такой же стиль, как в Account/OrdersSection (через общий axios-инстанс)
-                const { data } = await api.get<OrderDetailsDto>(`/orders/${id}/details`);
-                if (mounted) setData(data);
+                const { data: orderData } = await api.get<OrderDetailsDto>(`/orders/${id}/details`);
+                if (mounted) setData(orderData);
+                void refreshTrackingIfNeeded(orderData);
             } catch (e: any) {
                 // fallback, если в API нет /details — попробуем без него
                 const status = e?.response?.status;
@@ -119,8 +255,9 @@ export default function OrderDetails() {
 
                 if (status === 404) {
                     try {
-                        const { data } = await api.get<OrderDetailsDto>(`/orders/${id}`);
-                        if (mounted) setData(data);
+                        const { data: orderData } = await api.get<OrderDetailsDto>(`/orders/${id}`);
+                        if (mounted) setData(orderData);
+                        void refreshTrackingIfNeeded(orderData);
                     } catch (e2: any) {
                         if (mounted) setErr(e2?.response?.data?.detail || e2?.message || "Failed to load order");
                     } finally {
@@ -284,31 +421,63 @@ export default function OrderDetails() {
                                         <div className={styles.muted}>No tracking numbers yet.</div>
                                     )}
 
-                                    {shipments.flatMap((sh, si) => {
+                                    {shipments.map((sh, si) => {
                                         const pkgs = (sh?.packages && sh.packages.length > 0)
                                             ? sh.packages
-                                            : [{ seq: 1, tracking: sh?.masterTracking, status: sh?.status }];
+                                            : [{ seq: 1, tracking: sh?.masterTracking, trackingUrl: sh?.masterTrackingUrl, status: sh?.status }];
 
-                                        return pkgs.map((p, pi) => (
+                                        const carrierLine = [
+                                            sh.carrierName || sh.carrierCode || null,
+                                            sh.serviceName || sh.serviceCode || null,
+                                        ].filter(Boolean).join(" • ");
+                                        const shipmentTitle = typeof sh.shippingPartNo === "number"
+                                            ? `Shipment #${sh.shippingPartNo}`
+                                            : `Shipment ${si + 1}`;
+
+                                        return (
                                             <Accordion
-                                                key={`${si}-${pi}`}
-                                                title={p.tracking || sh.masterTracking || `Package #${p.seq}`}
+                                                key={sh.id || `${si}`}
+                                                title={shipmentTitle}
                                                 margin={false}
                                             >
-                                                <div className={styles.stack} style={{ gap: 6 }}>
-                                                    <div className={styles.muted}>Status: {p.status || sh.status || "—"}</div>
-                                                    {!!p.labelUrl && (
-                                                        <a href={p.labelUrl} target="_blank" rel="noreferrer">Label PDF</a>
-                                                    )}
-                                                    {(sh.carrierCode || sh.serviceCode) && (
+                                                <div className={styles.stack} style={{ gap: 8 }}>
+                                                    <div className={styles.muted}>Status: {shipmentStatusLabel(sh.status)}</div>
+                                                    {carrierLine && <div>{carrierLine}</div>}
+                                                    {sh.masterTracking && (
                                                         <div>
-                                                            Carrier: {sh.carrierCode || "—"}{sh.serviceCode ? ` • ${sh.serviceCode}` : ""}
+                                                            Master tracking:{" "}
+                                                            {sh.masterTrackingUrl ? (
+                                                                <a href={sh.masterTrackingUrl} target="_blank" rel="noreferrer">
+                                                                    {sh.masterTracking}
+                                                                </a>
+                                                            ) : (
+                                                                <span className="mono">{sh.masterTracking}</span>
+                                                            )}
                                                         </div>
                                                     )}
-                                                    {/* при желании — сюда можно добавить таймлайн событий */}
+
+                                                    <div className={styles.stack} style={{ gap: 6 }}>
+                                                        {pkgs.map((p, pi) => (
+                                                            <div key={`${sh.id || si}-${p.seq}-${pi}`} className={styles.muted}>
+                                                                <span>Package #{p.seq}: </span>
+                                                                {p.tracking ? (
+                                                                    p.trackingUrl ? (
+                                                                        <a href={p.trackingUrl} target="_blank" rel="noreferrer">
+                                                                            {p.tracking}
+                                                                        </a>
+                                                                    ) : (
+                                                                        <span className="mono">{p.tracking}</span>
+                                                                    )
+                                                                ) : (
+                                                                    <span>—</span>
+                                                                )}
+                                                                <span>{p.status ? ` • ${shipmentStatusLabel(p.status)}` : ""}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                             </Accordion>
-                                        ));
+                                        );
                                     })}
                                 </div>
                             </section>
@@ -345,7 +514,7 @@ export default function OrderDetails() {
                                 <div className={styles.addrBody}>
                                     <div>{data.addresses.delivery.firstName} {data.addresses.delivery.lastName}</div>
                                     {data.addresses.delivery.company && <div>{data.addresses.delivery.company}</div>}
-                                    <div>{data.addresses.delivery.line1}</div>
+                                    <div>{data.addresses.delivery.line1} {data.addresses.delivery.houseNo || ""}</div>
                                     {data.addresses.delivery.line2 && <div>{data.addresses.delivery.line2}</div>}
                                     <div>
                                         {data.addresses.delivery.postalCode} {data.addresses.delivery.city}

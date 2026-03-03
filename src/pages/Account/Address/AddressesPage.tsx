@@ -19,6 +19,7 @@ type Address = {
     region?: string | null;
     city: string;
     line1: string;
+    houseNo?: string | null;
     line2?: string | null;
     phone?: string | null;
     email?: string | null;
@@ -141,7 +142,7 @@ export default function AddressesPage() {
 
                                     <div className={styles.addrBody}>
                                         <div>
-                                            {a.line1}
+                                            {a.line1} {a.houseNo || ""}
                                             {a.line2 ? `, ${a.line2}` : ""}
                                         </div>
                                         <div>

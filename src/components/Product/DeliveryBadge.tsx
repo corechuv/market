@@ -19,9 +19,9 @@ export type DeliveryBadgeProps = {
     /** BCP 47 locale for formatting, default 'en-GB' */
     locale?: string;
     /** earliest delivery offset from fromDate */
-    minDays: number;
+    minDays?: number | null;
     /** latest delivery offset from fromDate */
-    maxDays: number;
+    maxDays?: number | null;
     /** anchor date (default: today) */
     fromDate?: Date;
     /** use business days (skip Sat/Sun) when true (default), calendar days when false */
@@ -82,8 +82,13 @@ export default function DeliveryBadge({
     betweenLabel = "Lieferung zwischen",
     andLabel = "und",
 }: DeliveryBadgeProps) {
-    const start = addDays(fromDate, minDays, businessDays);
-    const end = addDays(fromDate, maxDays, businessDays);
+    const minValue = Number.isFinite(minDays as number) ? Number(minDays) : null;
+    const maxValue = Number.isFinite(maxDays as number) ? Number(maxDays) : null;
+    const normalizedMin = minValue ?? maxValue;
+    const normalizedMax = maxValue ?? minValue;
+    const hasEta = normalizedMin !== null && normalizedMax !== null;
+    const start = hasEta ? addDays(fromDate, normalizedMin, businessDays) : null;
+    const end = hasEta ? addDays(fromDate, normalizedMax, businessDays) : null;
     const isFree = !price || price <= 0;
 
     return (
@@ -93,9 +98,11 @@ export default function DeliveryBadge({
                     ? freeLabel
                     : `${paidLabel} ${formatMoney(price!, currency, locale)}`}
             </div>
-            <div className={styles.bottomLine}>
-                {betweenLabel} {formatDate(start, locale)} {andLabel} {formatDate(end, locale)}
-            </div>
+            {start && end ? (
+                <div className={styles.bottomLine}>
+                    {betweenLabel} {formatDate(start, locale)} {andLabel} {formatDate(end, locale)}
+                </div>
+            ) : null}
         </div>
     );
 }

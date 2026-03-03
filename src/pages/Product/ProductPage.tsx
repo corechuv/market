@@ -459,24 +459,34 @@ export default function ProductPage() {
   })();
 
   const deliveryBadgePropsFromPick = (pick: DeliveryPick | null) => {
-    const minRaw =
+    let minRaw =
       typeof pick?.etaMinDays === "number"
         ? pick.etaMinDays
         : typeof pick?.etaMaxDays === "number"
           ? pick.etaMaxDays
-          : 2;
-    const maxRaw =
+          : null;
+    let maxRaw =
       typeof pick?.etaMaxDays === "number"
         ? pick.etaMaxDays
         : typeof pick?.etaMinDays === "number"
           ? pick.etaMinDays
-          : 4;
+          : null;
+
+    if (
+      typeof minRaw === "number" &&
+      typeof maxRaw === "number" &&
+      minRaw > maxRaw
+    ) {
+      const tmp = minRaw;
+      minRaw = maxRaw;
+      maxRaw = tmp;
+    }
 
     return {
       price: (pick?.effectivePriceCents ?? 0) / 100,
       currency: pick?.currency || "EUR",
-      minDays: Math.min(minRaw, maxRaw),
-      maxDays: Math.max(minRaw, maxRaw),
+      minDays: minRaw,
+      maxDays: maxRaw,
     };
   };
 
